@@ -1,0 +1,135 @@
+{
+    "grid": {
+        "power": {
+            "modbus": {
+                "modifier": "mul",
+                "values": [
+                    {
+                        "address": 13009,
+                        "size": 2,
+                        "datatype": "int32sw"
+                    },
+
+                    {
+                        "staticValue": -1
+                    }
+                ]
+            }
+        },
+        "energy": {
+            "modbus": {
+                "address": 13036,
+                "size": 2,
+                "datatype": "uint16be",
+                "scale": 0.1
+            }
+        }
+    },
+
+    "pv": {
+        "power": {
+            "modbus": {
+                "modifier": "add",
+                "values": [
+                    {
+                        "modifier": "mul",
+                        "values": [
+                            {
+                                "address": 5010,
+                                "size": 1,
+                                "datatype": "uint16be",
+                                "scale": 0.1
+                            },
+
+                            {
+                                "address": 5011,
+                                "size": 1,
+                                "datatype": "uint16be",
+                                "scale": 0.1
+                            }
+                        ]
+                    },
+
+                    {
+                        "modifier": "mul",
+                        "values": [
+                            {
+                                "address": 5012,
+                                "size": 1,
+                                "datatype": "uint16be",
+                                "scale": 0.1
+                            },
+
+                            {
+                                "address": 5013,
+                                "size": 1,
+                                "datatype": "uint16be",
+                                "scale": 0.1
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+
+        "energy": {
+            "modbus": {
+                "address": 13002,
+                "size": 2,
+                "datatype": "uint32sw",
+                "scale": 0.1
+            }
+        }
+    },
+
+    "battery": {
+        "soc": {
+            "modbus": {
+                "address": 13022,
+                "size": 1,
+                "datatype": "uint16be",
+                "scale": 0.1
+            }
+        },
+
+        "charge_power": {
+            "modbus": {
+                "modifier": "mul",
+                "values": [
+                    {
+                        "address": 13021,
+                        "size": 1,
+                        "datatype": "uint16be"
+                    },
+
+                    {
+                        "address": 13000,
+                        "size": 1,
+                        "datatype": "bool16",
+                        "bitmask": 2
+                    }
+                ]
+            }
+        },
+
+        "discharge_power": {
+            "modbus": {
+                "modifier": "mul",
+                "values": [
+                    {
+                        "address": 13021,
+                        "size": 1,
+                        "datatype": "uint16be"
+                    },
+
+                    {
+                        "address": 13000,
+                        "size": 1,
+                        "datatype": "bool16",
+                        "bitmask": 4
+                    }
+                ]
+            }
+        }
+    }
+}
