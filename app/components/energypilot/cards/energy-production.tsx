@@ -12,10 +12,14 @@ import { LoaderIcon } from 'lucide-react'
 import { ToggleGroup, ToggleGroupItem } from '~/components/ui/toggle-group'
 
 import { useTranslation } from 'react-i18next'
-import { formatEnergy, useInterval } from '~/lib/utils'
+import { formatEnergy } from '~/lib/utils'
+import { useSocket } from '~/context'
+import { WS_EVENT_LIVEDATA_UPDATED } from '~/lib/constants'
 
 export function EnergyProductionCard() {
+    const socket = useSocket()
     const fetcher = useFetcher()
+
     const { t } = useTranslation()
 
     const timeframes = [
@@ -35,7 +39,13 @@ export function EnergyProductionCard() {
 
     const [timeframe, setTimeframe] = useState<string>(timeframes[0].days)
 
-    useInterval(() => fetchData(), 10000)
+    useEffect(() => {
+        if (!socket) return
+
+        socket.on(WS_EVENT_LIVEDATA_UPDATED, () => {
+            fetchData()
+        })
+    }, [socket])
 
     useEffect(() => {
         fetchData()

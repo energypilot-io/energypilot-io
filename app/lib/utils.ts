@@ -13,6 +13,14 @@ export function formatEnergy(energy: number) {
         return { value: (energy / 1000).toFixed(2), unit: 'MWh' }
 }
 
+export function formatPower(energy: number) {
+    if (Math.abs(energy) <= 1000) return { value: energy.toFixed(0), unit: 'W' }
+    else if (Math.abs(energy) <= 1000000)
+        return { value: (energy / 1000).toFixed(2), unit: 'kW' }
+    else if (Math.abs(energy) <= 1000000000)
+        return { value: (energy / 1000000).toFixed(2), unit: 'MW' }
+}
+
 export function useInterval(callback: any, delay: number) {
     const savedCallback = useRef()
 

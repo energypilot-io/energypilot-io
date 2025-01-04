@@ -1,13 +1,13 @@
 import fs from 'fs'
 import path from 'node:path'
 
-import nodeCron from 'node-cron'
 import { ConfigurationDef } from 'server/defs/configuration'
 import { logging } from 'server/core/log-manager'
 import { database } from 'server/core/database-manager'
 import { http } from 'server/core/http-manager'
 import { connectors } from 'server/core/connector-manager'
 import { devices } from 'server/core/device-manager'
+import { websockets } from 'server/core/websockets-manager'
 
 const ENVIRONMENTAL_VARIABLES = ['CONFIG_FILE', 'DATA_DIR']
 
@@ -24,12 +24,13 @@ const config = JSON.parse(
     )
 ) as ConfigurationDef
 
-logging.initLogging(config.logging)
-database.initDatabase(config.database)
-http.initHTTP(config.http)
+await logging.initLogging(config.logging)
+await database.initDatabase(config.database)
+await http.initHTTP(config.http)
+await websockets.initWebSockets(http.httpServer)
 
-connectors.initConnectors(config.connectors)
-devices.initDevices(config.devices)
+await connectors.initConnectors(config.connectors)
+await devices.initDevices(config.devices)
 
 // const job = nodeCron.schedule('* * * * * */5', function jobYouNeedToExecute() {
 //     // Do whatever you want in here. Send email, Make  database backup or download data.

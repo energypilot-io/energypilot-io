@@ -20,11 +20,13 @@ import { CanvasRenderer } from 'echarts/renderers'
 
 import { getEntityManager } from '~/lib/db.server'
 import { Energy } from 'server/database/entities/energy.entity'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Card, CardContent } from '~/components/ui/card'
-import { formatEnergy, useInterval } from '~/lib/utils'
+import { formatEnergy } from '~/lib/utils'
 import { ToggleGroup, ToggleGroupItem } from '~/components/ui/toggle-group'
 import { LoaderIcon } from 'lucide-react'
+import { WS_EVENT_LIVEDATA_UPDATED } from '~/lib/constants'
+import { useSocket } from '~/context'
 
 export const loader = async () => {
     const energyEntities = await getEntityManager().findAll(Energy)
@@ -34,6 +36,7 @@ export const loader = async () => {
 export default function Page() {
     const { t } = useTranslation()
 
+    const socket = useSocket()
     const fetcher = useFetcher()
 
     const timeframes = [
@@ -53,9 +56,13 @@ export default function Page() {
 
     const [timeframe, setTimeframe] = useState<string>(timeframes[0].days)
 
-    useInterval(() => {
-        fetchData()
-    }, 5000)
+    useEffect(() => {
+        if (!socket) return
+
+        socket.on(WS_EVENT_LIVEDATA_UPDATED, () => {
+            fetchData()
+        })
+    }, [socket])
 
     useEffect(() => {
         fetchData()
