@@ -16,6 +16,10 @@ import { useChangeLanguage } from 'remix-i18next/react'
 
 import './tailwind.css'
 import { themeSessionResolver } from './lib/sessions.server'
+import { SocketProvider } from '~/context'
+import { useEffect, useState } from 'react'
+import type { Socket } from 'socket.io-client'
+import io from 'socket.io-client'
 
 export const links: LinksFunction = () => [
     { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -46,6 +50,24 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export function App() {
     const data = useRouteLoaderData<typeof loader>('root')
     const [theme] = useTheme()
+
+    const [socket, setSocket] = useState<Socket>()
+
+    useEffect(() => {
+        const socket = io()
+        setSocket(socket)
+        return () => {
+            socket.close()
+        }
+    }, [])
+
+    useEffect(() => {
+        if (!socket) return
+        socket.on('confirmation', (data) => {
+            console.log(data)
+        })
+    }, [socket])
+
     return (
         <html lang={data?.locale ?? 'en'} className={clsx(theme)}>
             <head>
@@ -59,7 +81,9 @@ export function App() {
                 <Links />
             </head>
             <body>
-                <Outlet />
+                <SocketProvider socket={socket}>
+                    <Outlet />
+                </SocketProvider>
                 <ScrollRestoration />
                 <Scripts />
             </body>

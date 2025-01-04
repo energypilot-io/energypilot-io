@@ -44,5 +44,12 @@ export default {
     liveEnergyCard: {
         title: 'Live',
         description: 'Aktuelle Energieproduktion und -verbrauch',
+
+        nodes: {
+            home: 'Heim',
+            battery: 'Batterie',
+            grid: 'Netz',
+            solar: 'Solar',
+        },
     },
 }

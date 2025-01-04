@@ -1,7 +1,7 @@
 export default {
     app: {
         name: 'EnergyPilot.io',
-        version: 'v0.1 ALPHA',
+        version: 'v0.1',
     },
 
     sidebar: {
@@ -49,5 +49,12 @@ export default {
     liveEnergyCard: {
         title: 'Live',
         description: 'Current energy production and consumption',
+
+        nodes: {
+            home: 'Home',
+            battery: 'Battery',
+            grid: 'Grid',
+            solar: 'Solar',
+        },
     },
 }
