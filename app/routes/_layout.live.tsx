@@ -25,7 +25,7 @@ import { Card, CardContent } from '~/components/ui/card'
 import { formatEnergy } from '~/lib/utils'
 import { ToggleGroup, ToggleGroupItem } from '~/components/ui/toggle-group'
 import { LoaderIcon } from 'lucide-react'
-import { WS_EVENT_LIVEDATA_UPDATED } from '~/lib/constants'
+import { WS_EVENT_LIVEDATA_UPDATED } from 'server/constants'
 import { useSocket } from '~/context'
 
 export const loader = async () => {

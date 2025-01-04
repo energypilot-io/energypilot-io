@@ -14,7 +14,7 @@ import { PVDevice } from 'server/devices/pv'
 import { PvSnapshot } from 'server/database/entities/pv-snapshot.entity'
 import { BatteryDevice } from 'server/devices/battery'
 import { websockets } from './websockets-manager'
-import { WS_EVENT_LIVEDATA_UPDATED } from '~/lib/constants'
+import { WS_EVENT_LIVEDATA_UPDATED } from 'server/constants'
 
 export const deviceClasses: { [id: string]: any } = {
     grid: GridDevice,

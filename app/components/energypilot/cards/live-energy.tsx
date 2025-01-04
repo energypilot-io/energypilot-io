@@ -17,7 +17,7 @@ import { useFetcher } from '@remix-run/react'
 import { useEffect, useState } from 'react'
 import { Theme, useTheme } from 'remix-themes'
 import { useSocket } from '~/context'
-import { WS_EVENT_LIVEDATA_UPDATED } from '~/lib/constants'
+import { WS_EVENT_LIVEDATA_UPDATED } from 'server/constants'
 import { formatPower } from '~/lib/utils'
 import { CallbackDataParams } from 'echarts/types/dist/shared'
 

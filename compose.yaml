@@ -14,6 +14,6 @@ services:
         environment:
             NODE_ENV: production
         volumes:
-            - ./test/:/data
+            - ./examples/:/data
         ports:
             - 3000:3000
