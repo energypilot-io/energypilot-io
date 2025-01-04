@@ -19,16 +19,7 @@ export default function Page() {
                     <EnergyImportCard />
                     <LiveEnergyCard />
                 </div>
-                <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min">
-                    <Form>
-                        <button type="submit" name="lng" value="de">
-                            Español
-                        </button>
-                        <button type="submit" name="lng" value="en">
-                            English
-                        </button>
-                    </Form>
-                </div>
+                <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min"></div>
             </div>
         </>
     )

@@ -10,6 +10,7 @@ import {
     BreadcrumbSeparator,
 } from '~/components/ui/breadcrumb'
 import React, { ComponentPropsWithoutRef } from 'react'
+import { LanguageToggleButton } from './language-toggle-button'
 
 export type HeaderProps = ComponentPropsWithoutRef<'header'> & {
     breadcrumbs:
@@ -60,6 +61,7 @@ export function Header({ className, breadcrumbs, ...props }: HeaderProps) {
                 )}
                 <div className="flex grow justify-end">
                     <ThemeToggleButton />
+                    <LanguageToggleButton />
                 </div>
             </div>
         </header>
