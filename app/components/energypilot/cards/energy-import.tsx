@@ -14,7 +14,7 @@ import { ToggleGroup, ToggleGroupItem } from '~/components/ui/toggle-group'
 import { useTranslation } from 'react-i18next'
 import { formatEnergy } from '~/lib/utils'
 import { useSocket } from '~/context'
-import { WS_EVENT_LIVEDATA_UPDATED } from '~/lib/constants'
+import { WS_EVENT_LIVEDATA_UPDATED } from 'server/constants'
 
 export function EnergyImportCard() {
     const socket = useSocket()
