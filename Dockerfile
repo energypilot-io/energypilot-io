@@ -14,7 +14,7 @@ WORKDIR /usr/src/app
 
 # Use production node environment by default.
 ENV NODE_ENV production
-ENV CONFIG_FILE energypilot.json
+ENV CONFIG_FILE energypilot-io.json
 ENV DATA_DIR /data/
 
 # Download dependencies as a separate step to take advantage of Docker's caching.

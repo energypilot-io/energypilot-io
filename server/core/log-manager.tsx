@@ -107,7 +107,7 @@ export namespace logging {
                     loggingDef.file !== undefined &&
                     loggingDef.file.filename !== undefined
                     ? loggingDef.file.filename
-                    : 'energypilot.log'
+                    : 'energypilot-io.log'
             )
         } catch {
             _mainLogger.error(

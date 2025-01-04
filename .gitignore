@@ -3,6 +3,6 @@ node_modules
 /.cache
 /build
 .env
-vite.\*.mjs
+vite.*.mjs
 package-lock.json
 /test

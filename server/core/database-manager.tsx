@@ -44,6 +44,9 @@ export namespace database {
 
     function getFilename(databaseDef: DatabaseDef | undefined) {
         if (databaseDef?.filename === SQLITE_MEMORY_DB) {
+            _logger.warn(
+                'Using in memory database. Data will not be persisted!'
+            )
             return SQLITE_MEMORY_DB
         }
 
@@ -54,7 +57,7 @@ export namespace database {
                 process.env.DATA_DIR!,
                 databaseDef !== undefined && databaseDef.filename !== undefined
                     ? databaseDef.filename
-                    : 'energypilot.db'
+                    : 'energypilot-io.db'
             )
         } catch {
             _logger.error(
