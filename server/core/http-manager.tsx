@@ -56,8 +56,6 @@ export namespace http {
             )
         }
 
-        console.log(path.join(__dirname, '../../build/client'))
-
         app.use(
             express.static(path.join(__dirname, '../../build/client'), {
                 maxAge: '1h',
