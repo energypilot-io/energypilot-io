@@ -11,6 +11,12 @@ EnergyPilot.io is an easy to use and feature rich Energy Management Platform foc
 -   Easy to configure and use
 -   Ready to use Docker image
 
+## Support
+
+If you would like to support this project, please consider buying me a coffee.
+
+<a href="https://buymeacoffee.com/nekronomekron" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
+
 ## Getting started
 
 ### Requirements
