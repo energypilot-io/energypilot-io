@@ -98,7 +98,7 @@ export class ModbusTCPConnector implements IConnector {
         }
     }
 
-    public connect() {
+    private connect() {
         if (!this._isShuttingDown) {
             const options: SocketConnectOpts = {
                 host: this._configuration.host,
@@ -107,10 +107,6 @@ export class ModbusTCPConnector implements IConnector {
 
             this._socket.connect(options)
         }
-    }
-
-    public shutdown() {
-        this._isShuttingDown = true
     }
 
     public async read(parameterDef: Partial<ParameterDef> = {}) {
