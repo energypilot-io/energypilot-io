@@ -33,6 +33,11 @@ export type DatabaseDef = {
     filename?: string
 }
 
+export type UpdateDef = {
+    polling?: number
+    snapshot?: number
+}
+
 export type ConfigurationDef = {
     logging?: LoggingDef
     database?: DatabaseDef
@@ -40,4 +45,6 @@ export type ConfigurationDef = {
 
     connectors?: ConnectorDef[]
     devices?: DeviceDef[]
+
+    update?: UpdateDef
 }
