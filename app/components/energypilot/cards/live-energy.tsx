@@ -62,6 +62,7 @@ export function LiveEnergyCard() {
             {
                 name: nameHouse,
                 itemStyle: { color: '#2E8B57' },
+                value: dataset.consumption,
             },
         ]
 
@@ -74,6 +75,10 @@ export function LiveEnergyCard() {
             nodes.push({
                 name: nameBattery,
                 itemStyle: { color: '#00BFFF' },
+                value:
+                    dataset.battery_charge_power > 0
+                        ? dataset.battery_charge_power
+                        : dataset.battery_discharge_power,
             })
 
             if (
@@ -93,6 +98,7 @@ export function LiveEnergyCard() {
                 nodes.push({
                     name: nameGrid,
                     itemStyle: { color: '#708090' },
+                    value: Math.abs(dataset.grid_power),
                 })
             }
 
@@ -125,6 +131,7 @@ export function LiveEnergyCard() {
             nodes.push({
                 name: nameSolar,
                 itemStyle: { color: '#FFC300' },
+                value: dataset.pv_power,
             })
 
             let pv_power = dataset.pv_power
@@ -167,9 +174,6 @@ export function LiveEnergyCard() {
         <Card className="bg-muted/50">
             <CardHeader>
                 <CardTitle>{t('liveEnergyCard.title')}</CardTitle>
-                <CardDescription>
-                    {t('energyImportCard.description')}
-                </CardDescription>
             </CardHeader>
             <CardContent className="flex justify-center">
                 <EChart
@@ -193,7 +197,7 @@ export function LiveEnergyCard() {
                                 typeof params.value === 'number'
                             ) {
                                 const formatedValue = formatPower(params.value)
-                                return `${formatedValue?.value} ${formatedValue?.unit}`
+                                return `${params.name}: ${formatedValue?.value} ${formatedValue?.unit}`
                             }
                             return ''
                         },
@@ -203,6 +207,7 @@ export function LiveEnergyCard() {
                             type: 'sankey',
                             data: data.nodes,
                             links: data.links,
+                            draggable: false,
                             emphasis: {
                                 focus: 'adjacency',
                             },
