@@ -29,10 +29,15 @@ export type BatteryTemplateDef = {
     }
 }
 
+export type ConsumerTemplateDef = {
+    power: { [key: string]: ModifierDef | StaticValueDef | ParameterDef }
+}
+
 export type TemplateDef = {
     grid: GridTemplateDef
     pv: PVTemplateDef
     battery: BatteryTemplateDef
+    consumer: ConsumerTemplateDef
 }
 
 export const defaultParameterDef: ParameterDef = {

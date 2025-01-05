@@ -1,0 +1,10 @@
+{
+    "consumer": {
+        "power": {
+            "tapo": {
+                "request": "getEnergyUsage",
+                "parameter": "current_power"
+            }
+        }
+    }
+}
