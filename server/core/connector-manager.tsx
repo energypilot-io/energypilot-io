@@ -5,9 +5,11 @@ import {
     defaultConnectorConfig,
     IConnector,
 } from 'server/connectors/IConnector'
+import { TPLinkTapoConnector } from 'server/connectors/tplink-tapo-connector'
 
 export const connectorClasses: { [id: string]: any } = {
     'modbus-tcp': ModbusTCPConnector,
+    tapo: TPLinkTapoConnector,
 }
 
 var _logger: logging.ChildLogger

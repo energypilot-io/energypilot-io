@@ -15,11 +15,13 @@ import { PvSnapshot } from 'server/database/entities/pv-snapshot.entity'
 import { BatteryDevice } from 'server/devices/battery'
 import { websockets } from './websockets-manager'
 import { WS_EVENT_LIVEDATA_UPDATED } from 'server/constants'
+import { ConsumerDevice } from 'server/devices/consumer'
 
 export const deviceClasses: { [id: string]: any } = {
     grid: GridDevice,
     pv: PVDevice,
     battery: BatteryDevice,
+    consumer: ConsumerDevice,
 }
 
 var _logger: logging.ChildLogger
@@ -79,6 +81,8 @@ export namespace devices {
     async function refreshValues() {
         let totalGridPower = 0
         let totalPVPower = 0
+
+        let totalConsumerPower = 0
 
         let batterySoC = null
         let batteryChargePower = null
@@ -140,6 +144,11 @@ export namespace devices {
                     await device.getDischargePowerValue()
                 if (chargePowerValue !== undefined)
                     batteryDischargePower = dischargePowerValue
+            } else if (device instanceof ConsumerDevice) {
+                const consumerPowerValue = await device.getPowerValue()
+
+                if (consumerPowerValue !== undefined)
+                    totalConsumerPower += consumerPowerValue
             }
         }
 

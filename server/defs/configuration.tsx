@@ -14,14 +14,14 @@ export type LoggingDef = {
 
 export type ConnectorDef = {
     id: string
-    interface: 'modbus-tcp' | 'modbus-serial' | ''
+    interface: string
     enabled?: boolean
 }
 
 export type DeviceDef = {
     id: string
     connector?: string
-    type?: 'grid' | 'pv' | 'battery'
+    type?: 'grid' | 'pv' | 'battery' | 'consumer'
     template?: string
 }
 

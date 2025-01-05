@@ -8,12 +8,12 @@
             "rotatingFiles": true
         }
     },
-    
-	"database_": {
+
+    "database_": {
         "filename": ":memory:"
     },
-	
-	"connectors": [
+
+    "connectors": [
         {
             "id": "sungrow_1",
             "interface": "modbus-tcp",
@@ -25,36 +25,51 @@
             "interface": "modbus-tcp",
             "host": "192.168.178.42",
             "port": 502
+        },
+
+        {
+            "id": "tapo_1",
+            "interface": "tapo",
+            "email": "xxx",
+            "password": "xxx",
+            "ip": "192.168.178.82"
         }
     ],
-	
-	"devices": [
-		{
-			"id": "grid_1",
+
+    "devices": [
+        {
+            "id": "grid_1",
             "type": "grid",
             "template": "sungrow-hybrid",
             "connector": "sungrow_1"
-		},
-		
-		{
-			"id": "pv_1",
+        },
+
+        {
+            "id": "pv_1",
             "type": "pv",
             "template": "sungrow-hybrid",
             "connector": "sungrow_1"
-		},
-		
-		{
-			"id": "pv_2",
+        },
+
+        {
+            "id": "pv_2",
             "type": "pv",
             "template": "sungrow-hybrid",
             "connector": "sungrow_2"
-		},
-		
-		{
-			"id": "battery_1",
+        },
+
+        {
+            "id": "battery_1",
             "type": "battery",
             "template": "sungrow-hybrid",
             "connector": "sungrow_1"
-		}
-	]
+        },
+
+        {
+            "id": "antminer1",
+            "type": "consumer",
+            "template": "tapo-p1xx",
+            "connector": "tapo_1"
+        }
+    ]
 }
