@@ -2,7 +2,7 @@ import { Entity, ManyToOne, PrimaryKey, Property } from '@mikro-orm/core'
 import { Snapshot } from './snapshot.entity'
 
 @Entity()
-export class GridSnapshot {
+export class BatterySnapshot {
     @PrimaryKey()
     id!: number
 
@@ -13,8 +13,14 @@ export class GridSnapshot {
     device_id!: string
 
     @Property()
-    power!: number
+    name?: string
 
     @Property()
-    energy!: number
+    soc!: number
+
+    @Property()
+    charge_power!: number
+
+    @Property()
+    discharge_power!: number
 }

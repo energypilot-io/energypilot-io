@@ -1,15 +1,16 @@
-import { Entity, PrimaryKey, Property } from '@mikro-orm/core'
+import { Entity, ManyToOne, PrimaryKey, Property } from '@mikro-orm/core'
+import { Snapshot } from './snapshot.entity'
 
 @Entity()
 export class PvSnapshot {
     @PrimaryKey()
     id!: number
 
-    @Property()
-    createdAt = new Date()
+    @ManyToOne()
+    snapshot!: Snapshot
 
     @Property()
-    source!: string
+    device_id!: string
 
     @Property()
     power!: number
