@@ -9,7 +9,7 @@ import { connectors } from 'server/core/connector-manager'
 import { devices } from 'server/core/device-manager'
 import { websockets } from 'server/core/websockets-manager'
 
-const ENVIRONMENTAL_VARIABLES = ['CONFIG_FILE', 'DATA_DIR']
+const ENVIRONMENTAL_VARIABLES = ['DATA_DIR']
 
 ENVIRONMENTAL_VARIABLES.forEach((key: string) => {
     if (process.env[key] === undefined) {
@@ -19,7 +19,10 @@ ENVIRONMENTAL_VARIABLES.forEach((key: string) => {
 
 const config = JSON.parse(
     fs.readFileSync(
-        path.join(process.env.DATA_DIR!, process.env.CONFIG_FILE!),
+        path.join(
+            process.env.DATA_DIR!,
+            process.env.CONFIG_FILE ?? 'energypilot-io.json'
+        ),
         'utf-8'
     )
 ) as ConfigurationDef
