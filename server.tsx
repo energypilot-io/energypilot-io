@@ -8,6 +8,7 @@ import { http } from 'server/core/http-manager'
 import { connectors } from 'server/core/connector-manager'
 import { devices } from 'server/core/device-manager'
 import { websockets } from 'server/core/websockets-manager'
+import { dataupdate } from 'server/core/data-update-manager'
 
 const ENVIRONMENTAL_VARIABLES = ['DATA_DIR']
 
@@ -34,6 +35,8 @@ await websockets.initWebSockets(http.httpServer)
 
 await connectors.initConnectors(config.connectors)
 await devices.initDevices(config.devices)
+
+await dataupdate.initDataUpdate(config.update)
 
 // const job = nodeCron.schedule('* * * * * */5', function jobYouNeedToExecute() {
 //     // Do whatever you want in here. Send email, Make  database backup or download data.
