@@ -1,31 +1,28 @@
 import { Entity, Property, raw } from '@mikro-orm/core'
 import { EntityManager } from '@mikro-orm/sqlite'
-import { GridSnapshot } from '../entities/grid-snapshot.entity'
+import { DeviceSnapshot } from '../entities/device-snapshot.entity'
 
 @Entity({
     expression: (em: EntityManager, where, options) => {
         return em
-            .createQueryBuilder(GridSnapshot, 'g')
+            .createQueryBuilder(DeviceSnapshot, 'g')
             .select([
-                'g.source',
                 raw('max(g.energy) - min(g.energy) as energy_diff'),
-                raw('min(g.created_at) as created_at'),
+                raw('min(s.created_at) as created_at'),
                 raw('max(g.energy) as energy_total'),
             ])
-            .where(where ?? {})
-            .groupBy('g.source')
+            .join('g.snapshot', 's')
+            .where({ type: 'grid' })
+            .groupBy('g.type')
     },
 })
 export class GridEnergyImport {
     @Property()
-    source!: string
+    energyDiff!: number
 
     @Property()
-    energy_diff!: number
+    energyTotal!: number
 
     @Property()
-    energy_total!: number
-
-    @Property()
-    created_at!: Date
+    createdAt!: Date
 }

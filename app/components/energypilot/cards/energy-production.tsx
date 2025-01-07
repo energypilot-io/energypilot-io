@@ -43,13 +43,13 @@ export function EnergyProductionCard() {
         if (!socket) return
 
         socket.on(WS_EVENT_LIVEDATA_UPDATED, () => {
-            fetchData()
+            // fetchData()
         })
     }, [socket])
 
-    useEffect(() => {
-        fetchData()
-    }, [timeframe])
+    // useEffect(() => {
+    //     fetchData()
+    // }, [timeframe])
 
     const fetchData = () => {
         let requestTimeframe = new Date()

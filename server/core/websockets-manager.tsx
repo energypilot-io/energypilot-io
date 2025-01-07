@@ -20,7 +20,7 @@ export namespace websockets {
         })
     }
 
-    export function emitEvent(event: string) {
-        _io.emit(event)
+    export function emitEvent(event: string, ...args: any[]) {
+        _io.emit(event, ...args)
     }
 }

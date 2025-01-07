@@ -10,7 +10,7 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
             : new Date()
 
     const energyEntities = await getEntityManager().find(GridEnergyImport, {
-        created_at: { $gt: timestamp },
+        createdAt: { $gt: timestamp },
     })
     return energyEntities
 }

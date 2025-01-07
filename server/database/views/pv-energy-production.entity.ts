@@ -1,11 +1,11 @@
 import { Entity, Property, raw } from '@mikro-orm/core'
 import { EntityManager } from '@mikro-orm/sqlite'
-import { PvSnapshot } from '../entities/pv-snapshot.entity'
+import { DeviceSnapshot } from '../entities/device-snapshot.entity'
 
 @Entity({
     expression: (em: EntityManager, where, options) => {
         return em
-            .createQueryBuilder(PvSnapshot, 'p')
+            .createQueryBuilder(DeviceSnapshot, 'p')
             .select([
                 'p.source',
                 raw('max(p.energy) - min(p.energy) as energy_diff'),

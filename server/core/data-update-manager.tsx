@@ -1,22 +1,21 @@
 import { UpdateDef } from 'server/defs/configuration'
 import { logging } from './log-manager'
 import { GridDevice } from 'server/devices/grid'
-import { GridSnapshot } from 'server/database/entities/grid-snapshot.entity'
 import { database } from './database-manager'
 import { PVDevice } from 'server/devices/pv'
-import { PvSnapshot } from 'server/database/entities/pv-snapshot.entity'
 import { BatteryDevice } from 'server/devices/battery'
 import { websockets } from './websockets-manager'
 import { WS_EVENT_LIVEDATA_UPDATED } from 'server/constants'
 import { ConsumerDevice } from 'server/devices/consumer'
 import { Snapshot } from 'server/database/entities/snapshot.entity'
-import { BatterySnapshot } from 'server/database/entities/battery-snapshot.entity'
-import { ConsumerSnapshot } from 'server/database/entities/consumer-snapshot.entity'
 import { devices } from './device-manager'
+import { DeviceSnapshot } from 'server/database/entities/device-snapshot.entity'
 
 var _logger: logging.ChildLogger
 
 export namespace dataupdate {
+    let _snapshots = []
+
     export function initDataUpdate(updateDef: Partial<UpdateDef> | undefined) {
         _logger = logging.getLogger('dataupdate')
 
@@ -38,9 +37,11 @@ export namespace dataupdate {
         // let batteryChargePower = 0
         // let batteryDischargePower = 0
 
-        const snapshot: Snapshot = new Snapshot()
-        snapshot.createdAt = new Date()
-        await database.persistEntity(snapshot)
+        // const snapshot: Snapshot = new Snapshot()
+        // snapshot.createdAt = new Date()
+        // await database.persistEntity(snapshot)
+
+        const snapshot: DeviceSnapshot[] = []
 
         for (let key in devices.instances) {
             const device = devices.instances[key]
@@ -49,74 +50,67 @@ export namespace dataupdate {
                 const gridPowerValue = await device.getPowerValue()
                 const gridEnergyValue = await device.getEnergyValue()
 
-                // if (gridPowerValue !== undefined) {
-                //     totalGridPower += gridPowerValue
-                // }
-
                 if (
-                    gridPowerValue !== undefined &&
+                    gridPowerValue !== undefined ||
                     gridEnergyValue !== undefined
                 ) {
-                    const gridSnapshot = new GridSnapshot()
-                    gridSnapshot.snapshot = snapshot
-                    gridSnapshot.energy = gridEnergyValue
-                    gridSnapshot.power = gridPowerValue
-                    gridSnapshot.device_id = device.id
-                    database.persistEntity(gridSnapshot)
+                    snapshot.push(
+                        new DeviceSnapshot({
+                            type: 'grid',
+                            device_id: device.id,
+                            label: device.label,
+                            power: gridPowerValue,
+                            energy: gridEnergyValue,
+                        })
+                    )
                 }
             } else if (device instanceof PVDevice) {
                 const pvPowerValue = await device.getPowerValue()
                 const pvEnergyValue = await device.getEnergyValue()
 
-                // if (pvPowerValue !== undefined) {
-                //     totalPVPower += pvPowerValue
-                // }
-
-                if (pvPowerValue !== undefined && pvEnergyValue !== undefined) {
-                    const pvSnapshot = new PvSnapshot()
-                    pvSnapshot.snapshot = snapshot
-                    pvSnapshot.energy = pvEnergyValue
-                    pvSnapshot.power = pvPowerValue
-                    pvSnapshot.device_id = device.id
-                    database.persistEntity(pvSnapshot)
+                if (pvPowerValue !== undefined || pvEnergyValue !== undefined) {
+                    snapshot.push(
+                        new DeviceSnapshot({
+                            type: 'pv',
+                            device_id: device.id,
+                            label: device.label,
+                            power: pvPowerValue,
+                            energy: pvEnergyValue,
+                        })
+                    )
                 }
             } else if (device instanceof BatteryDevice) {
                 const socValue = await device.getSoCValue()
-                const chargePowerValue = await device.getChargePowerValue()
-                const dischargePowerValue =
-                    await device.getDischargePowerValue()
+                const batteryPowerValue = await device.getPowerValue()
 
-                // if (chargePowerValue !== undefined)
-                //     batteryChargePower = chargePowerValue
-
-                // if (chargePowerValue !== undefined)
-                //     batteryDischargePower = dischargePowerValue
-
-                if (
-                    socValue !== undefined &&
-                    chargePowerValue !== undefined &&
-                    dischargePowerValue !== undefined
-                ) {
-                    const batterySnapshot = new BatterySnapshot()
-                    batterySnapshot.snapshot = snapshot
-                    batterySnapshot.device_id = device.id
-                    batterySnapshot.charge_power = chargePowerValue
-                    batterySnapshot.discharge_power = dischargePowerValue
-                    batterySnapshot.soc = socValue
-                    database.persistEntity(batterySnapshot)
+                if (socValue !== undefined || batteryPowerValue !== undefined) {
+                    snapshot.push(
+                        new DeviceSnapshot({
+                            type: 'battery',
+                            device_id: device.id,
+                            label: device.label,
+                            soc: socValue,
+                            power: batteryPowerValue,
+                        })
+                    )
                 }
             } else if (device instanceof ConsumerDevice) {
                 const consumerPowerValue = await device.getPowerValue()
+                const consumerEnergyValue = await device.getEnergyValue()
 
-                // if (consumerPowerValue !== undefined)
-                //     totalConsumerPower += consumerPowerValue
-
-                if (consumerPowerValue !== undefined) {
-                    const consumerSnapshot = new ConsumerSnapshot()
-                    consumerSnapshot.snapshot = snapshot
-                    consumerSnapshot.device_id = device.id
-                    consumerSnapshot.power = consumerPowerValue
-                    database.persistEntity(consumerSnapshot)
+                if (
+                    consumerPowerValue !== undefined ||
+                    consumerEnergyValue !== undefined
+                ) {
+                    snapshot.push(
+                        new DeviceSnapshot({
+                            type: 'consumer',
+                            device_id: device.id,
+                            label: device.label,
+                            power: consumerPowerValue,
+                            energy: consumerEnergyValue,
+                        })
+                    )
                 }
             }
         }
@@ -146,6 +140,11 @@ export namespace dataupdate {
         //     websockets.emitEvent(WS_EVENT_LIVEDATA_UPDATED)
         // })
 
-        websockets.emitEvent(WS_EVENT_LIVEDATA_UPDATED)
+        emitSnapshotEvent(snapshot)
+        _snapshots.push(snapshot)
+    }
+
+    function emitSnapshotEvent(snapshot: any[]) {
+        websockets.emitEvent(WS_EVENT_LIVEDATA_UPDATED, snapshot)
     }
 }

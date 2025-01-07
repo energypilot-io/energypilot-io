@@ -1,10 +1,4 @@
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from '~/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 
 import { useTranslation } from 'react-i18next'
 import { EChart } from '@kbox-labs/react-echarts'
@@ -13,7 +7,6 @@ import { SankeyChart } from 'echarts/charts'
 import { TooltipComponent, GridComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 
-import { useFetcher } from '@remix-run/react'
 import { useEffect, useState } from 'react'
 import { Theme, useTheme } from 'remix-themes'
 import { useSocket } from '~/context'
@@ -23,7 +16,6 @@ import { CallbackDataParams } from 'echarts/types/dist/shared'
 
 export function LiveEnergyCard() {
     const socket = useSocket()
-    const fetcher = useFetcher()
 
     const [theme] = useTheme()
 
@@ -34,141 +26,223 @@ export function LiveEnergyCard() {
     useEffect(() => {
         if (!socket) return
 
-        socket.on(WS_EVENT_LIVEDATA_UPDATED, () => {
-            fetchData()
+        socket.on(WS_EVENT_LIVEDATA_UPDATED, (data) => {
+            if (!Array.isArray(data)) return
+
+            let gridPower: number = 0
+            let batteryPower: number = 0
+            let pvPower: number = 0
+
+            let consumers: { name: string; value: number }[] = []
+
+            data.forEach((element: any) => {
+                switch (element.type) {
+                    case 'grid':
+                        gridPower += element.power
+                        break
+
+                    case 'battery':
+                        batteryPower += element.power
+                        break
+
+                    case 'pv':
+                        pvPower += element.power
+                        break
+
+                    case 'consumer':
+                        if (element.power > 0) {
+                            consumers.push({
+                                name: element.label ?? element.device_id,
+                                value: element.power,
+                            })
+                        }
+                        break
+
+                    default:
+                        break
+                }
+            })
+
+            createData(gridPower, batteryPower, pvPower, consumers)
         })
     }, [socket])
 
-    useEffect(() => {
-        fetchData()
-    }, [])
+    function processConsumers(
+        consumers: { name: string; value: number }[],
+        links: { source: string; target: string; value: number }[],
+        source: string,
+        power: number
+    ) {
+        if (power > 0) {
+            consumers = consumers.map(
+                (consumer: { name: string; value: number }) => {
+                    if (consumer.value <= 0 || power === 0) return consumer
 
-    const fetchData = () => {
-        fetcher.load('api/get-live-data')
+                    links.push({
+                        source: source,
+                        target: consumer.name,
+                        value: power >= consumer.value ? consumer.value : power,
+                    })
+
+                    let consumerResult
+                    if (power >= consumer.value) {
+                        consumerResult = 0
+                        power -= consumer.value
+                    } else {
+                        consumerResult = consumer.value - power
+                        power = 0
+                    }
+
+                    return { name: consumer.name, value: consumerResult }
+                }
+            )
+        }
+
+        return { consumers, power }
     }
 
-    useEffect(() => {
-        if (!Array.isArray(fetcher.data)) return
-
-        const dataset = fetcher.data[0]
+    function createData(
+        gridPower: number,
+        batteryPower: number,
+        pvPower: number,
+        consumers: { name: string; value: number }[]
+    ) {
+        const housePower =
+            gridPower +
+            pvPower -
+            batteryPower -
+            consumers.reduce((sum, current) => sum + current.value, 0)
 
         const nameHouse = t('liveEnergyCard.nodes.home')
         const nameBattery = t('liveEnergyCard.nodes.battery')
         const nameGrid = t('liveEnergyCard.nodes.grid')
         const nameSolar = t('liveEnergyCard.nodes.solar')
 
-        const links = []
-        const nodes = [
+        const links: { source: string; target: string; value: number }[] = []
+        const nodes: { name: string; value: number; itemStyle?: any }[] = [
             {
                 name: nameHouse,
                 itemStyle: { color: '#2E8B57' },
-                value: dataset.consumption,
+                value: housePower,
             },
         ]
 
-        if (
-            (dataset.battery_charge_power !== null &&
-                dataset.battery_charge_power > 0) ||
-            (dataset.battery_discharge_power !== null &&
-                dataset.battery_discharge_power > 0)
-        ) {
+        consumers.forEach((consumer: { name: string; value: number }) => {
+            nodes.push(consumer)
+        })
+
+        if (batteryPower !== 0) {
             nodes.push({
                 name: nameBattery,
                 itemStyle: { color: '#00BFFF' },
-                value:
-                    dataset.battery_charge_power > 0
-                        ? dataset.battery_charge_power
-                        : dataset.battery_discharge_power,
+                value: Math.abs(batteryPower),
             })
 
-            if (
-                dataset.battery_discharge_power !== null &&
-                dataset.battery_discharge_power > 0
-            ) {
-                links.push({
-                    source: nameBattery,
-                    target: nameHouse,
-                    value: dataset.battery_discharge_power,
-                })
-            }
-        }
+            if (batteryPower < 0) {
+                let { consumers: updatedConsumers, power } = processConsumers(
+                    consumers,
+                    links,
+                    nameBattery,
+                    Math.abs(batteryPower)
+                )
 
-        if (dataset.grid_power !== null) {
-            if (dataset.grid_power !== 0) {
-                nodes.push({
-                    name: nameGrid,
-                    itemStyle: { color: '#708090' },
-                    value: Math.abs(dataset.grid_power),
-                })
-            }
+                batteryPower = power * -1
+                consumers = updatedConsumers
 
-            if (dataset.grid_power > 0) {
-                let grid_power = dataset.grid_power
-                links.push({
-                    source: nameGrid,
-                    target: nameHouse,
-                    value:
-                        grid_power >= dataset.consumption
-                            ? dataset.consumption
-                            : grid_power,
-                })
-
-                grid_power -= dataset.consumption
-                if (grid_power > 0 && dataset.battery_charge_power > 0) {
+                if (batteryPower < 0) {
                     links.push({
-                        source: nameGrid,
-                        target: nameBattery,
-                        value:
-                            grid_power >= dataset.battery_charge_power
-                                ? dataset.battery_charge_power
-                                : grid_power,
+                        source: nameBattery,
+                        target: nameHouse,
+                        value: Math.abs(batteryPower),
                     })
                 }
             }
         }
 
-        if (dataset.pv_power !== null && dataset.pv_power > 0) {
+        if (pvPower > 0) {
             nodes.push({
                 name: nameSolar,
                 itemStyle: { color: '#FFC300' },
-                value: dataset.pv_power,
+                value: pvPower,
             })
 
-            let pv_power = dataset.pv_power
+            let { consumers: updatedConsumers, power } = processConsumers(
+                consumers,
+                links,
+                nameSolar,
+                pvPower
+            )
+            pvPower = power
+            consumers = updatedConsumers
 
-            links.push({
-                source: nameSolar,
-                target: nameHouse,
-                value:
-                    pv_power >= dataset.consumption
-                        ? dataset.consumption
-                        : pv_power,
-            })
+            if (pvPower > 0) {
+                links.push({
+                    source: nameSolar,
+                    target: nameHouse,
+                    value: pvPower >= housePower ? housePower : pvPower,
+                })
+                pvPower -= housePower
+            }
 
-            pv_power -= dataset.consumption
-            if (pv_power > 0 && dataset.battery_charge_power > 0) {
+            if (pvPower > 0 && batteryPower > 0) {
                 links.push({
                     source: nameSolar,
                     target: nameBattery,
-                    value:
-                        pv_power >= dataset.battery_charge_power
-                            ? dataset.battery_charge_power
-                            : pv_power,
+                    value: pvPower >= batteryPower ? batteryPower : pvPower,
                 })
+                pvPower -= batteryPower
             }
 
-            pv_power -= dataset.battery_charge_power
-            if (pv_power > 0 && dataset.grid_power < 0) {
+            if (pvPower > 0 && gridPower < 0) {
                 links.push({
                     source: nameSolar,
                     target: nameGrid,
-                    value: pv_power,
+                    value: pvPower,
                 })
             }
         }
 
+        if (gridPower !== 0) {
+            nodes.push({
+                name: nameGrid,
+                itemStyle: { color: '#708090' },
+                value: Math.abs(gridPower),
+            })
+
+            if (gridPower > 0) {
+                let { consumers: updatedConsumers, power } = processConsumers(
+                    consumers,
+                    links,
+                    nameGrid,
+                    gridPower
+                )
+                gridPower = power
+                consumers = updatedConsumers
+
+                if (gridPower > 0 && batteryPower > 0) {
+                    links.push({
+                        source: nameGrid,
+                        target: nameBattery,
+                        value:
+                            gridPower >= batteryPower
+                                ? batteryPower
+                                : gridPower,
+                    })
+                    gridPower -= batteryPower
+                }
+
+                if (gridPower > 0) {
+                    links.push({
+                        source: nameGrid,
+                        target: nameHouse,
+                        value: gridPower >= housePower ? housePower : gridPower,
+                    })
+                }
+            }
+        }
+
         setData({ nodes: nodes, links: links })
-    }, [fetcher.data])
+    }
 
     return (
         <Card className="bg-muted/50">

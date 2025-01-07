@@ -42,7 +42,7 @@ export function EnergyImportCard() {
         if (!socket) return
 
         socket.on(WS_EVENT_LIVEDATA_UPDATED, () => {
-            fetchData()
+            // fetchData()
         })
     }, [socket])
 

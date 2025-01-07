@@ -20,6 +20,7 @@ export type ConnectorDef = {
 
 export type DeviceDef = {
     id: string
+    label?: string
     connector?: string
     type?: 'grid' | 'pv' | 'battery' | 'consumer'
     template?: string

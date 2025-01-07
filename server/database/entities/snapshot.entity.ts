@@ -6,5 +6,5 @@ export class Snapshot {
     id!: number
 
     @Property()
-    createdAt = new Date()
+    created_at = new Date()
 }
