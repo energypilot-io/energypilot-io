@@ -18,26 +18,24 @@ import {
 
 import { CanvasRenderer } from 'echarts/renderers'
 
-import { getEntityManager } from '~/lib/db.server'
-import { Energy } from 'server/database/entities/energy.entity'
 import { useEffect, useState } from 'react'
 import { Card, CardContent } from '~/components/ui/card'
 import { formatEnergy } from '~/lib/utils'
 import { ToggleGroup, ToggleGroupItem } from '~/components/ui/toggle-group'
 import { LoaderIcon } from 'lucide-react'
-import { WS_EVENT_LIVEDATA_UPDATED } from 'server/constants'
+import { WS_EVENT_SNAPSHOT_CREATED } from 'server/constants'
 import { useSocket } from '~/context'
-
-export const loader = async () => {
-    const energyEntities = await getEntityManager().findAll(Energy)
-    return energyEntities
-}
+import { DeviceSnapshot } from 'server/database/entities/device-snapshot.entity'
+import { Collection } from '@mikro-orm/core'
+import { Snapshot } from 'server/database/entities/snapshot.entity'
 
 export default function Page() {
     const { t } = useTranslation()
 
     const socket = useSocket()
     const fetcher = useFetcher()
+
+    const [series, setSeries] = useState<any>()
 
     const timeframes = [
         {
@@ -59,7 +57,7 @@ export default function Page() {
     useEffect(() => {
         if (!socket) return
 
-        socket.on(WS_EVENT_LIVEDATA_UPDATED, () => {
+        socket.on(WS_EVENT_SNAPSHOT_CREATED, () => {
             fetchData()
         })
     }, [socket])
@@ -72,8 +70,6 @@ export default function Page() {
         let requestTimeframe = new Date()
         requestTimeframe.setHours(0, 0, 0, 0)
 
-        console.log(timeframe)
-
         if (timeframe !== undefined) {
             const daysInMilliseconds =
                 Number.parseFloat(timeframe) * 24 * 60 * 60 * 1000
@@ -82,14 +78,113 @@ export default function Page() {
             )
         }
 
-        fetcher.load(`/api/get-historical-data/${requestTimeframe.getTime()}`)
+        fetcher.load(`/api/get-snapshots/${requestTimeframe.getTime()}`)
     }
 
     const onTimeframeSelected = (value: string) => {
         if (value !== '') setTimeframe(value)
     }
 
-    const data = fetcher.data as any
+    useEffect(() => {
+        if (!Array.isArray(fetcher.data)) return
+
+        const groupedValues: { [name: string]: number[] } = {}
+
+        ;(fetcher.data as Snapshot[]).forEach((snapshot: Snapshot) => {
+            ;(
+                snapshot.device_snapshots as Collection<DeviceSnapshot>
+            ).items.forEach((deviceSnapshot: DeviceSnapshot) => {
+                const device_id =
+                    deviceSnapshot.label ?? deviceSnapshot.device_id
+                if (!(device_id in groupedValues)) {
+                    groupedValues[device_id] = []
+                }
+
+                groupedValues[device_id].push(deviceSnapshot.power ?? 0)
+            })
+
+            /*
+
+            {
+                name: 'Consumption (W)',
+                type: 'line',
+                smooth: true,
+                symbol: 'none',
+                data: data.map(
+                    (item: any) => item.consumption
+                ),
+            },
+            {
+                name: 'Grid Power (W)',
+                type: 'line',
+                smooth: true,
+                symbol: 'none',
+                data: data.map(
+                    (item: any) => item.grid_power
+                ),
+            },
+            {
+                name: 'PV Power (W)',
+                type: 'line',
+                smooth: true,
+                symbol: 'none',
+                data: data.map(
+                    (item: any) => item.pv_power
+                ),
+            },
+            {
+                name: 'Battery Charge Power (W)',
+                type: 'line',
+                smooth: true,
+                symbol: 'none',
+                data: data.map(
+                    (item: any) =>
+                        item.battery_charge_power
+                ),
+            },
+            {
+                name: 'Battery Discharge Power (W)',
+                type: 'line',
+                smooth: true,
+                symbol: 'none',
+                data: data.map(
+                    (item: any) =>
+                        item.battery_discharge_power
+                ),
+            },
+            {
+                name: 'Battery SoC (%)',
+                type: 'line',
+                smooth: true,
+                symbol: 'none',
+                data: data.map(
+                    (item: any) => item.battery_soc
+                ),
+                yAxisIndex: 1,
+            },
+        ]
+        */
+        })
+
+        setSeries(
+            Object.keys(groupedValues).map((device_id) => {
+                return {
+                    name: device_id,
+                    type: 'line',
+                    smooth: true,
+                    symbol: 'none',
+                    data: groupedValues[device_id],
+                    tooltip: {
+                        trigger: 'axis',
+                        formatter: function (a: number) {
+                            const formatedEnergy = formatEnergy(a)
+                            return `${formatedEnergy?.value} ${formatedEnergy?.unit}`
+                        },
+                    },
+                }
+            })
+        )
+    }, [fetcher.data])
 
     return (
         <>
@@ -113,7 +208,8 @@ export default function Page() {
 
                     <Card className="bg-muted/50">
                         <CardContent className="flex justify-center">
-                            {data === undefined || data === null ? (
+                            {fetcher.data === undefined ||
+                            series === undefined ? (
                                 <LoaderIcon
                                     className="animate-spin"
                                     size={64}
@@ -151,7 +247,6 @@ export default function Page() {
                                             type: 'slider',
                                             filterMode: 'weakFilter',
                                             showDataShadow: false,
-                                            top: 400,
                                             labelFormatter: '',
                                         },
                                         {
@@ -162,8 +257,9 @@ export default function Page() {
                                     xAxis={[
                                         {
                                             type: 'category',
-                                            data: data.map((item: any) =>
-                                                item.createdAt.toLocaleTimeString()
+                                            data: (fetcher.data as any[]).map(
+                                                (item: any) =>
+                                                    item.created_at.toLocaleTimeString()
                                             ),
                                         },
                                     ]}
@@ -196,65 +292,7 @@ export default function Page() {
                                             },
                                         },
                                     ]}
-                                    series={[
-                                        {
-                                            name: 'Consumption (W)',
-                                            type: 'line',
-                                            smooth: true,
-                                            symbol: 'none',
-                                            data: data.map(
-                                                (item: any) => item.consumption
-                                            ),
-                                        },
-                                        {
-                                            name: 'Grid Power (W)',
-                                            type: 'line',
-                                            smooth: true,
-                                            symbol: 'none',
-                                            data: data.map(
-                                                (item: any) => item.grid_power
-                                            ),
-                                        },
-                                        {
-                                            name: 'PV Power (W)',
-                                            type: 'line',
-                                            smooth: true,
-                                            symbol: 'none',
-                                            data: data.map(
-                                                (item: any) => item.pv_power
-                                            ),
-                                        },
-                                        {
-                                            name: 'Battery Charge Power (W)',
-                                            type: 'line',
-                                            smooth: true,
-                                            symbol: 'none',
-                                            data: data.map(
-                                                (item: any) =>
-                                                    item.battery_charge_power
-                                            ),
-                                        },
-                                        {
-                                            name: 'Battery Discharge Power (W)',
-                                            type: 'line',
-                                            smooth: true,
-                                            symbol: 'none',
-                                            data: data.map(
-                                                (item: any) =>
-                                                    item.battery_discharge_power
-                                            ),
-                                        },
-                                        {
-                                            name: 'Battery SoC (%)',
-                                            type: 'line',
-                                            smooth: true,
-                                            symbol: 'none',
-                                            data: data.map(
-                                                (item: any) => item.battery_soc
-                                            ),
-                                            yAxisIndex: 1,
-                                        },
-                                    ]}
+                                    series={series}
                                 />
                             )}
                         </CardContent>

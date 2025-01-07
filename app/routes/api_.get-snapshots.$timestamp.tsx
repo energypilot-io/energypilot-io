@@ -1,7 +1,7 @@
 import { getEntityManager } from '~/lib/db.server'
 
 import { LoaderFunctionArgs } from '@remix-run/node'
-import { Energy } from 'server/database/entities/energy.entity'
+import { Snapshot } from 'server/database/entities/snapshot.entity'
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
     const timestamp =
@@ -9,8 +9,14 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
             ? new Date(Number.parseFloat(params.timestamp))
             : new Date()
 
-    const energyEntities = await getEntityManager().find(Energy, {
-        createdAt: { $gt: timestamp },
-    })
-    return energyEntities
+    const deviceSnapshots = await getEntityManager().find(
+        Snapshot,
+        {
+            created_at: { $gt: timestamp },
+        },
+        {
+            populate: ['*'],
+        }
+    )
+    return deviceSnapshots
 }

@@ -50,8 +50,6 @@ export namespace dataupdate {
         for (let key in devices.instances) {
             const device = devices.instances[key]
 
-            _logger.debug(`Request data from device [${device.id}]`)
-
             if (device instanceof GridDevice) {
                 const gridPowerValue = await device.getPowerValue()
                 const gridEnergyValue = await device.getEnergyValue()
@@ -127,15 +125,16 @@ export namespace dataupdate {
 
     async function createSnapshot() {
         semaphore.use(async () => {
-            _logger.info('Writing data snapshot to database')
+            _logger.info('Persisting data snapshot to database')
 
             const snapshot = new Snapshot()
-            await database.persistEntity(snapshot)
+            snapshot.created_at = new Date()
 
             _latestSnapshot.forEach(async (deviceSnapshot: DeviceSnapshot) => {
-                deviceSnapshot.snapshot = snapshot
-                await database.persistEntity(deviceSnapshot)
+                snapshot.device_snapshots.add(deviceSnapshot)
             })
+
+            await database.persistEntity(snapshot)
 
             websockets.emitEvent(WS_EVENT_SNAPSHOT_CREATED)
         })
