@@ -14,7 +14,7 @@ import { ToggleGroup, ToggleGroupItem } from '~/components/ui/toggle-group'
 import { useTranslation } from 'react-i18next'
 import { formatEnergy } from '~/lib/utils'
 import { useSocket } from '~/context'
-import { WS_EVENT_LIVEDATA_UPDATED } from 'server/constants'
+import { WS_EVENT_SNAPSHOT_CREATED } from 'server/constants'
 
 export function EnergyImportCard() {
     const socket = useSocket()
@@ -41,8 +41,8 @@ export function EnergyImportCard() {
     useEffect(() => {
         if (!socket) return
 
-        socket.on(WS_EVENT_LIVEDATA_UPDATED, () => {
-            // fetchData()
+        socket.on(WS_EVENT_SNAPSHOT_CREATED, () => {
+            fetchData()
         })
     }, [socket])
 
@@ -73,7 +73,7 @@ export function EnergyImportCard() {
         fetcher.data !== undefined
             ? formatEnergy(
                   (fetcher.data as any[]).reduce(
-                      (sum, current) => sum + current.energy_diff,
+                      (sum, current) => sum + current.energyDiff,
                       0
                   )
               )
@@ -83,7 +83,7 @@ export function EnergyImportCard() {
         fetcher.data !== undefined
             ? formatEnergy(
                   (fetcher.data as any[]).reduce(
-                      (sum, current) => sum + current.energy_total,
+                      (sum, current) => sum + current.energyTotal,
                       0
                   )
               )

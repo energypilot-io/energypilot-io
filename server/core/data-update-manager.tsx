@@ -5,46 +5,52 @@ import { database } from './database-manager'
 import { PVDevice } from 'server/devices/pv'
 import { BatteryDevice } from 'server/devices/battery'
 import { websockets } from './websockets-manager'
-import { WS_EVENT_LIVEDATA_UPDATED } from 'server/constants'
+import {
+    WS_EVENT_LIVEDATA_UPDATED,
+    WS_EVENT_SNAPSHOT_CREATED,
+} from 'server/constants'
 import { ConsumerDevice } from 'server/devices/consumer'
 import { Snapshot } from 'server/database/entities/snapshot.entity'
 import { devices } from './device-manager'
 import { DeviceSnapshot } from 'server/database/entities/device-snapshot.entity'
 
+import Semaphore from 'ts-semaphore'
+
 var _logger: logging.ChildLogger
 
 export namespace dataupdate {
-    let _snapshots = []
+    let _latestSnapshot: DeviceSnapshot[] = []
+
+    const semaphore = new Semaphore(1)
 
     export function initDataUpdate(updateDef: Partial<UpdateDef> | undefined) {
         _logger = logging.getLogger('dataupdate')
 
-        const pollingInterval = setInterval(
-            refreshValues,
+        const pollDataInterval = setInterval(
+            pollData,
             (updateDef?.polling ?? 5) * 1000
         )
+
+        const createSnapshotInterval = setInterval(
+            createSnapshot,
+            (updateDef?.snapshot ?? 60) * 1000
+        )
+
         process.on('exit', (code) => {
-            clearInterval(pollingInterval)
+            clearInterval(pollDataInterval)
+            clearInterval(createSnapshotInterval)
         })
     }
 
-    async function refreshValues() {
-        // let totalGridPower = 0
-        // let totalPVPower = 0
-
-        // let totalConsumerPower = 0
-
-        // let batteryChargePower = 0
-        // let batteryDischargePower = 0
-
-        // const snapshot: Snapshot = new Snapshot()
-        // snapshot.createdAt = new Date()
-        // await database.persistEntity(snapshot)
+    async function pollData() {
+        _logger.debug('Collecting live data from devices')
 
         const snapshot: DeviceSnapshot[] = []
 
         for (let key in devices.instances) {
             const device = devices.instances[key]
+
+            _logger.debug(`Request data from device [${device.id}]`)
 
             if (device instanceof GridDevice) {
                 const gridPowerValue = await device.getPowerValue()
@@ -115,36 +121,23 @@ export namespace dataupdate {
             }
         }
 
-        // const consumption = Math.round(
-        //     totalGridPower +
-        //         totalPVPower +
-        //         (batteryDischargePower !== null &&
-        //         batteryDischargePower !== undefined
-        //             ? batteryDischargePower
-        //             : 0) -
-        //         (batteryChargePower !== null && batteryChargePower !== undefined
-        //             ? batteryChargePower
-        //             : 0)
-        // )
-
-        // const energy = new Energy()
-        // energy.grid_power = totalGridPower
-        // energy.pv_power = Math.round(totalPVPower)
-        // energy.battery_soc = batterySoC!
-        // energy.battery_charge_power = batteryChargePower!
-        // energy.battery_discharge_power = batteryDischargePower!
-        // energy.consumption = consumption
-        // energy.source = 'EnergyPilot.io'
-
-        // database.persistEntity(energy, () => {
-        //     websockets.emitEvent(WS_EVENT_LIVEDATA_UPDATED)
-        // })
-
-        emitSnapshotEvent(snapshot)
-        _snapshots.push(snapshot)
+        websockets.emitEvent(WS_EVENT_LIVEDATA_UPDATED, snapshot)
+        semaphore.use(async () => (_latestSnapshot = snapshot))
     }
 
-    function emitSnapshotEvent(snapshot: any[]) {
-        websockets.emitEvent(WS_EVENT_LIVEDATA_UPDATED, snapshot)
+    async function createSnapshot() {
+        semaphore.use(async () => {
+            _logger.info('Writing data snapshot to database')
+
+            const snapshot = new Snapshot()
+            await database.persistEntity(snapshot)
+
+            _latestSnapshot.forEach(async (deviceSnapshot: DeviceSnapshot) => {
+                deviceSnapshot.snapshot = snapshot
+                await database.persistEntity(deviceSnapshot)
+            })
+
+            websockets.emitEvent(WS_EVENT_SNAPSHOT_CREATED)
+        })
     }
 }
