@@ -19,7 +19,7 @@
         "energy": {
             "modbus": {
                 "address": 13036,
-                "size": 2,
+                "size": 1,
                 "datatype": "uint16be",
                 "scale": 0.1
             }
