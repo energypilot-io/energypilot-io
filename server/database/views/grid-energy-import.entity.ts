@@ -13,7 +13,7 @@ import { DeviceSnapshot } from '../entities/device-snapshot.entity'
             ])
             .join('g.snapshot', 's')
             .where({ type: 'grid' })
-            .groupBy('g.type')
+            .groupBy(['g.device_id', 'g.type'])
     },
 })
 export class GridEnergyImport {

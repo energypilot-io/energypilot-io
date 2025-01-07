@@ -7,25 +7,22 @@ import { DeviceSnapshot } from '../entities/device-snapshot.entity'
         return em
             .createQueryBuilder(DeviceSnapshot, 'p')
             .select([
-                'p.source',
                 raw('max(p.energy) - min(p.energy) as energy_diff'),
                 raw('max(p.energy) as energy_total'),
-                raw('min(p.created_at) as created_at'),
+                raw('min(s.created_at) as created_at'),
             ])
-            .where(where ?? {})
-            .groupBy('p.source')
+            .join('p.snapshot', 's')
+            .where({ type: 'pv' })
+            .groupBy(['p.device_id', 'p.type'])
     },
 })
 export class PvEnergyProduction {
     @Property()
-    source!: string
+    energyDiff!: number
 
     @Property()
-    energy_diff!: number
+    energyTotal!: number
 
     @Property()
-    energy_total!: number
-
-    @Property()
-    created_at!: Date
+    createdAt!: Date
 }

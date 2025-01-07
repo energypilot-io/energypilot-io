@@ -13,6 +13,7 @@ import { useSocket } from '~/context'
 import { WS_EVENT_LIVEDATA_UPDATED } from 'server/constants'
 import { formatPower } from '~/lib/utils'
 import { CallbackDataParams } from 'echarts/types/dist/shared'
+import { LoaderIcon } from 'lucide-react'
 
 export function LiveEnergyCard() {
     const socket = useSocket()
@@ -250,48 +251,54 @@ export function LiveEnergyCard() {
                 <CardTitle>{t('liveEnergyCard.title')}</CardTitle>
             </CardHeader>
             <CardContent className="flex justify-center">
-                <EChart
-                    use={[
-                        SankeyChart,
-                        CanvasRenderer,
-                        TooltipComponent,
-                        GridComponent,
-                    ]}
-                    className="w-full h-72"
-                    darkMode={theme === Theme.DARK}
-                    renderer={'canvas'}
-                    tooltip={{
-                        trigger: 'item',
-                        triggerOn: 'mousemove',
-                        formatter: (params) => {
-                            params = params as CallbackDataParams
+                {data.nodes.length === 0 ? (
+                    <LoaderIcon className="animate-spin" size={64} />
+                ) : (
+                    <EChart
+                        use={[
+                            SankeyChart,
+                            CanvasRenderer,
+                            TooltipComponent,
+                            GridComponent,
+                        ]}
+                        className="w-full h-72"
+                        darkMode={theme === Theme.DARK}
+                        renderer={'canvas'}
+                        tooltip={{
+                            trigger: 'item',
+                            triggerOn: 'mousemove',
+                            formatter: (params) => {
+                                params = params as CallbackDataParams
 
-                            if (
-                                params.value !== undefined &&
-                                typeof params.value === 'number'
-                            ) {
-                                const formatedValue = formatPower(params.value)
-                                return `${params.name}: ${formatedValue?.value} ${formatedValue?.unit}`
-                            }
-                            return ''
-                        },
-                    }}
-                    series={[
-                        {
-                            type: 'sankey',
-                            data: data.nodes,
-                            links: data.links,
-                            draggable: false,
-                            emphasis: {
-                                focus: 'adjacency',
+                                if (
+                                    params.value !== undefined &&
+                                    typeof params.value === 'number'
+                                ) {
+                                    const formatedValue = formatPower(
+                                        params.value
+                                    )
+                                    return `${params.name}: ${formatedValue?.value} ${formatedValue?.unit}`
+                                }
+                                return ''
                             },
-                            lineStyle: {
-                                curveness: 0.5,
-                                color: 'gradient',
+                        }}
+                        series={[
+                            {
+                                type: 'sankey',
+                                data: data.nodes,
+                                links: data.links,
+                                draggable: false,
+                                emphasis: {
+                                    focus: 'adjacency',
+                                },
+                                lineStyle: {
+                                    curveness: 0.5,
+                                    color: 'gradient',
+                                },
                             },
-                        },
-                    ]}
-                />
+                        ]}
+                    />
+                )}
             </CardContent>
         </Card>
     )
