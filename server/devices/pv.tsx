@@ -1,16 +1,10 @@
 import { TemplateDef } from 'server/defs/template'
 import { IParameter, parseParameter } from 'templates/template-parser'
-import { defaultDeviceConfig, IDevice } from './IDevice'
+import { BaseDevice } from './base-device'
 import { DeviceDef } from 'server/defs/configuration'
 import { IConnector } from 'server/connectors/IConnector'
 
-export class PVDevice implements IDevice {
-    id: string
-
-    private _configuration: DeviceDef
-
-    private _connector: IConnector
-
+export class PVDevice extends BaseDevice {
     private _powerParameter: IParameter | undefined
     private _energyParameter: IParameter | undefined
 
@@ -19,10 +13,7 @@ export class PVDevice implements IDevice {
         deviceDef: Partial<DeviceDef> = {},
         templateDef: Partial<TemplateDef> = {}
     ) {
-        this._connector = connector
-        this._configuration = { ...defaultDeviceConfig, ...deviceDef }
-
-        this.id = this._configuration.id
+        super(connector, deviceDef)
 
         if (
             templateDef.pv?.power !== undefined &&

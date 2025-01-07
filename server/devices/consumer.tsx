@@ -1,27 +1,31 @@
 import { TemplateDef } from 'server/defs/template'
 import { IParameter, parseParameter } from 'templates/template-parser'
-import { defaultDeviceConfig, IDevice } from './IDevice'
+import { BaseDevice } from './base-device'
 import { DeviceDef } from 'server/defs/configuration'
 import { IConnector } from 'server/connectors/IConnector'
 
-export class ConsumerDevice implements IDevice {
-    id: string
-
-    private _configuration: DeviceDef
-
-    private _connector: IConnector
-
+export class ConsumerDevice extends BaseDevice {
     private _powerParameter: IParameter | undefined
+    private _energyParameter: IParameter | undefined
 
     constructor(
         connector: IConnector,
         deviceDef: Partial<DeviceDef> = {},
         templateDef: Partial<TemplateDef> = {}
     ) {
-        this._connector = connector
-        this._configuration = { ...defaultDeviceConfig, ...deviceDef }
+        super(connector, deviceDef)
 
-        this.id = this._configuration.id
+        if (
+            templateDef.consumer?.energy !== undefined &&
+            this._connector.templateInterfaceKey in templateDef.consumer?.energy
+        ) {
+            this._energyParameter = parseParameter(
+                templateDef.consumer!.energy[
+                    this._connector.templateInterfaceKey
+                ],
+                this._connector
+            )
+        }
 
         if (
             templateDef.consumer?.power !== undefined &&
@@ -40,6 +44,13 @@ export class ConsumerDevice implements IDevice {
         if (this._powerParameter === undefined) return undefined
 
         const powerValue = await this._powerParameter?.getValue()
+        return powerValue
+    }
+
+    public async getEnergyValue() {
+        if (this._energyParameter === undefined) return undefined
+
+        const powerValue = await this._energyParameter?.getValue()
         return powerValue
     }
 }

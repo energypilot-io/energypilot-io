@@ -2,7 +2,7 @@ import fs from 'fs'
 
 import { DeviceDef } from 'server/defs/configuration'
 import { logging } from './log-manager'
-import { defaultDeviceConfig, IDevice } from 'server/devices/IDevice'
+import { defaultDeviceConfig, BaseDevice } from 'server/devices/base-device'
 import { TemplateDef } from 'server/defs/template'
 import { IConnector } from 'server/connectors/IConnector'
 import { connectors } from './connector-manager'
@@ -21,7 +21,7 @@ export const deviceClasses: { [id: string]: any } = {
 var _logger: logging.ChildLogger
 
 export namespace devices {
-    export const instances: { [key: string]: IDevice } = {}
+    export const instances: { [key: string]: BaseDevice } = {}
 
     export function initDevices(deviceDefs: Partial<DeviceDef>[] | undefined) {
         _logger = logging.getLogger('devices')

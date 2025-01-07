@@ -23,14 +23,12 @@ export type PVTemplateDef = {
 
 export type BatteryTemplateDef = {
     soc: { [key: string]: ModifierDef | StaticValueDef | ParameterDef }
-    charge_power: { [key: string]: ModifierDef | StaticValueDef | ParameterDef }
-    discharge_power: {
-        [key: string]: ModifierDef | StaticValueDef | ParameterDef
-    }
+    power: { [key: string]: ModifierDef | StaticValueDef | ParameterDef }
 }
 
 export type ConsumerTemplateDef = {
     power: { [key: string]: ModifierDef | StaticValueDef | ParameterDef }
+    energy: { [key: string]: ModifierDef | StaticValueDef | ParameterDef }
 }
 
 export type TemplateDef = {
