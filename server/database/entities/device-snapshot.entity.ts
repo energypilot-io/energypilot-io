@@ -27,12 +27,6 @@ export class DeviceSnapshot {
     @Property()
     soc?: number
 
-    @Property()
-    charge_power?: number
-
-    @Property()
-    discharge_power?: number
-
     constructor(options: {
         device_id: string
         type: 'grid' | 'pv' | 'battery' | 'consumer'
