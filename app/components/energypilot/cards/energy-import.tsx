@@ -73,7 +73,7 @@ export function EnergyImportCard() {
         fetcher.data !== undefined
             ? formatEnergy(
                   (fetcher.data as any[]).reduce(
-                      (sum, current) => sum + current.energyDiff,
+                      (sum, current) => sum + current.energy_diff,
                       0
                   )
               )
@@ -83,7 +83,7 @@ export function EnergyImportCard() {
         fetcher.data !== undefined
             ? formatEnergy(
                   (fetcher.data as any[]).reduce(
-                      (sum, current) => sum + current.energyTotal,
+                      (sum, current) => sum + current.energy_total,
                       0
                   )
               )

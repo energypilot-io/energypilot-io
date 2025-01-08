@@ -9,20 +9,19 @@ import { DeviceSnapshot } from '../entities/device-snapshot.entity'
             .select([
                 raw('max(p.energy) - min(p.energy) as energy_diff'),
                 raw('max(p.energy) as energy_total'),
-                raw('min(s.created_at) as created_at'),
+                raw('min(created_at) as created_at'),
             ])
-            .join('p.snapshot', 's')
-            .where({ type: 'pv' })
+            .where({ $and: [{ type: 'pv' }, where ?? {}] })
             .groupBy(['p.device_id', 'p.type'])
     },
 })
 export class PvEnergyProduction {
     @Property()
-    energyDiff!: number
+    energy_diff!: number
 
     @Property()
-    energyTotal!: number
+    energy_total!: number
 
     @Property()
-    createdAt!: Date
+    created_at!: Date
 }
