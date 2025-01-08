@@ -131,6 +131,7 @@ export namespace dataupdate {
             snapshot.created_at = new Date()
 
             _latestSnapshot.forEach(async (deviceSnapshot: DeviceSnapshot) => {
+                deviceSnapshot.created_at = snapshot.created_at
                 snapshot.device_snapshots.add(deviceSnapshot)
             })
 

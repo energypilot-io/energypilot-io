@@ -6,6 +6,9 @@ export class DeviceSnapshot {
     @PrimaryKey()
     id!: number
 
+    @Property()
+    created_at = new Date()
+
     @ManyToOne()
     snapshot!: Snapshot
 

@@ -10,7 +10,7 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
             : new Date()
 
     const energyEntities = await getEntityManager().find(PvEnergyProduction, {
-        createdAt: { $gt: timestamp },
+        created_at: { $gt: timestamp },
     })
     return energyEntities
 }

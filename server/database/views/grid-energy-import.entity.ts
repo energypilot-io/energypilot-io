@@ -8,21 +8,20 @@ import { DeviceSnapshot } from '../entities/device-snapshot.entity'
             .createQueryBuilder(DeviceSnapshot, 'g')
             .select([
                 raw('max(g.energy) - min(g.energy) as energy_diff'),
-                raw('min(s.created_at) as created_at'),
+                raw('min(created_at) as created_at'),
                 raw('max(g.energy) as energy_total'),
             ])
-            .join('g.snapshot', 's')
-            .where({ type: 'grid' })
-            .groupBy(['g.device_id', 'g.type'])
+            .where({ $and: [{ type: 'grid' }, where ?? {}] })
+            .groupBy(['g.device_id'])
     },
 })
 export class GridEnergyImport {
     @Property()
-    energyDiff!: number
+    energy_diff!: number
 
     @Property()
-    energyTotal!: number
+    energy_total!: number
 
     @Property()
-    createdAt!: Date
+    created_at!: Date
 }
