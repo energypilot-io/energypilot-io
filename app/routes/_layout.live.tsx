@@ -90,80 +90,38 @@ export default function Page() {
 
         const groupedValues: { [name: string]: number[] } = {}
 
+        const nameHouse = t('liveEnergyCard.nodes.home')
+        groupedValues[nameHouse] = []
         ;(fetcher.data as Snapshot[]).forEach((snapshot: Snapshot) => {
-            ;(
+            let housePower = 0
+
+            const deviceSnapshots: Collection<DeviceSnapshot> =
                 snapshot.device_snapshots as Collection<DeviceSnapshot>
-            ).items.forEach((deviceSnapshot: DeviceSnapshot) => {
+
+            // @ts-ignore
+            deviceSnapshots.items.forEach((deviceSnapshot: DeviceSnapshot) => {
                 const device_id =
                     deviceSnapshot.label ?? deviceSnapshot.device_id
                 if (!(device_id in groupedValues)) {
                     groupedValues[device_id] = []
                 }
 
+                switch (deviceSnapshot.type) {
+                    case 'pv':
+                    case 'grid':
+                        housePower += deviceSnapshot.power ?? 0
+                        break
+
+                    case 'battery':
+                    case 'consumer':
+                        housePower -= deviceSnapshot.power ?? 0
+                        break
+                }
+
                 groupedValues[device_id].push(deviceSnapshot.power ?? 0)
             })
 
-            /*
-
-            {
-                name: 'Consumption (W)',
-                type: 'line',
-                smooth: true,
-                symbol: 'none',
-                data: data.map(
-                    (item: any) => item.consumption
-                ),
-            },
-            {
-                name: 'Grid Power (W)',
-                type: 'line',
-                smooth: true,
-                symbol: 'none',
-                data: data.map(
-                    (item: any) => item.grid_power
-                ),
-            },
-            {
-                name: 'PV Power (W)',
-                type: 'line',
-                smooth: true,
-                symbol: 'none',
-                data: data.map(
-                    (item: any) => item.pv_power
-                ),
-            },
-            {
-                name: 'Battery Charge Power (W)',
-                type: 'line',
-                smooth: true,
-                symbol: 'none',
-                data: data.map(
-                    (item: any) =>
-                        item.battery_charge_power
-                ),
-            },
-            {
-                name: 'Battery Discharge Power (W)',
-                type: 'line',
-                smooth: true,
-                symbol: 'none',
-                data: data.map(
-                    (item: any) =>
-                        item.battery_discharge_power
-                ),
-            },
-            {
-                name: 'Battery SoC (%)',
-                type: 'line',
-                smooth: true,
-                symbol: 'none',
-                data: data.map(
-                    (item: any) => item.battery_soc
-                ),
-                yAxisIndex: 1,
-            },
-        ]
-        */
+            groupedValues[nameHouse].push(housePower)
         })
 
         setSeries(
