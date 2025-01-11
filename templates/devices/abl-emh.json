@@ -1,0 +1,46 @@
+{
+    "consumer": {
+        "power": {
+            "modbus": {
+                "modifier": "mul",
+                "values": [
+                    {
+                        "modifier": "add",
+                        "values": [
+                            {
+                                "address": 46,
+                                "size": 5,
+                                "datatype": "uint16be",
+                                "scale": 0.1,
+                                "offset": 6,
+                                "register": "holding"
+                            },
+
+                            {
+                                "address": 46,
+                                "size": 5,
+                                "datatype": "uint16be",
+                                "scale": 0.1,
+                                "offset": 8,
+                                "register": "holding"
+                            },
+
+                            {
+                                "address": 46,
+                                "size": 5,
+                                "datatype": "uint16be",
+                                "scale": 0.1,
+                                "offset": 8,
+                                "register": "holding"
+                            }
+                        ]
+                    },
+
+                    {
+                        "staticValue": 230
+                    }
+                ]
+            }
+        }
+    }
+}

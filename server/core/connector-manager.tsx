@@ -1,6 +1,6 @@
 import { ConnectorDef } from 'server/defs/configuration'
 import { logging } from './log-manager'
-import { ModbusTCPConnector } from 'server/connectors/modbus-tcp-connector'
+import { ModbusConnector } from 'server/connectors/modbus-connector'
 import {
     defaultConnectorConfig,
     IConnector,
@@ -8,7 +8,7 @@ import {
 import { TPLinkTapoConnector } from 'server/connectors/tplink-tapo-connector'
 
 export const connectorClasses: { [id: string]: any } = {
-    'modbus-tcp': ModbusTCPConnector,
+    modbus: ModbusConnector,
     tapo: TPLinkTapoConnector,
 }
 
@@ -27,9 +27,9 @@ export namespace connectors {
         connectorDefs.forEach((connectorDef) => {
             const configuration = { ...defaultConnectorConfig, ...connectorDef }
 
-            if (!(configuration.interface in connectorClasses)) {
-                _logger.warn(
-                    `No class found for connector type'${connectorDef.interface}`
+            if (!(configuration.type in connectorClasses)) {
+                _logger.error(
+                    `No class found for connector type [${connectorDef.type}]`
                 )
             } else {
                 if (configuration.id in _connectorInstances) {
@@ -38,9 +38,7 @@ export namespace connectors {
                     )
                 } else {
                     _connectorInstances[configuration.id] =
-                        new connectorClasses[configuration.interface](
-                            connectorDef
-                        )
+                        new connectorClasses[configuration.type](connectorDef)
                 }
             }
         })
