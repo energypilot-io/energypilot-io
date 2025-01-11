@@ -14,7 +14,7 @@ export type LoggingDef = {
 
 export type ConnectorDef = {
     id: string
-    interface: string
+    type: string
     enabled?: boolean
 }
 
