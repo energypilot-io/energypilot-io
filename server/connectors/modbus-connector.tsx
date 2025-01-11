@@ -12,8 +12,6 @@ import TcpConnection from '@csllc/cs-modbus/lib/connections/TcpConnection'
 // @ts-ignore
 import SerialConnection from '@csllc/cs-modbus/lib/connections/SerialConnection'
 // @ts-ignore
-import AsciiTransport from '@csllc/cs-modbus/lib/transports/AsciiTransport'
-// @ts-ignore
 import IpTransport from '@csllc/cs-modbus/lib/transports/IpTransport'
 // @ts-ignore
 import RtuTransport from '@csllc/cs-modbus/lib/transports/RtuTransport'
@@ -23,6 +21,8 @@ import Master from '@csllc/cs-modbus/lib/Master'
 import Transaction from '@csllc/cs-modbus/lib/Transaction'
 // @ts-ignore
 import functions from '@csllc/cs-modbus/lib/functions'
+
+import AsciiTransport from 'server/libs/cs-modbus/transports/AsciiTransport'
 
 type ModbusConnectorDef = ConnectorDef & {
     interface?: 'tcp' | 'serial'
@@ -101,9 +101,9 @@ export class ModbusConnector implements IConnector {
         | ModbusTCPConnectorDef
         | ModbusSerialConnectorDef
 
-    private _connection
-    private _transport
-    private _master
+    private _connection: any
+    private _transport: any
+    private _master: any
 
     constructor(modbusConnectorDef: Partial<ModbusTCPConnectorDef> = {}) {
         this._configuration = {
@@ -259,7 +259,7 @@ export class ModbusConnector implements IConnector {
                 ...parameterDef,
             } as ModbusTCPParameterDef
 
-            var request = undefined
+            var request: any = undefined
             switch (modbusParameter.register ?? 'input') {
                 case 'input': {
                     request = new functions.ReadInputRegistersRequest(
@@ -282,9 +282,9 @@ export class ModbusConnector implements IConnector {
                 return resolve(undefined)
             }
 
-            const transaction = new Transaction(request)
-            transaction.setUnit(this._configuration.modbusId)
+            const transaction: any = new Transaction(request)
             transaction.setMaxRetries(3)
+            transaction.setUnit(this._configuration.modbusId)
             transaction.setTimeout(this._configuration.timeout)
 
             transaction.on('error', (err: any) => {
