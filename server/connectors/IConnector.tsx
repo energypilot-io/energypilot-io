@@ -3,13 +3,15 @@ import { ParameterDef } from 'server/defs/template'
 
 export const defaultConnectorConfig: ConnectorDef = {
     id: '',
-    interface: '',
+    type: '',
     enabled: true,
 }
 
 export interface IConnector {
     id: string
     templateInterfaceKey: string
+
+    resetCache: () => void
 
     read: (parameterDef: ParameterDef) => Promise<number | undefined>
 }

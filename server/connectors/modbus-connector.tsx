@@ -42,7 +42,7 @@ type ModbusSerialConnectorDef = ModbusConnectorDef & {
     baudRate?: number
 }
 
-type ModbusTCPParameterDef = ParameterDef & {
+type ModbusParameterDef = ParameterDef & {
     address: number
     size: number
     datatype:
@@ -95,6 +95,8 @@ export class ModbusConnector implements IConnector {
     id: string
 
     private _logger
+
+    private _cache: { [key: string]: Buffer } = {}
 
     private _configuration:
         | ModbusConnectorDef
@@ -248,6 +250,79 @@ export class ModbusConnector implements IConnector {
         })
     }
 
+    private getParameterValue(
+        buffer: Buffer,
+        parameterDef: ModbusParameterDef
+    ): number | undefined {
+        var value: number | undefined = undefined
+
+        const offset = parameterDef.offset ?? 0
+
+        if (offset > buffer.length - 1) return value
+
+        switch (parameterDef.datatype) {
+            case 'int8':
+            case 'bool8':
+                value = buffer.readInt8(offset) * parameterDef.scale
+                break
+            case 'uint8':
+                value = buffer.readUInt8(offset) * parameterDef.scale
+                break
+            case 'int16be':
+                value = buffer.readInt16BE(offset) * parameterDef.scale
+                break
+            case 'int16le':
+                value = buffer.readInt16LE(offset) * parameterDef.scale
+                break
+            case 'uint16be':
+            case 'bool16':
+                value = buffer.readUInt16BE(offset) * parameterDef.scale
+                break
+            case 'uint16le':
+                value = buffer.readUInt16LE(offset) * parameterDef.scale
+                break
+            case 'int32be':
+                value = buffer.readInt32BE(offset) * parameterDef.scale
+                break
+            case 'int32le':
+                value = buffer.readInt32LE(offset) * parameterDef.scale
+                break
+            case 'int32sw':
+                value = buffer.swap16().readInt32LE(offset) * parameterDef.scale
+                break
+            case 'uint32be':
+            case 'bool32':
+                value = buffer.readUInt32BE(offset) * parameterDef.scale
+                break
+            case 'uint32le':
+                value = buffer.readUInt32LE(offset) * parameterDef.scale
+                break
+            case 'uint32sw':
+                value =
+                    buffer.swap16().readUInt32LE(offset) * parameterDef.scale
+                break
+        }
+
+        if (value !== undefined) {
+            if (parameterDef.bitmask !== undefined) {
+                value &= parameterDef.bitmask
+            }
+
+            if (
+                ['bool8', 'bool16', 'bool32'].indexOf(parameterDef.datatype) >
+                -1
+            ) {
+                value = value > 0 ? 1 : 0
+            }
+        }
+
+        return value
+    }
+
+    public resetCache() {
+        this._cache = {}
+    }
+
     public async read(
         parameterDef: Partial<ParameterDef> = {}
     ): Promise<number | undefined> {
@@ -257,7 +332,17 @@ export class ModbusConnector implements IConnector {
             const modbusParameter = {
                 ...defaultParameterDef,
                 ...parameterDef,
-            } as ModbusTCPParameterDef
+            } as ModbusParameterDef
+
+            const cacheKey = JSON.stringify({
+                address: modbusParameter.address,
+                size: modbusParameter.size,
+            })
+
+            if (cacheKey in this._cache) {
+                const buffer = this._cache[cacheKey]
+                return resolve(this.getParameterValue(buffer, modbusParameter))
+            }
 
             var request: any = undefined
             switch (modbusParameter.register ?? 'input') {
@@ -292,96 +377,16 @@ export class ModbusConnector implements IConnector {
                 return resolve(undefined)
             })
 
-            transaction.on('complete', function (err: any, response: any) {
+            transaction.on('complete', (err: any, response: any) => {
                 if (err) {
                     return resolve(undefined)
                 } else {
-                    var value: number | undefined = undefined
-
                     const buffer: Buffer = response.getValues()
-                    const offset = modbusParameter.offset ?? 0
+                    this._cache[cacheKey] = buffer
 
-                    if (offset > buffer.length - 1) return resolve(value)
-
-                    switch (modbusParameter.datatype) {
-                        case 'int8':
-                        case 'bool8':
-                            value =
-                                buffer.readInt8(offset) * modbusParameter.scale
-                            break
-                        case 'uint8':
-                            value =
-                                buffer.readUInt8(offset) * modbusParameter.scale
-                            break
-                        case 'int16be':
-                            value =
-                                buffer.readInt16BE(offset) *
-                                modbusParameter.scale
-                            break
-                        case 'int16le':
-                            value =
-                                buffer.readInt16LE(offset) *
-                                modbusParameter.scale
-                            break
-                        case 'uint16be':
-                        case 'bool16':
-                            value =
-                                buffer.readUInt16BE(offset) *
-                                modbusParameter.scale
-                            break
-                        case 'uint16le':
-                            value =
-                                buffer.readUInt16LE(offset) *
-                                modbusParameter.scale
-                            break
-                        case 'int32be':
-                            value =
-                                buffer.readInt32BE(offset) *
-                                modbusParameter.scale
-                            break
-                        case 'int32le':
-                            value =
-                                buffer.readInt32LE(offset) *
-                                modbusParameter.scale
-                            break
-                        case 'int32sw':
-                            value =
-                                buffer.swap16().readInt32LE(offset) *
-                                modbusParameter.scale
-                            break
-                        case 'uint32be':
-                        case 'bool32':
-                            value =
-                                buffer.readUInt32BE(offset) *
-                                modbusParameter.scale
-                            break
-                        case 'uint32le':
-                            value =
-                                buffer.readUInt32LE(offset) *
-                                modbusParameter.scale
-                            break
-                        case 'uint32sw':
-                            value =
-                                buffer.swap16().readUInt32LE(offset) *
-                                modbusParameter.scale
-                            break
-                    }
-
-                    if (value !== undefined) {
-                        if (modbusParameter.bitmask !== undefined) {
-                            value &= modbusParameter.bitmask
-                        }
-
-                        if (
-                            ['bool8', 'bool16', 'bool32'].indexOf(
-                                modbusParameter.datatype
-                            ) > -1
-                        ) {
-                            value = value > 0 ? 1 : 0
-                        }
-                    }
-
-                    return resolve(value)
+                    return resolve(
+                        this.getParameterValue(buffer, modbusParameter)
+                    )
                 }
             })
 

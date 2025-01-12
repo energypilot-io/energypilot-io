@@ -51,4 +51,10 @@ export namespace connectors {
 
         return undefined
     }
+
+    export function resetAllCaches() {
+        for (const connectorId in _connectorInstances) {
+            _connectorInstances[connectorId].resetCache()
+        }
+    }
 }
