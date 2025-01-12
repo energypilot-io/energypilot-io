@@ -15,6 +15,7 @@ import { devices } from './device-manager'
 import { DeviceSnapshot } from 'server/database/entities/device-snapshot.entity'
 
 import Semaphore from 'ts-semaphore'
+import { connectors } from './connector-manager'
 
 var _logger: logging.ChildLogger
 
@@ -43,6 +44,8 @@ export namespace dataupdate {
     }
 
     async function pollData() {
+        connectors.resetAllCaches()
+
         _logger.debug('Collecting live data from devices')
 
         const snapshot: DeviceSnapshot[] = []
@@ -54,68 +57,54 @@ export namespace dataupdate {
                 const gridPowerValue = await device.getPowerValue()
                 const gridEnergyValue = await device.getEnergyValue()
 
-                if (
-                    gridPowerValue !== undefined ||
-                    gridEnergyValue !== undefined
-                ) {
-                    snapshot.push(
-                        new DeviceSnapshot({
-                            type: 'grid',
-                            device_id: device.id,
-                            label: device.label,
-                            power: gridPowerValue,
-                            energy: gridEnergyValue,
-                        })
-                    )
-                }
+                snapshot.push(
+                    new DeviceSnapshot({
+                        type: 'grid',
+                        device_id: device.id,
+                        label: device.label,
+                        power: gridPowerValue,
+                        energy: gridEnergyValue,
+                    })
+                )
             } else if (device instanceof PVDevice) {
                 const pvPowerValue = await device.getPowerValue()
                 const pvEnergyValue = await device.getEnergyValue()
 
-                if (pvPowerValue !== undefined || pvEnergyValue !== undefined) {
-                    snapshot.push(
-                        new DeviceSnapshot({
-                            type: 'pv',
-                            device_id: device.id,
-                            label: device.label,
-                            power: pvPowerValue,
-                            energy: pvEnergyValue,
-                        })
-                    )
-                }
+                snapshot.push(
+                    new DeviceSnapshot({
+                        type: 'pv',
+                        device_id: device.id,
+                        label: device.label,
+                        power: pvPowerValue,
+                        energy: pvEnergyValue,
+                    })
+                )
             } else if (device instanceof BatteryDevice) {
                 const socValue = await device.getSoCValue()
                 const batteryPowerValue = await device.getPowerValue()
 
-                if (socValue !== undefined || batteryPowerValue !== undefined) {
-                    snapshot.push(
-                        new DeviceSnapshot({
-                            type: 'battery',
-                            device_id: device.id,
-                            label: device.label,
-                            soc: socValue,
-                            power: batteryPowerValue,
-                        })
-                    )
-                }
+                snapshot.push(
+                    new DeviceSnapshot({
+                        type: 'battery',
+                        device_id: device.id,
+                        label: device.label,
+                        soc: socValue,
+                        power: batteryPowerValue,
+                    })
+                )
             } else if (device instanceof ConsumerDevice) {
                 const consumerPowerValue = await device.getPowerValue()
                 const consumerEnergyValue = await device.getEnergyValue()
 
-                if (
-                    consumerPowerValue !== undefined ||
-                    consumerEnergyValue !== undefined
-                ) {
-                    snapshot.push(
-                        new DeviceSnapshot({
-                            type: 'consumer',
-                            device_id: device.id,
-                            label: device.label,
-                            power: consumerPowerValue,
-                            energy: consumerEnergyValue,
-                        })
-                    )
-                }
+                snapshot.push(
+                    new DeviceSnapshot({
+                        type: 'consumer',
+                        device_id: device.id,
+                        label: device.label,
+                        power: consumerPowerValue,
+                        energy: consumerEnergyValue,
+                    })
+                )
             }
         }
 

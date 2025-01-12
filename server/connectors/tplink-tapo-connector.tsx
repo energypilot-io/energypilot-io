@@ -32,6 +32,8 @@ export class TPLinkTapoConnector implements IConnector {
 
     private _logger = logging.getLogger('interfaces.tapo')
 
+    private _cache: { [key: string]: any } = {}
+
     private _configuration: TPLinkTapoConnectorDef
 
     private _device: any
@@ -58,6 +60,10 @@ export class TPLinkTapoConnector implements IConnector {
         this._logger.info(`Connected to [${this._configuration.ip}]`)
     }
 
+    public resetCache() {
+        this._cache = {}
+    }
+
     public async read(parameterDef: Partial<ParameterDef> = {}) {
         if (this._device === undefined) return undefined
 
@@ -67,17 +73,23 @@ export class TPLinkTapoConnector implements IConnector {
         } as TPLinkTapoParameterDef
 
         let response
-        switch (tplinkTapoParameter.request) {
-            case 'getEnergyUsage':
-                response = await this._device.getEnergyUsage()
-                break
+        if (tplinkTapoParameter.request in this._cache) {
+            response = this._cache[tplinkTapoParameter.request]
+        } else {
+            switch (tplinkTapoParameter.request) {
+                case 'getEnergyUsage':
+                    response = await this._device.getEnergyUsage()
+                    break
 
-            case 'getDeviceInfo':
-                response = await this._device.getDeviceInfo()
-                break
+                case 'getDeviceInfo':
+                    response = await this._device.getDeviceInfo()
+                    break
 
-            default:
-                return undefined
+                default:
+                    return undefined
+            }
+
+            this._cache[tplinkTapoParameter.request] = response
         }
 
         if (
