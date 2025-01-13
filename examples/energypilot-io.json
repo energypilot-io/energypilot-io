@@ -13,26 +13,49 @@
         "filename": ":memory:"
     },
 
+    "update": {
+        "polling": 5,
+        "snapshot": 60
+    },
+
     "connectors": [
         {
             "id": "sungrow_1",
-            "interface": "modbus-tcp",
+            "type": "modbus",
             "host": "192.168.178.199",
             "port": 502
         },
         {
             "id": "sungrow_2",
-            "interface": "modbus-tcp",
+            "type": "modbus",
             "host": "192.168.178.42",
             "port": 502
         },
 
         {
             "id": "tapo_1",
-            "interface": "tapo",
-            "email": "xxx",
-            "password": "xxx",
+            "type": "tapo",
+            "email": "reifialex@gmail.com",
+            "password": "6#Vb8N9qvpB2!O8",
             "ip": "192.168.178.82"
+        },
+
+        {
+            "id": "abl_emh1",
+            "type": "modbus",
+            "transport": "ascii",
+            "host": "192.168.178.152",
+            "port": 502
+        }
+    ],
+
+    "devices_": [
+        {
+            "id": "wallbox1",
+            "label": "Wallbox",
+            "type": "consumer",
+            "template": "abl-emh",
+            "connector": "abl_emh1"
         }
     ],
 
@@ -67,9 +90,18 @@
 
         {
             "id": "antminer1",
+            "label": "Antminer",
             "type": "consumer",
             "template": "tapo-p1xx",
             "connector": "tapo_1"
+        },
+
+        {
+            "id": "wallbox1",
+            "label": "Wallbox",
+            "type": "consumer",
+            "template": "abl-emh",
+            "connector": "abl_emh1"
         }
     ]
 }
