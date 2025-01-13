@@ -13,7 +13,7 @@ export class PVDevice extends BaseDevice {
         deviceDef: Partial<DeviceDef> = {},
         templateDef: Partial<TemplateDef> = {}
     ) {
-        super(connector, deviceDef)
+        super(connector, deviceDef, templateDef.pv)
 
         if (
             templateDef.pv?.power !== undefined &&

@@ -13,7 +13,7 @@ export class ConsumerDevice extends BaseDevice {
         deviceDef: Partial<DeviceDef> = {},
         templateDef: Partial<TemplateDef> = {}
     ) {
-        super(connector, deviceDef)
+        super(connector, deviceDef, templateDef.consumer)
 
         if (
             templateDef.consumer?.energy !== undefined &&

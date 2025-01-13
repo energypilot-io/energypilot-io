@@ -11,22 +11,26 @@ export type ModifierDef = {
     values: ParameterDef[]
 }
 
-export type GridTemplateDef = {
+export type BaseDeviceTemplateDef = {
+    enabled: { [key: string]: ModifierDef | StaticValueDef | ParameterDef }
+}
+
+export type GridTemplateDef = BaseDeviceTemplateDef & {
     power: { [key: string]: ModifierDef | StaticValueDef | ParameterDef }
     energy: { [key: string]: ModifierDef | StaticValueDef | ParameterDef }
 }
 
-export type PVTemplateDef = {
+export type PVTemplateDef = BaseDeviceTemplateDef & {
     power: { [key: string]: ModifierDef | StaticValueDef | ParameterDef }
     energy: { [key: string]: ModifierDef | StaticValueDef | ParameterDef }
 }
 
-export type BatteryTemplateDef = {
+export type BatteryTemplateDef = BaseDeviceTemplateDef & {
     soc: { [key: string]: ModifierDef | StaticValueDef | ParameterDef }
     power: { [key: string]: ModifierDef | StaticValueDef | ParameterDef }
 }
 
-export type ConsumerTemplateDef = {
+export type ConsumerTemplateDef = BaseDeviceTemplateDef & {
     power: { [key: string]: ModifierDef | StaticValueDef | ParameterDef }
     energy: { [key: string]: ModifierDef | StaticValueDef | ParameterDef }
 }

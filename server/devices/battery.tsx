@@ -13,7 +13,7 @@ export class BatteryDevice extends BaseDevice {
         deviceDef: Partial<DeviceDef> = {},
         templateDef: Partial<TemplateDef> = {}
     ) {
-        super(connector, deviceDef)
+        super(connector, deviceDef, templateDef.battery)
 
         if (
             templateDef.battery?.soc !== undefined &&
