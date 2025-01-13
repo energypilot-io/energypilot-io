@@ -52,10 +52,15 @@ export namespace dataupdate {
 
         for (let key in devices.instances) {
             const device = devices.instances[key]
+            const isEnabled = await device.isEnabled()
 
             if (device instanceof GridDevice) {
-                const gridPowerValue = await device.getPowerValue()
-                const gridEnergyValue = await device.getEnergyValue()
+                const gridPowerValue = isEnabled
+                    ? await device.getPowerValue()
+                    : 0
+                const gridEnergyValue = isEnabled
+                    ? await device.getEnergyValue()
+                    : 0
 
                 snapshot.push(
                     new DeviceSnapshot({
@@ -67,8 +72,12 @@ export namespace dataupdate {
                     })
                 )
             } else if (device instanceof PVDevice) {
-                const pvPowerValue = await device.getPowerValue()
-                const pvEnergyValue = await device.getEnergyValue()
+                const pvPowerValue = isEnabled
+                    ? await device.getPowerValue()
+                    : 0
+                const pvEnergyValue = isEnabled
+                    ? await device.getEnergyValue()
+                    : 0
 
                 snapshot.push(
                     new DeviceSnapshot({
@@ -80,8 +89,10 @@ export namespace dataupdate {
                     })
                 )
             } else if (device instanceof BatteryDevice) {
-                const socValue = await device.getSoCValue()
-                const batteryPowerValue = await device.getPowerValue()
+                const socValue = isEnabled ? await device.getSoCValue() : 0
+                const batteryPowerValue = isEnabled
+                    ? await device.getPowerValue()
+                    : 0
 
                 snapshot.push(
                     new DeviceSnapshot({
@@ -93,8 +104,12 @@ export namespace dataupdate {
                     })
                 )
             } else if (device instanceof ConsumerDevice) {
-                const consumerPowerValue = await device.getPowerValue()
-                const consumerEnergyValue = await device.getEnergyValue()
+                const consumerPowerValue = isEnabled
+                    ? await device.getPowerValue()
+                    : 0
+                const consumerEnergyValue = isEnabled
+                    ? await device.getEnergyValue()
+                    : 0
 
                 snapshot.push(
                     new DeviceSnapshot({

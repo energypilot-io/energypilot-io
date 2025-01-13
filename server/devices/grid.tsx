@@ -13,7 +13,7 @@ export class GridDevice extends BaseDevice {
         deviceDef: Partial<DeviceDef> = {},
         templateDef: Partial<TemplateDef> = {}
     ) {
-        super(connector, deviceDef)
+        super(connector, deviceDef, templateDef.grid)
 
         if (
             templateDef.grid?.power !== undefined &&
