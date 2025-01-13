@@ -20,7 +20,7 @@ import { CanvasRenderer } from 'echarts/renderers'
 
 import { useEffect, useState } from 'react'
 import { Card, CardContent } from '~/components/ui/card'
-import { formatEnergy } from '~/lib/utils'
+import { formatEnergy, formatPower } from '~/lib/utils'
 import { ToggleGroup, ToggleGroupItem } from '~/components/ui/toggle-group'
 import { LoaderIcon } from 'lucide-react'
 import { WS_EVENT_SNAPSHOT_CREATED } from 'server/constants'
@@ -28,6 +28,7 @@ import { useSocket } from '~/context'
 import { DeviceSnapshot } from 'server/database/entities/device-snapshot.entity'
 import { Collection } from '@mikro-orm/core'
 import { Snapshot } from 'server/database/entities/snapshot.entity'
+import { CallbackDataParams } from 'echarts/types/dist/shared'
 
 export default function Page() {
     const { t } = useTranslation()
@@ -89,6 +90,7 @@ export default function Page() {
         if (!Array.isArray(fetcher.data)) return
 
         const groupedValues: { [name: string]: number[] } = {}
+        const groupedSoCValues: { [name: string]: number[] } = {}
 
         const nameHouse = t('liveEnergyCard.nodes.home')
         groupedValues[nameHouse] = []
@@ -113,6 +115,13 @@ export default function Page() {
                         break
 
                     case 'battery':
+                        if (!(device_id in groupedSoCValues)) {
+                            groupedSoCValues[device_id] = []
+                        }
+
+                        groupedSoCValues[device_id].push(
+                            deviceSnapshot.soc ?? 0
+                        )
                     case 'consumer':
                         housePower -= deviceSnapshot.power ?? 0
                         break
@@ -124,8 +133,8 @@ export default function Page() {
             groupedValues[nameHouse].push(housePower)
         })
 
-        setSeries(
-            Object.keys(groupedValues).map((device_id) => {
+        setSeries([
+            ...Object.keys(groupedValues).map((device_id) => {
                 return {
                     name: device_id,
                     type: 'line',
@@ -133,15 +142,30 @@ export default function Page() {
                     symbol: 'none',
                     data: groupedValues[device_id],
                     tooltip: {
-                        trigger: 'axis',
-                        formatter: function (a: number) {
-                            const formatedEnergy = formatEnergy(a)
-                            return `${formatedEnergy?.value} ${formatedEnergy?.unit}`
+                        valueFormatter: (value: number, dataIndex: number) => {
+                            const formattedValue = formatPower(value)
+                            return `${formattedValue?.value} ${formattedValue?.unit}`
                         },
                     },
                 }
-            })
-        )
+            }),
+
+            ...Object.keys(groupedSoCValues).map((device_id) => {
+                return {
+                    name: `${device_id} SoC`,
+                    type: 'line',
+                    smooth: true,
+                    symbol: 'none',
+                    yAxisIndex: 1,
+                    data: groupedSoCValues[device_id],
+                    tooltip: {
+                        valueFormatter: (value: number, dataIndex: number) => {
+                            return `${value.toFixed(2)} %`
+                        },
+                    },
+                }
+            }),
+        ])
     }, [fetcher.data])
 
     return (
@@ -189,6 +213,13 @@ export default function Page() {
                                     renderer={'canvas'}
                                     tooltip={{
                                         trigger: 'axis',
+
+                                        axisPointer: {
+                                            type: 'cross',
+                                            label: {
+                                                backgroundColor: '#6a7985',
+                                            },
+                                        },
                                     }}
                                     toolbox={{
                                         feature: {
