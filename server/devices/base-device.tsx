@@ -45,6 +45,6 @@ export class BaseDevice {
         if (this._enabledParameter === undefined) return true
 
         const value = await this._enabledParameter?.getValue()
-        return value !== 0
+        return value !== undefined && value !== 0
     }
 }
