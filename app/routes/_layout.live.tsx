@@ -186,7 +186,7 @@ export default function Page() {
     return (
         <>
             <Header
-                breadcrumbs={[{ label: t('pages.liveData.title'), link: '#' }]}
+                breadcrumbs={[{ label: t('pages.graph.title'), link: '#' }]}
             />
             <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
                 <div className="flex flex-col gap-2">

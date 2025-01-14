@@ -79,7 +79,7 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
                             <SidebarMenuButton asChild>
                                 <a href="/live">
                                     <ChartSpline />
-                                    <span>{t('pages.liveData.title')}</span>
+                                    <span>{t('pages.graph.title')}</span>
                                 </a>
                             </SidebarMenuButton>
                         </SidebarMenuItem>

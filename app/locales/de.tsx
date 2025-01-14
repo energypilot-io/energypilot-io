@@ -10,8 +10,8 @@ export default {
             title: 'Dashboard',
         },
 
-        liveData: {
-            title: 'Live Daten',
+        graph: {
+            title: 'Graph',
         },
     },
 
