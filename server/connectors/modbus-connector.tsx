@@ -73,7 +73,7 @@ const defaultModbusConnectorDef: ModbusConnectorDef = {
     transport: 'ip',
 
     modbusId: 1,
-    timeout: 1000,
+    timeout: 2500,
 }
 
 const defaultModbusTCPConnectorDef: ModbusTCPConnectorDef = {
@@ -175,10 +175,10 @@ export class ModbusConnector implements IConnector {
         this._master = new Master({
             transport: this._transport,
             suppressTransactionErrors: false,
-            retryOnException: true,
+            retryOnException: false,
             maxConcurrentRequests: 1,
             defaultUnit: this._configuration.modbusId,
-            defaultMaxRetries: 3,
+            defaultMaxRetries: 0,
             defaultTimeout: this._configuration.timeout,
         })
 
@@ -254,6 +254,18 @@ export class ModbusConnector implements IConnector {
                 'Error Message: ' + err.message,
                 'Error' + 'Modbus Error Type: ' + err.err
             )
+        })
+
+        process.on('SIGTERM', () => {
+            if (this._connection !== undefined) {
+                this._connection.destroy()
+            }
+        })
+
+        process.on('exit', (code) => {
+            if (this._connection !== undefined) {
+                this._connection.destroy()
+            }
         })
     }
 
@@ -334,7 +346,7 @@ export class ModbusConnector implements IConnector {
         parameterDef: Partial<ParameterDef> = {}
     ): Promise<number | undefined> {
         return new Promise<number | undefined>((resolve) => {
-            if (this._master === undefined || !this._master.connected)
+            if (this._master === undefined || this._connection === undefined)
                 return resolve(undefined)
 
             const modbusParameter = {
@@ -345,6 +357,7 @@ export class ModbusConnector implements IConnector {
             const cacheKey = JSON.stringify({
                 address: modbusParameter.address,
                 size: modbusParameter.size,
+                register: modbusParameter.register ?? 'input',
             })
 
             if (cacheKey in this._cache) {
@@ -376,7 +389,6 @@ export class ModbusConnector implements IConnector {
             }
 
             const transaction: any = new Transaction(request)
-            transaction.setMaxRetries(3)
             transaction.setUnit(this._configuration.modbusId)
             transaction.setTimeout(this._configuration.timeout)
 
