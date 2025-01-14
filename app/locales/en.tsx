@@ -15,8 +15,8 @@ export default {
             title: 'Dashboard',
         },
 
-        liveData: {
-            title: 'Live Data',
+        graph: {
+            title: 'Graph',
         },
     },
 
