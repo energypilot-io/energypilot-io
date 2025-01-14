@@ -22,17 +22,27 @@ import { useEffect, useState } from 'react'
 import { Card, CardContent } from '~/components/ui/card'
 import { formatEnergy, formatPower } from '~/lib/utils'
 import { ToggleGroup, ToggleGroupItem } from '~/components/ui/toggle-group'
-import { LoaderIcon } from 'lucide-react'
+import { CalendarIcon, LoaderIcon } from 'lucide-react'
 import { WS_EVENT_SNAPSHOT_CREATED } from 'server/constants'
 import { useSocket } from '~/context'
 import { DeviceSnapshot } from 'server/database/entities/device-snapshot.entity'
 import { Collection } from '@mikro-orm/core'
 import { Snapshot } from 'server/database/entities/snapshot.entity'
-import { CallbackDataParams } from 'echarts/types/dist/shared'
+import { Theme, useTheme } from 'remix-themes'
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '~/components/ui/popover'
+import { Button } from '~/components/ui/button'
+import { DateRange } from 'react-day-picker'
+import { addDays, format } from 'date-fns'
+import { Calendar } from '~/components/ui/calendar'
+import { cn } from '~/lib/utils'
 
 export default function Page() {
     const { t } = useTranslation()
-
+    const [theme] = useTheme()
     const socket = useSocket()
     const fetcher = useFetcher()
 
@@ -52,6 +62,11 @@ export default function Page() {
             label: t('energyProductionCard.timeframes.last30Days'),
         },
     ]
+
+    const [date, setDate] = useState<DateRange | undefined>({
+        from: new Date(2022, 0, 20),
+        to: addDays(new Date(2022, 0, 20), 20),
+    })
 
     const [timeframe, setTimeframe] = useState<string>(timeframes[0].days)
 
@@ -175,18 +190,59 @@ export default function Page() {
             />
             <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
                 <div className="flex flex-col gap-2">
-                    <ToggleGroup
-                        type="single"
-                        className="justify-start"
-                        onValueChange={onTimeframeSelected}
-                        value={timeframe}
-                    >
-                        {timeframes.map((item, index) => (
-                            <ToggleGroupItem key={index} value={item.days}>
-                                {item.label}
-                            </ToggleGroupItem>
-                        ))}
-                    </ToggleGroup>
+                    <div className="flex">
+                        <ToggleGroup
+                            type="single"
+                            className="justify-start"
+                            onValueChange={onTimeframeSelected}
+                            value={timeframe}
+                        >
+                            {timeframes.map((item, index) => (
+                                <ToggleGroupItem key={index} value={item.days}>
+                                    {item.label}
+                                </ToggleGroupItem>
+                            ))}
+                        </ToggleGroup>
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <Button
+                                    id="date"
+                                    variant={'outline'}
+                                    className={cn(
+                                        'w-[300px] justify-start text-left font-normal',
+                                        !date && 'text-muted-foreground'
+                                    )}
+                                >
+                                    <CalendarIcon />
+                                    {date?.from ? (
+                                        date.to ? (
+                                            <>
+                                                {format(date.from, 'LLL dd, y')}{' '}
+                                                - {format(date.to, 'LLL dd, y')}
+                                            </>
+                                        ) : (
+                                            format(date.from, 'LLL dd, y')
+                                        )
+                                    ) : (
+                                        <span>Pick a date</span>
+                                    )}
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent
+                                className="w-auto p-0"
+                                align="start"
+                            >
+                                <Calendar
+                                    initialFocus
+                                    mode="range"
+                                    defaultMonth={date?.from}
+                                    selected={date}
+                                    onSelect={setDate}
+                                    numberOfMonths={2}
+                                />
+                            </PopoverContent>
+                        </Popover>
+                    </div>
 
                     <Card className="bg-muted/50">
                         <CardContent className="flex justify-center">
@@ -199,32 +255,25 @@ export default function Page() {
                             ) : (
                                 <EChart
                                     use={[
-                                        TitleComponent,
                                         TooltipComponent,
                                         GridComponent,
                                         LineChart,
                                         CanvasRenderer,
-                                        ToolboxComponent,
                                         LegendComponent,
                                         DatasetComponent,
                                         DataZoomComponent,
                                     ]}
-                                    className="w-full h-full min-h-[50vh]"
+                                    className="w-full lg:min-h-[50vh] min-h-72"
                                     renderer={'canvas'}
+                                    darkMode={theme === Theme.DARK}
                                     tooltip={{
                                         trigger: 'axis',
+                                        triggerOn: 'mousemove',
 
                                         axisPointer: {
                                             type: 'cross',
                                             label: {
                                                 backgroundColor: '#6a7985',
-                                            },
-                                        },
-                                    }}
-                                    toolbox={{
-                                        feature: {
-                                            restore: {
-                                                // yAxisIndex: false
                                             },
                                         },
                                     }}

@@ -15,6 +15,16 @@ import { formatPower } from '~/lib/utils'
 import { CallbackDataParams } from 'echarts/types/dist/shared'
 import { LoaderIcon } from 'lucide-react'
 
+const consumerColorPalette = [
+    '#F94144',
+    '#F8961E',
+    '#F9844A',
+    '#F9C74F',
+    '#90BE6D',
+    '#43AA8B',
+    '#577590',
+]
+
 export function LiveEnergyCard() {
     const socket = useSocket()
 
@@ -108,13 +118,13 @@ export function LiveEnergyCard() {
         pvPower: number,
         consumers: { name: string; value: number }[]
     ) {
-        const housePower =
+        const homePower =
             gridPower +
             pvPower -
             batteryPower -
             consumers.reduce((sum, current) => sum + current.value, 0)
 
-        const nameHouse = t('liveEnergyCard.nodes.home')
+        const nameHome = t('liveEnergyCard.nodes.home')
         const nameBattery = t('liveEnergyCard.nodes.battery')
         const nameGrid = t('liveEnergyCard.nodes.grid')
         const nameSolar = t('liveEnergyCard.nodes.solar')
@@ -122,20 +132,29 @@ export function LiveEnergyCard() {
         const links: { source: string; target: string; value: number }[] = []
         const nodes: { name: string; value: number; itemStyle?: any }[] = [
             {
-                name: nameHouse,
-                itemStyle: { color: '#2E8B57' },
-                value: housePower,
+                name: nameHome,
+                itemStyle: { color: '#277DA1' },
+                value: homePower,
             },
         ]
 
-        consumers.forEach((consumer: { name: string; value: number }) => {
-            nodes.push(consumer)
-        })
+        consumers.forEach(
+            (consumer: { name: string; value: number }, index) => {
+                nodes.push({
+                    ...consumer,
+                    itemStyle: {
+                        color: consumerColorPalette[
+                            index % consumerColorPalette.length
+                        ],
+                    },
+                })
+            }
+        )
 
         if (batteryPower !== 0) {
             nodes.push({
                 name: nameBattery,
-                itemStyle: { color: '#00BFFF' },
+                itemStyle: { color: '#4D908E' },
                 value: Math.abs(batteryPower),
             })
 
@@ -153,7 +172,7 @@ export function LiveEnergyCard() {
                 if (batteryPower < 0) {
                     links.push({
                         source: nameBattery,
-                        target: nameHouse,
+                        target: nameHome,
                         value: Math.abs(batteryPower),
                     })
                 }
@@ -163,7 +182,7 @@ export function LiveEnergyCard() {
         if (pvPower > 0) {
             nodes.push({
                 name: nameSolar,
-                itemStyle: { color: '#FFC300' },
+                itemStyle: { color: '#F3722C' },
                 value: pvPower,
             })
 
@@ -179,10 +198,10 @@ export function LiveEnergyCard() {
             if (pvPower > 0) {
                 links.push({
                     source: nameSolar,
-                    target: nameHouse,
-                    value: pvPower >= housePower ? housePower : pvPower,
+                    target: nameHome,
+                    value: pvPower >= homePower ? homePower : pvPower,
                 })
-                pvPower -= housePower
+                pvPower -= homePower
             }
 
             if (pvPower > 0 && batteryPower > 0) {
@@ -206,7 +225,7 @@ export function LiveEnergyCard() {
         if (gridPower !== 0) {
             nodes.push({
                 name: nameGrid,
-                itemStyle: { color: '#708090' },
+                itemStyle: { color: '#C6C6C6' },
                 value: Math.abs(gridPower),
             })
 
@@ -235,8 +254,8 @@ export function LiveEnergyCard() {
                 if (gridPower > 0) {
                     links.push({
                         source: nameGrid,
-                        target: nameHouse,
-                        value: gridPower >= housePower ? housePower : gridPower,
+                        target: nameHome,
+                        value: gridPower >= homePower ? homePower : gridPower,
                     })
                 }
             }

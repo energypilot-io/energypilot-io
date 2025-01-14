@@ -248,6 +248,13 @@ export class ModbusConnector implements IConnector {
 
             this._logger.info(message)
         })
+
+        this._master.on('error', (err: any) => {
+            this._logger.error(
+                'Error Message: ' + err.message,
+                'Error' + 'Modbus Error Type: ' + err.err
+            )
+        })
     }
 
     private getParameterValue(
@@ -327,7 +334,8 @@ export class ModbusConnector implements IConnector {
         parameterDef: Partial<ParameterDef> = {}
     ): Promise<number | undefined> {
         return new Promise<number | undefined>((resolve) => {
-            if (this._master === undefined) return resolve(undefined)
+            if (this._master === undefined || !this._master.connected)
+                return resolve(undefined)
 
             const modbusParameter = {
                 ...defaultParameterDef,
