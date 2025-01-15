@@ -6,7 +6,9 @@ import { DeviceDef } from 'server/defs/configuration'
 
 export class GridDevice extends BaseDevice {
     private _powerParameter: IParameter | undefined
-    private _energyParameter: IParameter | undefined
+
+    private _energyImportParameter: IParameter | undefined
+    private _energyExportParameter: IParameter | undefined
 
     constructor(
         connector: IConnector,
@@ -15,38 +17,48 @@ export class GridDevice extends BaseDevice {
     ) {
         super(connector, deviceDef, templateDef.grid)
 
-        if (
-            templateDef.grid?.power !== undefined &&
-            this._connector.templateInterfaceKey in templateDef.grid?.power
-        ) {
-            this._powerParameter = parseParameter(
-                templateDef.grid!.power[this._connector.templateInterfaceKey],
-                this._connector
-            )
-        }
+        this._powerParameter = this.getParameter(templateDef.grid, 'power')
 
-        if (
-            templateDef.grid?.energy !== undefined &&
-            this._connector.templateInterfaceKey in templateDef.grid?.energy
-        ) {
-            this._energyParameter = parseParameter(
-                templateDef.grid!.energy[this._connector.templateInterfaceKey],
-                this._connector
-            )
-        }
+        this._energyImportParameter = this.getParameter(
+            templateDef.grid,
+            'energyImport'
+        )
+
+        this._energyExportParameter = this.getParameter(
+            templateDef.grid,
+            'energyExport'
+        )
     }
 
     public async getPowerValue() {
         if (this._powerParameter === undefined) return undefined
 
         const powerValue = await this._powerParameter?.getValue()
+        if (powerValue !== undefined) {
+            this._logger.debug(`Read Power [${powerValue} W]`)
+        }
         return powerValue
     }
 
-    public async getEnergyValue() {
-        if (this._energyParameter === undefined) return undefined
+    public async getEnergyImportValue() {
+        if (this._energyImportParameter === undefined) return undefined
 
-        const energyValue = await this._energyParameter?.getValue()
+        const energyValue = await this._energyImportParameter?.getValue()
+        if (energyValue !== undefined) {
+            this._logger.debug(`Read Energy Import [${energyValue} kWh]`)
+        }
+
+        return energyValue
+    }
+
+    public async getEnergyExportValue() {
+        if (this._energyExportParameter === undefined) return undefined
+
+        const energyValue = await this._energyExportParameter?.getValue()
+        if (energyValue !== undefined) {
+            this._logger.debug(`Read Energy Export [${energyValue} kWh]`)
+        }
+
         return energyValue
     }
 }

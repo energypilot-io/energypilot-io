@@ -15,40 +15,29 @@ export class BatteryDevice extends BaseDevice {
     ) {
         super(connector, deviceDef, templateDef.battery)
 
-        if (
-            templateDef.battery?.soc !== undefined &&
-            this._connector.templateInterfaceKey in templateDef.battery?.soc
-        ) {
-            this._socParameter = parseParameter(
-                templateDef.battery?.soc[this._connector.templateInterfaceKey],
-                this._connector
-            )
-        }
-
-        if (
-            templateDef.battery?.power !== undefined &&
-            this._connector.templateInterfaceKey in templateDef.battery?.power
-        ) {
-            this._powerParameter = parseParameter(
-                templateDef.battery?.power[
-                    this._connector.templateInterfaceKey
-                ],
-                this._connector
-            )
-        }
+        this._socParameter = this.getParameter(templateDef.battery, 'soc')
+        this._powerParameter = this.getParameter(templateDef.battery, 'power')
     }
 
     public async getSoCValue() {
         if (this._socParameter === undefined) return undefined
 
         const socValue = await this._socParameter?.getValue()
+        if (socValue !== undefined) {
+            this._logger.debug(`Read SoC [${socValue} %]`)
+        }
+
         return socValue
     }
 
     public async getPowerValue() {
         if (this._powerParameter === undefined) return undefined
 
-        const chargePowerValue = await this._powerParameter?.getValue()
-        return chargePowerValue
+        const powerValue = await this._powerParameter?.getValue()
+        if (powerValue !== undefined) {
+            this._logger.debug(`Read Power [${powerValue} W]`)
+        }
+
+        return powerValue
     }
 }

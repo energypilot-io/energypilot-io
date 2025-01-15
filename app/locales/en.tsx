@@ -46,6 +46,13 @@ export default {
         },
     },
 
+    energyExportCard: {
+        title: 'Energy Export',
+        description: 'Energy exported to the grid in kWh',
+
+        totalEnergy: 'Total {{energy}}',
+    },
+
     liveEnergyCard: {
         title: 'Live',
         description: 'Current energy production and consumption',

@@ -17,7 +17,9 @@ export type BaseDeviceTemplateDef = {
 
 export type GridTemplateDef = BaseDeviceTemplateDef & {
     power: { [key: string]: ModifierDef | StaticValueDef | ParameterDef }
-    energy: { [key: string]: ModifierDef | StaticValueDef | ParameterDef }
+
+    energyImport: { [key: string]: ModifierDef | StaticValueDef | ParameterDef }
+    energyExport: { [key: string]: ModifierDef | StaticValueDef | ParameterDef }
 }
 
 export type PVTemplateDef = BaseDeviceTemplateDef & {

@@ -58,8 +58,11 @@ export namespace dataupdate {
                 const gridPowerValue = isEnabled
                     ? await device.getPowerValue()
                     : 0
-                const gridEnergyValue = isEnabled
-                    ? await device.getEnergyValue()
+                const gridEnergyImportValue = isEnabled
+                    ? await device.getEnergyImportValue()
+                    : 0
+                const gridEnergyExportValue = isEnabled
+                    ? await device.getEnergyExportValue()
                     : 0
 
                 snapshot.push(
@@ -68,7 +71,8 @@ export namespace dataupdate {
                         device_id: device.id,
                         label: device.label,
                         power: gridPowerValue,
-                        energy: gridEnergyValue,
+                        energy_import: gridEnergyImportValue,
+                        energy_export: gridEnergyExportValue,
                     })
                 )
             } else if (device instanceof PVDevice) {

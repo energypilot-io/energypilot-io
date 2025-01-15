@@ -41,6 +41,13 @@ export default {
         },
     },
 
+    energyExportCard: {
+        title: 'Energie Export',
+        description: 'Ins Netz exportierte Energiemenge in kWh',
+
+        totalEnergy: 'Gesamt {{energy}}',
+    },
+
     liveEnergyCard: {
         title: 'Live',
         description: 'Aktuelle Energieproduktion und -verbrauch',

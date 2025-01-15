@@ -11,6 +11,7 @@ export function formatEnergy(energy: number) {
         return { value: energy.toFixed(2), unit: 'kWh' }
     else if (Math.abs(energy) < 1000000)
         return { value: (energy / 1000).toFixed(2), unit: 'MWh' }
+    else return { value: (energy / 1000000).toFixed(2), unit: 'GWh' }
 }
 
 export function formatPower(energy: number) {
