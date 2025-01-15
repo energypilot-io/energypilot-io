@@ -1,5 +1,6 @@
 import { Form } from '@remix-run/react'
 import { useTranslation } from 'react-i18next'
+import { EnergyExportCard } from '~/components/energypilot/cards/energy-export'
 import { EnergyImportCard } from '~/components/energypilot/cards/energy-import'
 import { EnergyProductionCard } from '~/components/energypilot/cards/energy-production'
 import { LiveEnergyCard } from '~/components/energypilot/cards/live-energy'
@@ -17,9 +18,9 @@ export default function Page() {
                 <div className="grid auto-rows-min gap-4 lg:grid-cols-3 md:grid-cols-1">
                     <EnergyProductionCard />
                     <EnergyImportCard />
+                    <EnergyExportCard />
                     <LiveEnergyCard />
                 </div>
-                <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min"></div>
             </div>
         </>
     )

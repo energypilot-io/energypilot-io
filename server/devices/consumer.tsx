@@ -15,42 +15,32 @@ export class ConsumerDevice extends BaseDevice {
     ) {
         super(connector, deviceDef, templateDef.consumer)
 
-        if (
-            templateDef.consumer?.energy !== undefined &&
-            this._connector.templateInterfaceKey in templateDef.consumer?.energy
-        ) {
-            this._energyParameter = parseParameter(
-                templateDef.consumer!.energy[
-                    this._connector.templateInterfaceKey
-                ],
-                this._connector
-            )
-        }
-
-        if (
-            templateDef.consumer?.power !== undefined &&
-            this._connector.templateInterfaceKey in templateDef.consumer?.power
-        ) {
-            this._powerParameter = parseParameter(
-                templateDef.consumer!.power[
-                    this._connector.templateInterfaceKey
-                ],
-                this._connector
-            )
-        }
+        this._energyParameter = this.getParameter(
+            templateDef.consumer,
+            'energy'
+        )
+        this._powerParameter = this.getParameter(templateDef.consumer, 'power')
     }
 
     public async getPowerValue() {
         if (this._powerParameter === undefined) return undefined
 
         const powerValue = await this._powerParameter?.getValue()
+        if (powerValue !== undefined) {
+            this._logger.debug(`Read Power [${powerValue} W]`)
+        }
+
         return powerValue
     }
 
     public async getEnergyValue() {
         if (this._energyParameter === undefined) return undefined
 
-        const powerValue = await this._energyParameter?.getValue()
-        return powerValue
+        const energyValue = await this._energyParameter?.getValue()
+        if (energyValue !== undefined) {
+            this._logger.debug(`Read Energy [${energyValue} kWh]`)
+        }
+
+        return energyValue
     }
 }

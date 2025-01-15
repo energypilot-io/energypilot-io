@@ -15,31 +15,18 @@ export class PVDevice extends BaseDevice {
     ) {
         super(connector, deviceDef, templateDef.pv)
 
-        if (
-            templateDef.pv?.power !== undefined &&
-            this._connector.templateInterfaceKey in templateDef.pv?.power
-        ) {
-            this._powerParameter = parseParameter(
-                templateDef.pv!.power[this._connector.templateInterfaceKey],
-                this._connector
-            )
-        }
-
-        if (
-            templateDef.pv?.energy !== undefined &&
-            this._connector.templateInterfaceKey in templateDef.pv?.energy
-        ) {
-            this._energyParameter = parseParameter(
-                templateDef.pv!.energy[this._connector.templateInterfaceKey],
-                this._connector
-            )
-        }
+        this._powerParameter = this.getParameter(templateDef.pv, 'power')
+        this._energyParameter = this.getParameter(templateDef.pv, 'energy')
     }
 
     public async getPowerValue() {
         if (this._powerParameter === undefined) return undefined
 
         const powerValue = await this._powerParameter?.getValue()
+        if (powerValue !== undefined) {
+            this._logger.debug(`Read Power [${powerValue} W]`)
+        }
+
         return powerValue
     }
 
@@ -47,6 +34,10 @@ export class PVDevice extends BaseDevice {
         if (this._energyParameter === undefined) return undefined
 
         const energyValue = await this._energyParameter?.getValue()
+        if (energyValue !== undefined) {
+            this._logger.debug(`Read Energy [${energyValue} kWh]`)
+        }
+
         return energyValue
     }
 }

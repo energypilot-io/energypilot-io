@@ -8,9 +8,17 @@
                 "scale": -1
             }
         },
-        "energy": {
+        "energyImport": {
             "modbus": {
                 "address": 13036,
+                "size": 2,
+                "datatype": "uint32sw",
+                "scale": 0.1
+            }
+        },
+        "energyExport": {
+            "modbus": {
+                "address": 13045,
                 "size": 2,
                 "datatype": "uint32sw",
                 "scale": 0.1

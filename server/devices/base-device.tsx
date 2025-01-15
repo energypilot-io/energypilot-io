@@ -1,4 +1,5 @@
 import { IConnector } from 'server/connectors/IConnector'
+import { logging } from 'server/core/log-manager'
 import { DeviceDef } from 'server/defs/configuration'
 import { BaseDeviceTemplateDef, TemplateDef } from 'server/defs/template'
 import { IParameter, parseParameter } from 'templates/template-parser'
@@ -14,6 +15,8 @@ export class BaseDevice {
     protected _connector: IConnector
     protected _configuration: DeviceDef
 
+    protected _logger: logging.ChildLogger
+
     private _enabledParameter: IParameter | undefined
 
     constructor(
@@ -27,18 +30,31 @@ export class BaseDevice {
         this.id = this._configuration.id
         this.label = this._configuration.label
 
+        this._logger = logging.getLogger(
+            `${this._configuration.type}.${this.id}`
+        )
+
+        this._enabledParameter = this.getParameter(
+            baseDeviceTemplateDef,
+            'enabled'
+        )
+    }
+
+    public getParameter(baseDeviceTemplateDef: any, parameterName: string) {
         if (
-            baseDeviceTemplateDef.enabled !== undefined &&
+            baseDeviceTemplateDef[parameterName] !== undefined &&
             this._connector.templateInterfaceKey in
-                baseDeviceTemplateDef.enabled
+                baseDeviceTemplateDef[parameterName]
         ) {
-            this._enabledParameter = parseParameter(
-                baseDeviceTemplateDef.enabled[
+            return parseParameter(
+                baseDeviceTemplateDef[parameterName][
                     this._connector.templateInterfaceKey
                 ],
                 this._connector
             )
         }
+
+        return undefined
     }
 
     public async isEnabled(): Promise<boolean> {
