@@ -1,5 +1,5 @@
 import { ComponentProps } from 'react'
-import { ChartSpline, LayoutDashboard } from 'lucide-react'
+import { ChartSpline, LayoutDashboard, Settings2 } from 'lucide-react'
 
 import {
     Sidebar,
@@ -16,6 +16,7 @@ import {
 } from '~/components/ui/sidebar'
 import { SiDiscord, SiGithub } from '@icons-pack/react-simple-icons'
 import { useTranslation } from 'react-i18next'
+import { CollapsibleMenuItem } from './collapsible-menuitem'
 
 const footerMenuItems = [
     {
@@ -34,6 +35,18 @@ const footerMenuItems = [
 export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
     const { t } = useTranslation()
 
+    const settingsMenuItems = {
+        title: t('pages.settings.title'),
+        url: '#',
+        icon: Settings2,
+        items: [
+            {
+                title: t('pages.settings.devices.title'),
+                url: '/settings/devices',
+            },
+        ],
+    }
+
     return (
         <Sidebar collapsible="icon" {...props}>
             <SidebarHeader>
@@ -43,7 +56,7 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
                             <a href="#">
                                 <div className="flex aspect-square size-8 items-center justify-center">
                                     <img
-                                        src="airplane_2708-fe0f.png"
+                                        src="/airplane_2708-fe0f.png"
                                         className="h-full"
                                     />
                                 </div>
@@ -77,12 +90,14 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
 
                         <SidebarMenuItem>
                             <SidebarMenuButton asChild>
-                                <a href="/live">
+                                <a href="/graph">
                                     <ChartSpline />
                                     <span>{t('pages.graph.title')}</span>
                                 </a>
                             </SidebarMenuButton>
                         </SidebarMenuItem>
+
+                        <CollapsibleMenuItem item={settingsMenuItems} />
                     </SidebarMenu>
                 </SidebarGroup>
 

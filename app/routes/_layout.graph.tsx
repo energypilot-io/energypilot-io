@@ -1,6 +1,6 @@
 import { useFetcher } from '@remix-run/react'
 import { useTranslation } from 'react-i18next'
-import { Header } from '~/components/energypilot/ui/header'
+import { Header } from '~/components/energypilot/site/header'
 
 import { EChart } from '@kbox-labs/react-echarts'
 
@@ -9,8 +9,6 @@ import { LineChart } from 'echarts/charts'
 import {
     GridComponent,
     TooltipComponent,
-    ToolboxComponent,
-    TitleComponent,
     LegendComponent,
     DatasetComponent,
     DataZoomComponent,
@@ -20,7 +18,7 @@ import { CanvasRenderer } from 'echarts/renderers'
 
 import { useEffect, useState } from 'react'
 import { Card, CardContent } from '~/components/ui/card'
-import { formatEnergy, formatPower } from '~/lib/utils'
+import { formatPower } from '~/lib/utils'
 import { ToggleGroup, ToggleGroupItem } from '~/components/ui/toggle-group'
 import { CalendarIcon, LoaderIcon } from 'lucide-react'
 import { WS_EVENT_SNAPSHOT_CREATED } from 'server/constants'
@@ -40,7 +38,7 @@ import { addDays, format } from 'date-fns'
 import { Calendar } from '~/components/ui/calendar'
 import { cn } from '~/lib/utils'
 
-export default function Page() {
+export default function GraphPage() {
     const { t } = useTranslation()
     const [theme] = useTheme()
     const socket = useSocket()
@@ -309,9 +307,9 @@ export default function Page() {
                                                 formatter: function (
                                                     a: number
                                                 ) {
-                                                    const formatedEnergy =
-                                                        formatEnergy(a)
-                                                    return `${formatedEnergy?.value} ${formatedEnergy?.unit}`
+                                                    const formatedPower =
+                                                        formatPower(a)
+                                                    return `${formatedPower?.value} ${formatedPower?.unit}`
                                                 },
                                             },
                                         },

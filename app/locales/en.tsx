@@ -18,6 +18,34 @@ export default {
         graph: {
             title: 'Graph',
         },
+
+        settings: {
+            title: 'Settings',
+
+            devices: {
+                title: 'Devices',
+            },
+        },
+    },
+
+    dialogs: {
+        newDevice: {
+            title: 'New Device',
+            description: 'Configure and add a new device to EnergyPilot.io',
+        },
+    },
+
+    alerts: {
+        deleteDevice: {
+            title: 'Delete Device',
+            description:
+                'Do you really want to delete the device [{{deviceName}}]? Warning: this change cannot be undone!',
+        },
+    },
+
+    buttons: {
+        cancel: 'Cancel',
+        delete: 'Delete',
     },
 
     energyProductionCard: {

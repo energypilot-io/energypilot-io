@@ -6,7 +6,6 @@ import {
     BreadcrumbItem,
     BreadcrumbLink,
     BreadcrumbList,
-    BreadcrumbPage,
     BreadcrumbSeparator,
 } from '~/components/ui/breadcrumb'
 import React, { ComponentPropsWithoutRef } from 'react'
