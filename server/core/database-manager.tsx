@@ -68,16 +68,22 @@ export namespace database {
         }
     }
 
-    export async function persistEntity(entity: any, callback?: () => void) {
+    export async function persistEntity(
+        entity: any,
+        callback?: () => void
+    ): Promise<boolean> {
         try {
-            if (_orm === undefined || _orm.em === undefined) return
+            if (_orm === undefined || _orm.em === undefined) return false
 
             const em = _orm.em.fork()
             await em.persist(entity).flush()
 
             if (callback !== undefined) callback()
+
+            return true
         } catch (err) {
             _logger.error(err)
+            return false
         }
     }
 
