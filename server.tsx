@@ -9,6 +9,7 @@ import { connectors } from 'server/core/connector-manager'
 import { devices } from 'server/core/device-manager'
 import { websockets } from 'server/core/websockets-manager'
 import { dataupdate } from 'server/core/data-update-manager'
+import { templates } from 'server/core/template-manager'
 
 const ENVIRONMENTAL_VARIABLES = ['DATA_DIR']
 
@@ -30,6 +31,8 @@ const config = JSON.parse(
 
 await logging.initLogging(config.logging)
 await database.initDatabase(config.database)
+await templates.initTemplateEngine()
+
 await http.initHTTP(config.http)
 await websockets.initWebSockets(http.httpServer)
 

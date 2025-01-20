@@ -1,4 +1,7 @@
 {
+    "name": "TP-Link TAPO P110",
+    "interfaces": ["tapo"],
+
     "consumer": {
         "power": {
             "tapo": {

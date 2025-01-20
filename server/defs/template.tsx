@@ -38,10 +38,13 @@ export type ConsumerTemplateDef = BaseDeviceTemplateDef & {
 }
 
 export type TemplateDef = {
-    grid: GridTemplateDef
-    pv: PVTemplateDef
-    battery: BatteryTemplateDef
-    consumer: ConsumerTemplateDef
+    name: string
+    interfaces: string[]
+
+    grid?: GridTemplateDef
+    pv?: PVTemplateDef
+    battery?: BatteryTemplateDef
+    consumer?: ConsumerTemplateDef
 }
 
 export const defaultParameterDef: ParameterDef = {

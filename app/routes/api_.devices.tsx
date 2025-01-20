@@ -7,13 +7,19 @@ import { getValidatedFormData } from 'remix-hook-form'
 
 import * as zod from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { ConstraintViolationException } from '@mikro-orm/core'
+import i18next from '~/lib/i18n.server'
 
 export const newDeviceSchema = zod.object({
     name: zod.string().min(1),
+    template: zod.string().min(1),
+    interface: zod.string().min(1),
 })
 
 export const newDeviceDefaultValues = {
     name: '',
+    template: '',
+    interface: '',
 }
 
 type FormData = zod.infer<typeof newDeviceSchema>
@@ -32,22 +38,34 @@ export async function action({ request }: ActionFunctionArgs) {
     }
 
     try {
+        const templateTokens = data.template.split(':')
+
         const em = await getEntityManager()
         const device = em.create(Device, {
             created_at: new Date(),
             name: data.name,
-            template: '',
+            type: templateTokens[0],
+            template: templateTokens[1],
+            interface: data.interface,
             properties: '',
         })
 
-        em.persistAndFlush(device)
+        await em.persistAndFlush(device)
 
         return {
             success: true,
             defaultValues: newDeviceDefaultValues,
         }
     } catch (error) {
-        return { success: false }
+        let t = await i18next.getFixedT(request)
+
+        let errorMessage: string = t('errors.db.cannotCreateDevice')
+
+        if (error instanceof ConstraintViolationException) {
+            errorMessage = t('errors.db.createDeviceConstraintViolation')
+        }
+
+        return { success: false, error: errorMessage }
     }
 }
 

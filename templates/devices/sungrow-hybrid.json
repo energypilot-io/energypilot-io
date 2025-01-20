@@ -1,4 +1,7 @@
 {
+    "name": "Sungrow Hybrid",
+    "interfaces": ["modbus"],
+
     "grid": {
         "power": {
             "modbus": {
