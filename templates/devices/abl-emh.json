@@ -1,4 +1,7 @@
 {
+    "name": "ABL emh1/2/4",
+    "interfaces": ["modbus"],
+
     "consumer": {
         "enabled": {
             "modbus": {

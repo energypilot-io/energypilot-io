@@ -10,6 +10,23 @@ export default {
         },
     },
 
+    consts: {
+        templateTypes: {
+            pv: 'PV',
+            grid: 'Grid',
+            battery: 'Battery',
+            consumer: 'Consumer',
+        },
+    },
+
+    errors: {
+        db: {
+            cannotCreateDevice: 'Cannot write device to database.',
+            createDeviceConstraintViolation:
+                'Cannot write device to database due to constraint violation. Please change the name of your new device and try again.',
+        },
+    },
+
     pages: {
         dashboard: {
             title: 'Dashboard',
