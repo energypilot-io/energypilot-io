@@ -7,11 +7,23 @@ export const defaultConnectorConfig: ConnectorDef = {
     enabled: true,
 }
 
-export interface IConnector {
+export type ConfigParameterDef = {
+    name: string
+}
+
+export abstract class IConnector {
     id: string
     templateInterfaceKey: string
 
-    resetCache: () => void
+    constructor(id: string, templateInterfaceKey: string) {
+        this.id = id
+        this.templateInterfaceKey = templateInterfaceKey
+    }
 
-    read: (parameterDef: ParameterDef) => Promise<number | undefined>
+    static getConnectorParameterDefs() {
+        return {}
+    }
+
+    abstract resetCache(): void
+    abstract read(parameterDef: ParameterDef): Promise<number | undefined>
 }

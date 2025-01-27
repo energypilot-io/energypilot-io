@@ -4,6 +4,7 @@ import { ConnectorDef } from 'server/defs/configuration'
 import { logging } from 'server/core/log-manager'
 import { defaultParameterDef, ParameterDef } from 'server/defs/template'
 import { defaultConnectorConfig, IConnector } from './IConnector'
+import * as zod from 'zod'
 
 import { SerialPort } from 'serialport'
 
@@ -90,10 +91,7 @@ const defaultModbusSerialConnectorDef: ModbusSerialConnectorDef = {
     baudRate: 9600,
 }
 
-export class ModbusConnector implements IConnector {
-    templateInterfaceKey: string = 'modbus'
-    id: string
-
+export class ModbusConnector extends IConnector {
     private _logger
 
     private _cache: { [key: string]: Buffer } = {}
@@ -108,12 +106,14 @@ export class ModbusConnector implements IConnector {
     private _master: any
 
     constructor(modbusConnectorDef: Partial<ModbusTCPConnectorDef> = {}) {
-        this._configuration = {
+        const configuration = {
             ...defaultModbusConnectorDef,
             ...modbusConnectorDef,
         }
 
-        this.id = this._configuration.id
+        super(configuration.id, 'modbus')
+
+        this._configuration = configuration
         this._logger = logging.getLogger(`connectors.${this._configuration.id}`)
 
         if (!this._configuration.enabled) return
@@ -267,6 +267,17 @@ export class ModbusConnector implements IConnector {
                 this._connection.destroy()
             }
         })
+    }
+
+    static getConnectorParameterDefs() {
+        return {
+            host: {
+                type: 'string',
+            },
+            port: {
+                type: 'number',
+            },
+        }
     }
 
     private getParameterValue(

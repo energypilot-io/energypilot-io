@@ -14,17 +14,19 @@ export const newDeviceSchema = zod.object({
     name: zod.string().min(1),
     template: zod.string().min(1),
     interface: zod.string().min(1),
+    properties: zod.string().min(1),
 })
 
 export const newDeviceDefaultValues = {
     name: '',
     template: '',
     interface: '',
+    properties: '',
 }
 
 type FormData = zod.infer<typeof newDeviceSchema>
 
-export const newDeviceSchemaResolver = zodResolver(newDeviceSchema)
+const newDeviceSchemaResolver = zodResolver(newDeviceSchema)
 
 export async function action({ request }: ActionFunctionArgs) {
     const {
@@ -47,7 +49,7 @@ export async function action({ request }: ActionFunctionArgs) {
             type: templateTokens[0],
             template: templateTokens[1],
             interface: data.interface,
-            properties: '',
+            properties: data.properties,
         })
 
         await em.persistAndFlush(device)
