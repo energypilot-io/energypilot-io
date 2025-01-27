@@ -1,5 +1,5 @@
 import { Plus } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '~/components/ui/button'
 import {
@@ -9,7 +9,6 @@ import {
     DialogDescription,
     DialogFooter,
     DialogHeader,
-    DialogOverlay,
     DialogTitle,
     DialogTrigger,
 } from '~/components/ui/dialog'
@@ -17,41 +16,66 @@ import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 import { Link, useFetcher } from '@remix-run/react'
 
-import * as zod from 'zod'
 import { useRemixForm } from 'remix-hook-form'
-import {
-    newDeviceDefaultValues,
-    newDeviceSchema,
-    newDeviceSchemaResolver,
-} from '~/routes/api_.devices'
-import { Controller } from 'react-hook-form'
-import {
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '~/components/ui/select'
-import { SelectLabel } from '@radix-ui/react-select'
-import { templates } from 'server/core/template-manager'
+import { newDeviceDefaultValues, newDeviceSchema } from '~/routes/api_.devices'
+import { zodResolver } from '@hookform/resolvers/zod'
+
+import * as zod from 'zod'
+import { TemplateSelector } from '../inputs/template-selector'
+import { InterfaceSelector } from '../inputs/interface-selector'
+import { filterObject, zodSchemaDefinitionParser } from '~/lib/utils'
+import { InputArray } from '../inputs/input-array'
 
 export function NewDeviceDialog() {
     const { t } = useTranslation()
 
     const [open, setOpen] = useState(false)
+
     const fetcher = useFetcher()
 
     const [backendErrorMessage, setBackendErrorMessage] = useState<string>()
 
-    const [availableTemplates, setAvailableTemplates] =
-        useState<templates.AvailableTemplates>()
-
     const [templateInterfaces, setTemplateInterfaces] = useState<string[]>([])
 
-    useEffect(() => {
-        fetcher.load('/api/templates')
-    }, [])
+    const [additionalSchema, setAdditionalSchema] =
+        useState<zod.ZodObject<any>>()
+
+    const useDynamicZodResolver = (
+        baseSchema: zod.ZodObject<any>,
+        additionalSchema: zod.ZodObject<any> | undefined
+    ) =>
+        useCallback(
+            async (data: any, context: any, options: any) => {
+                const schemaToTest =
+                    additionalSchema !== undefined
+                        ? baseSchema.merge(additionalSchema)
+                        : baseSchema
+
+                let properties: string = ''
+                if (
+                    additionalSchema?.shape !== undefined &&
+                    additionalSchema.shape !== null
+                ) {
+                    properties = JSON.stringify(
+                        filterObject(
+                            data,
+                            (v, k) =>
+                                Object.keys(additionalSchema?.shape).indexOf(
+                                    k.toString()
+                                ) > -1
+                        )
+                    )
+                }
+
+                const resolver = zodResolver(schemaToTest)
+                return await resolver(
+                    { ...data, properties: properties },
+                    context,
+                    options
+                )
+            },
+            [baseSchema, additionalSchema]
+        )
 
     useEffect(() => {
         if (fetcher.data === undefined && fetcher.data !== null) return
@@ -63,68 +87,51 @@ export function NewDeviceDialog() {
                 setOpen(false)
             }
             setBackendErrorMessage(returnValues.error)
-
-            return
         }
-
-        setAvailableTemplates(fetcher.data as templates.AvailableTemplates)
     }, [fetcher.data])
 
     function onOpenChange(isOpen: boolean) {
         if (isOpen) {
             setBackendErrorMessage(undefined)
             reset()
+            setAdditionalSchema(undefined)
         }
 
         setOpen(isOpen)
     }
 
-    function onTemplateTypeChange(
-        value: string,
-        callback: (value: string) => void
-    ) {
-        callback(value)
+    function onTemplateChange(template: {
+        path: string
+        interfaces: string[]
+    }) {
+        setTemplateInterfaces(template?.interfaces)
+        resetField('interface')
+        setAdditionalSchema(undefined)
+    }
 
-        if (availableTemplates === undefined) return
-
-        const templateTokens = value.split(':')
-        setTemplateInterfaces(
-            availableTemplates[templateTokens[0]][templateTokens[1]].interfaces
-        )
+    function onInterfaceChange(schema: {
+        [fieldName: string]: { type: string }
+    }) {
+        setAdditionalSchema(zodSchemaDefinitionParser(schema))
     }
 
     const {
-        formState: { errors },
+        formState: { errors, isValid, isSubmitting },
         handleSubmit,
         register,
         reset,
+        resetField,
         control,
     } = useRemixForm<zod.infer<typeof newDeviceSchema>>({
-        resolver: newDeviceSchemaResolver,
+        resolver: useDynamicZodResolver(newDeviceSchema, additionalSchema),
         fetcher: fetcher,
         submitConfig: {
             method: 'POST',
             action: '/api/devices',
         },
         defaultValues: newDeviceDefaultValues,
+        shouldUnregister: true,
     })
-
-    const templateSelectorGroups =
-        availableTemplates !== undefined
-            ? Object.keys(availableTemplates).map((type) => {
-                  return {
-                      groupLabel: t(`consts.templateTypes.${type}`),
-                      items: Object.keys(availableTemplates[type]).map(
-                          (item) => {
-                              return {
-                                  value: `${type}:${item}`,
-                                  label: item,
-                              }
-                          }
-                      ),
-                  }
-              })
-            : []
 
     return (
         <fetcher.Form onSubmit={handleSubmit} id="new-device-form">
@@ -134,7 +141,6 @@ export function NewDeviceDialog() {
                         <Plus /> {t('dialogs.newDevice.title')}
                     </Button>
                 </DialogTrigger>
-                <DialogOverlay />
                 <DialogContent className="sm:max-w-xl">
                     <DialogHeader>
                         <DialogTitle>
@@ -152,97 +158,43 @@ export function NewDeviceDialog() {
 
                     <div className="grid flex-1 gap-2">
                         <Label htmlFor="name">Name</Label>
-                        <Input {...register('name')} id="name" required />
+                        <Input
+                            {...register('name')}
+                            id="name"
+                            required
+                            readOnly={isSubmitting}
+                        />
                         {errors.name && (
                             <p className="text-sm text-red-600">
                                 {errors.name.message}
                             </p>
                         )}
 
-                        <Label htmlFor="template">Template</Label>
-                        <Controller
-                            control={control}
+                        <TemplateSelector
                             name="template"
-                            render={({ field: { onChange, value } }) => (
-                                <Select
-                                    onValueChange={(value) =>
-                                        onTemplateTypeChange(value, onChange)
-                                    }
-                                    value={value}
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select a device template" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {templateSelectorGroups.map(
-                                            (group, groupIndex) => {
-                                                return (
-                                                    <SelectGroup
-                                                        key={groupIndex}
-                                                    >
-                                                        <SelectLabel>
-                                                            {group.groupLabel}
-                                                        </SelectLabel>
-                                                        {group.items.map(
-                                                            (
-                                                                item,
-                                                                itemIndex
-                                                            ) => (
-                                                                <SelectItem
-                                                                    value={
-                                                                        item.value
-                                                                    }
-                                                                    key={
-                                                                        itemIndex
-                                                                    }
-                                                                >
-                                                                    {item.label}
-                                                                </SelectItem>
-                                                            )
-                                                        )}
-                                                    </SelectGroup>
-                                                )
-                                            }
-                                        )}
-                                    </SelectContent>
-                                </Select>
-                            )}
-                        />
-                        {errors.template && (
-                            <p className="text-sm text-red-600">
-                                {errors.template.message}
-                            </p>
-                        )}
-
-                        <Label htmlFor="interface">Template</Label>
-                        <Controller
+                            label="Template"
+                            errors={errors}
                             control={control}
-                            name="interface"
-                            render={({ field: { onChange, value } }) => (
-                                <Select onValueChange={onChange} value={value}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select the device interface" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {templateInterfaces.map(
-                                            (value, index) => (
-                                                <SelectItem
-                                                    value={value}
-                                                    key={index}
-                                                >
-                                                    {value}
-                                                </SelectItem>
-                                            )
-                                        )}
-                                    </SelectContent>
-                                </Select>
-                            )}
+                            disabled={isSubmitting}
+                            onChange={onTemplateChange}
                         />
-                        {errors.template && (
-                            <p className="text-sm text-red-600">
-                                {errors.template.message}
-                            </p>
-                        )}
+
+                        <InterfaceSelector
+                            name="interface"
+                            label="Interface"
+                            interfaces={templateInterfaces}
+                            errors={errors}
+                            control={control}
+                            disabled={isSubmitting}
+                            onChange={onInterfaceChange}
+                        />
+
+                        <InputArray
+                            errors={errors}
+                            disabled={isSubmitting}
+                            register={register}
+                            schema={additionalSchema}
+                        />
                     </div>
 
                     <DialogFooter className="sm:justify-end items-center">
@@ -253,7 +205,7 @@ export function NewDeviceDialog() {
                             type="submit"
                             className="px-3"
                             form="new-device-form"
-                            disabled={fetcher.state !== 'idle'}
+                            disabled={!isValid || isSubmitting}
                         >
                             Test & Create
                         </Button>

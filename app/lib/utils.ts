@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from 'clsx'
 import { useEffect, useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
+import * as zod from 'zod'
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
@@ -41,4 +42,40 @@ export function useInterval(callback: any, delay: number) {
             return () => clearInterval(id)
         }
     }, [delay])
+}
+
+export function zodSchemaDefinitionParser(schemaDefinition: any) {
+    var schema: any = {}
+
+    Object.keys(schemaDefinition).forEach((fieldName: string) => {
+        const fieldDefinition = schemaDefinition[fieldName]
+
+        switch (fieldDefinition.type) {
+            case 'string':
+                schema[fieldName as keyof typeof schema] = zod.string().min(1)
+                break
+
+            case 'number':
+                schema[fieldName as keyof typeof schema] = zod.number()
+                break
+
+            default:
+                break
+        }
+    })
+
+    return zod.object(schema)
+}
+
+export function filterObject<T extends object>(
+    obj: T,
+    predicate: <K extends keyof T>(value: T[K], key: K) => boolean
+) {
+    const result: { [K in keyof T]?: T[K] } = {}
+    ;(Object.keys(obj) as Array<keyof T>).forEach((name) => {
+        if (predicate(obj[name], name)) {
+            result[name] = obj[name]
+        }
+    })
+    return result
 }

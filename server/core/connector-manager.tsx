@@ -7,16 +7,16 @@ import {
 } from 'server/connectors/IConnector'
 import { TPLinkTapoConnector } from 'server/connectors/tplink-tapo-connector'
 
-export const connectorClasses: { [id: string]: any } = {
-    modbus: ModbusConnector,
-    tapo: TPLinkTapoConnector,
-}
-
-var _logger: logging.ChildLogger
-
-const _connectorInstances: { [key: string]: IConnector } = {}
-
 export namespace connectors {
+    var _logger: logging.ChildLogger
+
+    const _connectorInstances: { [key: string]: IConnector } = {}
+
+    export const connectorClasses: { [id: string]: any } = {
+        modbus: ModbusConnector,
+        tapo: TPLinkTapoConnector,
+    }
+
     export function initConnectors(
         connectorDefs: Partial<ConnectorDef>[] | undefined
     ) {
