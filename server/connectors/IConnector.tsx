@@ -7,8 +7,15 @@ export const defaultConnectorConfig: ConnectorDef = {
     enabled: true,
 }
 
-export type ConfigParameterDef = {
-    name: string
+export type InterfaceSchemaDef = {
+    [propertyName: string]: {
+        type: 'string' | 'number'
+        defaultValue?: any
+    }
+}
+
+export type InterfaceDef = {
+    [groupName: string]: InterfaceSchemaDef
 }
 
 export abstract class IConnector {
@@ -20,7 +27,7 @@ export abstract class IConnector {
         this.templateInterfaceKey = templateInterfaceKey
     }
 
-    static getConnectorParameterDefs() {
+    static getInterfaceDef(): InterfaceDef {
         return {}
     }
 

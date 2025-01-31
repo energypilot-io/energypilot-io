@@ -93,7 +93,7 @@ export namespace http {
                 getLoadContext(req, res) {
                     return {
                         availableTemplates: templates.getAvailableTemplates(),
-                        connectorClasses: connectors.connectorClasses,
+                        interfaces: connectors.getInterfaceDefs(),
                         res,
                     }
                 },

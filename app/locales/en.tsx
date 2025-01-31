@@ -109,4 +109,20 @@ export default {
             solar: 'Solar',
         },
     },
+
+    interfaces: {
+        modbus: {
+            tcpip: {
+                title: 'TCP/IP',
+                host: 'Host',
+                port: 'Port',
+            },
+
+            serial: {
+                title: 'Serial',
+                device: 'Device',
+                baud: 'Baud rate',
+            },
+        },
+    },
 }

@@ -4,6 +4,7 @@ import { ModbusConnector } from 'server/connectors/modbus-connector'
 import {
     defaultConnectorConfig,
     IConnector,
+    InterfaceDef,
 } from 'server/connectors/IConnector'
 import { TPLinkTapoConnector } from 'server/connectors/tplink-tapo-connector'
 
@@ -12,7 +13,7 @@ export namespace connectors {
 
     const _connectorInstances: { [key: string]: IConnector } = {}
 
-    export const connectorClasses: { [id: string]: any } = {
+    const _connectorClasses: { [id: string]: any } = {
         modbus: ModbusConnector,
         tapo: TPLinkTapoConnector,
     }
@@ -27,7 +28,7 @@ export namespace connectors {
         connectorDefs.forEach((connectorDef) => {
             const configuration = { ...defaultConnectorConfig, ...connectorDef }
 
-            if (!(configuration.type in connectorClasses)) {
+            if (!(configuration.type in _connectorClasses)) {
                 _logger.error(
                     `No class found for connector type [${connectorDef.type}]`
                 )
@@ -38,10 +39,22 @@ export namespace connectors {
                     )
                 } else {
                     _connectorInstances[configuration.id] =
-                        new connectorClasses[configuration.type](connectorDef)
+                        new _connectorClasses[configuration.type](connectorDef)
                 }
             }
         })
+    }
+
+    export function getInterfaceDefs(): {
+        [interfaceName: string]: InterfaceDef
+    } {
+        return Object.assign(
+            {},
+            ...Object.keys(_connectorClasses).map((interfaceName) => ({
+                [interfaceName]:
+                    _connectorClasses[interfaceName].getInterfaceDef(),
+            }))
+        )
     }
 
     export function getConnectorByID(id: string | undefined) {
