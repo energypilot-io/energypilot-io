@@ -3,7 +3,7 @@ import { Socket } from 'net'
 import { ConnectorDef } from 'server/defs/configuration'
 import { logging } from 'server/core/log-manager'
 import { defaultParameterDef, ParameterDef } from 'server/defs/template'
-import { defaultConnectorConfig, IConnector } from './IConnector'
+import { defaultConnectorConfig, IConnector, InterfaceDef } from './IConnector'
 import * as zod from 'zod'
 
 import { SerialPort } from 'serialport'
@@ -269,13 +269,25 @@ export class ModbusConnector extends IConnector {
         })
     }
 
-    static getConnectorParameterDefs() {
+    static getInterfaceDef(): InterfaceDef {
         return {
-            host: {
-                type: 'string',
+            tcpip: {
+                host: {
+                    type: 'string',
+                },
+                port: {
+                    type: 'number',
+                    defaultValue: 502,
+                },
             },
-            port: {
-                type: 'number',
+            serial: {
+                device: {
+                    type: 'string',
+                },
+                baud: {
+                    type: 'number',
+                    defaultValue: 19200,
+                },
             },
         }
     }

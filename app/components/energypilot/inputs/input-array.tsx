@@ -1,17 +1,18 @@
 import { Fragment, useEffect } from 'react'
-import {
-    Control,
-    FieldErrors,
-    RegisterOptions,
-    useFieldArray,
-} from 'react-hook-form'
+import { FieldErrors } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
+import { InterfaceDef, InterfaceSchemaDef } from 'server/connectors/IConnector'
 import * as zod from 'zod'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
+import { zodSchemaDefinitionParser } from '~/lib/utils'
 
 export type InputArrayProps = {
     errors: FieldErrors<any>
-    schema?: zod.ZodObject<any>
+    onChange: (zodSchema?: zod.ZodObject<any>) => void
+    interfaceName?: string
+    schemaName?: string
+    interfaceDef?: InterfaceDef
     disabled?: boolean
     register?: any
 }
@@ -19,20 +20,38 @@ export type InputArrayProps = {
 export function InputArray({
     errors,
     register,
-    schema,
+    schemaName,
+    interfaceName,
+    interfaceDef,
     disabled,
+    onChange,
 }: InputArrayProps) {
-    if (schema?.shape === undefined || schema.shape === null) return null
+    const { t } = useTranslation()
+
+    const zodSchema =
+        interfaceDef !== undefined && schemaName !== undefined
+            ? zodSchemaDefinitionParser(interfaceDef[schemaName])
+            : undefined
+
+    useEffect(() => {
+        onChange(zodSchema)
+    }, [zodSchema])
+
+    if (zodSchema === undefined || interfaceName === undefined) return null
 
     return (
         <>
-            {Object.keys(schema?.shape).map((fieldName: any, index) => {
-                const fieldDefinition = schema.shape[fieldName]
+            {Object.keys(zodSchema?.shape).map((fieldName: any, index) => {
+                const fieldDefinition = zodSchema?.shape[fieldName]
                 const isNumber = fieldDefinition instanceof zod.ZodNumber
 
                 return (
                     <Fragment key={index}>
-                        <Label htmlFor={fieldName}>{fieldName}</Label>
+                        <Label htmlFor={fieldName}>
+                            {t(
+                                `interfaces.${interfaceName}.${schemaName}.${fieldName}`
+                            )}
+                        </Label>
                         <Input
                             id={fieldName}
                             readOnly={disabled}

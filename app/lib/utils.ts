@@ -45,6 +45,8 @@ export function useInterval(callback: any, delay: number) {
 }
 
 export function zodSchemaDefinitionParser(schemaDefinition: any) {
+    if (schemaDefinition === undefined) return undefined
+
     var schema: any = {}
 
     Object.keys(schemaDefinition).forEach((fieldName: string) => {

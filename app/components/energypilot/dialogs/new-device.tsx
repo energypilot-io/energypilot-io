@@ -23,8 +23,18 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import * as zod from 'zod'
 import { TemplateSelector } from '../inputs/template-selector'
 import { InterfaceSelector } from '../inputs/interface-selector'
-import { filterObject, zodSchemaDefinitionParser } from '~/lib/utils'
+import { filterObject } from '~/lib/utils'
 import { InputArray } from '../inputs/input-array'
+import { SchemaSelector } from '../inputs/schema-selector'
+import { InterfaceDef, InterfaceSchemaDef } from 'server/connectors/IConnector'
+import { Separator } from '~/components/ui/separator'
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '~/components/ui/card'
 
 export function NewDeviceDialog() {
     const { t } = useTranslation()
@@ -36,6 +46,10 @@ export function NewDeviceDialog() {
     const [backendErrorMessage, setBackendErrorMessage] = useState<string>()
 
     const [templateInterfaces, setTemplateInterfaces] = useState<string[]>([])
+    const [interfaceDef, setInterfaceDef] = useState<InterfaceDef>()
+
+    const [interfaceName, setInterfaceName] = useState<string>()
+    const [interfaceSchemaName, setInterfaceSchemaName] = useState<string>()
 
     const [additionalSchema, setAdditionalSchema] =
         useState<zod.ZodObject<any>>()
@@ -94,7 +108,7 @@ export function NewDeviceDialog() {
         if (isOpen) {
             setBackendErrorMessage(undefined)
             reset()
-            setAdditionalSchema(undefined)
+            setInterfaceDef(undefined)
         }
 
         setOpen(isOpen)
@@ -106,13 +120,15 @@ export function NewDeviceDialog() {
     }) {
         setTemplateInterfaces(template?.interfaces)
         resetField('interface')
-        setAdditionalSchema(undefined)
+        setInterfaceDef(undefined)
     }
 
-    function onInterfaceChange(schema: {
-        [fieldName: string]: { type: string }
-    }) {
-        setAdditionalSchema(zodSchemaDefinitionParser(schema))
+    function onInterfaceChange(
+        interfaceName: string,
+        interfaceDef: InterfaceDef
+    ) {
+        setInterfaceName(interfaceName)
+        setInterfaceDef(interfaceDef)
     }
 
     const {
@@ -189,12 +205,27 @@ export function NewDeviceDialog() {
                             onChange={onInterfaceChange}
                         />
 
-                        <InputArray
-                            errors={errors}
-                            disabled={isSubmitting}
-                            register={register}
-                            schema={additionalSchema}
-                        />
+                        {interfaceDef !== undefined && (
+                            <Card>
+                                <CardContent className="p-4">
+                                    <SchemaSelector
+                                        interfaceName={interfaceName}
+                                        interfaceDef={interfaceDef}
+                                        onChange={setInterfaceSchemaName}
+                                    />
+
+                                    <InputArray
+                                        errors={errors}
+                                        disabled={isSubmitting}
+                                        register={register}
+                                        interfaceName={interfaceName}
+                                        schemaName={interfaceSchemaName}
+                                        interfaceDef={interfaceDef}
+                                        onChange={setAdditionalSchema}
+                                    />
+                                </CardContent>
+                            </Card>
+                        )}
                     </div>
 
                     <DialogFooter className="sm:justify-end items-center">

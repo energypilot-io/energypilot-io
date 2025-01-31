@@ -1,7 +1,8 @@
 import { SelectProps } from '@radix-ui/react-select'
 import { useFetcher } from '@remix-run/react'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Control, Controller, FieldErrors } from 'react-hook-form'
+import { InterfaceDef } from 'server/connectors/IConnector'
 import { Label } from '~/components/ui/label'
 import {
     Select,
@@ -17,7 +18,7 @@ export type InterfaceSelectorProps = SelectProps & {
     interfaces: string[]
     errors: FieldErrors<any>
     control?: Control<any>
-    onChange?: (schema: { [fieldName: string]: { type: string } }) => void
+    onChange?: (interfaceName: string, interfaceDef: InterfaceDef) => void
 }
 
 export function InterfaceSelector({
@@ -31,19 +32,22 @@ export function InterfaceSelector({
 }: InterfaceSelectorProps) {
     const fetcher = useFetcher()
 
+    const [value, setValue] = useState<string>()
+
     useEffect(() => {
         if (fetcher.data === undefined || fetcher.data === null) return
 
         if (onChange !== undefined) {
-            onChange(fetcher.data as { [fieldName: string]: { type: string } })
+            onChange(value!, fetcher.data as InterfaceDef)
         }
     }, [fetcher.data])
 
     function onHandleChange(value: string, callback: (value: string) => void) {
         callback(value)
+        setValue(value)
 
         if (value !== undefined) {
-            fetcher.load(`/api/interfaces/${value}/parameters`)
+            fetcher.load(`/api/interfaces/${value}`)
         }
     }
 
