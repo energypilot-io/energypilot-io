@@ -13,6 +13,7 @@ import {
 } from '@mikro-orm/sqlite'
 
 import config from 'mikro-orm.config.ts'
+import { DeviceSubscriber } from 'server/database/subscribers/DeviceSubscriber'
 
 const SQLITE_MEMORY_DB: string = ':memory:'
 
@@ -37,6 +38,7 @@ export namespace database {
             ...config,
             dbName: getFilename(databaseDef),
             loggerFactory: (options) => new CustomLogger(options),
+            subscribers: [new DeviceSubscriber()],
         })
 
         await _orm.schema.updateSchema({ dropTables: false })
@@ -85,6 +87,10 @@ export namespace database {
             _logger.error(err)
             return false
         }
+    }
+
+    export function getEntityManager() {
+        return _orm?.em.fork()
     }
 
     export function createContext(next: any) {

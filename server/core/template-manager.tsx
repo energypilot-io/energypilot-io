@@ -11,18 +11,15 @@ export namespace templates {
         'consumer',
     ]
 
-    export type AvailableTemplates = {
+    export type TemplateRegistry = {
         [type: string]: {
-            [name: string]: {
-                path: string
-                interfaces: string[]
-            }
+            [name: string]: TemplateDef
         }
     }
 
     var _logger: logging.ChildLogger
 
-    const _availableTemplates: AvailableTemplates = {}
+    const _templateRegistry: TemplateRegistry = {}
 
     export async function initTemplateEngine() {
         _logger = logging.getLogger('templates')
@@ -42,24 +39,30 @@ export namespace templates {
                 fs.readFileSync(path, 'utf-8')
             ) as TemplateDef
 
-            const entry = {
-                path: path,
-                interfaces: template.interfaces,
-            }
-
             for (const type of Object.keys(template).filter(
                 (item) => ValidTemplateTypes.indexOf(item) > -1
             )) {
-                if (!(type in _availableTemplates)) {
-                    _availableTemplates[type] = {}
+                if (!(type in _templateRegistry)) {
+                    _templateRegistry[type] = {}
                 }
 
-                _availableTemplates[type][template.name] = entry
+                _templateRegistry[type][template.name] = template
             }
         }
     }
 
-    export function getAvailableTemplates() {
-        return _availableTemplates
+    export function getTemplateForType(type: string, name: string) {
+        if (type in _templateRegistry) {
+            const templatesForType = _templateRegistry[type]
+
+            if (name in templatesForType) {
+                return templatesForType[name]
+            }
+        }
+        return undefined
+    }
+
+    export function getTemplateRegistry() {
+        return _templateRegistry
     }
 }

@@ -20,7 +20,7 @@ export async function action({ params, request }: ActionFunctionArgs) {
     return null
 }
 
-export const loader = async ({ params }: LoaderFunctionArgs) => {
+export const loader = async ({ params, context }: LoaderFunctionArgs) => {
     const em = await getEntityManager()
 
     const device = await em.findOneOrFail(Device, {

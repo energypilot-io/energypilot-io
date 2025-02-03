@@ -1,8 +1,8 @@
 import { TemplateDef } from 'server/defs/template'
-import { IParameter, parseParameter } from 'templates/template-parser'
+import { IParameter } from 'templates/template-parser'
 import { BaseDevice } from './base-device'
-import { IConnector } from 'server/connectors/IConnector'
-import { DeviceDef } from 'server/defs/configuration'
+import { IInterface } from 'server/interfaces/IInterface'
+import { Device } from 'server/database/entities/device.entity'
 
 export class GridDevice extends BaseDevice {
     private _powerParameter: IParameter | undefined
@@ -11,11 +11,11 @@ export class GridDevice extends BaseDevice {
     private _energyExportParameter: IParameter | undefined
 
     constructor(
-        connector: IConnector,
-        deviceDef: Partial<DeviceDef> = {},
-        templateDef: Partial<TemplateDef> = {}
+        connector: IInterface,
+        templateDef: Partial<TemplateDef> = {},
+        deviceDefinition: Device
     ) {
-        super(connector, deviceDef, templateDef.grid)
+        super(connector, templateDef.grid, deviceDefinition)
 
         this._powerParameter = this.getParameter(templateDef.grid, 'power')
 

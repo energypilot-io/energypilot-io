@@ -1,10 +1,8 @@
 import { Socket } from 'net'
 
-import { ConnectorDef } from 'server/defs/configuration'
 import { logging } from 'server/core/log-manager'
 import { defaultParameterDef, ParameterDef } from 'server/defs/template'
-import { defaultConnectorConfig, IConnector, InterfaceDef } from './IConnector'
-import * as zod from 'zod'
+import { IInterface, InterfaceDef } from './IInterface'
 
 import { SerialPort } from 'serialport'
 
@@ -24,24 +22,6 @@ import Transaction from '@csllc/cs-modbus/lib/Transaction'
 import functions from '@csllc/cs-modbus/lib/functions'
 
 import AsciiTransport from 'server/libs/cs-modbus/transports/AsciiTransport'
-
-type ModbusConnectorDef = ConnectorDef & {
-    interface?: 'tcp' | 'serial'
-    transport?: 'ip' | 'rtu' | 'ascii'
-
-    modbusId?: number
-    timeout?: number
-}
-
-type ModbusTCPConnectorDef = ModbusConnectorDef & {
-    host: string
-    port?: number
-}
-
-type ModbusSerialConnectorDef = ModbusConnectorDef & {
-    device: string
-    baudRate?: number
-}
 
 type ModbusParameterDef = ParameterDef & {
     address: number
@@ -67,68 +47,29 @@ type ModbusParameterDef = ParameterDef & {
     offset?: number
 }
 
-const defaultModbusConnectorDef: ModbusConnectorDef = {
-    ...defaultConnectorConfig,
-
-    interface: 'tcp',
-    transport: 'ip',
-
-    modbusId: 1,
-    timeout: 2500,
-}
-
-const defaultModbusTCPConnectorDef: ModbusTCPConnectorDef = {
-    ...defaultModbusConnectorDef,
-
-    host: '',
-    port: 502,
-}
-
-const defaultModbusSerialConnectorDef: ModbusSerialConnectorDef = {
-    ...defaultModbusConnectorDef,
-
-    device: '',
-    baudRate: 9600,
-}
-
-export class ModbusConnector extends IConnector {
+export class ModbusInterface extends IInterface {
     private _logger
 
     private _cache: { [key: string]: Buffer } = {}
 
-    private _configuration:
-        | ModbusConnectorDef
-        | ModbusTCPConnectorDef
-        | ModbusSerialConnectorDef
+    private _properties: { [property: string]: any }
 
     private _connection: any
     private _transport: any
     private _master: any
 
-    constructor(modbusConnectorDef: Partial<ModbusTCPConnectorDef> = {}) {
-        const configuration = {
-            ...defaultModbusConnectorDef,
-            ...modbusConnectorDef,
-        }
+    constructor(properties: { [property: string]: any }) {
+        super('modbus')
 
-        super(configuration.id, 'modbus')
+        this._properties = properties
+        this._logger = logging.getLogger(`interfaces.modbus`)
 
-        this._configuration = configuration
-        this._logger = logging.getLogger(`connectors.${this._configuration.id}`)
-
-        if (!this._configuration.enabled) return
-
-        switch (this._configuration.interface) {
-            case 'tcp': {
-                const configuration = {
-                    ...defaultModbusTCPConnectorDef,
-                    ...modbusConnectorDef,
-                }
-
+        switch (this._properties['schema']) {
+            case 'tcpip': {
                 this._connection = new TcpConnection({
                     socket: new Socket(),
-                    host: configuration.host,
-                    port: configuration.port,
+                    host: this._properties['host'],
+                    port: this._properties['port'],
                     autoConnect: true,
                     autoReconnect: true,
                     minConnectTime: 2500,
@@ -138,27 +79,20 @@ export class ModbusConnector extends IConnector {
             }
 
             case 'serial': {
-                const configuration = {
-                    ...defaultModbusSerialConnectorDef,
-                    ...modbusConnectorDef,
-                }
-
                 this._connection = new SerialConnection(
                     new SerialPort({
-                        path: configuration.device,
-                        baudRate: configuration.baudRate,
+                        path: this._properties['device'],
+                        baudRate: this._properties['baud'],
                     })
                 )
                 break
             }
 
             default:
-                throw Error(
-                    `Unknown interface set for modbus connector [${this._configuration.interface}]`
-                )
+                throw Error(`Unknown schema set for modbus interface [modbus]`)
         }
 
-        switch (this._configuration.transport) {
+        switch (this._properties['transport']) {
             case 'ascii':
                 this._transport = new AsciiTransport(this._connection)
                 break
@@ -172,14 +106,23 @@ export class ModbusConnector extends IConnector {
                 break
         }
 
+        if (this._connection === undefined || this._transport === undefined) {
+            this._logger.error(
+                `Error while creating interface instance with properties [${JSON.stringify(
+                    properties
+                )}]`
+            )
+            return
+        }
+
         this._master = new Master({
             transport: this._transport,
             suppressTransactionErrors: false,
             retryOnException: false,
             maxConcurrentRequests: 1,
-            defaultUnit: this._configuration.modbusId,
+            defaultUnit: this._properties['modbusId'],
             defaultMaxRetries: 0,
-            defaultTimeout: this._configuration.timeout,
+            defaultTimeout: this._properties['timeout'],
         })
 
         this._connection.on('error', (err: any) => {
@@ -200,22 +143,14 @@ export class ModbusConnector extends IConnector {
         this._master.on('connected', () => {
             var message: string = ''
 
-            switch (this._configuration.interface) {
-                case 'tcp': {
-                    const configuration = {
-                        ...defaultModbusTCPConnectorDef,
-                        ...modbusConnectorDef,
-                    }
-                    message = `Connected to [${configuration.host}:${configuration.port}]`
+            switch (this._properties['schema']) {
+                case 'tcpip': {
+                    message = `Connected to [${this._properties['host']}:${this._properties['port']}]`
                     break
                 }
 
                 case 'serial': {
-                    const configuration = {
-                        ...defaultModbusSerialConnectorDef,
-                        ...modbusConnectorDef,
-                    }
-                    message = `Connected to [${configuration.device}], Baud Rate: ${configuration.baudRate}]`
+                    message = `Connected to [${this._properties['device']}:${this._properties['baud']}]`
                     break
                 }
             }
@@ -226,22 +161,14 @@ export class ModbusConnector extends IConnector {
         this._master.on('disconnected', () => {
             var message: string = ''
 
-            switch (this._configuration.interface) {
-                case 'tcp': {
-                    const configuration = {
-                        ...defaultModbusTCPConnectorDef,
-                        ...modbusConnectorDef,
-                    }
-                    message = `Disconnected from [${configuration.host}:${configuration.port}]`
+            switch (this._properties['schema']) {
+                case 'tcpip': {
+                    message = `Disconnected from [${this._properties['host']}:${this._properties['port']}]`
                     break
                 }
 
                 case 'serial': {
-                    const configuration = {
-                        ...defaultModbusSerialConnectorDef,
-                        ...modbusConnectorDef,
-                    }
-                    message = `Disconnected from [${configuration.device}], Baud Rate: ${configuration.baudRate}]`
+                    message = `Disconnected from [${this._properties['device']}:${this._properties['baud']}]`
                     break
                 }
             }
@@ -279,6 +206,17 @@ export class ModbusConnector extends IConnector {
                     type: 'number',
                     defaultValue: 502,
                 },
+                transport: {
+                    type: 'string',
+                },
+                modbusId: {
+                    type: 'number',
+                    defaultValue: 1,
+                },
+                timeout: {
+                    type: 'number',
+                    defaultValue: 2500,
+                },
             },
             serial: {
                 device: {
@@ -287,6 +225,17 @@ export class ModbusConnector extends IConnector {
                 baud: {
                     type: 'number',
                     defaultValue: 19200,
+                },
+                transport: {
+                    type: 'string',
+                },
+                modbusId: {
+                    type: 'number',
+                    defaultValue: 1,
+                },
+                timeout: {
+                    type: 'number',
+                    defaultValue: 2500,
                 },
             },
         }
@@ -412,8 +361,8 @@ export class ModbusConnector extends IConnector {
             }
 
             const transaction: any = new Transaction(request)
-            transaction.setUnit(this._configuration.modbusId)
-            transaction.setTimeout(this._configuration.timeout)
+            transaction.setUnit(this._properties['modbusId'])
+            transaction.setTimeout(this._properties['timeout'])
 
             transaction.on('error', (err: any) => {
                 this._logger.error(`Transaction error: [${err}]`)

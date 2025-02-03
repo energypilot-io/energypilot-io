@@ -1,4 +1,4 @@
-import { IConnector } from 'server/connectors/IConnector'
+import { IInterface } from 'server/interfaces/IInterface'
 import { ModifierDef, ParameterDef, StaticValueDef } from 'server/defs/template'
 
 export interface IParameter {
@@ -9,7 +9,7 @@ export class Modifier implements IParameter {
     private _modifier: 'add' | 'sub' | 'mul' | 'div'
     private _values: IParameter[] = []
 
-    constructor(modifierDef: ModifierDef, connector: IConnector) {
+    constructor(modifierDef: ModifierDef, connector: IInterface) {
         this._modifier = modifierDef.modifier
 
         modifierDef.values.forEach((value) => {
@@ -72,10 +72,10 @@ export class StaticValue implements IParameter {
 }
 
 export class Parameter implements IParameter {
-    private _connector: IConnector
+    private _connector: IInterface
     private _parameterDef: ParameterDef
 
-    constructor(parameterDef: ParameterDef, connector: IConnector) {
+    constructor(parameterDef: ParameterDef, connector: IInterface) {
         this._parameterDef = parameterDef
         this._connector = connector
     }
@@ -88,7 +88,7 @@ export class Parameter implements IParameter {
 
 export function parseParameter(
     parameterDef: ModifierDef | ParameterDef | StaticValueDef,
-    connector: IConnector
+    connector: IInterface
 ) {
     if ('modifier' in parameterDef) {
         return new Modifier(parameterDef, connector)

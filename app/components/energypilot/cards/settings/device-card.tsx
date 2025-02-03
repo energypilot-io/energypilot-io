@@ -3,7 +3,6 @@ import { Link, useFetcher } from '@remix-run/react'
 import { TriangleAlert } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Device } from 'server/database/entities/device.entity'
 import {
     AlertDialog,
     AlertDialogCancel,
@@ -15,9 +14,10 @@ import {
 } from '~/components/ui/alert-dialog'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
+import { EnrichedDevice } from '~/routes/api_.devices'
 
 export type DeviceCardProps = {
-    device: Device
+    device: EnrichedDevice
 }
 
 export function DeviceCard({ device }: DeviceCardProps) {
@@ -61,31 +61,42 @@ export function DeviceCard({ device }: DeviceCardProps) {
                             </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                            <AlertDialogCancel>
-                                {t('buttons.cancel')}
-                            </AlertDialogCancel>
                             <Button
+                                variant="ghost"
+                                className=" text-red-600"
                                 onClick={() => onHandleDelete()}
                                 disabled={fetcher.state !== 'idle'}
                             >
                                 {t('buttons.delete')}
                             </Button>
+                            <AlertDialogCancel>
+                                {t('buttons.cancel')}
+                            </AlertDialogCancel>
                         </AlertDialogFooter>
                     </AlertDialogContent>
                 </AlertDialog>
                 <CardHeader>
-                    <CardTitle>{device.name}</CardTitle>
+                    <CardTitle className="flex gap-2 items-center max-h-8">
+                        {device.logo && (
+                            <img
+                                src={device.logo}
+                                className="h-8 aspect-square rounded-lg"
+                            />
+                        )}
+                        {device.name}
+                    </CardTitle>
                 </CardHeader>
                 <CardContent className="flex flex-col">
                     <p>sddsf</p>
                     <div className="flex justify-end items-center gap-2">
-                        <Link
-                            to="#"
-                            className="text-red-600"
+                        <Button
+                            variant="ghost"
+                            className=" text-red-600"
                             onClick={() => setShowAlert(true)}
                         >
-                            Delete
-                        </Link>
+                            {t('buttons.delete')}
+                        </Button>
+
                         <Button>Edit</Button>
                     </div>
                 </CardContent>

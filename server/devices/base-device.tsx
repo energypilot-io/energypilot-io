@@ -1,37 +1,31 @@
-import { IConnector } from 'server/connectors/IConnector'
+import { IInterface } from 'server/interfaces/IInterface'
 import { logging } from 'server/core/log-manager'
-import { DeviceDef } from 'server/defs/configuration'
-import { BaseDeviceTemplateDef, TemplateDef } from 'server/defs/template'
+import { BaseDeviceTemplateDef } from 'server/defs/template'
 import { IParameter, parseParameter } from 'templates/template-parser'
-
-export const defaultDeviceConfig: DeviceDef = {
-    id: '',
-}
+import { Device } from 'server/database/entities/device.entity'
 
 export class BaseDevice {
-    id: string
-    label?: string
+    name: string
 
-    protected _connector: IConnector
-    protected _configuration: DeviceDef
+    protected _connector: IInterface
+    protected _deviceDefinition: Device
 
     protected _logger: logging.ChildLogger
 
     private _enabledParameter: IParameter | undefined
 
     constructor(
-        connector: IConnector,
-        deviceDef: Partial<DeviceDef> = {},
-        baseDeviceTemplateDef: Partial<BaseDeviceTemplateDef> = {}
+        connector: IInterface,
+        baseDeviceTemplateDef: Partial<BaseDeviceTemplateDef> = {},
+        deviceDefinition: Device
     ) {
         this._connector = connector
-        this._configuration = { ...defaultDeviceConfig, ...deviceDef }
+        this._deviceDefinition = deviceDefinition
 
-        this.id = this._configuration.id
-        this.label = this._configuration.label
+        this.name = this._deviceDefinition.name
 
         this._logger = logging.getLogger(
-            `${this._configuration.type}.${this.id}`
+            `${this._deviceDefinition.type}.${this.name}`
         )
 
         this._enabledParameter = this.getParameter(

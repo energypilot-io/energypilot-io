@@ -12,20 +12,6 @@ export type LoggingDef = {
     file?: FileLoggingDef
 }
 
-export type ConnectorDef = {
-    id: string
-    type: string
-    enabled?: boolean
-}
-
-export type DeviceDef = {
-    id: string
-    label?: string
-    connector?: string
-    type?: 'grid' | 'pv' | 'battery' | 'consumer'
-    template?: string
-}
-
 export type HTTPDef = {
     port?: number
 }
@@ -43,9 +29,6 @@ export type ConfigurationDef = {
     logging?: LoggingDef
     database?: DatabaseDef
     http?: HTTPDef
-
-    connectors?: ConnectorDef[]
-    devices?: DeviceDef[]
 
     update?: UpdateDef
 }

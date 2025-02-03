@@ -1,6 +1,6 @@
 import { ToggleGroup, ToggleGroupItem } from '~/components/ui/toggle-group'
 import { useEffect, useState } from 'react'
-import { InterfaceDef, InterfaceSchemaDef } from 'server/connectors/IConnector'
+import { InterfaceDef, InterfaceSchemaDef } from 'server/interfaces/IInterface'
 import { useTranslation } from 'react-i18next'
 
 export type SchemaSelectorProps = {

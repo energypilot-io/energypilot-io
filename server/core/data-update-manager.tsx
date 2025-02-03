@@ -11,11 +11,10 @@ import {
 } from 'server/constants'
 import { ConsumerDevice } from 'server/devices/consumer'
 import { Snapshot } from 'server/database/entities/snapshot.entity'
-import { devices } from './device-manager'
 import { DeviceSnapshot } from 'server/database/entities/device-snapshot.entity'
 
 import Semaphore from 'ts-semaphore'
-import { connectors } from './connector-manager'
+import { devices } from './devices'
 
 var _logger: logging.ChildLogger
 
@@ -44,14 +43,15 @@ export namespace dataupdate {
     }
 
     async function pollData() {
-        connectors.resetAllCaches()
+        devices.resetAllCaches()
 
         _logger.debug('Collecting live data from devices')
 
         const snapshot: DeviceSnapshot[] = []
+        const deviceInstances = devices.getAllInstances()
 
-        for (let key in devices.instances) {
-            const device = devices.instances[key]
+        for (let key in deviceInstances) {
+            const device = deviceInstances[key]
             const isEnabled = await device.isEnabled()
 
             if (device instanceof GridDevice) {
@@ -68,8 +68,7 @@ export namespace dataupdate {
                 snapshot.push(
                     new DeviceSnapshot({
                         type: 'grid',
-                        device_id: device.id,
-                        label: device.label,
+                        device_name: device.name,
                         power: gridPowerValue,
                         energy_import: gridEnergyImportValue,
                         energy_export: gridEnergyExportValue,
@@ -86,8 +85,7 @@ export namespace dataupdate {
                 snapshot.push(
                     new DeviceSnapshot({
                         type: 'pv',
-                        device_id: device.id,
-                        label: device.label,
+                        device_name: device.name,
                         power: pvPowerValue,
                         energy: pvEnergyValue,
                     })
@@ -101,8 +99,7 @@ export namespace dataupdate {
                 snapshot.push(
                     new DeviceSnapshot({
                         type: 'battery',
-                        device_id: device.id,
-                        label: device.label,
+                        device_name: device.name,
                         soc: socValue,
                         power: batteryPowerValue,
                     })
@@ -118,8 +115,7 @@ export namespace dataupdate {
                 snapshot.push(
                     new DeviceSnapshot({
                         type: 'consumer',
-                        device_id: device.id,
-                        label: device.label,
+                        device_name: device.name,
                         power: consumerPowerValue,
                         energy: consumerEnergyValue,
                     })

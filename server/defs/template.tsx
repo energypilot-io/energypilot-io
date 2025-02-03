@@ -40,6 +40,7 @@ export type ConsumerTemplateDef = BaseDeviceTemplateDef & {
 export type TemplateDef = {
     name: string
     interfaces: string[]
+    logo?: string
 
     grid?: GridTemplateDef
     pv?: PVTemplateDef

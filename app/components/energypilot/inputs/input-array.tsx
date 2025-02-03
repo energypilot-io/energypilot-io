@@ -1,7 +1,7 @@
 import { Fragment, useEffect } from 'react'
-import { FieldErrors } from 'react-hook-form'
+import { Control, Controller, FieldErrors } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { InterfaceDef, InterfaceSchemaDef } from 'server/connectors/IConnector'
+import { InterfaceDef, InterfaceSchemaDef } from 'server/interfaces/IInterface'
 import * as zod from 'zod'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
@@ -14,16 +14,16 @@ export type InputArrayProps = {
     schemaName?: string
     interfaceDef?: InterfaceDef
     disabled?: boolean
-    register?: any
+    control: Control<any>
 }
 
 export function InputArray({
     errors,
-    register,
     schemaName,
     interfaceName,
     interfaceDef,
     disabled,
+    control,
     onChange,
 }: InputArrayProps) {
     const { t } = useTranslation()
@@ -41,31 +41,50 @@ export function InputArray({
 
     return (
         <>
-            {Object.keys(zodSchema?.shape).map((fieldName: any, index) => {
+            {Object.keys(zodSchema?.shape).map((fieldName: string) => {
                 const fieldDefinition = zodSchema?.shape[fieldName]
                 const isNumber = fieldDefinition instanceof zod.ZodNumber
 
                 return (
-                    <Fragment key={index}>
-                        <Label htmlFor={fieldName}>
-                            {t(
-                                `interfaces.${interfaceName}.${schemaName}.${fieldName}`
-                            )}
-                        </Label>
-                        <Input
-                            id={fieldName}
-                            readOnly={disabled}
-                            type={isNumber ? 'number' : 'text'}
-                            {...register(fieldName, {
-                                valueAsNumber: isNumber,
-                            })}
-                        />
-                        {errors[fieldName] && (
-                            <p className="text-sm text-red-600">
-                                {errors[fieldName].message?.toString()}
-                            </p>
+                    <Controller
+                        key={fieldName}
+                        control={control}
+                        name={fieldName}
+                        shouldUnregister={true}
+                        disabled={disabled}
+                        defaultValue={
+                            interfaceDef![schemaName!][fieldName]
+                                .defaultValue ?? ''
+                        }
+                        render={({ field: { onChange, value } }) => (
+                            <>
+                                <Label htmlFor={fieldName}>
+                                    {t(
+                                        `interfaces.${interfaceName}.${schemaName}.${fieldName}`
+                                    )}
+                                </Label>
+                                <Input
+                                    type={isNumber ? 'number' : 'text'}
+                                    value={value}
+                                    onChange={(event) =>
+                                        onChange?.(
+                                            isNumber
+                                                ? parseInt(
+                                                      event.target.value,
+                                                      10
+                                                  )
+                                                : event.target.value
+                                        )
+                                    }
+                                />
+                                {errors[fieldName] && (
+                                    <p className="text-sm text-red-600">
+                                        {errors[fieldName].message?.toString()}
+                                    </p>
+                                )}
+                            </>
                         )}
-                    </Fragment>
+                    />
                 )
             })}
         </>

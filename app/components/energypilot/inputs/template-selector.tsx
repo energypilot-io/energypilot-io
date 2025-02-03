@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { Control, Controller, FieldErrors, FieldValues } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { templates } from 'server/core/template-manager'
+import { TemplateDef } from 'server/defs/template'
 import { Label } from '~/components/ui/label'
 import {
     Select,
@@ -20,7 +21,7 @@ export type TemplateSelectorProps = SelectProps & {
     label: string
     errors: FieldErrors<any>
     control?: Control<any>
-    onChange?: (template: { path: string; interfaces: string[] }) => void
+    onChange?: (template: TemplateDef) => void
 }
 
 export function TemplateSelector({
@@ -34,7 +35,7 @@ export function TemplateSelector({
     const { t } = useTranslation()
     const fetcher = useFetcher()
 
-    const [templates, setTemplates] = useState<templates.AvailableTemplates>()
+    const [templates, setTemplates] = useState<templates.TemplateRegistry>()
 
     useEffect(() => {
         fetcher.load('/api/templates')
@@ -43,7 +44,7 @@ export function TemplateSelector({
     useEffect(() => {
         if (fetcher.data === undefined && fetcher.data !== null) return
 
-        setTemplates(fetcher.data as templates.AvailableTemplates)
+        setTemplates(fetcher.data as templates.TemplateRegistry)
     }, [fetcher.data])
 
     const templateSelectorGroups =
