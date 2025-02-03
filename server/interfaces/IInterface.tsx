@@ -2,7 +2,7 @@ import { ParameterDef } from 'server/defs/template'
 
 export type InterfaceSchemaDef = {
     [propertyName: string]: {
-        type: 'string' | 'number'
+        type: 'string' | 'number' | 'email' | 'password'
         defaultValue?: any
     }
 }
