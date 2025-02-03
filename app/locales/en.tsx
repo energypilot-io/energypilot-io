@@ -124,5 +124,13 @@ export default {
                 baud: 'Baud rate',
             },
         },
+
+        tapo: {
+            default: {
+                email: 'E-Mail',
+                password: 'Password',
+                ip: 'IP',
+            },
+        },
     },
 }
