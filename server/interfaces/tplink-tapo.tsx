@@ -34,10 +34,10 @@ export class TPLinkTapoConnector implements IInterface {
         return {
             default: {
                 email: {
-                    type: 'string',
+                    type: 'email',
                 },
                 password: {
-                    type: 'string',
+                    type: 'password',
                 },
                 ip: {
                     type: 'string',

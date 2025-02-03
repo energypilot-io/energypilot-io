@@ -53,6 +53,8 @@ export function zodSchemaDefinitionParser(schemaDefinition: any) {
         const fieldDefinition = schemaDefinition[fieldName]
 
         switch (fieldDefinition.type) {
+            case 'email':
+            case 'password':
             case 'string':
                 schema[fieldName as keyof typeof schema] = zod.string().min(1)
                 break

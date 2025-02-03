@@ -42,8 +42,7 @@ export function InputArray({
     return (
         <>
             {Object.keys(zodSchema?.shape).map((fieldName: string) => {
-                const fieldDefinition = zodSchema?.shape[fieldName]
-                const isNumber = fieldDefinition instanceof zod.ZodNumber
+                const field = interfaceDef![schemaName!][fieldName]
 
                 return (
                     <Controller
@@ -64,11 +63,11 @@ export function InputArray({
                                     )}
                                 </Label>
                                 <Input
-                                    type={isNumber ? 'number' : 'text'}
+                                    type={field.type}
                                     value={value}
                                     onChange={(event) =>
                                         onChange?.(
-                                            isNumber
+                                            field.type === 'number'
                                                 ? parseInt(
                                                       event.target.value,
                                                       10
