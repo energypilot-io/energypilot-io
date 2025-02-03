@@ -40,7 +40,7 @@ export class TPLinkTapoConnector implements IInterface {
                     type: 'password',
                 },
                 ip: {
-                    type: 'string',
+                    type: 'ip',
                 },
             },
         }
