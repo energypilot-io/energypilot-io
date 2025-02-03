@@ -2,13 +2,18 @@ import { getEntityManager } from '~/lib/db.server'
 
 import { Device } from 'server/database/entities/device.entity'
 
-import { ActionFunctionArgs, redirect } from '@remix-run/node'
+import {
+    ActionFunctionArgs,
+    LoaderFunctionArgs,
+    redirect,
+} from '@remix-run/node'
 import { getValidatedFormData } from 'remix-hook-form'
 
 import * as zod from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ConstraintViolationException } from '@mikro-orm/core'
 import i18next from '~/lib/i18n.server'
+import { templates } from 'server/core/template-manager'
 
 export const newDeviceSchema = zod.object({
     name: zod.string().min(1),
@@ -24,16 +29,20 @@ export const newDeviceDefaultValues = {
     properties: '',
 }
 
-type FormData = zod.infer<typeof newDeviceSchema>
-
-const newDeviceSchemaResolver = zodResolver(newDeviceSchema)
+export type EnrichedDevice = typeof Device & {
+    id: number
+    logo?: string
+}
 
 export async function action({ request }: ActionFunctionArgs) {
     const {
         errors,
         data,
         receivedValues: defaultValues,
-    } = await getValidatedFormData<FormData>(request, newDeviceSchemaResolver)
+    } = await getValidatedFormData<zod.infer<typeof newDeviceSchema>>(
+        request,
+        zodResolver(newDeviceSchema)
+    )
     if (errors) {
         // The keys "errors" and "defaultValues" are picked up automatically by useRemixForm
         return { errors, defaultValues }
@@ -71,7 +80,7 @@ export async function action({ request }: ActionFunctionArgs) {
     }
 }
 
-export const loader = async () => {
+export const loader = async ({ context }: LoaderFunctionArgs) => {
     const devices = await getEntityManager().find(
         Device,
         {},
@@ -79,5 +88,13 @@ export const loader = async () => {
             orderBy: { name: 'asc' },
         }
     )
-    return devices
+
+    return devices.map((item) => {
+        const templates = context.templates as templates.TemplateRegistry
+
+        return {
+            ...item,
+            logo: templates[item.type][item.template].logo,
+        } as any as EnrichedDevice
+    })
 }

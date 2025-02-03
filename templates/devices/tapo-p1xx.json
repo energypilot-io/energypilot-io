@@ -1,6 +1,7 @@
 {
     "name": "TP-Link TAPO P110",
     "interfaces": ["tapo"],
+    "logo": "/logos/tp-link.jpeg",
 
     "consumer": {
         "power": {

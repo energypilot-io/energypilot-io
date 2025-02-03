@@ -13,13 +13,10 @@ export class DeviceSnapshot {
     snapshot!: Snapshot
 
     @Property()
-    device_id!: string
+    device_name: string
 
     @Property()
     type!: string
-
-    @Property()
-    label?: string
 
     @Property()
     power?: number
@@ -37,9 +34,8 @@ export class DeviceSnapshot {
     soc?: number
 
     constructor(options: {
-        device_id: string
+        device_name: string
         type: 'grid' | 'pv' | 'battery' | 'consumer'
-        label?: string
         power?: number
         energy?: number
         energy_import?: number
@@ -47,8 +43,7 @@ export class DeviceSnapshot {
         soc?: number
     }) {
         this.type = options.type
-        this.label = options.label
-        this.device_id = options.device_id
+        this.device_name = options.device_name
         this.power = options.power
         this.energy = options.energy
         this.energy_import = options.energy_import

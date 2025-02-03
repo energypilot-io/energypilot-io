@@ -102,25 +102,61 @@ export default function GraphPage() {
     useEffect(() => {
         if (!Array.isArray(fetcher.data)) return
 
-        const groupedValues: { [name: string]: number[] } = {}
-        const groupedSoCValues: { [name: string]: number[] } = {}
+        const snapshots = fetcher.data as Snapshot[]
 
-        const nameHouse = t('liveEnergyCard.nodes.home')
-        groupedValues[nameHouse] = []
-        ;(fetcher.data as Snapshot[]).forEach((snapshot: Snapshot) => {
-            let housePower = 0
+        const existingDevices: { [type: string]: string[] } = {
+            grid: [],
+            pv: [],
+            battery: [],
+            consumer: [],
+        }
 
+        snapshots.forEach((snapshot: Snapshot) => {
             const deviceSnapshots: Collection<DeviceSnapshot> =
                 snapshot.device_snapshots as Collection<DeviceSnapshot>
 
             // @ts-ignore
             deviceSnapshots.items.forEach((deviceSnapshot: DeviceSnapshot) => {
-                const device_id =
-                    deviceSnapshot.label ?? deviceSnapshot.device_id
-                if (!(device_id in groupedValues)) {
-                    groupedValues[device_id] = []
+                if (
+                    existingDevices[deviceSnapshot.type].indexOf(
+                        deviceSnapshot.device_name
+                    ) === -1
+                ) {
+                    existingDevices[deviceSnapshot.type].push(
+                        deviceSnapshot.device_name
+                    )
+                }
+            })
+        })
+
+        const nameHouse = t('liveEnergyCard.nodes.home')
+
+        const groupedValues: { [name: string]: number[] } = {}
+        const groupedSoCValues: { [name: string]: number[] } = {}
+
+        Object.keys(existingDevices).map((type) => {
+            existingDevices[type].forEach((deviceName) => {
+                if (!(deviceName in groupedValues)) {
+                    groupedValues[deviceName] = []
                 }
 
+                if (type === 'battery' && !(deviceName in groupedSoCValues)) {
+                    groupedSoCValues[deviceName] = []
+                }
+            })
+        })
+        groupedValues[nameHouse] = []
+
+        snapshots.forEach((snapshot: Snapshot) => {
+            let housePower = 0
+
+            const deviceSnapshots: Collection<DeviceSnapshot> =
+                snapshot.device_snapshots as Collection<DeviceSnapshot>
+
+            const foundDeviceNames: string[] = [nameHouse]
+
+            // @ts-ignore
+            deviceSnapshots.items.forEach((deviceSnapshot: DeviceSnapshot) => {
                 switch (deviceSnapshot.type) {
                     case 'pv':
                     case 'grid':
@@ -128,11 +164,7 @@ export default function GraphPage() {
                         break
 
                     case 'battery':
-                        if (!(device_id in groupedSoCValues)) {
-                            groupedSoCValues[device_id] = []
-                        }
-
-                        groupedSoCValues[device_id].push(
+                        groupedSoCValues[deviceSnapshot.device_name].push(
                             deviceSnapshot.soc ?? 0
                         )
                     case 'consumer':
@@ -140,20 +172,36 @@ export default function GraphPage() {
                         break
                 }
 
-                groupedValues[device_id].push(deviceSnapshot.power ?? 0)
+                groupedValues[deviceSnapshot.device_name].push(
+                    deviceSnapshot.power ?? 0
+                )
+
+                foundDeviceNames.push(deviceSnapshot.device_name)
             })
 
             groupedValues[nameHouse].push(housePower)
+
+            Object.keys(groupedValues).forEach((deviceName) => {
+                if (foundDeviceNames.indexOf(deviceName) === -1) {
+                    groupedValues[deviceName].push(0)
+                }
+            })
+
+            Object.keys(groupedSoCValues).forEach((deviceName) => {
+                if (foundDeviceNames.indexOf(deviceName) === -1) {
+                    groupedSoCValues[deviceName].push(0)
+                }
+            })
         })
 
         setSeries([
-            ...Object.keys(groupedValues).map((device_id) => {
+            ...Object.keys(groupedValues).map((deviceName) => {
                 return {
-                    name: device_id,
+                    name: deviceName,
                     type: 'line',
                     smooth: true,
                     symbol: 'none',
-                    data: groupedValues[device_id],
+                    data: groupedValues[deviceName],
                     tooltip: {
                         valueFormatter: (value: number, dataIndex: number) => {
                             const formattedValue = formatPower(value)
@@ -163,14 +211,14 @@ export default function GraphPage() {
                 }
             }),
 
-            ...Object.keys(groupedSoCValues).map((device_id) => {
+            ...Object.keys(groupedSoCValues).map((deviceName) => {
                 return {
-                    name: `${device_id} SoC`,
+                    name: `${deviceName} SoC`,
                     type: 'line',
                     smooth: true,
                     symbol: 'none',
                     yAxisIndex: 1,
-                    data: groupedSoCValues[device_id],
+                    data: groupedSoCValues[deviceName],
                     tooltip: {
                         valueFormatter: (value: number, dataIndex: number) => {
                             return `${value.toFixed(2)} %`
@@ -180,6 +228,8 @@ export default function GraphPage() {
             }),
         ])
     }, [fetcher.data])
+
+    console.log(series)
 
     return (
         <>

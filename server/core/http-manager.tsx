@@ -13,7 +13,7 @@ import { ServerBuild } from '@remix-run/node'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { templates } from './template-manager.js'
-import { connectors } from './connector-manager.js'
+import { devices } from './devices.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -92,8 +92,8 @@ export namespace http {
                 },
                 getLoadContext(req, res) {
                     return {
-                        availableTemplates: templates.getAvailableTemplates(),
-                        interfaces: connectors.getInterfaceDefs(),
+                        templates: templates.getTemplateRegistry(),
+                        interfaces: devices.getInterfaceDefs(),
                         res,
                     }
                 },

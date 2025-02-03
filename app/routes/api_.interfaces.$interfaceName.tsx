@@ -1,5 +1,5 @@
 import { LoaderFunctionArgs } from '@remix-run/node'
-import { InterfaceDef } from 'server/connectors/IConnector'
+import { InterfaceDef } from 'server/interfaces/IInterface'
 
 export const loader = async ({ params, context }: LoaderFunctionArgs) => {
     const interfaceName = params.interfaceName

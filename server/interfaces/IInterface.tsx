@@ -1,11 +1,4 @@
-import { ConnectorDef } from 'server/defs/configuration'
 import { ParameterDef } from 'server/defs/template'
-
-export const defaultConnectorConfig: ConnectorDef = {
-    id: '',
-    type: '',
-    enabled: true,
-}
 
 export type InterfaceSchemaDef = {
     [propertyName: string]: {
@@ -18,12 +11,10 @@ export type InterfaceDef = {
     [groupName: string]: InterfaceSchemaDef
 }
 
-export abstract class IConnector {
-    id: string
+export abstract class IInterface {
     templateInterfaceKey: string
 
-    constructor(id: string, templateInterfaceKey: string) {
-        this.id = id
+    constructor(templateInterfaceKey: string) {
         this.templateInterfaceKey = templateInterfaceKey
     }
 

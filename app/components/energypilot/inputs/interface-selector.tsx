@@ -2,7 +2,7 @@ import { SelectProps } from '@radix-ui/react-select'
 import { useFetcher } from '@remix-run/react'
 import { useEffect, useState } from 'react'
 import { Control, Controller, FieldErrors } from 'react-hook-form'
-import { InterfaceDef } from 'server/connectors/IConnector'
+import { InterfaceDef } from 'server/interfaces/IInterface'
 import { Label } from '~/components/ui/label'
 import {
     Select,

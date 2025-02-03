@@ -17,7 +17,7 @@ import { Label } from '~/components/ui/label'
 import { Link, useFetcher } from '@remix-run/react'
 
 import { useRemixForm } from 'remix-hook-form'
-import { newDeviceDefaultValues, newDeviceSchema } from '~/routes/api_.devices'
+import { newDeviceSchema } from '~/routes/api_.devices'
 import { zodResolver } from '@hookform/resolvers/zod'
 
 import * as zod from 'zod'
@@ -26,15 +26,9 @@ import { InterfaceSelector } from '../inputs/interface-selector'
 import { filterObject } from '~/lib/utils'
 import { InputArray } from '../inputs/input-array'
 import { SchemaSelector } from '../inputs/schema-selector'
-import { InterfaceDef, InterfaceSchemaDef } from 'server/connectors/IConnector'
-import { Separator } from '~/components/ui/separator'
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from '~/components/ui/card'
+import { InterfaceDef } from 'server/interfaces/IInterface'
+import { Card, CardContent } from '~/components/ui/card'
+import { TemplateDef } from 'server/defs/template'
 
 export function NewDeviceDialog() {
     const { t } = useTranslation()
@@ -70,15 +64,16 @@ export function NewDeviceDialog() {
                     additionalSchema?.shape !== undefined &&
                     additionalSchema.shape !== null
                 ) {
-                    properties = JSON.stringify(
-                        filterObject(
+                    properties = JSON.stringify({
+                        ...filterObject(
                             data,
                             (v, k) =>
                                 Object.keys(additionalSchema?.shape).indexOf(
                                     k.toString()
                                 ) > -1
-                        )
-                    )
+                        ),
+                        schema: interfaceSchemaName,
+                    })
                 }
 
                 const resolver = zodResolver(schemaToTest)
@@ -114,10 +109,7 @@ export function NewDeviceDialog() {
         setOpen(isOpen)
     }
 
-    function onTemplateChange(template: {
-        path: string
-        interfaces: string[]
-    }) {
+    function onTemplateChange(template: TemplateDef) {
         setTemplateInterfaces(template?.interfaces)
         resetField('interface')
         setInterfaceDef(undefined)
@@ -145,7 +137,6 @@ export function NewDeviceDialog() {
             method: 'POST',
             action: '/api/devices',
         },
-        defaultValues: newDeviceDefaultValues,
         shouldUnregister: true,
     })
 
@@ -217,7 +208,7 @@ export function NewDeviceDialog() {
                                     <InputArray
                                         errors={errors}
                                         disabled={isSubmitting}
-                                        register={register}
+                                        control={control}
                                         interfaceName={interfaceName}
                                         schemaName={interfaceSchemaName}
                                         interfaceDef={interfaceDef}
@@ -236,7 +227,7 @@ export function NewDeviceDialog() {
                             type="submit"
                             className="px-3"
                             form="new-device-form"
-                            disabled={!isValid || isSubmitting}
+                            disabled={isSubmitting}
                         >
                             Test & Create
                         </Button>

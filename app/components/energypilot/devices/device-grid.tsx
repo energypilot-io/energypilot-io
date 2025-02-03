@@ -1,12 +1,12 @@
 import { useFetcher } from '@remix-run/react'
 import { useEffect, useState } from 'react'
-import { Device } from 'server/database/entities/device.entity'
 import { DeviceCard } from '../cards/settings/device-card'
+import { EnrichedDevice } from '~/routes/api_.devices'
 
 export function DeviceGrid() {
     const fetcher = useFetcher()
 
-    const [devices, setDevices] = useState<Device[]>([])
+    const [devices, setDevices] = useState<EnrichedDevice[]>([])
 
     useEffect(() => {
         fetcher.load(`/api/devices`)

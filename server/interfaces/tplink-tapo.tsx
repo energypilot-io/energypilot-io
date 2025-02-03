@@ -1,58 +1,33 @@
-import { ConnectorDef } from 'server/defs/configuration'
 import { logging } from 'server/core/log-manager'
 import { defaultParameterDef, ParameterDef } from 'server/defs/template'
-import { defaultConnectorConfig, IConnector, InterfaceDef } from './IConnector'
+import { IInterface, InterfaceDef } from './IInterface'
 
 import { loginDeviceByIp } from 'tp-link-tapo-connect'
-
-type TPLinkTapoConnectorDef = ConnectorDef & {
-    email: string
-    password: string
-    ip: string
-    timeout?: number
-}
 
 type TPLinkTapoParameterDef = ParameterDef & {
     request: string
     parameter: string
 }
 
-const defaultTapoP110ConnectorDef: TPLinkTapoConnectorDef = {
-    ...defaultConnectorConfig,
-
-    email: '',
-    password: '',
-    ip: '',
-    timeout: 10000,
-}
-
-export class TPLinkTapoConnector implements IConnector {
+export class TPLinkTapoConnector implements IInterface {
     templateInterfaceKey: string = 'tapo'
-    id: string
 
     private _logger = logging.getLogger('interfaces.tapo')
 
     private _cache: { [key: string]: any } = {}
 
-    private _configuration: TPLinkTapoConnectorDef
+    private _properties: { [property: string]: any }
 
     private _device: any
 
-    constructor(modbusTCPConnectorDef: Partial<TPLinkTapoConnectorDef> = {}) {
-        this._configuration = {
-            ...defaultTapoP110ConnectorDef,
-            ...modbusTCPConnectorDef,
-        }
+    constructor(properties: { [property: string]: any }) {
+        this._properties = properties
 
-        this.id = this._configuration.id
-
-        if (this._configuration.enabled) {
-            this.connect(
-                this._configuration.email,
-                this._configuration.password,
-                this._configuration.ip
-            )
-        }
+        this.connect(
+            this._properties['email'],
+            this._properties['password'],
+            this._properties['ip']
+        )
     }
 
     static getInterfaceDef(): InterfaceDef {
@@ -73,7 +48,7 @@ export class TPLinkTapoConnector implements IConnector {
 
     private async connect(email: string, password: string, ip: string) {
         this._device = await loginDeviceByIp(email, password, ip)
-        this._logger.info(`Connected to [${this._configuration.ip}]`)
+        this._logger.info(`Connected to [${this._properties.ip}]`)
     }
 
     public resetCache() {

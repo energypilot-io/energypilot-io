@@ -5,11 +5,11 @@ import { ConfigurationDef } from 'server/defs/configuration'
 import { logging } from 'server/core/log-manager'
 import { database } from 'server/core/database-manager'
 import { http } from 'server/core/http-manager'
-import { connectors } from 'server/core/connector-manager'
-import { devices } from 'server/core/device-manager'
 import { websockets } from 'server/core/websockets-manager'
 import { dataupdate } from 'server/core/data-update-manager'
 import { templates } from 'server/core/template-manager'
+import { Device } from 'server/database/entities/device.entity'
+import { devices } from 'server/core/devices'
 
 const ENVIRONMENTAL_VARIABLES = ['DATA_DIR']
 
@@ -36,12 +36,18 @@ await templates.initTemplateEngine()
 await http.initHTTP(config.http)
 await websockets.initWebSockets(http.httpServer)
 
-await connectors.initConnectors(config.connectors)
-await devices.initDevices(config.devices)
+/*
+ * Load all devices stored in the database
+ */
+
+const em = database.getEntityManager()
+
+const deviceConfigurations = await em.findAll(Device)
+deviceConfigurations.map((device) => {
+    devices.deviceFactory(device)
+})
+
+// await connectors.initConnectors(config.connectors)
+// await devices.initDevices(config.devices)
 
 await dataupdate.initDataUpdate(config.update)
-
-// const job = nodeCron.schedule('* * * * * */5', function jobYouNeedToExecute() {
-//     // Do whatever you want in here. Send email, Make  database backup or download data.
-//     console.log(new Date().toLocaleString())
-// })

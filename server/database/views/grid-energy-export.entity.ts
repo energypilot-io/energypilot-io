@@ -14,7 +14,7 @@ import { DeviceSnapshot } from '../entities/device-snapshot.entity'
                 raw('max(g.energy_export) as energy_total'),
             ])
             .where({ $and: [{ type: 'grid' }, where ?? {}] })
-            .groupBy(['g.device_id'])
+            .groupBy(['g.device_name'])
     },
 })
 export class GridEnergyExport {
