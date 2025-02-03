@@ -229,8 +229,6 @@ export default function GraphPage() {
         ])
     }, [fetcher.data])
 
-    console.log(series)
-
     return (
         <>
             <Header
