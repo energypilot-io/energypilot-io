@@ -63,7 +63,11 @@ export function InputArray({
                                     )}
                                 </Label>
                                 <Input
-                                    type={field.type}
+                                    type={
+                                        field.type === 'ip'
+                                            ? 'text'
+                                            : field.type
+                                    }
                                     value={value}
                                     onChange={(event) =>
                                         onChange?.(

@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from 'clsx'
 import { useEffect, useRef } from 'react'
+import { InterfaceSchemaDef } from 'server/interfaces/IInterface'
 import { twMerge } from 'tailwind-merge'
 import * as zod from 'zod'
 
@@ -44,7 +45,9 @@ export function useInterval(callback: any, delay: number) {
     }, [delay])
 }
 
-export function zodSchemaDefinitionParser(schemaDefinition: any) {
+export function zodSchemaDefinitionParser(
+    schemaDefinition: InterfaceSchemaDef
+) {
     if (schemaDefinition === undefined) return undefined
 
     var schema: any = {}
@@ -53,7 +56,16 @@ export function zodSchemaDefinitionParser(schemaDefinition: any) {
         const fieldDefinition = schemaDefinition[fieldName]
 
         switch (fieldDefinition.type) {
+            case 'ip':
+                schema[fieldName as keyof typeof schema] = zod
+                    .string()
+                    .ip({ version: 'v4' })
+                break
+
             case 'email':
+                schema[fieldName as keyof typeof schema] = zod.string().email()
+                break
+
             case 'password':
             case 'string':
                 schema[fieldName as keyof typeof schema] = zod.string().min(1)
