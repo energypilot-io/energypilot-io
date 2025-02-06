@@ -63,7 +63,7 @@ export function LiveEnergyCard() {
                     case 'consumer':
                         if (element.power > 0) {
                             consumers.push({
-                                name: element.label ?? element.device_id,
+                                name: element.device_name,
                                 value: element.power,
                             })
                         }
