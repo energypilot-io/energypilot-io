@@ -15,6 +15,7 @@ import {
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { EnrichedDevice } from '~/routes/api_.devices'
+import { NewDeviceDialog } from '../../dialogs/new-device'
 
 export type DeviceCardProps = {
     device: EnrichedDevice
@@ -87,7 +88,7 @@ export function DeviceCard({ device }: DeviceCardProps) {
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="flex flex-col">
-                    <p>sddsf</p>
+                    <div>{device.template}</div>
                     <div className="flex justify-end items-center gap-2">
                         <Button
                             variant="ghost"
@@ -97,7 +98,7 @@ export function DeviceCard({ device }: DeviceCardProps) {
                             {t('buttons.delete')}
                         </Button>
 
-                        <Button>Edit</Button>
+                        <NewDeviceDialog device={device} />
                     </div>
                 </CardContent>
             </Card>

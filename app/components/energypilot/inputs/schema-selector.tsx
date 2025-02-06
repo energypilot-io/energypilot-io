@@ -1,15 +1,18 @@
 import { ToggleGroup, ToggleGroupItem } from '~/components/ui/toggle-group'
 import { useEffect, useState } from 'react'
-import { InterfaceDef, InterfaceSchemaDef } from 'server/interfaces/IInterface'
+import { InterfaceDef } from 'server/interfaces/IInterface'
 import { useTranslation } from 'react-i18next'
+import { Device } from 'server/database/entities/device.entity'
 
 export type SchemaSelectorProps = {
+    device?: Device
     interfaceName?: string
     interfaceDef?: InterfaceDef
     onChange: (schemaName?: string) => void
 }
 
 export function SchemaSelector({
+    device,
     interfaceName,
     interfaceDef,
     onChange,
@@ -33,6 +36,15 @@ export function SchemaSelector({
             setValue(Object.keys(interfaceDef)[0])
         }
     }, [interfaceDef])
+
+    useEffect(() => {
+        if (device === undefined) return
+
+        const schema = JSON.parse(device.properties)['schema']
+        onChange(schema)
+
+        console.log(schema)
+    }, [device, onChange])
 
     if (interfaceDef === undefined) {
         return null

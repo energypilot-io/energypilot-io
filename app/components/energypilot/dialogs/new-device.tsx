@@ -29,8 +29,13 @@ import { SchemaSelector } from '../inputs/schema-selector'
 import { InterfaceDef } from 'server/interfaces/IInterface'
 import { Card, CardContent } from '~/components/ui/card'
 import { TemplateDef } from 'server/defs/template'
+import { Device } from 'server/database/entities/device.entity'
 
-export function NewDeviceDialog() {
+export type NewDeviceDialogProps = {
+    device?: Device
+}
+
+export function NewDeviceDialog({ device }: NewDeviceDialogProps) {
     const { t } = useTranslation()
 
     const [open, setOpen] = useState(false)
@@ -102,8 +107,22 @@ export function NewDeviceDialog() {
     function onOpenChange(isOpen: boolean) {
         if (isOpen) {
             setBackendErrorMessage(undefined)
-            reset()
-            setInterfaceDef(undefined)
+
+            if (device === undefined) {
+                reset()
+                setTemplateInterfaces([])
+                setInterfaceDef(undefined)
+            } else {
+                reset({
+                    name: device?.name ?? '',
+                    template:
+                        device?.type !== undefined &&
+                        device?.template !== undefined
+                            ? `${device?.type}:${device?.template}`
+                            : undefined,
+                    interface: device?.interface,
+                })
+            }
         }
 
         setOpen(isOpen)
@@ -111,7 +130,7 @@ export function NewDeviceDialog() {
 
     function onTemplateChange(template: TemplateDef) {
         setTemplateInterfaces(template?.interfaces)
-        resetField('interface')
+        resetField('interface', { defaultValue: undefined })
         setInterfaceDef(undefined)
     }
 
@@ -141,12 +160,16 @@ export function NewDeviceDialog() {
     })
 
     return (
-        <fetcher.Form onSubmit={handleSubmit} id="new-device-form">
+        <fetcher.Form onSubmit={handleSubmit}>
             <Dialog open={open} onOpenChange={onOpenChange} modal={true}>
                 <DialogTrigger asChild>
-                    <Button variant="outline">
-                        <Plus /> {t('dialogs.newDevice.title')}
-                    </Button>
+                    {device === undefined ? (
+                        <Button variant="outline">
+                            <Plus /> {t('dialogs.newDevice.title')}
+                        </Button>
+                    ) : (
+                        <Button>Edit</Button>
+                    )}
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-xl">
                     <DialogHeader>
@@ -224,10 +247,10 @@ export function NewDeviceDialog() {
                             <Link to={'#'}>{t('buttons.cancel')}</Link>
                         </DialogClose>
                         <Button
-                            type="submit"
                             className="px-3"
                             form="new-device-form"
                             disabled={isSubmitting}
+                            onClick={() => handleSubmit()}
                         >
                             Test & Create
                         </Button>

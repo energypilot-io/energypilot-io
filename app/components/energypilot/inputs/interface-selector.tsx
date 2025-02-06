@@ -40,7 +40,7 @@ export function InterfaceSelector({
         if (onChange !== undefined) {
             onChange(value!, fetcher.data as InterfaceDef)
         }
-    }, [fetcher.data])
+    }, [fetcher.data, onChange, value])
 
     function onHandleChange(value: string, callback: (value: string) => void) {
         callback(value)

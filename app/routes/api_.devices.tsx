@@ -29,7 +29,7 @@ export const newDeviceDefaultValues = {
     properties: '',
 }
 
-export type EnrichedDevice = typeof Device & {
+export type EnrichedDevice = Device & {
     id: number
     logo?: string
 }

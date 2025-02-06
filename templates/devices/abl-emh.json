@@ -1,6 +1,7 @@
 {
     "name": "ABL emh1/2/4",
     "interfaces": ["modbus"],
+    "logo": "/logos/ABL.svg",
 
     "consumer": {
         "enabled": {
