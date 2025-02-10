@@ -124,10 +124,10 @@ export function LiveEnergyCard() {
             batteryPower -
             consumers.reduce((sum, current) => sum + current.value, 0)
 
-        const nameHome = t('liveEnergyCard.nodes.home')
-        const nameBattery = t('liveEnergyCard.nodes.battery')
-        const nameGrid = t('liveEnergyCard.nodes.grid')
-        const nameSolar = t('liveEnergyCard.nodes.solar')
+        const nameHome = t('cards.liveEnergyCard.nodes.home')
+        const nameBattery = t('cards.liveEnergyCard.nodes.battery')
+        const nameGrid = t('cards.liveEnergyCard.nodes.grid')
+        const nameSolar = t('cards.liveEnergyCard.nodes.solar')
 
         const links: { source: string; target: string; value: number }[] = []
         const nodes: { name: string; value: number; itemStyle?: any }[] = [
@@ -267,7 +267,7 @@ export function LiveEnergyCard() {
     return (
         <Card className="bg-muted/50">
             <CardHeader>
-                <CardTitle>{t('liveEnergyCard.title')}</CardTitle>
+                <CardTitle>{t('cards.liveEnergyCard.title')}</CardTitle>
             </CardHeader>
             <CardContent className="flex justify-center">
                 {data.nodes.length === 0 ? (
