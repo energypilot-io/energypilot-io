@@ -25,15 +25,15 @@ export function EnergyProductionCard() {
     const timeframes = [
         {
             days: '0',
-            label: t('energyProductionCard.timeframes.today'),
+            label: t('cards.energyProductionCard.timeframes.today'),
         },
         {
             days: '7',
-            label: t('energyProductionCard.timeframes.last7Days'),
+            label: t('cards.energyProductionCard.timeframes.last7Days'),
         },
         {
             days: '30',
-            label: t('energyProductionCard.timeframes.last30Days'),
+            label: t('cards.energyProductionCard.timeframes.last30Days'),
         },
     ]
 
@@ -93,9 +93,9 @@ export function EnergyProductionCard() {
     return (
         <Card className="bg-muted/50">
             <CardHeader>
-                <CardTitle>{t('energyProductionCard.title')}</CardTitle>
+                <CardTitle>{t('cards.energyProductionCard.title')}</CardTitle>
                 <CardDescription>
-                    {t('energyProductionCard.description')}
+                    {t('cards.energyProductionCard.description')}
                 </CardDescription>
             </CardHeader>
             <CardContent className="flex justify-center">
@@ -124,7 +124,7 @@ export function EnergyProductionCard() {
 
                         <div className="flex justify-end items-end gap-2">
                             <span>
-                                {t('energyProductionCard.totalEnergy', {
+                                {t('cards.energyProductionCard.totalEnergy', {
                                     energy: `${totalProductionValue?.value} ${totalProductionValue?.unit}`,
                                 })}
                             </span>
