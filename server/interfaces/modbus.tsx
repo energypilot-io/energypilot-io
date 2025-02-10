@@ -2,7 +2,7 @@ import { Socket } from 'net'
 
 import { logging } from 'server/core/log-manager'
 import { defaultParameterDef, ParameterDef } from 'server/defs/template'
-import { IInterface, InterfaceDef } from './IInterface'
+import { IInterface, InterfaceDef, TranslationDef } from './IInterface'
 
 import { SerialPort } from 'serialport'
 
@@ -196,6 +196,44 @@ export class ModbusInterface extends IInterface {
         })
     }
 
+    static getTranslations(): TranslationDef {
+        return {
+            en: {
+                tcpip: {
+                    title: 'TCP/IP',
+                    host: 'Host',
+                    port: 'Port',
+                    transport: {
+                        label: 'Transport',
+                        values: {
+                            ascii: 'ASCII',
+                            ip: 'IP',
+                            rtu: 'RTU',
+                        },
+                    },
+                    modbusId: 'Modbus ID',
+                    timeout: 'Timeout',
+                },
+
+                serial: {
+                    title: 'Serial',
+                    device: 'Device',
+                    baud: 'Baud rate',
+                    transport: {
+                        label: 'Transport',
+                        values: {
+                            ascii: 'ASCII',
+                            ip: 'IP',
+                            rtu: 'RTU',
+                        },
+                    },
+                    modbusId: 'Modbus ID',
+                    timeout: 'Timeout',
+                },
+            },
+        }
+    }
+
     static getInterfaceDef(): InterfaceDef {
         return {
             tcpip: {
@@ -207,7 +245,8 @@ export class ModbusInterface extends IInterface {
                     defaultValue: 502,
                 },
                 transport: {
-                    type: 'string',
+                    type: 'enum',
+                    enumValues: ['ascii', 'ip', 'rtu'],
                 },
                 modbusId: {
                     type: 'number',
@@ -227,7 +266,8 @@ export class ModbusInterface extends IInterface {
                     defaultValue: 19200,
                 },
                 transport: {
-                    type: 'string',
+                    type: 'enum',
+                    enumValues: ['ascii', 'ip', 'rtu'],
                 },
                 modbusId: {
                     type: 'number',

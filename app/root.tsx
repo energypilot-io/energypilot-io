@@ -20,6 +20,8 @@ import { SocketProvider } from '~/context'
 import { useEffect, useState } from 'react'
 import type { Socket } from 'socket.io-client'
 import io from 'socket.io-client'
+import i18next from 'i18next'
+import { defaultNS } from 'i18n'
 
 export const links: LinksFunction = () => [
     { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -34,11 +36,15 @@ export const links: LinksFunction = () => [
     },
 ]
 
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function loader({ request, context }: LoaderFunctionArgs) {
     const { getTheme } = await themeSessionResolver(request)
     const locale = await i18nServer.getLocale(request)
 
-    const body = JSON.stringify({ locale, theme: getTheme() })
+    const body = JSON.stringify({
+        locale,
+        theme: getTheme(),
+        interfaceTranslations: context.interfaceTranslations,
+    })
     return new Response(body, {
         headers: {
             'Content-Type': 'application/json',
@@ -67,6 +73,19 @@ export function App() {
             console.log(data)
         })
     }, [socket])
+
+    useEffect(() => {
+        if (data?.interfaceTranslations === undefined) return
+
+        Object.keys(data!.interfaceTranslations).forEach((lang: string) => {
+            i18next.addResourceBundle(
+                lang,
+                defaultNS,
+                { interfaces: data!.interfaceTranslations[lang] },
+                true
+            )
+        })
+    }, [data])
 
     return (
         <html lang={data?.locale ?? 'en'} className={clsx(theme)}>

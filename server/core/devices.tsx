@@ -95,6 +95,27 @@ export namespace devices {
         )
     }
 
+    export function getInterfaceTranslations(): {
+        [lang: string]: { [namespace: string]: any }
+    } {
+        const translations: {
+            [lang: string]: { [namespace: string]: any }
+        } = {}
+
+        Object.keys(_interfaceClasses).forEach((interfaceName) => {
+            const interfaceTranslations =
+                _interfaceClasses[interfaceName].getTranslations()
+
+            Object.keys(interfaceTranslations).forEach((lang) => {
+                if (!(lang in translations)) translations[lang] = {}
+
+                translations[lang][interfaceName] = interfaceTranslations[lang]
+            })
+        })
+
+        return translations
+    }
+
     export function resetAllCaches() {
         Object.keys(_interfaceInstances).forEach((interfaceKey) => {
             _interfaceInstances[interfaceKey].resetCache()
