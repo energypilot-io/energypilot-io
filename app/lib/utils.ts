@@ -55,29 +55,37 @@ export function zodSchemaDefinitionParser(
     Object.keys(schemaDefinition).forEach((fieldName: string) => {
         const fieldDefinition = schemaDefinition[fieldName]
 
+        let zodFieldDefinition
         switch (fieldDefinition.type) {
             case 'ip':
-                schema[fieldName as keyof typeof schema] = zod
-                    .string()
-                    .ip({ version: 'v4' })
+                zodFieldDefinition = zod.string().ip({ version: 'v4' })
                 break
 
             case 'email':
-                schema[fieldName as keyof typeof schema] = zod.string().email()
+                zodFieldDefinition = zod.string().email()
                 break
 
             case 'password':
             case 'string':
-                schema[fieldName as keyof typeof schema] = zod.string().min(1)
+                zodFieldDefinition = zod.string()
                 break
 
             case 'number':
-                schema[fieldName as keyof typeof schema] = zod.number()
+                zodFieldDefinition = zod.number()
                 break
+
+            case 'enum':
+                if (Array.isArray(fieldDefinition.enumValues)) {
+                    zodFieldDefinition = zod.enum(fieldDefinition!.enumValues)
+                    break
+                }
 
             default:
                 break
         }
+
+        if (zodFieldDefinition !== undefined)
+            schema[fieldName as keyof typeof schema] = zodFieldDefinition
     })
 
     return zod.object(schema)
