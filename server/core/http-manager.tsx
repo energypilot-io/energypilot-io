@@ -94,6 +94,8 @@ export namespace http {
                     return {
                         templates: templates.getTemplateDefs(),
                         interfaces: devices.getInterfaceDefs(),
+                        interfaceTranslations:
+                            devices.getInterfaceTranslations(),
                         res,
                     }
                 },

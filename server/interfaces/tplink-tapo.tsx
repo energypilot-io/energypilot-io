@@ -1,6 +1,6 @@
 import { logging } from 'server/core/log-manager'
 import { defaultParameterDef, ParameterDef } from 'server/defs/template'
-import { IInterface, InterfaceDef } from './IInterface'
+import { IInterface, InterfaceDef, TranslationDef } from './IInterface'
 
 import { loginDeviceByIp } from 'tp-link-tapo-connect'
 
@@ -28,6 +28,24 @@ export class TPLinkTapoConnector implements IInterface {
             this._properties['password'],
             this._properties['ip']
         )
+    }
+
+    static getTranslations(): TranslationDef {
+        return {
+            en: {
+                default: {
+                    email: 'E-Mail',
+                    password: 'Password',
+                    ip: 'IP',
+                },
+            },
+
+            de: {
+                default: {
+                    password: 'Passwort',
+                },
+            },
+        }
     }
 
     static getInterfaceDef(): InterfaceDef {

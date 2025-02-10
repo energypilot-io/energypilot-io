@@ -2,13 +2,20 @@ import { ParameterDef } from 'server/defs/template'
 
 export type InterfaceSchemaDef = {
     [propertyName: string]: {
-        type: 'string' | 'number' | 'email' | 'password' | 'ip'
+        type: 'string' | 'number' | 'email' | 'password' | 'ip' | 'enum'
         defaultValue?: any
+        enumValues?: readonly string[]
     }
 }
 
 export type InterfaceDef = {
     [groupName: string]: InterfaceSchemaDef
+}
+
+export type TranslationDef = {
+    [lang: string]: {
+        [key: string]: any
+    }
 }
 
 export abstract class IInterface {
@@ -19,6 +26,10 @@ export abstract class IInterface {
     }
 
     static getInterfaceDef(): InterfaceDef {
+        return {}
+    }
+
+    static getTranslations(): TranslationDef {
         return {}
     }
 

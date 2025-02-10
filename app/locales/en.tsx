@@ -46,9 +46,16 @@ export default {
     },
 
     dialogs: {
-        newDevice: {
-            title: 'New Device',
-            description: 'Configure and add a new device to EnergyPilot.io',
+        upsertDevice: {
+            create: {
+                title: 'Create Device',
+                description: 'Configure and add a new device to EnergyPilot.io',
+            },
+            update: {
+                title: 'Update Device',
+                description:
+                    'Change configuration and update a device for EnergyPilot.io',
+            },
         },
     },
 
@@ -63,6 +70,9 @@ export default {
     buttons: {
         cancel: 'Cancel',
         delete: 'Delete',
+        update: 'Update',
+        create: 'Create',
+        edit: 'Edit',
     },
 
     energyProductionCard: {
@@ -107,30 +117,6 @@ export default {
             battery: 'Battery',
             grid: 'Grid',
             solar: 'Solar',
-        },
-    },
-
-    interfaces: {
-        modbus: {
-            tcpip: {
-                title: 'TCP/IP',
-                host: 'Host',
-                port: 'Port',
-            },
-
-            serial: {
-                title: 'Serial',
-                device: 'Device',
-                baud: 'Baud rate',
-            },
-        },
-
-        tapo: {
-            default: {
-                email: 'E-Mail',
-                password: 'Password',
-                ip: 'IP',
-            },
         },
     },
 }
