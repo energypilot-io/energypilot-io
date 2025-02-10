@@ -41,6 +41,10 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
         icon: Settings2,
         items: [
             {
+                title: t('navigation.pages.settings.common.title'),
+                url: '/settings/common',
+            },
+            {
                 title: t('navigation.pages.settings.devices.title'),
                 url: '/settings/devices',
             },
