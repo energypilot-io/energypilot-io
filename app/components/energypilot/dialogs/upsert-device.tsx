@@ -228,10 +228,10 @@ export function UpsertDeviceDialog({ device }: NewDeviceDialogProps) {
                 <DialogTrigger asChild>
                     {device === undefined ? (
                         <Button variant="outline">
-                            <Plus /> {t('buttons.create')}
+                            <Plus /> {t('consts.buttons.create')}
                         </Button>
                     ) : (
-                        <Button>{t('buttons.edit')}</Button>
+                        <Button>{t('consts.buttons.edit')}</Button>
                     )}
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-xl">
@@ -371,7 +371,7 @@ export function UpsertDeviceDialog({ device }: NewDeviceDialogProps) {
 
                     <DialogFooter className="sm:justify-end items-center">
                         <DialogClose asChild>
-                            <Link to={'#'}>{t('buttons.cancel')}</Link>
+                            <Link to={'#'}>{t('consts.buttons.cancel')}</Link>
                         </DialogClose>
                         <Button
                             className="px-3"
@@ -380,8 +380,8 @@ export function UpsertDeviceDialog({ device }: NewDeviceDialogProps) {
                             onClick={() => handleSubmit()}
                         >
                             {device !== undefined
-                                ? t('buttons.update')
-                                : t('buttons.create')}
+                                ? t('consts.buttons.update')
+                                : t('consts.buttons.create')}
                         </Button>
                     </DialogFooter>
                 </DialogContent>

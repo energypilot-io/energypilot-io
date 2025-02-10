@@ -53,12 +53,15 @@ export function DeviceCard({ device }: DeviceCardProps) {
                         <AlertDialogHeader>
                             <AlertDialogTitle className="flex gap-2">
                                 <TriangleAlert className="text-red-600" />{' '}
-                                {t('alerts.deleteDevice.title')}
+                                {t('messages.questions.deleteDevice.title')}
                             </AlertDialogTitle>
                             <AlertDialogDescription>
-                                {t('alerts.deleteDevice.description', {
-                                    deviceName: device.name,
-                                })}
+                                {t(
+                                    'messages.questions.deleteDevice.description',
+                                    {
+                                        deviceName: device.name,
+                                    }
+                                )}
                             </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
@@ -68,10 +71,10 @@ export function DeviceCard({ device }: DeviceCardProps) {
                                 onClick={() => onHandleDelete()}
                                 disabled={fetcher.state !== 'idle'}
                             >
-                                {t('buttons.delete')}
+                                {t('consts.buttons.delete')}
                             </Button>
                             <AlertDialogCancel>
-                                {t('buttons.cancel')}
+                                {t('consts.buttons.cancel')}
                             </AlertDialogCancel>
                         </AlertDialogFooter>
                     </AlertDialogContent>
@@ -95,7 +98,7 @@ export function DeviceCard({ device }: DeviceCardProps) {
                             className=" text-red-600"
                             onClick={() => setShowAlert(true)}
                         >
-                            {t('buttons.delete')}
+                            {t('consts.buttons.delete')}
                         </Button>
 
                         <UpsertDeviceDialog device={device} />

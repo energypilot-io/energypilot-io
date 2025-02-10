@@ -4,12 +4,6 @@ export default {
         version: 'v0.1',
     },
 
-    sidebar: {
-        platformGroup: {
-            title: 'Platform',
-        },
-    },
-
     consts: {
         templateTypes: {
             pv: 'PV',
@@ -17,30 +11,101 @@ export default {
             battery: 'Battery',
             consumer: 'Consumer',
         },
-    },
 
-    errors: {
-        db: {
-            cannotCreateDevice: 'Cannot write device to database.',
-            createDeviceConstraintViolation:
-                'Cannot write device to database due to constraint violation. Please change the name of your new device and try again.',
+        buttons: {
+            cancel: 'Cancel',
+            delete: 'Delete',
+            update: 'Update',
+            create: 'Create',
+            edit: 'Edit',
         },
     },
 
-    pages: {
-        dashboard: {
-            title: 'Dashboard',
+    navigation: {
+        groups: {
+            platform: 'Platform',
         },
 
-        graph: {
-            title: 'Graph',
+        pages: {
+            dashboard: {
+                title: 'Dashboard',
+            },
+
+            graph: {
+                title: 'Graph',
+            },
+
+            settings: {
+                title: 'Settings',
+
+                devices: {
+                    title: 'Devices',
+                },
+            },
+        },
+    },
+
+    messages: {
+        errors: {
+            db: {
+                cannotCreateDevice: 'Cannot write device to database.',
+                createDeviceConstraintViolation:
+                    'Cannot write device to database due to constraint violation. Please change the name of your new device and try again.',
+            },
         },
 
-        settings: {
-            title: 'Settings',
+        questions: {
+            deleteDevice: {
+                title: 'Delete Device',
+                description:
+                    'Do you really want to delete the device [{{deviceName}}]? Warning: this change cannot be undone!',
+            },
+        },
+    },
 
-            devices: {
-                title: 'Devices',
+    cards: {
+        energyProductionCard: {
+            title: 'Energy Production',
+            description: 'The energy produced by your solar panels in kWh',
+
+            totalEnergy: 'Total {{energy}}',
+
+            timeframes: {
+                today: 'Today',
+                last7Days: 'Last 7 days',
+                last30Days: 'Last 30 days',
+            },
+        },
+
+        energyImportCard: {
+            title: 'Energy Import',
+            description: 'Energy imported from the grid in kWh',
+
+            totalEnergy: 'Total {{energy}}',
+
+            timeframes: {
+                today: 'Today',
+                last7Days: 'Last 7 days',
+                last30Days: 'Last 30 days',
+            },
+        },
+
+        energyExportCard: {
+            title: 'Energy Export',
+            description: 'Energy exported to the grid in kWh',
+
+            totalEnergy: 'Total {{energy}}',
+        },
+
+        liveEnergyCard: {
+            title: 'Live',
+            description: 'Current energy production and consumption',
+
+            nodes: {
+                home: 'Home',
+                battery: 'Battery',
+                grid: 'Grid',
+                solar: 'Solar',
             },
         },
     },
@@ -49,74 +114,14 @@ export default {
         upsertDevice: {
             create: {
                 title: 'Create Device',
-                description: 'Configure and add a new device to EnergyPilot.io',
+                description:
+                    'Configure and add a new device to EnergyPilot.io.',
             },
             update: {
                 title: 'Update Device',
                 description:
-                    'Change configuration and update a device for EnergyPilot.io',
+                    'Change configuration and update a device for EnergyPilot.io.',
             },
-        },
-    },
-
-    alerts: {
-        deleteDevice: {
-            title: 'Delete Device',
-            description:
-                'Do you really want to delete the device [{{deviceName}}]? Warning: this change cannot be undone!',
-        },
-    },
-
-    buttons: {
-        cancel: 'Cancel',
-        delete: 'Delete',
-        update: 'Update',
-        create: 'Create',
-        edit: 'Edit',
-    },
-
-    energyProductionCard: {
-        title: 'Energy Production',
-        description: 'The energy produced by your solar panels in kWh',
-
-        totalEnergy: 'Total {{energy}}',
-
-        timeframes: {
-            today: 'Today',
-            last7Days: 'Last 7 days',
-            last30Days: 'Last 30 days',
-        },
-    },
-
-    energyImportCard: {
-        title: 'Energy Import',
-        description: 'Energy imported from the grid in kWh',
-
-        totalEnergy: 'Total {{energy}}',
-
-        timeframes: {
-            today: 'Today',
-            last7Days: 'Last 7 days',
-            last30Days: 'Last 30 days',
-        },
-    },
-
-    energyExportCard: {
-        title: 'Energy Export',
-        description: 'Energy exported to the grid in kWh',
-
-        totalEnergy: 'Total {{energy}}',
-    },
-
-    liveEnergyCard: {
-        title: 'Live',
-        description: 'Current energy production and consumption',
-
-        nodes: {
-            home: 'Home',
-            battery: 'Battery',
-            grid: 'Grid',
-            solar: 'Solar',
         },
     },
 }

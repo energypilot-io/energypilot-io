@@ -49,15 +49,15 @@ export default function GraphPage() {
     const timeframes = [
         {
             days: '0',
-            label: t('energyProductionCard.timeframes.today'),
+            label: t('cards.energyProductionCard.timeframes.today'),
         },
         {
             days: '7',
-            label: t('energyProductionCard.timeframes.last7Days'),
+            label: t('cards.energyProductionCard.timeframes.last7Days'),
         },
         {
             days: '30',
-            label: t('energyProductionCard.timeframes.last30Days'),
+            label: t('cards.energyProductionCard.timeframes.last30Days'),
         },
     ]
 
@@ -129,7 +129,7 @@ export default function GraphPage() {
             })
         })
 
-        const nameHouse = t('liveEnergyCard.nodes.home')
+        const nameHouse = t('cards.liveEnergyCard.nodes.home')
 
         const groupedValues: { [name: string]: number[] } = {}
         const groupedSoCValues: { [name: string]: number[] } = {}
@@ -232,7 +232,9 @@ export default function GraphPage() {
     return (
         <>
             <Header
-                breadcrumbs={[{ label: t('pages.graph.title'), link: '#' }]}
+                breadcrumbs={[
+                    { label: t('navigation.pages.graph.title'), link: '#' },
+                ]}
             />
             <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
                 <div className="flex flex-col gap-2">

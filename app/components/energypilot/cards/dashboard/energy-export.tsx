@@ -24,15 +24,15 @@ export function EnergyExportCard() {
     const timeframes = [
         {
             days: '0',
-            label: t('energyImportCard.timeframes.today'),
+            label: t('cards.energyImportCard.timeframes.today'),
         },
         {
             days: '7',
-            label: t('energyImportCard.timeframes.last7Days'),
+            label: t('cards.energyImportCard.timeframes.last7Days'),
         },
         {
             days: '30',
-            label: t('energyImportCard.timeframes.last30Days'),
+            label: t('cards.energyImportCard.timeframes.last30Days'),
         },
     ]
 
@@ -90,9 +90,9 @@ export function EnergyExportCard() {
     return (
         <Card className="bg-muted/50">
             <CardHeader>
-                <CardTitle>{t('energyExportCard.title')}</CardTitle>
+                <CardTitle>{t('cards.energyExportCard.title')}</CardTitle>
                 <CardDescription>
-                    {t('energyExportCard.description')}
+                    {t('cards.energyExportCard.description')}
                 </CardDescription>
             </CardHeader>
             <CardContent className="flex justify-center">
@@ -122,7 +122,7 @@ export function EnergyExportCard() {
 
                         <div className="flex justify-end items-end gap-2">
                             <span>
-                                {t('energyImportCard.totalEnergy', {
+                                {t('cards.energyImportCard.totalEnergy', {
                                     energy: `${totalConsumptionValue?.value} ${totalConsumptionValue?.unit}`,
                                 })}
                             </span>

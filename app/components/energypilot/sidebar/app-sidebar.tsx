@@ -36,12 +36,12 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
     const { t } = useTranslation()
 
     const settingsMenuItems = {
-        title: t('pages.settings.title'),
+        title: t('navigation.pages.settings.title'),
         url: '#',
         icon: Settings2,
         items: [
             {
-                title: t('pages.settings.devices.title'),
+                title: t('navigation.pages.settings.devices.title'),
                 url: '/settings/devices',
             },
         ],
@@ -76,14 +76,16 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
             <SidebarContent>
                 <SidebarGroup>
                     <SidebarGroupLabel>
-                        {t('sidebar.platformGroup.title')}
+                        {t('navigation.groups.platform')}
                     </SidebarGroupLabel>
                     <SidebarMenu>
                         <SidebarMenuItem>
                             <SidebarMenuButton asChild>
                                 <a href="/">
                                     <LayoutDashboard />
-                                    <span>{t('pages.dashboard.title')}</span>
+                                    <span>
+                                        {t('navigation.pages.dashboard.title')}
+                                    </span>
                                 </a>
                             </SidebarMenuButton>
                         </SidebarMenuItem>
@@ -92,7 +94,9 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
                             <SidebarMenuButton asChild>
                                 <a href="/graph">
                                     <ChartSpline />
-                                    <span>{t('pages.graph.title')}</span>
+                                    <span>
+                                        {t('navigation.pages.graph.title')}
+                                    </span>
                                 </a>
                             </SidebarMenuButton>
                         </SidebarMenuItem>

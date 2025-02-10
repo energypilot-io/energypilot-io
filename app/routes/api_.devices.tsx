@@ -71,10 +71,12 @@ export async function action({ request }: ActionFunctionArgs) {
     } catch (error) {
         let t = await i18next.getFixedT(request)
 
-        let errorMessage: string = t('errors.db.cannotCreateDevice')
+        let errorMessage: string = t('messages.errors.db.cannotCreateDevice')
 
         if (error instanceof ConstraintViolationException) {
-            errorMessage = t('errors.db.createDeviceConstraintViolation')
+            errorMessage = t(
+                'messages.errors.db.createDeviceConstraintViolation'
+            )
         }
 
         return { success: false, error: errorMessage }
