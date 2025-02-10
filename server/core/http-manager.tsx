@@ -92,7 +92,7 @@ export namespace http {
                 },
                 getLoadContext(req, res) {
                     return {
-                        templates: templates.getTemplateRegistry(),
+                        templates: templates.getTemplateDefs(),
                         interfaces: devices.getInterfaceDefs(),
                         res,
                     }

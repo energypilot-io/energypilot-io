@@ -2,11 +2,7 @@ import { getEntityManager } from '~/lib/db.server'
 
 import { Device } from 'server/database/entities/device.entity'
 
-import {
-    ActionFunctionArgs,
-    LoaderFunctionArgs,
-    redirect,
-} from '@remix-run/node'
+import { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node'
 import { getValidatedFormData } from 'remix-hook-form'
 
 import * as zod from 'zod'
@@ -16,6 +12,7 @@ import i18next from '~/lib/i18n.server'
 import { templates } from 'server/core/template-manager'
 
 export const newDeviceSchema = zod.object({
+    id: zod.number().optional(),
     name: zod.string().min(1),
     template: zod.string().min(1),
     interface: zod.string().min(1),
@@ -23,6 +20,7 @@ export const newDeviceSchema = zod.object({
 })
 
 export const newDeviceDefaultValues = {
+    id: undefined,
     name: '',
     template: '',
     interface: '',
@@ -30,7 +28,6 @@ export const newDeviceDefaultValues = {
 }
 
 export type EnrichedDevice = Device & {
-    id: number
     logo?: string
 }
 
@@ -44,7 +41,6 @@ export async function action({ request }: ActionFunctionArgs) {
         zodResolver(newDeviceSchema)
     )
     if (errors) {
-        // The keys "errors" and "defaultValues" are picked up automatically by useRemixForm
         return { errors, defaultValues }
     }
 
@@ -53,6 +49,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
         const em = await getEntityManager()
         const device = em.create(Device, {
+            id: data.id,
             created_at: new Date(),
             name: data.name,
             type: templateTokens[0],
@@ -61,7 +58,11 @@ export async function action({ request }: ActionFunctionArgs) {
             properties: data.properties,
         })
 
-        await em.persistAndFlush(device)
+        if (data.id !== undefined) {
+            await em.upsert(device)
+        } else {
+            await em.persistAndFlush(device)
+        }
 
         return {
             success: true,
