@@ -13,9 +13,9 @@ FROM node:${NODE_VERSION}-alpine
 WORKDIR /usr/src/app
 
 # Use production node environment by default.
-ENV NODE_ENV production
-ENV CONFIG_FILE energypilot-io.json
-ENV DATA_DIR /data/
+ENV NODE_ENV=production
+ENV CONFIG_FILE=energypilot-io.json
+ENV DATA_DIR=/data/
 
 # Download dependencies as a separate step to take advantage of Docker's caching.
 # Leverage a cache mount to /root/.npm to speed up subsequent builds.
@@ -33,6 +33,8 @@ COPY . .
 
 # Expose the port that the application listens on.
 EXPOSE 3000
+
+HEALTHCHECK CMD curl --fail http://localhost:3000 || exit 1
 
 # Run the application.
 CMD node --import tsx server.tsx
