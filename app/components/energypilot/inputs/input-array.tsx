@@ -182,6 +182,7 @@ export function InputArray({
                                                 )}
                                             </Label>
                                             <Input
+                                                id={fieldName}
                                                 type={
                                                     field.type === 'ip'
                                                         ? 'text'

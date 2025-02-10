@@ -8,6 +8,7 @@ import { Device } from 'server/database/entities/device.entity'
 import { GridEnergyExport } from 'server/database/views/grid-energy-export.entity'
 import { GridEnergyImport } from 'server/database/views/grid-energy-import.entity'
 import { PvEnergyProduction } from 'server/database/views/pv-energy-production.entity'
+import { Setting } from 'server/database/entities/setting.entity'
 
 const config: Options = {
     metadataCache: { enabled: false },
@@ -17,6 +18,7 @@ const config: Options = {
         DeviceSnapshot,
         Device,
         Snapshot,
+        Setting,
         GridEnergyExport,
         GridEnergyImport,
         PvEnergyProduction,
