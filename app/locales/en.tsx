@@ -41,6 +41,10 @@ export default {
                 devices: {
                     title: 'Devices',
                 },
+
+                common: {
+                    title: 'Common',
+                },
             },
         },
     },
