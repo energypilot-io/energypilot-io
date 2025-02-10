@@ -218,6 +218,8 @@ export function UpsertDeviceDialog({ device }: NewDeviceDialogProps) {
         return templateRegistry.interfaces[selectedInterface]
     }
 
+    const translationKey = device === undefined ? 'create' : 'update'
+
     if (templateRegistry === undefined) return null
 
     return (
@@ -226,19 +228,21 @@ export function UpsertDeviceDialog({ device }: NewDeviceDialogProps) {
                 <DialogTrigger asChild>
                     {device === undefined ? (
                         <Button variant="outline">
-                            <Plus /> {t('dialogs.newDevice.title')}
+                            <Plus /> {t('buttons.create')}
                         </Button>
                     ) : (
-                        <Button>Edit</Button>
+                        <Button>{t('buttons.edit')}</Button>
                     )}
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-xl">
                     <DialogHeader>
                         <DialogTitle>
-                            {t('dialogs.newDevice.title')}
+                            {t(`dialogs.upsertDevice.${translationKey}.title`)}
                         </DialogTitle>
                         <DialogDescription>
-                            {t('dialogs.newDevice.description')}
+                            {t(
+                                `dialogs.upsertDevice.${translationKey}.description`
+                            )}
                         </DialogDescription>
                         {backendErrorMessage && (
                             <DialogDescription className="text-sm text-red-600">
@@ -375,7 +379,9 @@ export function UpsertDeviceDialog({ device }: NewDeviceDialogProps) {
                             disabled={isSubmitting}
                             onClick={() => handleSubmit()}
                         >
-                            Test & Create
+                            {device !== undefined
+                                ? t('buttons.update')
+                                : t('buttons.create')}
                         </Button>
                     </DialogFooter>
                 </DialogContent>
