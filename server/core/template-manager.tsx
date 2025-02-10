@@ -62,7 +62,24 @@ export namespace templates {
         return undefined
     }
 
-    export function getTemplateRegistry() {
-        return _templateRegistry
+    export function getTemplateDefs() {
+        return Object.assign(
+            {},
+            ...Object.keys(_templateRegistry).map((templateType) => ({
+                [templateType]: Object.assign(
+                    {},
+                    ...Object.keys(_templateRegistry[templateType]).map(
+                        (templateName) => ({
+                            [templateName]: {
+                                interfaces:
+                                    _templateRegistry[templateType][
+                                        templateName
+                                    ].interfaces,
+                            },
+                        })
+                    )
+                ),
+            }))
+        )
     }
 }

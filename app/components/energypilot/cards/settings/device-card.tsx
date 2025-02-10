@@ -15,7 +15,7 @@ import {
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { EnrichedDevice } from '~/routes/api_.devices'
-import { NewDeviceDialog } from '../../dialogs/new-device'
+import { UpsertDeviceDialog } from '../../dialogs/upsert-device'
 
 export type DeviceCardProps = {
     device: EnrichedDevice
@@ -98,7 +98,7 @@ export function DeviceCard({ device }: DeviceCardProps) {
                             {t('buttons.delete')}
                         </Button>
 
-                        <NewDeviceDialog device={device} />
+                        <UpsertDeviceDialog device={device} />
                     </div>
                 </CardContent>
             </Card>

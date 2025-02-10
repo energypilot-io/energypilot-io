@@ -4,10 +4,14 @@ import { devices } from 'server/core/devices'
 
 export class DeviceSubscriber implements EventSubscriber<Device> {
     afterDelete({ entity: device }: EventArgs<Device>): void | Promise<void> {
-        devices.removeDevice(device.name)
+        if (device instanceof Device) {
+            devices.removeDevice(device.name)
+        }
     }
 
     afterCreate({ entity: device }: EventArgs<Device>): void | Promise<void> {
-        devices.deviceFactory(device)
+        if (device instanceof Device) {
+            devices.deviceFactory(device)
+        }
     }
 }

@@ -5,7 +5,7 @@ import { EnergyImportCard } from '~/components/energypilot/cards/dashboard/energ
 import { EnergyProductionCard } from '~/components/energypilot/cards/dashboard/energy-production'
 import { LiveEnergyCard } from '~/components/energypilot/cards/dashboard/live-energy'
 import { DeviceGrid } from '~/components/energypilot/devices/device-grid'
-import { NewDeviceDialog } from '~/components/energypilot/dialogs/new-device'
+import { UpsertDeviceDialog } from '~/components/energypilot/dialogs/upsert-device'
 import { Header } from '~/components/energypilot/site/header'
 import { Button } from '~/components/ui/button'
 
@@ -22,7 +22,7 @@ export default function SettingsDevicesPage() {
             />
             <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
                 <div className="flex gap-2">
-                    <NewDeviceDialog />
+                    <UpsertDeviceDialog />
                 </div>
 
                 <DeviceGrid />
