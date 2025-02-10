@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import {
     Control,
     Controller,
@@ -11,6 +11,13 @@ import { InterfaceDef } from 'server/interfaces/IInterface'
 import * as zod from 'zod'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '~/components/ui/select'
 import { ToggleGroup, ToggleGroupItem } from '~/components/ui/toggle-group'
 import { filterObject, zodSchemaDefinitionParser } from '~/lib/utils'
 
@@ -60,8 +67,6 @@ export function InputArray({
                 schema: schemaName,
             })
         }
-
-        console.log(properties)
 
         onPropertiesChange(properties)
     }
@@ -130,29 +135,74 @@ export function InputArray({
                             defaultValue={field.defaultValue ?? ''}
                             render={({ field: { onChange, value } }) => (
                                 <>
-                                    <Label htmlFor={fieldName}>
-                                        {t(
-                                            `interfaces.${interfaceName}.${schemaName}.${fieldName}`
-                                        )}
-                                    </Label>
-                                    <Input
-                                        type={
-                                            field.type === 'ip'
-                                                ? 'text'
-                                                : field.type
-                                        }
-                                        value={value}
-                                        onChange={(event) =>
-                                            onChange?.(
-                                                field.type === 'number'
-                                                    ? parseInt(
-                                                          event.target.value,
-                                                          10
-                                                      )
-                                                    : event.target.value
-                                            )
-                                        }
-                                    />
+                                    {field.type === 'enum' ? (
+                                        <>
+                                            <Label htmlFor={fieldName}>
+                                                {t(
+                                                    `interfaces.${interfaceName}.${schemaName}.${fieldName}.label`
+                                                )}
+                                            </Label>
+                                            <Select
+                                                onValueChange={onChange}
+                                                value={value}
+                                            >
+                                                <SelectTrigger>
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {field.enumValues?.map(
+                                                        (
+                                                            enumValue: string,
+                                                            index
+                                                        ) => (
+                                                            <SelectItem
+                                                                value={
+                                                                    enumValue
+                                                                }
+                                                                key={index}
+                                                            >
+                                                                {t(
+                                                                    `interfaces.${interfaceName}.${schemaName}.${fieldName}.values.${enumValue}`,
+                                                                    {
+                                                                        defaultValue:
+                                                                            enumValue,
+                                                                    }
+                                                                )}
+                                                            </SelectItem>
+                                                        )
+                                                    )}
+                                                </SelectContent>
+                                            </Select>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Label htmlFor={fieldName}>
+                                                {t(
+                                                    `interfaces.${interfaceName}.${schemaName}.${fieldName}`
+                                                )}
+                                            </Label>
+                                            <Input
+                                                type={
+                                                    field.type === 'ip'
+                                                        ? 'text'
+                                                        : field.type
+                                                }
+                                                value={value}
+                                                onChange={(event) =>
+                                                    onChange?.(
+                                                        field.type === 'number'
+                                                            ? parseInt(
+                                                                  event.target
+                                                                      .value,
+                                                                  10
+                                                              )
+                                                            : event.target.value
+                                                    )
+                                                }
+                                            />
+                                        </>
+                                    )}
+
                                     {errors[fieldName] && (
                                         <p className="text-sm text-red-600">
                                             {errors[
