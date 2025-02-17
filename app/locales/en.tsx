@@ -53,6 +53,7 @@ export default {
         errors: {
             db: {
                 cannotCreateDevice: 'Cannot write device to database.',
+                cannotCreateSetting: 'Cannot write setting to database.',
                 createDeviceConstraintViolation:
                     'Cannot write device to database due to constraint violation. Please change the name of your new device and try again.',
             },
@@ -63,6 +64,21 @@ export default {
                 title: 'Delete Device',
                 description:
                     'Do you really want to delete the device [{{deviceName}}]? Warning: this change cannot be undone!',
+            },
+        },
+    },
+
+    settings: {
+        data: {
+            label: 'Data',
+            description: 'Data Description',
+
+            poll_interval: {
+                label: 'Polling Interval',
+            },
+
+            snapshot_interval: {
+                label: 'Snapshot Interval',
             },
         },
     },

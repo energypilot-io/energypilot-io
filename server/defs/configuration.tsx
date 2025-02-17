@@ -20,15 +20,8 @@ export type DatabaseDef = {
     filename?: string
 }
 
-export type UpdateDef = {
-    polling?: number
-    snapshot?: number
-}
-
 export type ConfigurationDef = {
     logging?: LoggingDef
     database?: DatabaseDef
     http?: HTTPDef
-
-    update?: UpdateDef
 }

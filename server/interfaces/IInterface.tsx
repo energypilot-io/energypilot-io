@@ -1,15 +1,8 @@
+import { IFormParameterDefList } from 'server/defs/form-parameters'
 import { ParameterDef } from 'server/defs/template'
 
-export type InterfaceSchemaDef = {
-    [propertyName: string]: {
-        type: 'string' | 'number' | 'email' | 'password' | 'ip' | 'enum'
-        defaultValue?: any
-        enumValues?: readonly string[]
-    }
-}
-
 export type InterfaceDef = {
-    [groupName: string]: InterfaceSchemaDef
+    [groupName: string]: IFormParameterDefList
 }
 
 export type TranslationDef = {

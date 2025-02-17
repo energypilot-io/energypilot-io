@@ -1,4 +1,3 @@
-import { UpdateDef } from 'server/defs/configuration'
 import { logging } from './log-manager'
 import { GridDevice } from 'server/devices/grid'
 import { database } from './database-manager'
@@ -15,31 +14,81 @@ import { DeviceSnapshot } from 'server/database/entities/device-snapshot.entity'
 
 import Semaphore from 'ts-semaphore'
 import { devices } from './devices'
-
-var _logger: logging.ChildLogger
+import { settings } from './settings'
+import { Setting } from 'server/database/entities/setting.entity'
+import { registerObserver as registerSettingObserver } from 'server/database/subscribers/setting-subscriber'
 
 export namespace dataupdate {
     let _latestSnapshot: DeviceSnapshot[] = []
+    let _logger: logging.ChildLogger
+
+    let _pollDataInterval: NodeJS.Timeout
+    let _createSnapshotInterval: NodeJS.Timeout
+
+    const _settingKeyPollInterval: string = 'data_poll_interval'
+    const _settingKeySnapshotInterval: string = 'data_snapshot_interval'
 
     const semaphore = new Semaphore(1)
 
-    export function initDataUpdate(updateDef: Partial<UpdateDef> | undefined) {
+    export async function initDataUpdate() {
         _logger = logging.getLogger('dataupdate')
 
-        const pollDataInterval = setInterval(
+        settings.registerSettings({
+            [_settingKeyPollInterval]: {
+                type: 'number',
+                defaultValue: 5,
+                min: 1,
+                max: 60,
+                unit: 's',
+            },
+
+            [_settingKeySnapshotInterval]: {
+                type: 'number',
+                defaultValue: 60,
+                min: 60,
+                unit: 's',
+            },
+        })
+
+        _pollDataInterval = setInterval(
             pollData,
-            (updateDef?.polling ?? 5) * 1000
+            (await settings.getNumber(_settingKeyPollInterval))! * 1000
         )
 
-        const createSnapshotInterval = setInterval(
+        _createSnapshotInterval = setInterval(
             createSnapshot,
-            (updateDef?.snapshot ?? 60) * 1000
+            (await settings.getNumber(_settingKeySnapshotInterval))! * 1000
         )
 
         process.on('exit', (code) => {
-            clearInterval(pollDataInterval)
-            clearInterval(createSnapshotInterval)
+            clearInterval(_pollDataInterval)
+            clearInterval(_createSnapshotInterval)
         })
+
+        registerSettingObserver(_settingKeyPollInterval, onChangePollInterval)
+        registerSettingObserver(
+            _settingKeySnapshotInterval,
+            onChangeSnapshotInterval
+        )
+    }
+
+    function onChangeSnapshotInterval(setting: Setting) {
+        if (_createSnapshotInterval !== undefined)
+            clearInterval(_createSnapshotInterval)
+
+        _createSnapshotInterval = setInterval(
+            createSnapshot,
+            Number.parseFloat(setting.value) * 1000
+        )
+    }
+
+    function onChangePollInterval(setting: Setting) {
+        if (_pollDataInterval !== undefined) clearInterval(_pollDataInterval)
+
+        _pollDataInterval = setInterval(
+            pollData,
+            Number.parseFloat(setting.value) * 1000
+        )
     }
 
     async function pollData() {

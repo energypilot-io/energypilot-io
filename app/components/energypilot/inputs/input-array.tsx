@@ -181,26 +181,44 @@ export function InputArray({
                                                     `interfaces.${interfaceName}.${schemaName}.${fieldName}`
                                                 )}
                                             </Label>
-                                            <Input
-                                                id={fieldName}
-                                                type={
-                                                    field.type === 'ip'
-                                                        ? 'text'
-                                                        : field.type
-                                                }
-                                                value={value}
-                                                onChange={(event) =>
-                                                    onChange?.(
-                                                        field.type === 'number'
-                                                            ? parseInt(
-                                                                  event.target
-                                                                      .value,
-                                                                  10
-                                                              )
-                                                            : event.target.value
-                                                    )
-                                                }
-                                            />
+                                            <div className="flex">
+                                                <Input
+                                                    id={fieldName}
+                                                    type={
+                                                        field.type === 'ip'
+                                                            ? 'text'
+                                                            : field.type
+                                                    }
+                                                    value={value}
+                                                    className={`${
+                                                        field.unit !== undefined
+                                                            ? 'rounded-r-none'
+                                                            : ''
+                                                    }`}
+                                                    min={field.min}
+                                                    max={field.max}
+                                                    onChange={(event) =>
+                                                        onChange?.(
+                                                            field.type ===
+                                                                'number'
+                                                                ? parseInt(
+                                                                      event
+                                                                          .target
+                                                                          .value,
+                                                                      10
+                                                                  )
+                                                                : event.target
+                                                                      .value
+                                                        )
+                                                    }
+                                                />
+
+                                                {field.unit && (
+                                                    <div className="flex items-center justify-center px-3 border border-r-0 rounded-r bg-gray-300">
+                                                        {field.unit}
+                                                    </div>
+                                                )}
+                                            </div>
                                         </>
                                     )}
 

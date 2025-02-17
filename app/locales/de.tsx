@@ -48,6 +48,8 @@ export default {
         errors: {
             db: {
                 cannotCreateDevice: 'Kann Gerät nicht in Datenbank speichern.',
+                cannotCreateSetting:
+                    'Kann Einstellungen nicht in Datenbank speichern.',
                 createDeviceConstraintViolation:
                     'Gerät kann aufgrund von Einschränkungsverletzungen nicht in die Datenbank geschrieben werden. Bitte ändern Sie den Namen und versuchen Sie es erneut.',
             },
