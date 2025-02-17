@@ -81,6 +81,16 @@ export default {
                 label: 'Snapshot Interval',
             },
         },
+
+        logging: {
+            label: 'Logging',
+
+            loglevel: {
+                values: {
+                    info: 'Info',
+                },
+            },
+        },
     },
 
     cards: {

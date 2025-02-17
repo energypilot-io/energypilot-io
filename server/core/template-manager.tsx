@@ -17,14 +17,12 @@ export namespace templates {
         }
     }
 
-    var _logger: logging.ChildLogger
-
     const _templateRegistry: TemplateRegistry = {}
 
     export async function initTemplateEngine() {
-        _logger = logging.getLogger('templates')
+        const logger = logging.getLogger('templates')
 
-        _logger.info('Inventory scanning...')
+        logger.info('Inventory scanning...')
 
         for (const filename of fs
             .readdirSync('./templates', {
@@ -33,7 +31,7 @@ export namespace templates {
             .filter((item) => item.toString().endsWith('.json'))) {
             const path = posix.join('./templates', filename.toString())
 
-            _logger.debug(`Scanning template [${path}]`)
+            logger.debug(`Scanning template [${path}]`)
 
             const template = JSON.parse(
                 fs.readFileSync(path, 'utf-8')

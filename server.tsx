@@ -43,8 +43,8 @@ await websockets.initWebSockets(http.httpServer)
 const em = database.getEntityManager()
 
 const deviceConfigurations = await em.findAll(Device)
-deviceConfigurations.map((device) => {
-    devices.deviceFactory(device)
+deviceConfigurations.map(async (device) => {
+    await devices.deviceFactory(device)
 })
 
 // await connectors.initConnectors(config.connectors)

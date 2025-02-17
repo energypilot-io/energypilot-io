@@ -32,14 +32,12 @@ export namespace http {
                       })
                   )
 
-        const logger = logging.getLogger('http')
-
         const app = express()
         app.use(compression())
         app.disable('x-powered-by')
 
         app.use(async (req, res, next: any) => {
-            logger.debug(req.method, req.hostname, req.path)
+            logging.getLogger('http').debug(req.method, req.hostname, req.path)
             database.createContext(next)
         })
 
@@ -108,7 +106,9 @@ export namespace http {
 
         httpServer = createServer(app)
         httpServer.listen(port, () => {
-            logger.info(`App listening on http://localhost:${port}`)
+            logging
+                .getLogger('http')
+                .info(`App listening on http://localhost:${port}`)
         })
     }
 }

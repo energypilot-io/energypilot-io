@@ -1,11 +1,14 @@
-import { EventArgs, EventSubscriber } from '@mikro-orm/core'
+import { EntityName, EventArgs, EventSubscriber } from '@mikro-orm/core'
 import { Setting } from '../entities/setting.entity'
 
 export type SettingObserver = (setting: Setting) => void
 
 const _observers: { [key: string]: SettingObserver[] } = {}
 
-export function registerObserver(key: string, observer: SettingObserver) {
+export function registerSettingObserver(
+    key: string,
+    observer: SettingObserver
+) {
     if (!(key in _observers)) {
         _observers[key] = []
     }
@@ -13,6 +16,10 @@ export function registerObserver(key: string, observer: SettingObserver) {
 }
 
 export class SettingSubscriber implements EventSubscriber<Setting> {
+    getSubscribedEntities(): EntityName<Setting>[] {
+        return [Setting]
+    }
+
     afterUpsert(args: EventArgs<Setting>): void | Promise<void> {
         if (!(args.entity.key in _observers)) return
 

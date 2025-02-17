@@ -16,11 +16,10 @@ import Semaphore from 'ts-semaphore'
 import { devices } from './devices'
 import { settings } from './settings'
 import { Setting } from 'server/database/entities/setting.entity'
-import { registerObserver as registerSettingObserver } from 'server/database/subscribers/setting-subscriber'
+import { registerSettingObserver } from 'server/database/subscribers/setting-subscriber'
 
 export namespace dataupdate {
     let _latestSnapshot: DeviceSnapshot[] = []
-    let _logger: logging.ChildLogger
 
     let _pollDataInterval: NodeJS.Timeout
     let _createSnapshotInterval: NodeJS.Timeout
@@ -31,8 +30,6 @@ export namespace dataupdate {
     const semaphore = new Semaphore(1)
 
     export async function initDataUpdate() {
-        _logger = logging.getLogger('dataupdate')
-
         settings.registerSettings({
             [_settingKeyPollInterval]: {
                 type: 'number',
@@ -94,7 +91,9 @@ export namespace dataupdate {
     async function pollData() {
         devices.resetAllCaches()
 
-        _logger.debug('Collecting live data from devices')
+        const logger = logging.getLogger('dataupdate')
+
+        logger.debug('Collecting live data from devices')
 
         const snapshot: DeviceSnapshot[] = []
         const deviceInstances = devices.getAllInstances()
@@ -178,7 +177,9 @@ export namespace dataupdate {
 
     async function createSnapshot() {
         semaphore.use(async () => {
-            _logger.info('Persisting data snapshot to database')
+            const logger = logging.getLogger('dataupdate')
+
+            logger.info('Persisting data snapshot to database')
 
             const snapshot = new Snapshot()
             snapshot.created_at = new Date()
