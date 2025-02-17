@@ -9,9 +9,7 @@ type TPLinkTapoParameterDef = ParameterDef & {
     parameter: string
 }
 
-export class TPLinkTapoConnector implements IInterface {
-    templateInterfaceKey: string = 'tapo'
-
+export class TPLinkTapoConnector extends IInterface {
     private _logger = logging.getLogger('interfaces.tapo')
 
     private _cache: { [key: string]: any } = {}
@@ -21,6 +19,8 @@ export class TPLinkTapoConnector implements IInterface {
     private _device: any
 
     constructor(properties: { [property: string]: any }) {
+        super('tapo')
+
         this._properties = properties
 
         this.connect(

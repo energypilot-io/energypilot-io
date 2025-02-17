@@ -18,23 +18,30 @@ import { SettingSubscriber } from 'server/database/subscribers/setting-subscribe
 
 const SQLITE_MEMORY_DB: string = ':memory:'
 
+export type DatabaseObserver = () => void
+
+const _observers: DatabaseObserver[] = []
+
+export function registerDatabaseObserver(observer: DatabaseObserver) {
+    _observers.push(observer)
+}
+
 export namespace database {
-    var _logger: logging.ChildLogger
     var _orm: MikroORM
 
     class CustomLogger extends DefaultLogger {
         log(namespace: LoggerNamespace, message: string, context?: LogContext) {
+            const logger = logging.getLogger('database')
+
             if (namespace === 'info') {
-                _logger.info(message)
+                logger.info(message)
             } else {
-                _logger.debug(`[${namespace}] ${message}`)
+                logger.debug(`[${namespace}] ${message}`)
             }
         }
     }
 
     export async function initDatabase(databaseDef: DatabaseDef | undefined) {
-        _logger = logging.getLogger('database')
-
         _orm = await MikroORM.init({
             ...config,
             dbName: getFilename(databaseDef),
@@ -43,13 +50,17 @@ export namespace database {
         })
 
         await _orm.schema.updateSchema({ dropTables: false })
+
+        _observers.forEach((observer) => {
+            observer()
+        })
     }
 
     function getFilename(databaseDef: DatabaseDef | undefined) {
         if (databaseDef?.filename === SQLITE_MEMORY_DB) {
-            _logger.warn(
-                'Using in memory database. Data will not be persisted!'
-            )
+            logging
+                .getLogger('database')
+                .warn('Using in memory database. Data will not be persisted!')
             return SQLITE_MEMORY_DB
         }
 
@@ -63,9 +74,11 @@ export namespace database {
                     : 'energypilot-io.db'
             )
         } catch {
-            _logger.error(
-                `Data directory [${process.env.DATA_DIR}] not writeable. Switching to in-memory database storage.`
-            )
+            logging
+                .getLogger('database')
+                .error(
+                    `Data directory [${process.env.DATA_DIR}] not writeable. Switching to in-memory database storage.`
+                )
 
             return SQLITE_MEMORY_DB
         }
@@ -85,7 +98,7 @@ export namespace database {
 
             return true
         } catch (err) {
-            _logger.error(err)
+            logging.getLogger('database').error(err)
             return false
         }
     }

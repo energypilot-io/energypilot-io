@@ -5,11 +5,16 @@ import { ILogObjMeta, Logger } from 'tslog'
 import { createStream, RotatingFileStream } from 'rotating-file-stream'
 
 import { LoggingDef } from 'server/defs/configuration'
+import { settings } from './settings'
+import { registerSettingObserver } from 'server/database/subscribers/setting-subscriber'
+import { Setting } from 'server/database/entities/setting.entity'
+import { registerDatabaseObserver } from './database-manager'
 
 const _mainLogger = new Logger({
-    type: 'hidden',
+    type: 'pretty',
     stylePrettyLogs: false,
     hideLogPositionForProduction: process.env.NODE_ENV === 'production',
+    minLevel: 3,
 })
 
 const levels: { [key: string]: number } = {
@@ -26,69 +31,43 @@ var _loggingDef: LoggingDef | undefined
 var _childLoggers: { [key: string]: logging.ChildLogger } = {}
 
 export namespace logging {
+    const _settingKeyLogLevel = 'logging_loglevel'
+
     export class ChildLogger {
         private _name: string
         private _mainLogger: Logger<unknown>
-        private _minLevel: number
 
-        constructor(
-            name: string,
-            mainLogger: Logger<unknown>,
-            minLevel: number
-        ) {
+        constructor(name: string, mainLogger: Logger<unknown>) {
             this._name = name
             this._mainLogger = mainLogger
-            this._minLevel = minLevel
         }
 
         public trace(...args: unknown[]) {
-            if (levels.trace >= this._minLevel) {
-                this._mainLogger.trace(`[${this._name}] ${args[0]}`)
-            }
+            this._mainLogger.trace(`[${this._name}] ${args[0]}`)
         }
 
         public debug(...args: unknown[]) {
-            if (levels.debug >= this._minLevel) {
-                this._mainLogger.debug(`[${this._name}] ${args[0]}`)
-            }
+            this._mainLogger.debug(`[${this._name}] ${args[0]}`)
         }
 
         public info(...args: unknown[]) {
-            if (levels.info >= this._minLevel) {
-                this._mainLogger.info(`[${this._name}] ${args[0]}`)
-            }
+            this._mainLogger.info(`[${this._name}] ${args[0]}`)
         }
 
         public warn(...args: unknown[]) {
-            if (levels.warn >= this._minLevel) {
-                this._mainLogger.warn(`[${this._name}] ${args[0]}`)
-            }
+            this._mainLogger.warn(`[${this._name}] ${args[0]}`)
         }
 
         public error(...args: unknown[]) {
-            if (levels.error >= this._minLevel) {
-                this._mainLogger.error(`[${this._name}] ${args[0]}`)
-            }
+            this._mainLogger.error(`[${this._name}] ${args[0]}`)
         }
 
         public fatal(...args: unknown[]) {
-            if (levels.fatal >= this._minLevel) {
-                this._mainLogger.fatal(`[${this._name}] ${args[0]}`)
-            }
+            this._mainLogger.fatal(`[${this._name}] ${args[0]}`)
         }
     }
 
     export function initLogging(loggingDef: LoggingDef | undefined) {
-        _loggingDef = loggingDef
-
-        if (
-            _loggingDef === undefined ||
-            _loggingDef!.loggers === undefined ||
-            _loggingDef!.loggers.indexOf('console') > -1
-        ) {
-            _mainLogger.settings.type = 'pretty'
-        }
-
         if (
             _loggingDef === undefined ||
             _loggingDef!.loggers === undefined ||
@@ -96,6 +75,26 @@ export namespace logging {
         ) {
             initFileLogging(getFilename(_loggingDef))
         }
+
+        settings.registerSettings({
+            [_settingKeyLogLevel]: {
+                type: 'enum',
+                defaultValue: 'info',
+                enumValues: Object.keys(levels),
+            },
+        })
+
+        registerDatabaseObserver(onDatabaseReady)
+        registerSettingObserver(_settingKeyLogLevel, onChangeLogLevel)
+    }
+
+    async function onDatabaseReady() {
+        _mainLogger.settings.minLevel =
+            levels[await settings.getSetting(_settingKeyLogLevel)]
+    }
+
+    function onChangeLogLevel(setting: Setting) {
+        _mainLogger.settings.minLevel = levels[setting.value]
     }
 
     function getFilename(loggingDef: LoggingDef | undefined) {
@@ -157,23 +156,7 @@ export namespace logging {
 
     export function getLogger(module: string) {
         if (!(module in _childLoggers)) {
-            let minLevel = 'info'
-            let match = ''
-
-            if (_loggingDef !== undefined) {
-                for (const key in _loggingDef.logLevels) {
-                    if (module.startsWith(key) && key.length >= match.length) {
-                        minLevel = _loggingDef.logLevels[key]
-                        match = key
-                    }
-                }
-            }
-
-            _childLoggers[module] = new ChildLogger(
-                module,
-                _mainLogger,
-                levels[minLevel]
-            )
+            _childLoggers[module] = new ChildLogger(module, _mainLogger)
         }
 
         return _childLoggers[module]

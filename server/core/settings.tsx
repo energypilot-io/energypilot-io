@@ -2,12 +2,12 @@ import { Setting } from 'server/database/entities/setting.entity'
 import { database } from './database-manager'
 import { IFormParameterDefList } from 'server/defs/form-parameters'
 
+const _registeredSettings: IFormParameterDefList = {}
+
 export namespace settings {
     export type GroupedSettingsDef = {
         [groupName: string]: IFormParameterDefList
     }
-
-    const _registeredSettings: IFormParameterDefList = {}
 
     export function registerSettings(settings: IFormParameterDefList) {
         Object.assign(_registeredSettings, settings)

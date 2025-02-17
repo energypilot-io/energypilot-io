@@ -17,6 +17,13 @@ import { IFormParameterDefList } from 'server/defs/form-parameters'
 import { Controller } from 'react-hook-form'
 import { useToast } from '~/hooks/use-toast'
 import { Toaster } from '~/components/ui/toaster'
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '~/components/ui/select'
 
 export const loader = async ({ context }: LoaderFunctionArgs) => {
     return context.settings as settings.GroupedSettingsDef
@@ -158,6 +165,17 @@ export default function SettingsCommonPage() {
                                                     className="flex flex-col gap-1"
                                                     key={index}
                                                 >
+                                                    <Label htmlFor={key}>
+                                                        {t(
+                                                            `settings.${groupName}.${parameterName}.label`
+                                                        )}
+                                                    </Label>
+                                                    <p className="text-sm">
+                                                        {t(
+                                                            `settings.${groupName}.${parameterName}.description`
+                                                        )}
+                                                    </p>
+
                                                     <Controller
                                                         control={control}
                                                         name={key}
@@ -172,79 +190,112 @@ export default function SettingsCommonPage() {
                                                                 onChange,
                                                                 value,
                                                             },
-                                                        }) => (
-                                                            <>
-                                                                <Label
-                                                                    htmlFor={
-                                                                        key
-                                                                    }
-                                                                >
-                                                                    {t(
-                                                                        `settings.${groupName}.${parameterName}.label`
-                                                                    )}
-                                                                </Label>
-                                                                <p className="text-sm">
-                                                                    {t(
-                                                                        `settings.${groupName}.${parameterName}.description`
-                                                                    )}
-                                                                </p>
-                                                                <div className="flex">
-                                                                    <Input
-                                                                        id={key}
-                                                                        type={
-                                                                            parameter.type ===
-                                                                            'ip'
-                                                                                ? 'text'
-                                                                                : parameter.type
+                                                        }) => {
+                                                            if (
+                                                                parameter.type ===
+                                                                'enum'
+                                                            ) {
+                                                                return (
+                                                                    <Select
+                                                                        onValueChange={
+                                                                            onChange
                                                                         }
-                                                                        className={`max-w-72 ${
-                                                                            parameter.unit !==
-                                                                            undefined
-                                                                                ? 'rounded-r-none'
-                                                                                : ''
-                                                                        }`}
                                                                         value={
                                                                             value
                                                                         }
-                                                                        min={
-                                                                            parameter.min
-                                                                        }
-                                                                        max={
-                                                                            parameter.max
-                                                                        }
-                                                                        onChange={(
-                                                                            event
-                                                                        ) =>
-                                                                            onChange?.(
-                                                                                parameter.type ===
-                                                                                    'number' &&
-                                                                                    event
-                                                                                        .target
-                                                                                        .value !==
-                                                                                        ''
-                                                                                    ? parseInt(
-                                                                                          event
-                                                                                              .target
-                                                                                              .value,
-                                                                                          10
-                                                                                      )
-                                                                                    : event
-                                                                                          .target
-                                                                                          .value
-                                                                            )
-                                                                        }
-                                                                    />
-
-                                                                    {parameter.unit && (
-                                                                        <div className="flex items-center justify-center px-3 border border-r-0 rounded-r bg-gray-300">
-                                                                            {
-                                                                                parameter.unit
+                                                                    >
+                                                                        <SelectTrigger className="max-w-72">
+                                                                            <SelectValue />
+                                                                        </SelectTrigger>
+                                                                        <SelectContent>
+                                                                            {parameter.enumValues?.map(
+                                                                                (
+                                                                                    enumValue: string,
+                                                                                    index
+                                                                                ) => (
+                                                                                    <SelectItem
+                                                                                        value={
+                                                                                            enumValue
+                                                                                        }
+                                                                                        key={
+                                                                                            index
+                                                                                        }
+                                                                                    >
+                                                                                        {t(
+                                                                                            `settings.${groupName}.${parameterName}.values.${enumValue}`,
+                                                                                            {
+                                                                                                defaultValue:
+                                                                                                    enumValue,
+                                                                                            }
+                                                                                        )}
+                                                                                    </SelectItem>
+                                                                                )
+                                                                            )}
+                                                                        </SelectContent>
+                                                                    </Select>
+                                                                )
+                                                            } else {
+                                                                return (
+                                                                    <div className="flex">
+                                                                        <Input
+                                                                            id={
+                                                                                key
                                                                             }
-                                                                        </div>
-                                                                    )}
-                                                                </div>
-                                                            </>
-                                                        )}
+                                                                            type={
+                                                                                parameter.type ===
+                                                                                'ip'
+                                                                                    ? 'text'
+                                                                                    : parameter.type
+                                                                            }
+                                                                            className={`max-w-72 ${
+                                                                                parameter.unit !==
+                                                                                undefined
+                                                                                    ? 'rounded-r-none'
+                                                                                    : ''
+                                                                            }`}
+                                                                            value={
+                                                                                value
+                                                                            }
+                                                                            min={
+                                                                                parameter.min
+                                                                            }
+                                                                            max={
+                                                                                parameter.max
+                                                                            }
+                                                                            onChange={(
+                                                                                event
+                                                                            ) =>
+                                                                                onChange?.(
+                                                                                    parameter.type ===
+                                                                                        'number' &&
+                                                                                        event
+                                                                                            .target
+                                                                                            .value !==
+                                                                                            ''
+                                                                                        ? parseInt(
+                                                                                              event
+                                                                                                  .target
+                                                                                                  .value,
+                                                                                              10
+                                                                                          )
+                                                                                        : event
+                                                                                              .target
+                                                                                              .value
+                                                                                )
+                                                                            }
+                                                                        />
+
+                                                                        {parameter.unit && (
+                                                                            <div className="flex items-center justify-center px-3 border border-r-0 rounded-r bg-gray-300">
+                                                                                {
+                                                                                    parameter.unit
+                                                                                }
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                )
+                                                            }
+                                                        }}
                                                     />
 
                                                     {errors[key] && (

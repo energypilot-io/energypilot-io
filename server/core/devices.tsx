@@ -11,8 +11,6 @@ import { ConsumerDevice } from 'server/devices/consumer'
 import { BaseDevice } from 'server/devices/base-device'
 
 export namespace devices {
-    var _logger: logging.ChildLogger = logging.getLogger('devices')
-
     const _interfaceClasses: { [id: string]: any } = {
         modbus: ModbusInterface,
         tapo: TPLinkTapoConnector,
@@ -34,7 +32,9 @@ export namespace devices {
     ) {
         if (!(interfaceName + properties in _interfaceInstances)) {
             if (!(interfaceName in _interfaceClasses)) {
-                _logger.error(`No class found for interface [${interfaceName}]`)
+                logging
+                    .getLogger('devices')
+                    .error(`No class found for interface [${interfaceName}]`)
             } else {
                 _interfaceInstances[interfaceName + properties] =
                     new _interfaceClasses[interfaceName](JSON.parse(properties))
@@ -50,8 +50,10 @@ export namespace devices {
             deviceDefinition.properties
         )
 
+        const logger = logging.getLogger('devices')
+
         if (interfaceInstance === undefined) {
-            _logger.error(
+            logger.error(
                 `Cannot create device with name [${deviceDefinition.name}]: not able to create interface instance.`
             )
             return undefined
@@ -63,14 +65,14 @@ export namespace devices {
         )
 
         if (interfaceInstance === undefined) {
-            _logger.error(
+            logger.error(
                 `Cannot create device with name [${deviceDefinition.name}]: not able to find template [${deviceDefinition.type}/${deviceDefinition.template}].`
             )
             return undefined
         }
 
         if (deviceDefinition.name in _deviceInstances) {
-            _logger.error(
+            logger.error(
                 `Cannot create device with name [${deviceDefinition.name}]: A device with the name already exists.`
             )
             return undefined
@@ -130,9 +132,11 @@ export namespace devices {
         if (deviceName in _deviceInstances) {
             delete _deviceInstances[deviceName]
         } else {
-            _logger.error(
-                `Cannot remove device with name [${deviceName}]: No instance with that name found`
-            )
+            logging
+                .getLogger('devices')
+                .error(
+                    `Cannot remove device with name [${deviceName}]: No instance with that name found`
+                )
         }
     }
 }
