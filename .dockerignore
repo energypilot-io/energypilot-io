@@ -38,3 +38,5 @@
 LICENSE
 README.md
 vite.\*.mjs
+**/docs
+**/examples
