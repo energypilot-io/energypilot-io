@@ -13,14 +13,15 @@ import {
 } from '@mikro-orm/sqlite'
 
 import config from 'mikro-orm.config.ts'
-import { DeviceSubscriber } from 'server/database/subscribers/DeviceSubscriber'
+import { DeviceSubscriber } from 'server/database/subscribers/device-subscriber'
+import { SettingSubscriber } from 'server/database/subscribers/setting-subscriber'
 
 const SQLITE_MEMORY_DB: string = ':memory:'
 
-var _logger: logging.ChildLogger
-var _orm: MikroORM
-
 export namespace database {
+    var _logger: logging.ChildLogger
+    var _orm: MikroORM
+
     class CustomLogger extends DefaultLogger {
         log(namespace: LoggerNamespace, message: string, context?: LogContext) {
             if (namespace === 'info') {
@@ -38,7 +39,7 @@ export namespace database {
             ...config,
             dbName: getFilename(databaseDef),
             loggerFactory: (options) => new CustomLogger(options),
-            subscribers: [new DeviceSubscriber()],
+            subscribers: [new DeviceSubscriber(), new SettingSubscriber()],
         })
 
         await _orm.schema.updateSchema({ dropTables: false })

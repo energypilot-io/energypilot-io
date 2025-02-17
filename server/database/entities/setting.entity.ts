@@ -15,7 +15,7 @@ export class Setting {
     @Property()
     value!: string
 
-    constructor(options: { key: string; value: string }) {
+    constructor(options: { key: string; group: string; value: string }) {
         this.created_at = new Date()
         this.key = options.key
         this.value = options.value

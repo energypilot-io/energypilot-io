@@ -14,6 +14,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import { templates } from './template-manager.js'
 import { devices } from './devices.js'
+import { settings } from './settings.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -96,6 +97,7 @@ export namespace http {
                         interfaces: devices.getInterfaceDefs(),
                         interfaceTranslations:
                             devices.getInterfaceTranslations(),
+                        settings: settings.getRegisteredSettingDefs(),
                         res,
                     }
                 },

@@ -50,4 +50,4 @@ deviceConfigurations.map((device) => {
 // await connectors.initConnectors(config.connectors)
 // await devices.initDevices(config.devices)
 
-await dataupdate.initDataUpdate(config.update)
+await dataupdate.initDataUpdate()

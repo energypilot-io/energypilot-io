@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from 'clsx'
 import { useEffect, useRef } from 'react'
-import { InterfaceSchemaDef } from 'server/interfaces/IInterface'
+import { IFormParameterDefList } from 'server/defs/form-parameters'
 import { twMerge } from 'tailwind-merge'
 import * as zod from 'zod'
 
@@ -46,14 +46,14 @@ export function useInterval(callback: any, delay: number) {
 }
 
 export function zodSchemaDefinitionParser(
-    schemaDefinition: InterfaceSchemaDef
+    formParameterDefList: IFormParameterDefList
 ) {
-    if (schemaDefinition === undefined) return undefined
+    if (formParameterDefList === undefined) return undefined
 
     var schema: any = {}
 
-    Object.keys(schemaDefinition).forEach((fieldName: string) => {
-        const fieldDefinition = schemaDefinition[fieldName]
+    Object.keys(formParameterDefList).forEach((fieldName: string) => {
+        const fieldDefinition = formParameterDefList[fieldName]
 
         let zodFieldDefinition
         switch (fieldDefinition.type) {
@@ -76,7 +76,9 @@ export function zodSchemaDefinitionParser(
 
             case 'enum':
                 if (Array.isArray(fieldDefinition.enumValues)) {
-                    zodFieldDefinition = zod.enum(fieldDefinition!.enumValues)
+                    zodFieldDefinition = zod.enum(
+                        fieldDefinition!.enumValues as any
+                    )
                     break
                 }
 
@@ -84,8 +86,35 @@ export function zodSchemaDefinitionParser(
                 break
         }
 
-        if (zodFieldDefinition !== undefined)
+        if (zodFieldDefinition !== undefined && zodFieldDefinition !== null) {
+            if (fieldDefinition.min !== undefined) {
+                if (zodFieldDefinition instanceof zod.ZodString) {
+                    // @ts-ignore
+                    zodFieldDefinition = zodFieldDefinition.minLength(
+                        fieldDefinition.min
+                    )
+                } else if (zodFieldDefinition instanceof zod.ZodNumber) {
+                    zodFieldDefinition = zodFieldDefinition.min(
+                        fieldDefinition.min
+                    )
+                }
+            }
+
+            if (fieldDefinition.max !== undefined) {
+                if (zodFieldDefinition instanceof zod.ZodString) {
+                    // @ts-ignore
+                    zodFieldDefinition = zodFieldDefinition.maxLength(
+                        fieldDefinition.max
+                    )
+                } else if (zodFieldDefinition instanceof zod.ZodNumber) {
+                    zodFieldDefinition = zodFieldDefinition.max(
+                        fieldDefinition.max
+                    )
+                }
+            }
+
             schema[fieldName as keyof typeof schema] = zodFieldDefinition
+        }
     })
 
     return zod.object(schema)
