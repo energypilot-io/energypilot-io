@@ -11,6 +11,7 @@
         "typecheck": "tsc"
     },
     "dependencies": {
+        "@adze/transport-file": "^1.0.3",
         "@csllc/cs-modbus": "^3.3.5",
         "@hookform/resolvers": "^3.10.0",
         "@icons-pack/react-simple-icons": "^10.2.0",
@@ -35,6 +36,7 @@
         "@remix-run/express": "^2.15.0",
         "@remix-run/node": "^2.15.2",
         "@remix-run/react": "^2.15.2",
+        "adze": "^2.2.1",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
         "compression": "^1.7.5",
@@ -43,6 +45,7 @@
         "date-fns": "^3.6.0",
         "echarts": "^5.5.1",
         "express": "^4.21.1",
+        "file-stream-rotator": "^1.0.0",
         "i18next": "^23.12.2",
         "i18next-browser-languagedetector": "^8.0.0",
         "i18next-fetch-backend": "^6.0.0",
@@ -69,7 +72,6 @@
         "tp-link-tapo-connect": "^2.0.4",
         "ts-semaphore": "^1.0.0",
         "tslib": "^2.8.1",
-        "tslog": "^4.9.3",
         "tsx": "^4.19.2",
         "zod": "^3.24.1"
     },

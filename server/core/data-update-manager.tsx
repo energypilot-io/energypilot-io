@@ -1,4 +1,3 @@
-import { logging } from './log-manager'
 import { GridDevice } from 'server/devices/grid'
 import { database } from './database-manager'
 import { PVDevice } from 'server/devices/pv'
@@ -17,6 +16,7 @@ import { devices } from './devices'
 import { settings } from './settings'
 import { Setting } from 'server/database/entities/setting.entity'
 import { registerSettingObserver } from 'server/database/subscribers/setting-subscriber'
+import { getLogger } from './logmanager'
 
 export namespace dataupdate {
     let _latestSnapshot: DeviceSnapshot[] = []
@@ -69,29 +69,29 @@ export namespace dataupdate {
         )
     }
 
-    function onChangeSnapshotInterval(setting: Setting) {
+    function onChangeSnapshotInterval(value: string) {
         if (_createSnapshotInterval !== undefined)
             clearInterval(_createSnapshotInterval)
 
         _createSnapshotInterval = setInterval(
             createSnapshot,
-            Number.parseFloat(setting.value) * 1000
+            Number.parseFloat(value) * 1000
         )
     }
 
-    function onChangePollInterval(setting: Setting) {
+    function onChangePollInterval(value: string) {
         if (_pollDataInterval !== undefined) clearInterval(_pollDataInterval)
 
         _pollDataInterval = setInterval(
             pollData,
-            Number.parseFloat(setting.value) * 1000
+            Number.parseFloat(value) * 1000
         )
     }
 
     async function pollData() {
         devices.resetAllCaches()
 
-        const logger = logging.getLogger('dataupdate')
+        const logger = getLogger('dataupdate')
 
         logger.debug('Collecting live data from devices')
 
@@ -177,9 +177,9 @@ export namespace dataupdate {
 
     async function createSnapshot() {
         semaphore.use(async () => {
-            const logger = logging.getLogger('dataupdate')
+            const logger = getLogger('dataupdate')
 
-            logger.info('Persisting data snapshot to database')
+            logger.log('Persisting data snapshot to database')
 
             const snapshot = new Snapshot()
             snapshot.created_at = new Date()

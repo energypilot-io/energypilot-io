@@ -2,7 +2,6 @@ import fs from 'fs'
 import path from 'node:path'
 
 import { ConfigurationDef } from 'server/defs/configuration'
-import { logging } from 'server/core/log-manager'
 import { database } from 'server/core/database-manager'
 import { http } from 'server/core/http-manager'
 import { websockets } from 'server/core/websockets-manager'
@@ -10,6 +9,7 @@ import { dataupdate } from 'server/core/data-update-manager'
 import { templates } from 'server/core/template-manager'
 import { Device } from 'server/database/entities/device.entity'
 import { devices } from 'server/core/devices'
+import { initLogging } from 'server/core/logmanager'
 
 const ENVIRONMENTAL_VARIABLES = ['DATA_DIR']
 
@@ -29,7 +29,7 @@ const config = JSON.parse(
     )
 ) as ConfigurationDef
 
-await logging.initLogging(config.logging)
+await initLogging()
 await database.initDatabase(config.database)
 await templates.initTemplateEngine()
 

@@ -2,13 +2,13 @@ import { Device } from 'server/database/entities/device.entity'
 import { IInterface, InterfaceDef } from 'server/interfaces/IInterface'
 import { ModbusInterface } from 'server/interfaces/modbus'
 import { TPLinkTapoConnector } from 'server/interfaces/tplink-tapo'
-import { logging } from './log-manager'
 import { templates } from './template-manager'
 import { GridDevice } from 'server/devices/grid'
 import { PVDevice } from 'server/devices/pv'
 import { BatteryDevice } from 'server/devices/battery'
 import { ConsumerDevice } from 'server/devices/consumer'
 import { BaseDevice } from 'server/devices/base-device'
+import { getLogger } from './logmanager'
 
 export namespace devices {
     const _interfaceClasses: { [id: string]: any } = {
@@ -32,9 +32,9 @@ export namespace devices {
     ) {
         if (!(interfaceName + properties in _interfaceInstances)) {
             if (!(interfaceName in _interfaceClasses)) {
-                logging
-                    .getLogger('devices')
-                    .error(`No class found for interface [${interfaceName}]`)
+                getLogger('devices').error(
+                    `No class found for interface [${interfaceName}]`
+                )
             } else {
                 _interfaceInstances[interfaceName + properties] =
                     new _interfaceClasses[interfaceName](JSON.parse(properties))
@@ -50,7 +50,7 @@ export namespace devices {
             deviceDefinition.properties
         )
 
-        const logger = logging.getLogger('devices')
+        const logger = getLogger('devices')
 
         if (interfaceInstance === undefined) {
             logger.error(
@@ -132,11 +132,9 @@ export namespace devices {
         if (deviceName in _deviceInstances) {
             delete _deviceInstances[deviceName]
         } else {
-            logging
-                .getLogger('devices')
-                .error(
-                    `Cannot remove device with name [${deviceName}]: No instance with that name found`
-                )
+            getLogger('devices').error(
+                `Cannot remove device with name [${deviceName}]: No instance with that name found`
+            )
         }
     }
 }
