@@ -1,6 +1,5 @@
 import { Socket } from 'net'
 
-import { logging } from 'server/core/log-manager'
 import { defaultParameterDef, ParameterDef } from 'server/defs/template'
 import { IInterface, InterfaceDef, TranslationDef } from './IInterface'
 
@@ -22,6 +21,7 @@ import Transaction from '@csllc/cs-modbus/lib/Transaction'
 import functions from '@csllc/cs-modbus/lib/functions'
 
 import AsciiTransport from 'server/libs/cs-modbus/transports/AsciiTransport'
+import { ChildLogger, getLogger } from 'server/core/logmanager'
 
 type ModbusParameterDef = ParameterDef & {
     address: number
@@ -48,7 +48,7 @@ type ModbusParameterDef = ParameterDef & {
 }
 
 export class ModbusInterface extends IInterface {
-    private _logger
+    private _logger: ChildLogger
 
     private _cache: { [key: string]: Buffer } = {}
 
@@ -62,7 +62,7 @@ export class ModbusInterface extends IInterface {
         super('modbus')
 
         this._properties = properties
-        this._logger = logging.getLogger(`interfaces.modbus`)
+        this._logger = getLogger(`interfaces.modbus`)
 
         switch (this._properties['schema']) {
             case 'tcpip': {
@@ -133,11 +133,11 @@ export class ModbusInterface extends IInterface {
         })
 
         this._connection.on('write', (data: any) => {
-            this._logger.trace(`Writing data: ${data.toString('hex')}`)
+            this._logger.verbose(`Writing data: ${data.toString('hex')}`)
         })
 
         this._connection.on('data', (data: any) => {
-            this._logger.trace(`Receive data: ${data.toString('hex')}`)
+            this._logger.verbose(`Receive data: ${data.toString('hex')}`)
         })
 
         this._master.on('connected', () => {
@@ -155,7 +155,7 @@ export class ModbusInterface extends IInterface {
                 }
             }
 
-            this._logger.info(message)
+            this._logger.log(message)
         })
 
         this._master.on('disconnected', () => {
@@ -173,7 +173,7 @@ export class ModbusInterface extends IInterface {
                 }
             }
 
-            this._logger.info(message)
+            this._logger.log(message)
         })
 
         this._master.on('error', (err: any) => {

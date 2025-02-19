@@ -1,17 +1,3 @@
-export type FileLoggingDef = {
-    filename?: string
-    rotatingFiles?: boolean
-    size?: string
-    interval?: string
-    compress?: string
-}
-
-export type LoggingDef = {
-    loggers?: string[]
-    logLevels?: { [module: string]: string }
-    file?: FileLoggingDef
-}
-
 export type HTTPDef = {
     port?: number
 }
@@ -21,7 +7,6 @@ export type DatabaseDef = {
 }
 
 export type ConfigurationDef = {
-    logging?: LoggingDef
     database?: DatabaseDef
     http?: HTTPDef
 }

@@ -3,7 +3,6 @@ import express from 'express'
 import { createRequestHandler } from '@remix-run/express'
 import compression from 'compression'
 
-import { logging } from 'server/core/log-manager.js'
 import { HTTPDef } from 'server/defs/configuration.js'
 
 import { database } from './database-manager.js'
@@ -15,6 +14,7 @@ import { fileURLToPath } from 'url'
 import { templates } from './template-manager.js'
 import { devices } from './devices.js'
 import { settings } from './settings.js'
+import { getLogger } from './logmanager.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -37,7 +37,7 @@ export namespace http {
         app.disable('x-powered-by')
 
         app.use(async (req, res, next: any) => {
-            logging.getLogger('http').debug(req.method, req.hostname, req.path)
+            getLogger('http').debug(req.method, req.hostname, req.path)
             database.createContext(next)
         })
 
@@ -106,9 +106,7 @@ export namespace http {
 
         httpServer = createServer(app)
         httpServer.listen(port, () => {
-            logging
-                .getLogger('http')
-                .info(`App listening on http://localhost:${port}`)
+            getLogger('http').log(`App listening on http://localhost:${port}`)
         })
     }
 }

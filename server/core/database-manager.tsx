@@ -3,18 +3,19 @@ import path from 'node:path'
 
 import { DatabaseDef } from 'server/defs/configuration'
 
-import { logging } from 'server/core/log-manager'
 import {
     MikroORM,
     DefaultLogger,
     LoggerNamespace,
     LogContext,
     RequestContext,
+    LoggerOptions,
 } from '@mikro-orm/sqlite'
 
 import config from 'mikro-orm.config.ts'
 import { DeviceSubscriber } from 'server/database/subscribers/device-subscriber'
 import { SettingSubscriber } from 'server/database/subscribers/setting-subscriber'
+import { ChildLogger, getLogger } from './logmanager'
 
 const SQLITE_MEMORY_DB: string = ':memory:'
 
@@ -30,14 +31,32 @@ export namespace database {
     var _orm: MikroORM
 
     class CustomLogger extends DefaultLogger {
-        log(namespace: LoggerNamespace, message: string, context?: LogContext) {
-            const logger = logging.getLogger('database')
+        _logger: ChildLogger
 
-            if (namespace === 'info') {
-                logger.info(message)
-            } else {
-                logger.debug(`[${namespace}] ${message}`)
-            }
+        constructor(options: LoggerOptions) {
+            super(options)
+
+            this._logger = getLogger('database')
+        }
+
+        log(namespace: LoggerNamespace, message: string, context?: LogContext) {
+            this._logger.namespace(namespace).log(message)
+        }
+
+        error(
+            namespace: LoggerNamespace,
+            message: string,
+            context?: LogContext
+        ): void {
+            this._logger.namespace(namespace).error(message, context)
+        }
+
+        warn(
+            namespace: LoggerNamespace,
+            message: string,
+            context?: LogContext
+        ): void {
+            this._logger.namespace(namespace).warn(message, context)
         }
     }
 
@@ -58,9 +77,9 @@ export namespace database {
 
     function getFilename(databaseDef: DatabaseDef | undefined) {
         if (databaseDef?.filename === SQLITE_MEMORY_DB) {
-            logging
-                .getLogger('database')
-                .warn('Using in memory database. Data will not be persisted!')
+            getLogger('database').warn(
+                'Using in memory database. Data will not be persisted!'
+            )
             return SQLITE_MEMORY_DB
         }
 
@@ -74,11 +93,9 @@ export namespace database {
                     : 'energypilot-io.db'
             )
         } catch {
-            logging
-                .getLogger('database')
-                .error(
-                    `Data directory [${process.env.DATA_DIR}] not writeable. Switching to in-memory database storage.`
-                )
+            getLogger('database').error(
+                `Data directory [${process.env.DATA_DIR}] not writeable. Switching to in-memory database storage.`
+            )
 
             return SQLITE_MEMORY_DB
         }
@@ -98,7 +115,7 @@ export namespace database {
 
             return true
         } catch (err) {
-            logging.getLogger('database').error(err)
+            getLogger('database').error(err)
             return false
         }
     }

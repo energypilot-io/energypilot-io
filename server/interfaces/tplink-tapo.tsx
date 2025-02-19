@@ -1,8 +1,8 @@
-import { logging } from 'server/core/log-manager'
 import { defaultParameterDef, ParameterDef } from 'server/defs/template'
 import { IInterface, InterfaceDef, TranslationDef } from './IInterface'
 
 import { loginDeviceByIp } from 'tp-link-tapo-connect'
+import { ChildLogger, getLogger } from 'server/core/logmanager'
 
 type TPLinkTapoParameterDef = ParameterDef & {
     request: string
@@ -10,7 +10,7 @@ type TPLinkTapoParameterDef = ParameterDef & {
 }
 
 export class TPLinkTapoConnector extends IInterface {
-    private _logger = logging.getLogger('interfaces.tapo')
+    private _logger: ChildLogger
 
     private _cache: { [key: string]: any } = {}
 
@@ -21,6 +21,7 @@ export class TPLinkTapoConnector extends IInterface {
     constructor(properties: { [property: string]: any }) {
         super('tapo')
 
+        this._logger = getLogger('interfaces.tapo')
         this._properties = properties
 
         this.connect(
@@ -66,7 +67,7 @@ export class TPLinkTapoConnector extends IInterface {
 
     private async connect(email: string, password: string, ip: string) {
         this._device = await loginDeviceByIp(email, password, ip)
-        this._logger.info(`Connected to [${this._properties.ip}]`)
+        this._logger.log(`Connected to [${this._properties.ip}]`)
     }
 
     public resetCache() {

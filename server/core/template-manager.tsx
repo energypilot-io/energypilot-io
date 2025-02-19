@@ -1,7 +1,7 @@
 import fs from 'fs'
-import { logging } from './log-manager'
 import { TemplateDef } from 'server/defs/template'
 import { posix } from 'path'
+import { getLogger } from './logmanager'
 
 export namespace templates {
     export const ValidTemplateTypes: string[] = [
@@ -20,9 +20,9 @@ export namespace templates {
     const _templateRegistry: TemplateRegistry = {}
 
     export async function initTemplateEngine() {
-        const logger = logging.getLogger('templates')
+        const logger = getLogger('templates')
 
-        logger.info('Inventory scanning...')
+        logger.log('Inventory scanning...')
 
         for (const filename of fs
             .readdirSync('./templates', {

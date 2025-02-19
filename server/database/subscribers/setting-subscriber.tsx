@@ -1,7 +1,7 @@
 import { EntityName, EventArgs, EventSubscriber } from '@mikro-orm/core'
 import { Setting } from '../entities/setting.entity'
 
-export type SettingObserver = (setting: Setting) => void
+export type SettingObserver = (value: string) => void
 
 const _observers: { [key: string]: SettingObserver[] } = {}
 
@@ -24,7 +24,7 @@ export class SettingSubscriber implements EventSubscriber<Setting> {
         if (!(args.entity.key in _observers)) return
 
         _observers[args.entity.key].forEach((observer) => {
-            observer(args.entity)
+            observer(args.entity.value)
         })
     }
 }
