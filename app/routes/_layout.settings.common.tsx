@@ -4,7 +4,6 @@ import { LoaderIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Fragment } from 'react/jsx-runtime'
 import { useRemixForm } from 'remix-hook-form'
-import { settings } from 'server/core/settings'
 import { Header } from '~/components/energypilot/site/header'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
@@ -24,9 +23,10 @@ import {
     SelectTrigger,
     SelectValue,
 } from '~/components/ui/select'
+import { GroupedSettingsDef } from 'server/core/settings'
 
 export const loader = async ({ context }: LoaderFunctionArgs) => {
-    return context.settings as settings.GroupedSettingsDef
+    return context.settings as GroupedSettingsDef
 }
 
 export default function SettingsCommonPage() {
@@ -49,9 +49,7 @@ export default function SettingsCommonPage() {
         [data]
     )
 
-    const useDynamicZodResolver = (
-        groupedSettings: settings.GroupedSettingsDef
-    ) =>
+    const useDynamicZodResolver = (groupedSettings: GroupedSettingsDef) =>
         useCallback(
             async (data: any, context: any, options: any) => {
                 const schema = zodSchemaDefinitionParser(formParameterList)
@@ -104,7 +102,7 @@ export default function SettingsCommonPage() {
             if (returnValues.success === true) {
                 toast({
                     variant: 'success',
-                    title: 'Settings saved!',
+                    title: t('messages.success.settings_saved'),
                 })
             }
             setBackendErrorMessage(returnValues.error)
@@ -143,11 +141,16 @@ export default function SettingsCommonPage() {
                                         <p className="font-bold">
                                             {t(`settings.${groupName}.label`)}
                                         </p>
-                                        <p className="text-sm">
-                                            {t(
-                                                `settings.${groupName}.description`
-                                            )}
-                                        </p>
+                                        {t(
+                                            `settings.${groupName}.description`,
+                                            ''
+                                        ) !== '' && (
+                                            <p className="text-sm">
+                                                {t(
+                                                    `settings.${groupName}.description`
+                                                )}
+                                            </p>
+                                        )}
                                     </div>
 
                                     {Object.keys(data[groupName]).map(
@@ -170,11 +173,17 @@ export default function SettingsCommonPage() {
                                                             `settings.${groupName}.${parameterName}.label`
                                                         )}
                                                     </Label>
-                                                    <p className="text-sm">
-                                                        {t(
-                                                            `settings.${groupName}.${parameterName}.description`
-                                                        )}
-                                                    </p>
+
+                                                    {t(
+                                                        `settings.${groupName}.${parameterName}.description`,
+                                                        ''
+                                                    ) !== '' && (
+                                                        <p className="text-sm">
+                                                            {t(
+                                                                `settings.${groupName}.${parameterName}.description`
+                                                            )}
+                                                        </p>
+                                                    )}
 
                                                     <Controller
                                                         control={control}
@@ -211,7 +220,7 @@ export default function SettingsCommonPage() {
                                                                             {parameter.enumValues?.map(
                                                                                 (
                                                                                     enumValue: string,
-                                                                                    index
+                                                                                    index: number
                                                                                 ) => (
                                                                                     <SelectItem
                                                                                         value={
@@ -319,7 +328,7 @@ export default function SettingsCommonPage() {
                                     disabled={isSubmitting}
                                     onClick={() => handleSubmit()}
                                 >
-                                    Save Settings
+                                    {t('consts.buttons.save_settings')}
                                 </Button>
                             </div>
                         </>

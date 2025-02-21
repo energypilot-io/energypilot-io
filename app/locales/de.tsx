@@ -13,6 +13,7 @@ export default {
             update: 'Aktualisieren',
             create: 'Erstellen',
             edit: 'Bearbeiten',
+            save_settings: 'Einstellungen speichern',
         },
     },
 
@@ -60,6 +61,52 @@ export default {
                 title: 'Gerät entfernen',
                 description:
                     'Wollen Sie das Gerät [{{deviceName}}] wirklich entfernen? Achtung: das Entfernen eines Geräts kann nicht rückgängig gemacht werden!',
+            },
+        },
+
+        success: {
+            settings_saved: 'Einstellungen erfolgreich gespeichert.',
+        },
+    },
+
+    settings: {
+        data: {
+            label: 'Daten',
+            description: 'Einstellungen für die gesammelten Daten',
+
+            poll_interval: {
+                label: 'Abfrage Intervall',
+            },
+
+            snapshot_interval: {
+                label: 'Snapshot Intervall',
+            },
+        },
+
+        logging: {
+            label: 'Logging',
+
+            loglevel: {
+                label: 'Log Level',
+                description: 'Das Log-Level für EnergyPilot.io',
+
+                values: {
+                    debug: 'Debug',
+                    error: 'Error',
+                    warn: 'Warn',
+                    info: 'Info',
+                    fail: 'Fail',
+                    verbose: 'Verbose',
+                },
+            },
+        },
+
+        webserver: {
+            label: 'Webserver',
+            description: 'Einstellungen für die Weboberfläche',
+
+            port: {
+                label: 'Port',
             },
         },
     },

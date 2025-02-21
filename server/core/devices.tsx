@@ -2,13 +2,13 @@ import { Device } from 'server/database/entities/device.entity'
 import { IInterface, InterfaceDef } from 'server/interfaces/IInterface'
 import { ModbusInterface } from 'server/interfaces/modbus'
 import { TPLinkTapoConnector } from 'server/interfaces/tplink-tapo'
-import { templates } from './template-manager'
 import { GridDevice } from 'server/devices/grid'
+import { BaseDevice } from 'server/devices/base-device'
 import { PVDevice } from 'server/devices/pv'
 import { BatteryDevice } from 'server/devices/battery'
 import { ConsumerDevice } from 'server/devices/consumer'
-import { BaseDevice } from 'server/devices/base-device'
 import { getLogger } from './logmanager'
+import { getTemplateForType } from './templateengine'
 
 export namespace devices {
     const _interfaceClasses: { [id: string]: any } = {
@@ -59,7 +59,7 @@ export namespace devices {
             return undefined
         }
 
-        const template = templates.getTemplateForType(
+        const template = getTemplateForType(
             deviceDefinition.type,
             deviceDefinition.template
         )

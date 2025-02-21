@@ -18,6 +18,7 @@ export default {
             update: 'Update',
             create: 'Create',
             edit: 'Edit',
+            save_settings: 'Save Settings',
         },
     },
 
@@ -66,12 +67,16 @@ export default {
                     'Do you really want to delete the device [{{deviceName}}]? Warning: this change cannot be undone!',
             },
         },
+
+        success: {
+            settings_saved: 'Settings saved successfully.',
+        },
     },
 
     settings: {
         data: {
             label: 'Data',
-            description: 'Data Description',
+            description: 'Settings for data collection',
 
             poll_interval: {
                 label: 'Polling Interval',
@@ -86,9 +91,26 @@ export default {
             label: 'Logging',
 
             loglevel: {
+                label: 'Log Level',
+                description: 'The log level for EnergyPilot.io',
+
                 values: {
+                    debug: 'Debug',
+                    error: 'Error',
+                    warn: 'Warn',
                     info: 'Info',
+                    fail: 'Fail',
+                    verbose: 'Verbose',
                 },
+            },
+        },
+
+        webserver: {
+            label: 'Webserver',
+            description: 'Settings for the UI webserver',
+
+            port: {
+                label: 'Port',
             },
         },
     },

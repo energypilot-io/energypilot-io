@@ -3,10 +3,10 @@ import path from 'node:path'
 import adze, { setup } from 'adze'
 import TransportFile from '@adze/transport-file'
 
-import { settings } from './settings'
-import { registerDatabaseObserver } from './database-manager'
+import { registerDatabaseInitObserver } from './database'
 import { registerSettingObserver } from 'server/database/subscribers/setting-subscriber'
 import AdzeGlobal from 'adze/dist/adze-global'
+import { getSetting, registerSettings } from './settings'
 
 const _levels: { [key: string]: number } = {
     error: 1,
@@ -34,7 +34,7 @@ await _fileTransport.load()
 var _globalStore: AdzeGlobal
 
 export async function initLogging() {
-    settings.registerSettings({
+    registerSettings({
         [_settingKeyLogLevel]: {
             type: 'enum',
             defaultValue: 'info',
@@ -42,7 +42,7 @@ export async function initLogging() {
         },
     })
 
-    registerDatabaseObserver(onDatabaseReady)
+    registerDatabaseInitObserver(onDatabaseReady)
     registerSettingObserver(_settingKeyLogLevel, onChangeLogLevel)
 
     _globalStore = setup({
@@ -52,7 +52,7 @@ export async function initLogging() {
 }
 
 async function onDatabaseReady() {
-    const logLevel = await settings.getSetting(_settingKeyLogLevel)
+    const logLevel = await getSetting(_settingKeyLogLevel)
     onChangeLogLevel(logLevel)
 }
 
