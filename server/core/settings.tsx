@@ -1,54 +1,52 @@
 import { Setting } from 'server/database/entities/setting.entity'
-import { database } from './database-manager'
 import { IFormParameterDefList } from 'server/defs/form-parameters'
+import { getEntityManager } from './database'
 
 const _registeredSettings: IFormParameterDefList = {}
 
-export namespace settings {
-    export type GroupedSettingsDef = {
-        [groupName: string]: IFormParameterDefList
-    }
+export type GroupedSettingsDef = {
+    [groupName: string]: IFormParameterDefList
+}
 
-    export function registerSettings(settings: IFormParameterDefList) {
-        Object.assign(_registeredSettings, settings)
-    }
+export function registerSettings(settings: IFormParameterDefList) {
+    Object.assign(_registeredSettings, settings)
+}
 
-    export function getRegisteredSettingDefs(): GroupedSettingsDef {
-        const groupedSettings: GroupedSettingsDef = {}
+export function getRegisteredSettingDefs(): GroupedSettingsDef {
+    const groupedSettings: GroupedSettingsDef = {}
 
-        Object.keys(_registeredSettings).forEach((key: string) => {
-            const settingDef = _registeredSettings[key]
-            const groupName = key.split('_')[0]
+    Object.keys(_registeredSettings).forEach((key: string) => {
+        const settingDef = _registeredSettings[key]
+        const groupName = key.split('_')[0]
 
-            if (!(groupName in groupedSettings)) {
-                groupedSettings[groupName] = {}
-            }
-            groupedSettings[groupName][key] = settingDef
-        })
-
-        return groupedSettings
-    }
-
-    export async function getSetting(key: string): Promise<any | null> {
-        const result = await database.getEntityManager().findOne(Setting, {
-            key: { $eq: key },
-        })
-
-        if (
-            (result === undefined || result === null) &&
-            key in _registeredSettings
-        ) {
-            return _registeredSettings[key].defaultValue === undefined
-                ? null
-                : _registeredSettings[key].defaultValue
+        if (!(groupName in groupedSettings)) {
+            groupedSettings[groupName] = {}
         }
+        groupedSettings[groupName][key] = settingDef
+    })
 
-        return result?.value
+    return groupedSettings
+}
+
+export async function getSetting(key: string): Promise<any | null> {
+    const result = await getEntityManager().findOne(Setting, {
+        key: { $eq: key },
+    })
+
+    if (
+        (result === undefined || result === null) &&
+        key in _registeredSettings
+    ) {
+        return _registeredSettings[key].defaultValue === undefined
+            ? null
+            : _registeredSettings[key].defaultValue
     }
 
-    export async function getNumber(key: string): Promise<number | null> {
-        const result = await getSetting(key)
+    return result?.value
+}
 
-        return result !== null ? Number.parseFloat(result.toString()) : result
-    }
+export async function getSettingAsNumber(key: string): Promise<number | null> {
+    const result = await getSetting(key)
+
+    return result !== null ? Number.parseFloat(result.toString()) : result
 }

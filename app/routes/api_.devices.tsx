@@ -9,7 +9,7 @@ import * as zod from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ConstraintViolationException } from '@mikro-orm/core'
 import i18next from '~/lib/i18n.server'
-import { templates } from 'server/core/template-manager'
+import { templates } from 'server/core/templateengine'
 
 export const newDeviceSchema = zod.object({
     id: zod.number().optional(),

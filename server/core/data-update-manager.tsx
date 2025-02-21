@@ -1,22 +1,25 @@
-import { GridDevice } from 'server/devices/grid'
-import { database } from './database-manager'
-import { PVDevice } from 'server/devices/pv'
-import { BatteryDevice } from 'server/devices/battery'
-import { websockets } from './websockets-manager'
 import {
     WS_EVENT_LIVEDATA_UPDATED,
     WS_EVENT_SNAPSHOT_CREATED,
 } from 'server/constants'
-import { ConsumerDevice } from 'server/devices/consumer'
 import { Snapshot } from 'server/database/entities/snapshot.entity'
 import { DeviceSnapshot } from 'server/database/entities/device-snapshot.entity'
 
 import Semaphore from 'ts-semaphore'
 import { devices } from './devices'
-import { settings } from './settings'
-import { Setting } from 'server/database/entities/setting.entity'
 import { registerSettingObserver } from 'server/database/subscribers/setting-subscriber'
 import { getLogger } from './logmanager'
+import { emitWebsocketEvent } from './webserver'
+import {
+    getSettingAsNumber as getSettingAsNumber,
+    registerSettings,
+} from './settings'
+import { persistEntity } from './database'
+
+import { GridDevice } from 'server/devices/grid'
+import { PVDevice } from 'server/devices/pv'
+import { BatteryDevice } from 'server/devices/battery'
+import { ConsumerDevice } from 'server/devices/consumer'
 
 export namespace dataupdate {
     let _latestSnapshot: DeviceSnapshot[] = []
@@ -30,7 +33,7 @@ export namespace dataupdate {
     const semaphore = new Semaphore(1)
 
     export async function initDataUpdate() {
-        settings.registerSettings({
+        registerSettings({
             [_settingKeyPollInterval]: {
                 type: 'number',
                 defaultValue: 5,
@@ -49,12 +52,12 @@ export namespace dataupdate {
 
         _pollDataInterval = setInterval(
             pollData,
-            (await settings.getNumber(_settingKeyPollInterval))! * 1000
+            (await getSettingAsNumber(_settingKeyPollInterval))! * 1000
         )
 
         _createSnapshotInterval = setInterval(
             createSnapshot,
-            (await settings.getNumber(_settingKeySnapshotInterval))! * 1000
+            (await getSettingAsNumber(_settingKeySnapshotInterval))! * 1000
         )
 
         process.on('exit', (code) => {
@@ -171,7 +174,7 @@ export namespace dataupdate {
             }
         }
 
-        websockets.emitEvent(WS_EVENT_LIVEDATA_UPDATED, snapshot)
+        emitWebsocketEvent(WS_EVENT_LIVEDATA_UPDATED, snapshot)
         semaphore.use(async () => (_latestSnapshot = snapshot))
     }
 
@@ -189,9 +192,9 @@ export namespace dataupdate {
                 snapshot.device_snapshots.add(deviceSnapshot)
             })
 
-            await database.persistEntity(snapshot)
+            await persistEntity(snapshot)
 
-            websockets.emitEvent(WS_EVENT_SNAPSHOT_CREATED)
+            emitWebsocketEvent(WS_EVENT_SNAPSHOT_CREATED)
         })
     }
 }
