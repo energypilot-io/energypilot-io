@@ -7,7 +7,6 @@ import { createServer, Server as HTTPServer } from 'http'
 import { Server as SocketServer } from 'socket.io'
 import { ServerBuild } from '@remix-run/node'
 import { fileURLToPath } from 'url'
-import { devices } from './devices'
 import { getLogger } from './logmanager'
 import {
     getRegisteredSettingDefs,
@@ -16,6 +15,7 @@ import {
 } from './settings.js'
 import { createContext } from './database.js'
 import { getTemplateDefs } from './templateengine.js'
+import { getInterfaceDefs, getInterfaceTranslations } from './devices.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -103,8 +103,8 @@ export async function initWebServer() {
             getLoadContext(req, res) {
                 return {
                     templates: getTemplateDefs(),
-                    interfaces: devices.getInterfaceDefs(),
-                    interfaceTranslations: devices.getInterfaceTranslations(),
+                    interfaces: getInterfaceDefs(),
+                    interfaceTranslations: getInterfaceTranslations(),
                     settings: getRegisteredSettingDefs(),
                     res,
                 }

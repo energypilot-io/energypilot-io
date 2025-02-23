@@ -72,7 +72,6 @@ export default {
     settings: {
         data: {
             label: 'Daten',
-            description: 'Einstellungen für die gesammelten Daten',
 
             poll_interval: {
                 label: 'Abfrage Intervall',
@@ -88,7 +87,6 @@ export default {
 
             loglevel: {
                 label: 'Log Level',
-                description: 'Das Log-Level für EnergyPilot.io',
 
                 values: {
                     debug: 'Debug',
@@ -103,7 +101,6 @@ export default {
 
         webserver: {
             label: 'Webserver',
-            description: 'Einstellungen für die Weboberfläche',
 
             port: {
                 label: 'Port',

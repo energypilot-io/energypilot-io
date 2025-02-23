@@ -16,7 +16,7 @@ import {
 
 import { CanvasRenderer } from 'echarts/renderers'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Card, CardContent } from '~/components/ui/card'
 import { formatPower } from '~/lib/utils'
 import { ToggleGroup, ToggleGroupItem } from '~/components/ui/toggle-group'
@@ -42,6 +42,7 @@ export default function GraphPage() {
     const { t } = useTranslation()
     const [theme] = useTheme()
     const socket = useSocket()
+
     const fetcher = useFetcher()
 
     const [series, setSeries] = useState<any>()
@@ -68,27 +69,35 @@ export default function GraphPage() {
 
     const [timeframe, setTimeframe] = useState<string>(timeframes[0].days)
 
+    const fromTimeInMilliseconds = useRef(
+        Number.parseFloat(timeframe) * 24 * 60 * 60 * 1000
+    )
+
     useEffect(() => {
         if (!socket) return
 
-        socket.on(WS_EVENT_SNAPSHOT_CREATED, () => {
-            fetchData()
-        })
+        socket.on(WS_EVENT_SNAPSHOT_CREATED, fetchData)
+
+        return () => {
+            socket.off(WS_EVENT_SNAPSHOT_CREATED, fetchData)
+        }
     }, [socket])
 
     useEffect(() => {
+        fromTimeInMilliseconds.current =
+            Number.parseFloat(timeframe) * 24 * 60 * 60 * 1000
         fetchData()
     }, [timeframe])
 
     const fetchData = () => {
+        console.log(fromTimeInMilliseconds.current)
+
         let requestTimeframe = new Date()
         requestTimeframe.setHours(0, 0, 0, 0)
 
-        if (timeframe !== undefined) {
-            const daysInMilliseconds =
-                Number.parseFloat(timeframe) * 24 * 60 * 60 * 1000
+        if (fromTimeInMilliseconds !== undefined) {
             requestTimeframe.setTime(
-                requestTimeframe.getTime() - daysInMilliseconds
+                requestTimeframe.getTime() - fromTimeInMilliseconds.current
             )
         }
 
@@ -193,6 +202,8 @@ export default function GraphPage() {
                 }
             })
         })
+
+        console.log(fetcher.data)
 
         setSeries([
             ...Object.keys(groupedValues).map((deviceName) => {
@@ -325,6 +336,7 @@ export default function GraphPage() {
                                             },
                                         },
                                     }}
+                                    animation={false}
                                     legend={{
                                         show: true,
                                     }}
