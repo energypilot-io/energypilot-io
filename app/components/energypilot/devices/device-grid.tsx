@@ -2,8 +2,11 @@ import { useFetcher } from '@remix-run/react'
 import { useEffect, useState } from 'react'
 import { DeviceCard } from '../cards/settings/device-card'
 import { EnrichedDevice } from '~/routes/api_.devices'
+import { FrownIcon } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 export function DeviceGrid() {
+    const { t } = useTranslation()
     const fetcher = useFetcher()
 
     const [devices, setDevices] = useState<EnrichedDevice[]>([])
@@ -17,6 +20,15 @@ export function DeviceGrid() {
             setDevices(fetcher.data)
         }
     }, [fetcher.data])
+
+    if (devices.length === 0) {
+        return (
+            <div className="flex flex-col justify-self-center mx-auto py-4 text-2xl place-items-center gap-2">
+                <FrownIcon size={40} />
+                <p>{t('messages.info.noDevicesFound')}</p>
+            </div>
+        )
+    }
 
     return (
         <div className="grid auto-rows-min gap-4 lg:grid-cols-3 md:grid-cols-1">

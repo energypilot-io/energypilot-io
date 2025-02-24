@@ -60,7 +60,6 @@
         "remix-hook-form": "^5.1.1",
         "remix-i18next": "^6.1.0",
         "remix-themes": "1.5.1",
-        "remix-utils": "^7.6.0",
         "rotating-file-stream": "^3.2.5",
         "serialport": "^13.0.0",
         "simple-icons": "^13.21.0",

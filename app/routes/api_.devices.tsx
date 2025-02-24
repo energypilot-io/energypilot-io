@@ -9,7 +9,7 @@ import * as zod from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ConstraintViolationException } from '@mikro-orm/core'
 import i18next from '~/lib/i18n.server'
-import { templates } from 'server/core/templateengine'
+import { TemplateRegistry } from 'server/core/template-engine'
 
 export const newDeviceSchema = zod.object({
     id: zod.number().optional(),
@@ -93,7 +93,7 @@ export const loader = async ({ context }: LoaderFunctionArgs) => {
     )
 
     return devices.map((item) => {
-        const templates = context.templates as templates.TemplateRegistry
+        const templates = context.templates as TemplateRegistry
 
         return {
             ...item,

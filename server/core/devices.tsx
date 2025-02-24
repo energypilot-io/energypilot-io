@@ -8,7 +8,7 @@ import { PVDevice } from 'server/devices/pv'
 import { BatteryDevice } from 'server/devices/battery'
 import { ConsumerDevice } from 'server/devices/consumer'
 import { getLogger } from './logmanager'
-import { getTemplateForType } from './templateengine'
+import { getTemplateForType } from './template-engine'
 
 const _interfaceClasses: { [id: string]: any } = {
     modbus: ModbusInterface,

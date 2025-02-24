@@ -1,4 +1,6 @@
+import { sub } from 'date-fns'
 import { ChevronRight, LucideIcon } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import {
     Collapsible,
     CollapsibleContent,
@@ -26,11 +28,22 @@ export function CollapsibleMenuItem({
         }[]
     }
 }) {
+    const [isOpen, setIsOpen] = useState<boolean>(false)
+
+    useEffect(() => {
+        setIsOpen(
+            item.items?.reduce((acc, subItem) => {
+                return acc || window.location.href.indexOf(subItem.url) > -1
+            }, false) ?? false
+        )
+    }, [])
+
     return (
         <Collapsible
             key={item.title}
             asChild
-            defaultOpen={item.isActive}
+            open={isOpen}
+            onOpenChange={setIsOpen}
             className="group/collapsible"
         >
             <SidebarMenuItem>

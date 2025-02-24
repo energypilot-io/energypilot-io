@@ -1,3 +1,5 @@
+import { info } from 'console'
+
 export default {
     consts: {
         templateTypes: {
@@ -66,6 +68,10 @@ export default {
 
         success: {
             settings_saved: 'Einstellungen erfolgreich gespeichert.',
+        },
+
+        info: {
+            noDevicesFound: 'Keine Geräte gefunden.',
         },
     },
 

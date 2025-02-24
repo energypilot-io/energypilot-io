@@ -10,11 +10,12 @@ import { DeviceSnapshot } from '../entities/device-snapshot.entity'
                 raw(
                     'max(g.energy_import) - min(g.energy_import) as energy_diff'
                 ),
-                raw('min(created_at) as created_at'),
+                raw('min(g.created_at) as created_at'),
                 raw('max(g.energy_import) as energy_total'),
             ])
+            .leftJoinAndSelect('g.device', 'd')
             .where({ $and: [{ type: 'grid' }, where ?? {}] })
-            .groupBy(['g.device_name'])
+            .groupBy(['d.id'])
     },
 })
 export class GridEnergyImport {

@@ -1,12 +1,28 @@
-import { Form } from '@remix-run/react'
+import i18next from '~/lib/i18n.server'
+
 import { useTranslation } from 'react-i18next'
 import { EnergyExportCard } from '~/components/energypilot/cards/dashboard/energy-export'
 import { EnergyImportCard } from '~/components/energypilot/cards/dashboard/energy-import'
 import { EnergyProductionCard } from '~/components/energypilot/cards/dashboard/energy-production'
 import { LiveEnergyCard } from '~/components/energypilot/cards/dashboard/live-energy'
 import { Header } from '~/components/energypilot/site/header'
+import { LoaderFunctionArgs } from '@remix-run/node'
+import { MetaFunction } from '@remix-run/react'
 
-export default function Page() {
+export async function loader({ request }: LoaderFunctionArgs) {
+    let t = await i18next.getFixedT(request)
+
+    return {
+        appName: t('app.name'),
+        siteTitle: t('navigation.pages.dashboard.title'),
+    }
+}
+
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+    return [{ title: `${data?.siteTitle} | ${data?.appName}` }]
+}
+
+export default function DashboardPage() {
     const { t } = useTranslation()
 
     return (

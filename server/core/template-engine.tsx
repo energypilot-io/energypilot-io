@@ -71,6 +71,8 @@ export function getTemplateDefs() {
                             interfaces:
                                 _templateRegistry[templateType][templateName]
                                     .interfaces,
+                            logo: _templateRegistry[templateType][templateName]
+                                .logo,
                         },
                     })
                 )

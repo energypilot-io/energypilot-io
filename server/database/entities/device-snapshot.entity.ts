@@ -1,5 +1,6 @@
 import { Entity, ManyToOne, PrimaryKey, Property } from '@mikro-orm/core'
 import { Snapshot } from './snapshot.entity'
+import { Device } from './device.entity'
 
 @Entity()
 export class DeviceSnapshot {
@@ -12,8 +13,8 @@ export class DeviceSnapshot {
     @ManyToOne()
     snapshot!: Snapshot
 
-    @Property()
-    device_name: string
+    @ManyToOne()
+    device!: Device
 
     @Property()
     type!: string
@@ -34,7 +35,7 @@ export class DeviceSnapshot {
     soc?: number
 
     constructor(options: {
-        device_name: string
+        device: Device
         type: 'grid' | 'pv' | 'battery' | 'consumer'
         power?: number
         energy?: number
@@ -43,7 +44,7 @@ export class DeviceSnapshot {
         soc?: number
     }) {
         this.type = options.type
-        this.device_name = options.device_name
+        this.device = options.device
         this.power = options.power
         this.energy = options.energy
         this.energy_import = options.energy_import

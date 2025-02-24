@@ -1,5 +1,7 @@
+import i18next from '~/lib/i18n.server'
+
 import { LoaderFunctionArgs } from '@remix-run/node'
-import { useFetcher, useLoaderData } from '@remix-run/react'
+import { MetaFunction, useFetcher, useLoaderData } from '@remix-run/react'
 import { LoaderIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Fragment } from 'react/jsx-runtime'
@@ -25,8 +27,19 @@ import {
 } from '~/components/ui/select'
 import { GroupedSettingsDef } from 'server/core/settings'
 
-export const loader = async ({ context }: LoaderFunctionArgs) => {
-    return context.settings as GroupedSettingsDef
+export async function loader({ context, request }: LoaderFunctionArgs) {
+    let t = await i18next.getFixedT(request)
+
+    return {
+        appName: t('app.name'),
+        siteTitle: t('navigation.pages.settings.common.title'),
+
+        settings: context.settings as GroupedSettingsDef,
+    }
+}
+
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+    return [{ title: `${data?.siteTitle} | ${data?.appName}` }]
 }
 
 export default function SettingsCommonPage() {
@@ -35,7 +48,7 @@ export default function SettingsCommonPage() {
     const { toast } = useToast()
 
     const [backendErrorMessage, setBackendErrorMessage] = useState<string>()
-    const data = useLoaderData<typeof loader>()
+    const { settings } = useLoaderData<typeof loader>()
 
     const formFetcher = useFetcher()
     const settingsFetcher = useFetcher()
@@ -44,9 +57,9 @@ export default function SettingsCommonPage() {
         () =>
             Object.assign(
                 {},
-                ...Object.keys(data).map((groupName) => data[groupName])
+                ...Object.keys(settings).map((groupName) => settings[groupName])
             ) as IFormParameterDefList,
-        [data]
+        [settings]
     )
 
     const useDynamicZodResolver = (groupedSettings: GroupedSettingsDef) =>
@@ -68,7 +81,7 @@ export default function SettingsCommonPage() {
         control,
         setValue,
     } = useRemixForm<zod.infer<any>>({
-        resolver: useDynamicZodResolver(data),
+        resolver: useDynamicZodResolver(settings),
         fetcher: formFetcher,
         submitConfig: {
             method: 'POST',
@@ -82,7 +95,8 @@ export default function SettingsCommonPage() {
     }, [])
 
     useEffect(() => {
-        if (!Array.isArray(settingsFetcher.data) || data == undefined) return
+        if (!Array.isArray(settingsFetcher.data) || settings == undefined)
+            return
         ;(settingsFetcher.data as any[]).forEach((setting) => {
             if (formParameterList[setting.key].type === 'number') {
                 setValue(setting.key, Number.parseFloat(setting.value))
@@ -131,11 +145,11 @@ export default function SettingsCommonPage() {
                         </div>
                     )}
 
-                    {data === undefined ? (
+                    {settings === undefined ? (
                         <LoaderIcon className="animate-spin" size={64} />
                     ) : (
                         <>
-                            {Object.keys(data).map((groupName, index) => (
+                            {Object.keys(settings).map((groupName, index) => (
                                 <Fragment key={index}>
                                     <div className="flex flex-col gap-2">
                                         <p className="font-bold">
@@ -153,10 +167,10 @@ export default function SettingsCommonPage() {
                                         )}
                                     </div>
 
-                                    {Object.keys(data[groupName]).map(
+                                    {Object.keys(settings[groupName]).map(
                                         (key: string, index) => {
                                             const parameter =
-                                                data[groupName][key]
+                                                settings[groupName][key]
 
                                             const parameterName: string =
                                                 key.substring(

@@ -5,10 +5,9 @@ import { Device } from 'server/database/entities/device.entity'
 import { ChildLogger, getLogger } from 'server/core/logmanager'
 
 export class BaseDevice {
-    name: string
+    deviceDefinition: Device
 
     protected _connector: IInterface
-    protected _deviceDefinition: Device
 
     protected _logger: ChildLogger
 
@@ -20,11 +19,11 @@ export class BaseDevice {
         deviceDefinition: Device
     ) {
         this._connector = connector
-        this._deviceDefinition = deviceDefinition
+        this.deviceDefinition = deviceDefinition
 
-        this.name = this._deviceDefinition.name
-
-        this._logger = getLogger(`${this._deviceDefinition.type}.${this.name}`)
+        this._logger = getLogger(
+            `${this.deviceDefinition.type}.${this.deviceDefinition.name}`
+        )
 
         this._enabledParameter = this.getParameter(
             baseDeviceTemplateDef,

@@ -2,7 +2,7 @@ import { Device } from 'server/database/entities/device.entity'
 import { initLogging } from 'server/core/logmanager'
 import { initWebServer } from 'server/core/webserver'
 import { getEntityManager, initDatabase } from 'server/core/database'
-import { initTemplateEngine } from 'server/core/templateengine'
+import { initTemplateEngine } from 'server/core/template-engine'
 import { createDevice } from 'server/core/devices'
 import { initDataUpdate } from 'server/core/data-update-manager'
 

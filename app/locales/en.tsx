@@ -71,6 +71,10 @@ export default {
         success: {
             settings_saved: 'Settings saved successfully.',
         },
+
+        info: {
+            noDevicesFound: 'No devices found.',
+        },
     },
 
     settings: {
