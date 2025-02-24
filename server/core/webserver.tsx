@@ -14,7 +14,7 @@ import {
     registerSettings,
 } from './settings.js'
 import { createContext } from './database.js'
-import { getTemplateDefs } from './templateengine.js'
+import { getTemplateDefs } from './template-engine.js'
 import { getInterfaceDefs, getInterfaceTranslations } from './devices.js'
 
 const __filename = fileURLToPath(import.meta.url)

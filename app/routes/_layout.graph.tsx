@@ -1,6 +1,7 @@
-import { useFetcher } from '@remix-run/react'
+import { MetaFunction, useFetcher } from '@remix-run/react'
 import { useTranslation } from 'react-i18next'
 import { Header } from '~/components/energypilot/site/header'
+import i18next from '~/lib/i18n.server'
 
 import { EChart } from '@kbox-labs/react-echarts'
 
@@ -16,7 +17,7 @@ import {
 
 import { CanvasRenderer } from 'echarts/renderers'
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Card, CardContent } from '~/components/ui/card'
 import { formatPower } from '~/lib/utils'
 import { ToggleGroup, ToggleGroupItem } from '~/components/ui/toggle-group'
@@ -34,9 +35,23 @@ import {
 } from '~/components/ui/popover'
 import { Button } from '~/components/ui/button'
 import { DateRange } from 'react-day-picker'
-import { addDays, format } from 'date-fns'
+import { format } from 'date-fns'
 import { Calendar } from '~/components/ui/calendar'
 import { cn } from '~/lib/utils'
+import { LoaderFunctionArgs } from '@remix-run/node'
+
+export async function loader({ request }: LoaderFunctionArgs) {
+    let t = await i18next.getFixedT(request)
+
+    return {
+        appName: t('app.name'),
+        siteTitle: t('navigation.pages.graph.title'),
+    }
+}
+
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+    return [{ title: `${data?.siteTitle} | ${data?.appName}` }]
+}
 
 export default function GraphPage() {
     const { t } = useTranslation()
@@ -62,16 +77,15 @@ export default function GraphPage() {
         },
     ]
 
-    const [date, setDate] = useState<DateRange | undefined>({
-        from: new Date(2022, 0, 20),
-        to: addDays(new Date(2022, 0, 20), 20),
-    })
+    const [date, setDate] = useState<DateRange | undefined>(undefined)
 
-    const [timeframe, setTimeframe] = useState<string>(timeframes[0].days)
-
-    const fromTimeInMilliseconds = useRef(
-        Number.parseFloat(timeframe) * 24 * 60 * 60 * 1000
+    const [timeframe, setTimeframe] = useState<string | undefined>(
+        timeframes[0].days
     )
+
+    const fromTimeInMilliseconds = useRef<number | undefined>(undefined)
+
+    const toTimeInMilliseconds = useRef<number | undefined>(undefined)
 
     useEffect(() => {
         if (!socket) return
@@ -84,24 +98,56 @@ export default function GraphPage() {
     }, [socket])
 
     useEffect(() => {
+        if (timeframe === undefined) return
+
+        const requestTimeframe = new Date()
+        requestTimeframe.setHours(0, 0, 0, 0)
+
+        setSeries(undefined)
+        setDate(undefined)
         fromTimeInMilliseconds.current =
+            requestTimeframe.getTime() -
             Number.parseFloat(timeframe) * 24 * 60 * 60 * 1000
+        toTimeInMilliseconds.current = undefined
+
         fetchData()
     }, [timeframe])
 
-    const fetchData = () => {
-        console.log(fromTimeInMilliseconds.current)
+    useEffect(() => {
+        if (date === undefined) return
 
-        let requestTimeframe = new Date()
-        requestTimeframe.setHours(0, 0, 0, 0)
+        setSeries(undefined)
+        setTimeframe(undefined)
+        fromTimeInMilliseconds.current = date.from?.getTime()
 
-        if (fromTimeInMilliseconds !== undefined) {
-            requestTimeframe.setTime(
-                requestTimeframe.getTime() - fromTimeInMilliseconds.current
-            )
+        if (date.to !== undefined) {
+            date.to.setHours(23, 59, 59, 999)
+            toTimeInMilliseconds.current = date.to.getTime()
+        } else {
+            toTimeInMilliseconds.current = undefined
         }
 
-        fetcher.load(`/api/get-snapshots/${requestTimeframe.getTime()}`)
+        fetchData()
+    }, [date])
+
+    const fetchData = () => {
+        if (fromTimeInMilliseconds.current === undefined) return
+
+        console.log(
+            `/api/snapshots?from=${fromTimeInMilliseconds.current}${
+                toTimeInMilliseconds.current !== undefined
+                    ? `&to=${toTimeInMilliseconds.current}`
+                    : ''
+            }`
+        )
+
+        fetcher.load(
+            `/api/snapshots?from=${fromTimeInMilliseconds.current}${
+                toTimeInMilliseconds.current !== undefined
+                    ? `&to=${toTimeInMilliseconds.current}`
+                    : ''
+            }`
+        )
     }
 
     const onTimeframeSelected = (value: string) => {
@@ -128,11 +174,11 @@ export default function GraphPage() {
             deviceSnapshots.items.forEach((deviceSnapshot: DeviceSnapshot) => {
                 if (
                     existingDevices[deviceSnapshot.type].indexOf(
-                        deviceSnapshot.device_name
+                        deviceSnapshot.device.name
                     ) === -1
                 ) {
                     existingDevices[deviceSnapshot.type].push(
-                        deviceSnapshot.device_name
+                        deviceSnapshot.device.name
                     )
                 }
             })
@@ -173,7 +219,7 @@ export default function GraphPage() {
                         break
 
                     case 'battery':
-                        groupedSoCValues[deviceSnapshot.device_name].push(
+                        groupedSoCValues[deviceSnapshot.device.name].push(
                             deviceSnapshot.soc ?? 0
                         )
                     case 'consumer':
@@ -181,11 +227,11 @@ export default function GraphPage() {
                         break
                 }
 
-                groupedValues[deviceSnapshot.device_name].push(
+                groupedValues[deviceSnapshot.device.name].push(
                     deviceSnapshot.power ?? 0
                 )
 
-                foundDeviceNames.push(deviceSnapshot.device_name)
+                foundDeviceNames.push(deviceSnapshot.device.name)
             })
 
             groupedValues[nameHouse].push(housePower)
@@ -202,8 +248,6 @@ export default function GraphPage() {
                 }
             })
         })
-
-        console.log(fetcher.data)
 
         setSeries([
             ...Object.keys(groupedValues).map((deviceName) => {
@@ -239,6 +283,10 @@ export default function GraphPage() {
             }),
         ])
     }, [fetcher.data])
+
+    function onChangeDateRange(range?: DateRange) {
+        setDate(range)
+    }
 
     return (
         <>
@@ -296,7 +344,7 @@ export default function GraphPage() {
                                     mode="range"
                                     defaultMonth={date?.from}
                                     selected={date}
-                                    onSelect={setDate}
+                                    onSelect={onChangeDateRange}
                                     numberOfMonths={2}
                                 />
                             </PopoverContent>
@@ -357,7 +405,10 @@ export default function GraphPage() {
                                             type: 'category',
                                             data: (fetcher.data as any[]).map(
                                                 (item: any) =>
-                                                    item.created_at.toLocaleTimeString()
+                                                    `${item.created_at.toLocaleDateString()} ${format(
+                                                        item.created_at,
+                                                        'HH:mm'
+                                                    )}`
                                             ),
                                         },
                                     ]}

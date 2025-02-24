@@ -113,7 +113,7 @@ async function pollData() {
             snapshot.push(
                 new DeviceSnapshot({
                     type: 'grid',
-                    device_name: device.name,
+                    device: device.deviceDefinition,
                     power: gridPowerValue,
                     energy_import: gridEnergyImportValue,
                     energy_export: gridEnergyExportValue,
@@ -126,7 +126,7 @@ async function pollData() {
             snapshot.push(
                 new DeviceSnapshot({
                     type: 'pv',
-                    device_name: device.name,
+                    device: device.deviceDefinition,
                     power: pvPowerValue,
                     energy: pvEnergyValue,
                 })
@@ -140,7 +140,7 @@ async function pollData() {
             snapshot.push(
                 new DeviceSnapshot({
                     type: 'battery',
-                    device_name: device.name,
+                    device: device.deviceDefinition,
                     soc: socValue,
                     power: batteryPowerValue,
                 })
@@ -156,7 +156,7 @@ async function pollData() {
             snapshot.push(
                 new DeviceSnapshot({
                     type: 'consumer',
-                    device_name: device.name,
+                    device: device.deviceDefinition,
                     power: consumerPowerValue,
                     energy: consumerEnergyValue,
                 })

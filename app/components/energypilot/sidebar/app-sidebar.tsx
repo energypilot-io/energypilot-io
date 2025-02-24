@@ -1,4 +1,4 @@
-import { ComponentProps } from 'react'
+import { ComponentProps, Suspense } from 'react'
 import { ChartSpline, LayoutDashboard, Settings2 } from 'lucide-react'
 
 import {
@@ -77,6 +77,7 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
                     </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarHeader>
+
             <SidebarContent>
                 <SidebarGroup>
                     <SidebarGroupLabel>

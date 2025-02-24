@@ -9,10 +9,11 @@ import { DeviceSnapshot } from '../entities/device-snapshot.entity'
             .select([
                 raw('max(p.energy) - min(p.energy) as energy_diff'),
                 raw('max(p.energy) as energy_total'),
-                raw('min(created_at) as created_at'),
+                raw('min(p.created_at) as created_at'),
             ])
+            .leftJoinAndSelect('p.device', 'd')
             .where({ $and: [{ type: 'pv' }, where ?? {}] })
-            .groupBy(['p.device_name', 'p.type'])
+            .groupBy(['d.id'])
     },
 })
 export class PvEnergyProduction {
