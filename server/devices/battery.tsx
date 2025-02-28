@@ -13,14 +13,14 @@ export class BatteryDevice extends BaseDevice {
         templateDef: Partial<TemplateDef> = {},
         deviceDefinition: Device
     ) {
-        super(connector, templateDef.battery, deviceDefinition)
+        super(connector, deviceDefinition)
 
         this._socParameter = this.getParameter(templateDef.battery, 'soc')
         this._powerParameter = this.getParameter(templateDef.battery, 'power')
     }
 
     public async getSoCValue() {
-        if (this._socParameter === undefined) return undefined
+        if (this._socParameter === undefined) return 0
 
         const socValue = await this._socParameter?.getValue()
         if (socValue !== undefined) {
@@ -31,7 +31,7 @@ export class BatteryDevice extends BaseDevice {
     }
 
     public async getPowerValue() {
-        if (this._powerParameter === undefined) return undefined
+        if (this._powerParameter === undefined) return 0
 
         const powerValue = await this._powerParameter?.getValue()
         if (powerValue !== undefined) {

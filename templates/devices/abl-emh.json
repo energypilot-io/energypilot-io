@@ -4,26 +4,6 @@
     "logo": "/logos/ABL.svg",
 
     "consumer": {
-        "enabled": {
-            "modbus": {
-                "modifier": "sub",
-                "values": [
-                    {
-                        "address": 15,
-                        "size": 5,
-                        "datatype": "uint16be",
-                        "offset": 6,
-                        "register": "holding",
-                        "bitmask": 4095
-                    },
-
-                    {
-                        "staticValue": 1000
-                    }
-                ]
-            }
-        },
-
         "power": {
             "modbus": {
                 "modifier": "mul",
@@ -56,6 +36,24 @@
                                 "scale": 0.1,
                                 "offset": 8,
                                 "register": "holding"
+                            }
+                        ]
+                    },
+
+                    {
+                        "modifier": "sub",
+                        "values": [
+                            {
+                                "address": 15,
+                                "size": 5,
+                                "datatype": "uint16be",
+                                "offset": 6,
+                                "register": "holding",
+                                "bitmask": 4095
+                            },
+
+                            {
+                                "staticValue": 1000
                             }
                         ]
                     },

@@ -13,7 +13,7 @@ import {
     getSettingAsNumber as getSettingAsNumber,
     registerSettings,
 } from './settings'
-import { persistEntity } from './database'
+import { persistEntity, upsertEntity } from './database'
 
 import { GridDevice } from 'server/devices/grid'
 import { PVDevice } from 'server/devices/pv'
@@ -98,69 +98,103 @@ async function pollData() {
     const deviceInstances = getDeviceInstances()
 
     for (let key in deviceInstances) {
-        const device = deviceInstances[key]
-        const isEnabled = await device.isEnabled()
+        const deviceInstance = deviceInstances[key]
+        const isEnabled = deviceInstance.deviceDefinition.is_enabled
 
-        if (device instanceof GridDevice) {
-            const gridPowerValue = isEnabled ? await device.getPowerValue() : 0
+        let isConnected: boolean = false
+
+        if (deviceInstance instanceof GridDevice) {
+            const gridPowerValue = isEnabled
+                ? await deviceInstance.getPowerValue()
+                : 0
             const gridEnergyImportValue = isEnabled
-                ? await device.getEnergyImportValue()
+                ? await deviceInstance.getEnergyImportValue()
                 : 0
             const gridEnergyExportValue = isEnabled
-                ? await device.getEnergyExportValue()
+                ? await deviceInstance.getEnergyExportValue()
                 : 0
+
+            isConnected =
+                isEnabled &&
+                gridPowerValue !== undefined &&
+                gridEnergyImportValue !== undefined &&
+                gridEnergyExportValue !== undefined
 
             snapshot.push(
                 new DeviceSnapshot({
                     type: 'grid',
-                    device: device.deviceDefinition,
+                    device: deviceInstance.deviceDefinition,
                     power: gridPowerValue,
                     energy_import: gridEnergyImportValue,
                     energy_export: gridEnergyExportValue,
                 })
             )
-        } else if (device instanceof PVDevice) {
-            const pvPowerValue = isEnabled ? await device.getPowerValue() : 0
-            const pvEnergyValue = isEnabled ? await device.getEnergyValue() : 0
+        } else if (deviceInstance instanceof PVDevice) {
+            const pvPowerValue = isEnabled
+                ? await deviceInstance.getPowerValue()
+                : 0
+            const pvEnergyValue = isEnabled
+                ? await deviceInstance.getEnergyValue()
+                : 0
+
+            isConnected =
+                isEnabled &&
+                pvPowerValue !== undefined &&
+                pvEnergyValue !== undefined
 
             snapshot.push(
                 new DeviceSnapshot({
                     type: 'pv',
-                    device: device.deviceDefinition,
+                    device: deviceInstance.deviceDefinition,
                     power: pvPowerValue,
                     energy: pvEnergyValue,
                 })
             )
-        } else if (device instanceof BatteryDevice) {
-            const socValue = isEnabled ? await device.getSoCValue() : 0
+        } else if (deviceInstance instanceof BatteryDevice) {
+            const socValue = isEnabled ? await deviceInstance.getSoCValue() : 0
             const batteryPowerValue = isEnabled
-                ? await device.getPowerValue()
+                ? await deviceInstance.getPowerValue()
                 : 0
+
+            isConnected =
+                isEnabled &&
+                socValue !== undefined &&
+                batteryPowerValue !== undefined
 
             snapshot.push(
                 new DeviceSnapshot({
                     type: 'battery',
-                    device: device.deviceDefinition,
+                    device: deviceInstance.deviceDefinition,
                     soc: socValue,
                     power: batteryPowerValue,
                 })
             )
-        } else if (device instanceof ConsumerDevice) {
+        } else if (deviceInstance instanceof ConsumerDevice) {
             const consumerPowerValue = isEnabled
-                ? await device.getPowerValue()
+                ? await deviceInstance.getPowerValue()
                 : 0
             const consumerEnergyValue = isEnabled
-                ? await device.getEnergyValue()
+                ? await deviceInstance.getEnergyValue()
                 : 0
+
+            isConnected =
+                isEnabled &&
+                consumerPowerValue !== undefined &&
+                consumerEnergyValue !== undefined
 
             snapshot.push(
                 new DeviceSnapshot({
                     type: 'consumer',
-                    device: device.deviceDefinition,
+                    device: deviceInstance.deviceDefinition,
                     power: consumerPowerValue,
                     energy: consumerEnergyValue,
                 })
             )
+        }
+
+        if (deviceInstance.deviceDefinition.is_connected !== isConnected) {
+            deviceInstance.deviceDefinition.is_connected = isConnected
+            await upsertEntity(deviceInstance.deviceDefinition)
         }
     }
 

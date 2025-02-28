@@ -13,7 +13,7 @@ export class ConsumerDevice extends BaseDevice {
         templateDef: Partial<TemplateDef> = {},
         deviceDefinition: Device
     ) {
-        super(connector, templateDef.consumer, deviceDefinition)
+        super(connector, deviceDefinition)
 
         this._energyParameter = this.getParameter(
             templateDef.consumer,
@@ -23,7 +23,7 @@ export class ConsumerDevice extends BaseDevice {
     }
 
     public async getPowerValue() {
-        if (this._powerParameter === undefined) return undefined
+        if (this._powerParameter === undefined) return 0
 
         const powerValue = await this._powerParameter?.getValue()
         if (powerValue !== undefined) {
@@ -34,7 +34,7 @@ export class ConsumerDevice extends BaseDevice {
     }
 
     public async getEnergyValue() {
-        if (this._energyParameter === undefined) return undefined
+        if (this._energyParameter === undefined) return 0
 
         const energyValue = await this._energyParameter?.getValue()
         if (energyValue !== undefined) {

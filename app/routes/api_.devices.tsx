@@ -56,6 +56,8 @@ export async function action({ request }: ActionFunctionArgs) {
             template: templateTokens[1],
             interface: data.interface,
             properties: data.properties,
+            is_enabled: true,
+            is_connected: false,
         })
 
         if (data.id !== undefined) {

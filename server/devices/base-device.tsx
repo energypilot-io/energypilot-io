@@ -1,6 +1,6 @@
 import { IInterface } from 'server/interfaces/IInterface'
 import { BaseDeviceTemplateDef } from 'server/defs/template'
-import { IParameter, parseParameter } from 'templates/template-parser'
+import { parseParameter } from 'templates/template-parser'
 import { Device } from 'server/database/entities/device.entity'
 import { ChildLogger, getLogger } from 'server/core/logmanager'
 
@@ -11,23 +11,12 @@ export class BaseDevice {
 
     protected _logger: ChildLogger
 
-    private _enabledParameter: IParameter | undefined
-
-    constructor(
-        connector: IInterface,
-        baseDeviceTemplateDef: Partial<BaseDeviceTemplateDef> = {},
-        deviceDefinition: Device
-    ) {
+    constructor(connector: IInterface, deviceDefinition: Device) {
         this._connector = connector
         this.deviceDefinition = deviceDefinition
 
         this._logger = getLogger(
             `${this.deviceDefinition.type}.${this.deviceDefinition.name}`
-        )
-
-        this._enabledParameter = this.getParameter(
-            baseDeviceTemplateDef,
-            'enabled'
         )
     }
 
@@ -46,12 +35,5 @@ export class BaseDevice {
         }
 
         return undefined
-    }
-
-    public async isEnabled(): Promise<boolean> {
-        if (this._enabledParameter === undefined) return true
-
-        const value = await this._enabledParameter?.getValue()
-        return value !== undefined && value !== 0
     }
 }

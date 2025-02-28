@@ -31,7 +31,7 @@ export function DeviceGrid() {
     }
 
     return (
-        <div className="grid auto-rows-min gap-4 lg:grid-cols-3 md:grid-cols-1">
+        <div className="grid auto-rows-min gap-4 lg:grid-cols-2 md:grid-cols-1 xl:grid-cols-3">
             {devices.map((device, index) => (
                 <DeviceCard key={index} device={device} />
             ))}

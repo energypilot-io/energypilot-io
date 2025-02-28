@@ -13,14 +13,14 @@ export class PVDevice extends BaseDevice {
         templateDef: Partial<TemplateDef> = {},
         deviceDefinition: Device
     ) {
-        super(connector, templateDef.pv, deviceDefinition)
+        super(connector, deviceDefinition)
 
         this._powerParameter = this.getParameter(templateDef.pv, 'power')
         this._energyParameter = this.getParameter(templateDef.pv, 'energy')
     }
 
     public async getPowerValue() {
-        if (this._powerParameter === undefined) return undefined
+        if (this._powerParameter === undefined) return 0
 
         const powerValue = await this._powerParameter?.getValue()
         if (powerValue !== undefined) {
@@ -31,7 +31,7 @@ export class PVDevice extends BaseDevice {
     }
 
     public async getEnergyValue() {
-        if (this._energyParameter === undefined) return undefined
+        if (this._energyParameter === undefined) return 0
 
         const energyValue = await this._energyParameter?.getValue()
         if (energyValue !== undefined) {

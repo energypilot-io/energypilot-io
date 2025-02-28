@@ -25,7 +25,7 @@ const _deviceClasses: { [id: string]: any } = {
 const _interfaceInstances: { [key: string]: IInterface } = {}
 const _deviceInstances: { [key: string]: BaseDevice } = {}
 
-function interfaceFactory(interfaceName: string, properties: string) {
+function createInterface(interfaceName: string, properties: string) {
     if (!(interfaceName + properties in _interfaceInstances)) {
         if (!(interfaceName in _interfaceClasses)) {
             getLogger('devices').error(
@@ -83,7 +83,7 @@ export function getDeviceInstances() {
 }
 
 export function createDevice(deviceDefinition: Device) {
-    const interfaceInstance = interfaceFactory(
+    const interfaceInstance = createInterface(
         deviceDefinition.interface,
         deviceDefinition.properties
     )
@@ -129,6 +129,17 @@ export function removeDevice(deviceName: string) {
     } else {
         getLogger('devices').error(
             `Cannot remove device with name [${deviceName}]: No instance with that name found`
+        )
+    }
+}
+
+export function refreshDevice(deviceDefinition: Device) {
+    if (deviceDefinition.name in _deviceInstances) {
+        const deviceInstance = _deviceInstances[deviceDefinition.name]
+        deviceInstance.deviceDefinition = deviceDefinition
+    } else {
+        getLogger('devices').error(
+            `Cannot refresh device with name [${deviceDefinition.name}]: No instance with that name found`
         )
     }
 }
