@@ -6,7 +6,7 @@ import {
     CircleXIcon,
     TriangleAlert,
 } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
     AlertDialog,
@@ -22,24 +22,40 @@ import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { EnrichedDevice } from '~/routes/api_.devices'
 import { UpsertDeviceDialog } from '../../dialogs/upsert-device'
 import { Switch } from '~/components/ui/switch'
+import { useSocket } from '~/context'
+import { WS_EVENT_LIVEDATA_UPDATED } from 'server/constants'
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from '~/components/ui/accordion'
+import { AccordionHeader } from '@radix-ui/react-accordion'
 
 export type DeviceCardProps = {
     device: EnrichedDevice
 }
 
 export function DeviceCard({ device }: DeviceCardProps) {
+    const socket = useSocket()
+
     const { t } = useTranslation()
 
     const [showAlert, setShowAlert] = useState<boolean>(false)
     const fetcher = useFetcher()
 
-    const [isEnabled, setIsEnabled] = useState<boolean>(device.is_enabled)
+    const [currentDevice, setCurrentDevice] = useState<EnrichedDevice>(device)
+    const [isEnabled, setIsEnabled] = useState<boolean>(
+        currentDevice.is_enabled
+    )
+
+    const [livePower, setLivePower] = useState<number>(0)
 
     function onHandleDelete() {
         fetcher.submit(
             {},
             {
-                action: `/api/devices/${device.id}`,
+                action: `/api/devices/${currentDevice.id}`,
                 method: 'DELETE',
             }
         )
@@ -53,7 +69,7 @@ export function DeviceCard({ device }: DeviceCardProps) {
                 isEnabled: state,
             },
             {
-                action: `/api/devices/${device.id}`,
+                action: `/api/devices/${currentDevice.id}`,
                 method: 'POST',
                 encType: 'application/json',
             }
@@ -61,6 +77,26 @@ export function DeviceCard({ device }: DeviceCardProps) {
 
         setIsEnabled(state)
     }
+
+    useEffect(() => {
+        if (!socket) return
+
+        socket.on(WS_EVENT_LIVEDATA_UPDATED, (data) => {
+            if (!Array.isArray(data)) return
+
+            for (const element of data) {
+                if (element.device.id === currentDevice.id) {
+                    setLivePower(Math.round(element.power))
+
+                    setCurrentDevice({
+                        ...currentDevice,
+                        ...element.device,
+                    } as EnrichedDevice)
+                    break
+                }
+            }
+        })
+    }, [socket])
 
     useEffect(() => {
         if (fetcher.data === undefined) return
@@ -84,7 +120,7 @@ export function DeviceCard({ device }: DeviceCardProps) {
                                 {t(
                                     'messages.questions.deleteDevice.description',
                                     {
-                                        deviceName: device.name,
+                                        deviceName: currentDevice.name,
                                     }
                                 )}
                             </AlertDialogDescription>
@@ -107,17 +143,17 @@ export function DeviceCard({ device }: DeviceCardProps) {
                 <CardHeader>
                     <CardTitle className="flex justify-between">
                         <div className="flex gap-2 items-center max-h-8">
-                            {device.logo && (
+                            {currentDevice.logo && (
                                 <img
-                                    src={device.logo}
+                                    src={currentDevice.logo}
                                     className="h-8 aspect-square rounded-lg"
                                 />
                             )}
-                            {device.name}
+                            {currentDevice.name}
                         </div>
 
                         <div className="flex items-center">
-                            {device.is_connected ? (
+                            {currentDevice.is_connected ? (
                                 <CircleCheckIcon
                                     className="text-green-500"
                                     size={30}
@@ -132,7 +168,29 @@ export function DeviceCard({ device }: DeviceCardProps) {
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="flex flex-col">
-                    <div>{device.template}</div>
+                    <div>{currentDevice.template}</div>
+
+                    <Card>
+                        <CardContent>
+                            <Accordion
+                                type="single"
+                                collapsible
+                                className="w-full"
+                            >
+                                <AccordionItem value="item-1">
+                                    <AccordionHeader>
+                                        <AccordionTrigger>
+                                            Live Data
+                                        </AccordionTrigger>
+                                    </AccordionHeader>
+                                    <AccordionContent className="flex">
+                                        <div>Power: {livePower} W</div>
+                                    </AccordionContent>
+                                </AccordionItem>
+                            </Accordion>
+                        </CardContent>
+                    </Card>
+
                     <div className="flex justify-between items-center">
                         <Switch
                             id="device-enabled"
@@ -150,7 +208,7 @@ export function DeviceCard({ device }: DeviceCardProps) {
                                 {t('consts.buttons.delete')}
                             </Button>
 
-                            <UpsertDeviceDialog device={device} />
+                            <UpsertDeviceDialog device={currentDevice} />
                         </div>
                     </div>
                 </CardContent>
