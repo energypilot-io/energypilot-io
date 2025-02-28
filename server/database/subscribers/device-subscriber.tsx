@@ -1,6 +1,6 @@
 import { EntityName, EventArgs, EventSubscriber } from '@mikro-orm/core'
 import { Device } from '../entities/device.entity'
-import { createDevice, removeDevice } from 'server/core/devices'
+import { createDevice, refreshDevice, removeDevice } from 'server/core/devices'
 
 export class DeviceSubscriber implements EventSubscriber<Device> {
     getSubscribedEntities(): EntityName<Device>[] {
@@ -13,5 +13,13 @@ export class DeviceSubscriber implements EventSubscriber<Device> {
 
     afterCreate({ entity: device }: EventArgs<Device>): void | Promise<void> {
         createDevice(device)
+    }
+
+    afterUpsert({ entity: device }: EventArgs<Device>): void | Promise<void> {
+        refreshDevice(device)
+    }
+
+    afterUpdate({ entity: device }: EventArgs<Device>): void | Promise<void> {
+        refreshDevice(device)
     }
 }

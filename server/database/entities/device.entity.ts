@@ -21,6 +21,12 @@ export class Device {
     @Property()
     interface!: string
 
+    @Property({ default: true })
+    is_enabled!: boolean
+
+    @Property({ default: false })
+    is_connected!: boolean
+
     @Property()
     properties!: string
 
@@ -30,12 +36,16 @@ export class Device {
         template: string
         interface: string
         properties: string
+        is_enabled: boolean
+        is_connected: boolean
     }) {
         this.created_at = new Date()
         this.type = options.type
         this.name = options.name
         this.template = options.template
         this.interface = options.interface
+        this.is_connected = options.is_connected
+        this.is_enabled = options.is_enabled
         this.properties = options.properties
     }
 }

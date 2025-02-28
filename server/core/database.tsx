@@ -101,6 +101,25 @@ export async function persistEntity(
     }
 }
 
+export async function upsertEntity(
+    entity: any,
+    callback?: () => void
+): Promise<boolean> {
+    try {
+        if (_orm === undefined || _orm.em === undefined) return false
+
+        const em = _orm.em.fork()
+        await em.upsert(entity)
+
+        if (callback !== undefined) callback()
+
+        return true
+    } catch (err) {
+        getLogger('database').error(err)
+        return false
+    }
+}
+
 export function getEntityManager() {
     return _orm?.em.fork()
 }

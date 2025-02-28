@@ -15,9 +15,19 @@ export async function action({ params, request }: ActionFunctionArgs) {
             await em.remove(device).flush()
             return { success: true }
         }
+
+        case 'POST': {
+            const body = await request.json()
+
+            if (body?.isEnabled !== undefined) {
+                device.is_enabled = body.isEnabled
+                await em.upsert(device)
+                return { success: true }
+            }
+        }
     }
 
-    return null
+    return { success: false }
 }
 
 export const loader = async ({ params, context }: LoaderFunctionArgs) => {

@@ -15,7 +15,7 @@ export class GridDevice extends BaseDevice {
         templateDef: Partial<TemplateDef> = {},
         deviceDefinition: Device
     ) {
-        super(connector, templateDef.grid, deviceDefinition)
+        super(connector, deviceDefinition)
 
         this._powerParameter = this.getParameter(templateDef.grid, 'power')
 
@@ -31,7 +31,7 @@ export class GridDevice extends BaseDevice {
     }
 
     public async getPowerValue() {
-        if (this._powerParameter === undefined) return undefined
+        if (this._powerParameter === undefined) return 0
 
         const powerValue = await this._powerParameter?.getValue()
         if (powerValue !== undefined) {
@@ -41,7 +41,7 @@ export class GridDevice extends BaseDevice {
     }
 
     public async getEnergyImportValue() {
-        if (this._energyImportParameter === undefined) return undefined
+        if (this._energyImportParameter === undefined) return 0
 
         const energyValue = await this._energyImportParameter?.getValue()
         if (energyValue !== undefined) {
@@ -52,7 +52,7 @@ export class GridDevice extends BaseDevice {
     }
 
     public async getEnergyExportValue() {
-        if (this._energyExportParameter === undefined) return undefined
+        if (this._energyExportParameter === undefined) return 0
 
         const energyValue = await this._energyExportParameter?.getValue()
         if (energyValue !== undefined) {
