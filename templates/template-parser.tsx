@@ -6,11 +6,13 @@ export interface IParameter {
 }
 
 export class Modifier implements IParameter {
-    private _modifier: 'add' | 'sub' | 'mul' | 'div'
+    private _modifier: 'add' | 'sub' | 'mul' | 'div' | 'bool'
     private _values: IParameter[] = []
+    private _scale?: number
 
     constructor(modifierDef: ModifierDef, connector: IInterface) {
         this._modifier = modifierDef.modifier
+        this._scale = modifierDef.scale
 
         modifierDef.values.forEach((value) => {
             this._values.push(parseParameter(value, connector))
@@ -19,39 +21,46 @@ export class Modifier implements IParameter {
 
     public async getValue() {
         if (this._values.length === 0) return undefined
-        if (this._values.length === 1) return await this._values[0].getValue()
 
         let result: number | undefined = await this._values[0].getValue()
 
-        if (result === undefined) return result
+        if (result !== undefined) {
+            for (
+                let valueIndex = 1;
+                valueIndex < this._values.length;
+                valueIndex++
+            ) {
+                const currentValue = await this._values[valueIndex].getValue()
 
-        for (
-            let valueIndex = 1;
-            valueIndex < this._values.length;
-            valueIndex++
-        ) {
-            const currentValue = await this._values[valueIndex].getValue()
+                if (currentValue === undefined) {
+                    return undefined
+                }
 
-            if (currentValue === undefined) {
-                return undefined
+                switch (this._modifier) {
+                    case 'add':
+                        result! += currentValue
+                        break
+
+                    case 'sub':
+                        result! -= currentValue
+                        break
+
+                    case 'mul':
+                        result! *= currentValue
+                        break
+
+                    case 'div':
+                        result! /= currentValue
+                        break
+                }
             }
 
-            switch (this._modifier) {
-                case 'add':
-                    result! += currentValue
-                    break
+            if (this._scale !== undefined) {
+                result *= this._scale
+            }
 
-                case 'sub':
-                    result! -= currentValue
-                    break
-
-                case 'mul':
-                    result! *= currentValue
-                    break
-
-                case 'div':
-                    result! /= currentValue
-                    break
+            if (this._modifier === 'bool') {
+                result = result > 0 ? 1 : 0
             }
         }
 

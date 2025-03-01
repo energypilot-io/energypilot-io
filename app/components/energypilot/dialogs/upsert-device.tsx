@@ -273,7 +273,11 @@ export function UpsertDeviceDialog({ device }: NewDeviceDialogProps) {
                             render={({ field: { onChange, value } }) => (
                                 <Select onValueChange={onChange} value={value}>
                                     <SelectTrigger>
-                                        <SelectValue placeholder="Select a device template" />
+                                        <SelectValue
+                                            placeholder={t(
+                                                `dialogs.upsertDevice.selectTemplatePlaceholder`
+                                            )}
+                                        />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {templateSelectorGroups.map(
@@ -324,7 +328,11 @@ export function UpsertDeviceDialog({ device }: NewDeviceDialogProps) {
                             render={({ field: { onChange, value } }) => (
                                 <Select onValueChange={onChange} value={value}>
                                     <SelectTrigger>
-                                        <SelectValue placeholder="Select the device interface" />
+                                        <SelectValue
+                                            placeholder={t(
+                                                `dialogs.upsertDevice.selectInterfacePlaceholder`
+                                            )}
+                                        />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {interfaceSelectorGroups().map(

@@ -117,6 +117,15 @@ export default {
     },
 
     cards: {
+        deviceCard: {
+            liveData: 'Live Data',
+            power: 'Power',
+            energy: 'Energy',
+            energyImport: 'Energy Import',
+            energyExport: 'Energy Export',
+            soc: 'SoC',
+        },
+
         energyProductionCard: {
             title: 'Energy Production',
             description: 'The energy produced by your solar panels in kWh',
@@ -165,6 +174,9 @@ export default {
 
     dialogs: {
         upsertDevice: {
+            selectTemplatePlaceholder: 'Select a device template',
+            selectInterfacePlaceholder: 'Select the device interface',
+
             create: {
                 title: 'Create Device',
                 description:

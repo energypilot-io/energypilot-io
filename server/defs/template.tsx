@@ -9,6 +9,7 @@ export type StaticValueDef = {
 export type ModifierDef = {
     modifier: 'add' | 'sub' | 'mul' | 'div'
     values: ParameterDef[]
+    scale?: number
 }
 
 export type BaseDeviceTemplateDef = {
