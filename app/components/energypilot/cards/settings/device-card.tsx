@@ -1,12 +1,12 @@
 import { Overlay } from '@radix-ui/react-alert-dialog'
-import { Link, useFetcher } from '@remix-run/react'
+import { useFetcher } from '@remix-run/react'
 import {
+    ChartSplineIcon,
     CircleCheckIcon,
-    CircleIcon,
     CircleXIcon,
     TriangleAlert,
 } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
     AlertDialog,
@@ -30,7 +30,7 @@ import {
     AccordionItem,
     AccordionTrigger,
 } from '~/components/ui/accordion'
-import { AccordionHeader } from '@radix-ui/react-accordion'
+import { toEnergyString, toPowerString } from '~/lib/utils'
 
 export type DeviceCardProps = {
     device: EnrichedDevice
@@ -49,7 +49,15 @@ export function DeviceCard({ device }: DeviceCardProps) {
         currentDevice.is_enabled
     )
 
-    const [livePower, setLivePower] = useState<number>(0)
+    const [livePower, setLivePower] = useState<number | undefined>(undefined)
+    const [liveEnergy, setLiveEnergy] = useState<number | undefined>(undefined)
+    const [liveEnergyImport, setLiveEnergyImport] = useState<
+        number | undefined
+    >(undefined)
+    const [liveEnergyExport, setLiveEnergyExport] = useState<
+        number | undefined
+    >(undefined)
+    const [liveSoC, setLiveSoC] = useState<number | undefined>(undefined)
 
     function onHandleDelete() {
         fetcher.submit(
@@ -87,6 +95,26 @@ export function DeviceCard({ device }: DeviceCardProps) {
             for (const element of data) {
                 if (element.device.id === currentDevice.id) {
                     setLivePower(Math.round(element.power))
+
+                    switch (element.device.type) {
+                        case 'grid':
+                            setLiveEnergyImport(
+                                Math.round(element.energy_import)
+                            )
+                            setLiveEnergyExport(
+                                Math.round(element.energy_export)
+                            )
+                            break
+
+                        case 'pv':
+                        case 'consumer':
+                            setLiveEnergy(Math.round(element.energy))
+                            break
+
+                        case 'battery':
+                            setLiveSoC(Math.round(element.soc))
+                            break
+                    }
 
                     setCurrentDevice({
                         ...currentDevice,
@@ -167,24 +195,71 @@ export function DeviceCard({ device }: DeviceCardProps) {
                         </div>
                     </CardTitle>
                 </CardHeader>
-                <CardContent className="flex flex-col">
+                <CardContent className="flex flex-col gap-4">
                     <div>{currentDevice.template}</div>
 
                     <Card>
-                        <CardContent>
+                        <CardContent className="px-4 py-0">
                             <Accordion
                                 type="single"
                                 collapsible
                                 className="w-full"
                             >
-                                <AccordionItem value="item-1">
-                                    <AccordionHeader>
-                                        <AccordionTrigger>
-                                            Live Data
-                                        </AccordionTrigger>
-                                    </AccordionHeader>
-                                    <AccordionContent className="flex">
-                                        <div>Power: {livePower} W</div>
+                                <AccordionItem
+                                    value="live-data"
+                                    className="border-none"
+                                >
+                                    <AccordionTrigger>
+                                        <div className="flex gap-2">
+                                            <ChartSplineIcon />{' '}
+                                            {t('cards.deviceCard.liveData')}
+                                        </div>
+                                    </AccordionTrigger>
+                                    <AccordionContent className="flex flex-col gap-2">
+                                        {livePower !== undefined && (
+                                            <div>
+                                                {t('cards.deviceCard.power')}:{' '}
+                                                {toPowerString(livePower)}
+                                            </div>
+                                        )}
+
+                                        {liveEnergy !== undefined && (
+                                            <div>
+                                                {t('cards.deviceCard.energy')}:{' '}
+                                                {toEnergyString(liveEnergy)}
+                                            </div>
+                                        )}
+
+                                        {liveEnergyImport !== undefined && (
+                                            <div>
+                                                {t(
+                                                    'cards.deviceCard.energyImport'
+                                                )}
+                                                :{' '}
+                                                {toEnergyString(
+                                                    liveEnergyImport
+                                                )}
+                                            </div>
+                                        )}
+
+                                        {liveEnergyExport !== undefined && (
+                                            <div>
+                                                {t(
+                                                    'cards.deviceCard.energyExport'
+                                                )}
+                                                :{' '}
+                                                {toEnergyString(
+                                                    liveEnergyExport
+                                                )}
+                                            </div>
+                                        )}
+
+                                        {liveSoC && (
+                                            <div>
+                                                {t('cards.deviceCard.soc')}:{' '}
+                                                {liveSoC} %
+                                            </div>
+                                        )}
                                     </AccordionContent>
                                 </AccordionItem>
                             </Accordion>

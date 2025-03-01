@@ -41,25 +41,31 @@
                     },
 
                     {
-                        "modifier": "sub",
-                        "values": [
-                            {
-                                "address": 15,
-                                "size": 5,
-                                "datatype": "uint16be",
-                                "offset": 6,
-                                "register": "holding",
-                                "bitmask": 4095
-                            },
-
-                            {
-                                "staticValue": 1000
-                            }
-                        ]
+                        "staticValue": 230
                     },
 
                     {
-                        "staticValue": 230
+                        "modifier": "bool",
+                        "scale": -1,
+                        "values": [
+                            {
+                                "modifier": "sub",
+                                "values": [
+                                    {
+                                        "address": 15,
+                                        "size": 5,
+                                        "datatype": "uint16be",
+                                        "offset": 6,
+                                        "register": "holding",
+                                        "bitmask": 4095
+                                    },
+
+                                    {
+                                        "staticValue": 1000
+                                    }
+                                ]
+                            }
+                        ]
                     }
                 ]
             }

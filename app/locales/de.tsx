@@ -115,6 +115,15 @@ export default {
     },
 
     cards: {
+        deviceCard: {
+            liveData: 'Live Daten',
+            power: 'Leistung',
+            energy: 'Energie',
+            energyImport: 'Energie Import',
+            energyExport: 'Energie Export',
+            soc: 'SoC',
+        },
+
         energyProductionCard: {
             title: 'Energie Produktion',
             description: 'Von den Solarpanels erzeugte Energiemenge in kWh',
@@ -163,6 +172,9 @@ export default {
 
     dialogs: {
         upsertDevice: {
+            selectTemplatePlaceholder: 'Geräte Template wählen',
+            selectInterfacePlaceholder: 'Geräte Schnittstelle wählen',
+
             create: {
                 title: 'Gerät erstellen',
                 description:
