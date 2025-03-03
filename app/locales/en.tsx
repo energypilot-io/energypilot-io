@@ -5,6 +5,12 @@ export default {
     },
 
     consts: {
+        energy: 'Energy',
+        power: 'Power',
+        soc: 'SoC',
+        energyImport: 'Energy Import',
+        energyExport: 'Energy Export',
+
         templateTypes: {
             pv: 'PV',
             grid: 'Grid',

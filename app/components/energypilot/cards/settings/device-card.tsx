@@ -19,7 +19,9 @@ import { UpsertDeviceDialog } from '../../dialogs/upsert-device'
 import { Switch } from '~/components/ui/switch'
 import { useSocket } from '~/context'
 import { WS_EVENT_LIVEDATA_UPDATED } from 'server/constants'
-import { DeviceLiveData } from '../../devices/device-live-data'
+import { ConsumerPVLiveData } from '../../devices/consumer-pv-live-data'
+import { BatteryLiveData } from '../../devices/battery-live-data'
+import { GridLiveData } from '../../devices/grid-live-data'
 
 export type DeviceCardProps = {
     device: EnrichedDevice
@@ -155,7 +157,13 @@ export function DeviceCard({ device }: DeviceCardProps) {
                 <CardContent className="flex flex-col gap-4">
                     <div>{currentDevice.template}</div>
 
-                    <DeviceLiveData device={device} />
+                    {device.type === 'consumer' || device.type == 'pv' ? (
+                        <ConsumerPVLiveData device={device} />
+                    ) : device.type === 'battery' ? (
+                        <BatteryLiveData device={device} />
+                    ) : device.type === 'grid' ? (
+                        <GridLiveData device={device} />
+                    ) : null}
 
                     <div className="flex justify-between items-center">
                         <Switch

@@ -2,6 +2,12 @@ import { info } from 'console'
 
 export default {
     consts: {
+        energy: 'Energie',
+        power: 'Leistung',
+        soc: 'SoC',
+        energyImport: 'Energie Import',
+        energyExport: 'Energie Export',
+
         templateTypes: {
             pv: 'PV',
             grid: 'Netz',
