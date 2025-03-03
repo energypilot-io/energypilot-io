@@ -4,12 +4,29 @@ EnergyPilot.io is an easy to use and feature rich Energy Management Platform foc
 
 ![Screenshot](docs/screenshots/dashboard.png)
 ![Screenshot](docs/screenshots/live-data.png)
+![Screenshot](docs/screenshots/settings-devices.png)
 
 ## Features
 
 -   Modern and clean user interface
 -   Easy to configure and use
 -   Ready to use Docker image
+-   Multilanguage support
+-   Light/Dark theme
+
+## Supported devices
+
+### Solar systems
+
+-   Sungrow Hybrid
+
+### Wallboxes
+
+-   ABL emh1/2/4
+
+### Other consumers
+
+-   TP-Link Tapo P1xx
 
 ## Support
 
@@ -24,33 +41,50 @@ If you would like to support this project, please consider buying me a coffee.
 -   Node.js installation >= 22.12.0
 -   Clone/Download the Git Repository to your local drive
 
-### Start the development server
+### Setup environment
+
+Install all Node.js dependencies
 
 ```
-node --import tsx server.tsx
+npm i
 ```
 
-### Build the Docker image
+Build the UI React application
 
 ```
 npm run build
 ```
 
+## Quick Start
+
+Using [Docker-compose](https://docs.docker.com/compose/install/):
+
+1. Copy the below docker compose example and update as needed:
+
+```yml
+services:
+    energypilot-io:
+        container_name: energypilot-io
+        build:
+            context: .
+        environment:
+            NODE_ENV: production
+        volumes:
+            # For persisting EnergyPilot's databases and common configuration
+            - ./data/:/data
+        ports:
+            # Default Web UI Port
+            - '3000:3000/tcp'
+        restart: unless-stopped
 ```
-docker build .
+
+2. Run `docker compose up -d` to build and start EnergyPilot.io (Syntax may be `docker-compose` on older systems).
+
+> [!NOTE]
+> Volumes are recommended for persisting data across container re-creations for updating images.
+
+## Start local development server
+
 ```
-
-<!--
-**energypilot-io/energypilot-io** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
-
-Here are some ideas to get you started:
-
-- 🔭 I’m currently working on ...
-- 🌱 I’m currently learning ...
-- 👯 I’m looking to collaborate on ...
-- 🤔 I’m looking for help with ...
-- 💬 Ask me about ...
-- 📫 How to reach me: ...
-- 😄 Pronouns: ...
-- ⚡ Fun fact: ...
--->
+node --import tsx server.tsx
+```
