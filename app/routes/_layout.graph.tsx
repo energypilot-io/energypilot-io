@@ -384,6 +384,11 @@ export default function GraphPage() {
                                             },
                                         },
                                     }}
+                                    grid={{
+                                        left: '1%',
+                                        right: '1%',
+                                        containLabel: true,
+                                    }}
                                     animation={false}
                                     legend={{
                                         show: true,
