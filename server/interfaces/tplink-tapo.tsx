@@ -23,12 +23,6 @@ export class TPLinkTapoConnector extends IInterface {
 
         this._logger = getLogger('interfaces.tapo')
         this._properties = properties
-
-        this.connect(
-            this._properties['email'],
-            this._properties['password'],
-            this._properties['ip']
-        )
     }
 
     static getTranslations(): TranslationDef {
@@ -66,8 +60,15 @@ export class TPLinkTapoConnector extends IInterface {
     }
 
     private async connect(email: string, password: string, ip: string) {
-        this._device = await loginDeviceByIp(email, password, ip)
-        this._logger.log(`Connected to [${this._properties.ip}]`)
+        if (this._device !== undefined) return
+
+        try {
+            this._device = await loginDeviceByIp(email, password, ip)
+            this._logger.log(`Connected to [${this._properties.ip}]`)
+        } catch {
+            this._device = undefined
+            this._logger.error(`Error connecting to [${this._properties.ip}]`)
+        }
     }
 
     public resetCache() {
@@ -75,6 +76,12 @@ export class TPLinkTapoConnector extends IInterface {
     }
 
     public async read(parameterDef: Partial<ParameterDef> = {}) {
+        await this.connect(
+            this._properties['email'],
+            this._properties['password'],
+            this._properties['ip']
+        )
+
         if (this._device === undefined) return undefined
 
         const tplinkTapoParameter = {
@@ -86,17 +93,25 @@ export class TPLinkTapoConnector extends IInterface {
         if (tplinkTapoParameter.request in this._cache) {
             response = this._cache[tplinkTapoParameter.request]
         } else {
-            switch (tplinkTapoParameter.request) {
-                case 'getEnergyUsage':
-                    response = await this._device.getEnergyUsage()
-                    break
+            try {
+                switch (tplinkTapoParameter.request) {
+                    case 'getEnergyUsage':
+                        response = await this._device.getEnergyUsage()
+                        break
 
-                case 'getDeviceInfo':
-                    response = await this._device.getDeviceInfo()
-                    break
+                    case 'getDeviceInfo':
+                        response = await this._device.getDeviceInfo()
+                        break
 
-                default:
-                    return undefined
+                    default:
+                        return undefined
+                }
+            } catch {
+                this._device = undefined
+                this._logger.error(
+                    `Error reading parameter from device [${this._properties.ip}]`
+                )
+                return undefined
             }
 
             this._cache[tplinkTapoParameter.request] = response
