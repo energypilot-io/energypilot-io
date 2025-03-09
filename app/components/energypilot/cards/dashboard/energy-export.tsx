@@ -1,12 +1,5 @@
 import { useFetcher } from '@remix-run/react'
 import { useEffect, useState } from 'react'
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from '~/components/ui/card'
 
 import { LoaderIcon } from 'lucide-react'
 import { ToggleGroup, ToggleGroupItem } from '~/components/ui/toggle-group'
@@ -15,8 +8,16 @@ import { useTranslation } from 'react-i18next'
 import { formatEnergy } from '~/lib/utils'
 import { useSocket } from '~/context'
 import { WS_EVENT_SNAPSHOT_CREATED } from 'server/constants'
+import { MoveableCard, MoveableCardDndProps } from './moveable-card'
 
-export function EnergyExportCard() {
+export type EnergyExportCardProps = MoveableCardDndProps & {}
+
+export function EnergyExportCard({
+    type,
+    index,
+    endDrag,
+    moveCard,
+}: EnergyExportCardProps) {
     const socket = useSocket()
     const fetcher = useFetcher()
     const { t } = useTranslation()
@@ -88,48 +89,47 @@ export function EnergyExportCard() {
         : undefined
 
     return (
-        <Card className="bg-muted/50">
-            <CardHeader>
-                <CardTitle>{t('cards.energyExportCard.title')}</CardTitle>
-                <CardDescription>
-                    {t('cards.energyExportCard.description')}
-                </CardDescription>
-            </CardHeader>
-            <CardContent className="flex justify-center">
-                {consumptionValue === undefined ? (
-                    <LoaderIcon className="animate-spin" size={64} />
-                ) : (
-                    <div className="flex grow flex-col gap-2">
-                        <ToggleGroup
-                            type="single"
-                            className="justify-start"
-                            onValueChange={onTimeframeSelected}
-                            value={timeframe}
-                        >
-                            {timeframes.map((item, index) => (
-                                <ToggleGroupItem key={index} value={item.days}>
-                                    {item.label}
-                                </ToggleGroupItem>
-                            ))}
-                        </ToggleGroup>
+        <MoveableCard
+            type={type}
+            index={index}
+            moveCard={moveCard}
+            endDrag={endDrag}
+            title={t('cards.energyExportCard.title')}
+            description={t('cards.energyExportCard.description')}
+        >
+            {consumptionValue === undefined ? (
+                <LoaderIcon className="animate-spin" size={64} />
+            ) : (
+                <div className="flex grow flex-col gap-2">
+                    <ToggleGroup
+                        type="single"
+                        className="justify-start"
+                        onValueChange={onTimeframeSelected}
+                        value={timeframe}
+                    >
+                        {timeframes.map((item, index) => (
+                            <ToggleGroupItem key={index} value={item.days}>
+                                {item.label}
+                            </ToggleGroupItem>
+                        ))}
+                    </ToggleGroup>
 
-                        <div className="flex justify-end items-end gap-2">
-                            <span className="text-8xl p-0 m-0">
-                                {consumptionValue.value}
-                            </span>
-                            <span>{consumptionValue.unit}</span>
-                        </div>
-
-                        <div className="flex justify-end items-end gap-2">
-                            <span>
-                                {t('cards.energyImportCard.totalEnergy', {
-                                    energy: `${totalConsumptionValue?.value} ${totalConsumptionValue?.unit}`,
-                                })}
-                            </span>
-                        </div>
+                    <div className="flex justify-end items-end gap-2">
+                        <span className="text-8xl p-0 m-0">
+                            {consumptionValue.value}
+                        </span>
+                        <span>{consumptionValue.unit}</span>
                     </div>
-                )}
-            </CardContent>
-        </Card>
+
+                    <div className="flex justify-end items-end gap-2">
+                        <span>
+                            {t('cards.energyImportCard.totalEnergy', {
+                                energy: `${totalConsumptionValue?.value} ${totalConsumptionValue?.unit}`,
+                            })}
+                        </span>
+                    </div>
+                </div>
+            )}
+        </MoveableCard>
     )
 }

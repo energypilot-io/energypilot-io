@@ -22,6 +22,8 @@ import type { Socket } from 'socket.io-client'
 import io from 'socket.io-client'
 import i18next from 'i18next'
 import { defaultNS } from 'i18n'
+import { DndProvider } from 'react-dnd'
+import { HTML5Backend } from 'react-dnd-html5-backend'
 
 export const links: LinksFunction = () => [
     { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -176,9 +178,12 @@ export function App() {
                 <Links />
             </head>
             <body>
-                <SocketProvider socket={socket}>
-                    <Outlet />
-                </SocketProvider>
+                <DndProvider backend={HTML5Backend}>
+                    <SocketProvider socket={socket}>
+                        <Outlet />
+                    </SocketProvider>
+                </DndProvider>
+
                 <ScrollRestoration />
                 <Scripts />
             </body>

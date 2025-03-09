@@ -1,6 +1,6 @@
 import { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node'
 import { parseFormData } from 'remix-hook-form'
-import { settings } from 'server/core/settings'
+import { GroupedSettingsDef } from 'server/core/settings'
 import { Setting } from 'server/database/entities/setting.entity'
 import { getEntityManager } from '~/lib/db.server'
 import i18next from '~/lib/i18n.server'
@@ -34,22 +34,32 @@ export async function action({ request }: ActionFunctionArgs) {
     } catch (error) {
         let t = await i18next.getFixedT(request)
 
-        let errorMessage: string = t('messages.errors.db.cannotCreateDevice')
+        let errorMessage: string = t('messages.errors.db.cannotCreateSetting')
 
         return { success: false, error: errorMessage }
     }
 }
 
-export const loader = async ({ context }: LoaderFunctionArgs) => {
-    const groupedSettings = context.settings as settings.GroupedSettingsDef
+export const loader = async ({ context, request }: LoaderFunctionArgs) => {
+    const url = new URL(request.url)
+    const query = url.searchParams.get('q')
 
-    if (groupedSettings === undefined || groupedSettings === null) return null
+    let settingKeys
 
-    const settingKeys = Object.keys(groupedSettings).reduce(
-        (accumulator: string[], currentValue: string) =>
-            accumulator.concat(Object.keys(groupedSettings[currentValue])),
-        []
-    )
+    if (query === null) {
+        const groupedSettings = context.settings as GroupedSettingsDef
+
+        if (groupedSettings === undefined || groupedSettings === null)
+            return null
+
+        settingKeys = Object.keys(groupedSettings).reduce(
+            (accumulator: string[], currentValue: string) =>
+                accumulator.concat(Object.keys(groupedSettings[currentValue])),
+            []
+        )
+    } else {
+        settingKeys = query.toString().split(',')
+    }
 
     const settingEntities = await getEntityManager().find(
         Setting,

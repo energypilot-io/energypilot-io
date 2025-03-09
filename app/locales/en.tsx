@@ -52,6 +52,10 @@ export default {
                 common: {
                     title: 'Common',
                 },
+
+                dashboard: {
+                    title: 'Dashboard',
+                },
             },
         },
     },
@@ -118,6 +122,12 @@ export default {
 
             port: {
                 label: 'Port',
+            },
+        },
+
+        dashboard: {
+            cards: {
+                label: 'Cards',
             },
         },
     },
@@ -194,5 +204,13 @@ export default {
                     'Change configuration and update a device for EnergyPilot.io.',
             },
         },
+    },
+
+    tooltips: {
+        visibility: {
+            setInvisible: 'Hide',
+            setVisible: 'Show',
+        },
+        moveCard: 'Move card',
     },
 }

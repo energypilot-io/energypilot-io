@@ -93,7 +93,7 @@ export function DeviceCard({ device }: DeviceCardProps) {
     }, [fetcher.data])
 
     return (
-        <>
+        <div>
             <Card className="bg-muted/50">
                 <AlertDialog open={showAlert} onOpenChange={setShowAlert}>
                     <Overlay />
@@ -187,6 +187,6 @@ export function DeviceCard({ device }: DeviceCardProps) {
                     </div>
                 </CardContent>
             </Card>
-        </>
+        </div>
     )
 }
