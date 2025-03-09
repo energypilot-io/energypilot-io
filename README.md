@@ -8,11 +8,12 @@ EnergyPilot.io is an easy to use and feature rich Energy Management Platform foc
 
 ## Features
 
--   Modern and clean user interface
--   Easy to configure and use
--   Ready to use Docker image
--   Multilanguage support
--   Light/Dark theme
+⚡ Modern and clean user interface
+⚡ Easy to configure and use
+⚡ Drag-and-Drop customizable dashboard
+⚡ Ready to use Docker image
+⚡ Multilanguage support
+⚡ Light/Dark theme
 
 ## Supported devices
 
