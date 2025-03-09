@@ -118,6 +118,12 @@ export default {
                 label: 'Port',
             },
         },
+
+        dashboard: {
+            cards: {
+                label: 'Karten',
+            },
+        },
     },
 
     cards: {
@@ -192,5 +198,13 @@ export default {
                     'Ändere und aktualisiere die Konfiguration eines Geräts für EnergyPilot.io.',
             },
         },
+    },
+
+    tooltips: {
+        visibility: {
+            setInvisible: 'Verstecken',
+            setVisible: 'Anzeigen',
+        },
+        moveCard: 'Karte verschieben',
     },
 }

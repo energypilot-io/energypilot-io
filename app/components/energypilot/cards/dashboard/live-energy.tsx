@@ -1,5 +1,3 @@
-import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
-
 import { useTranslation } from 'react-i18next'
 import { EChart } from '@kbox-labs/react-echarts'
 
@@ -14,6 +12,7 @@ import { WS_EVENT_LIVEDATA_UPDATED } from 'server/constants'
 import { formatPower } from '~/lib/utils'
 import { CallbackDataParams } from 'echarts/types/dist/shared'
 import { LoaderIcon } from 'lucide-react'
+import { MoveableCard, MoveableCardDndProps } from './moveable-card'
 
 const consumerColorPalette = [
     '#F94144',
@@ -25,7 +24,14 @@ const consumerColorPalette = [
     '#577590',
 ]
 
-export function LiveEnergyCard() {
+export type LiveEnergyCardProps = MoveableCardDndProps & {}
+
+export function LiveEnergyCard({
+    type,
+    index,
+    endDrag,
+    moveCard,
+}: LiveEnergyCardProps) {
     const socket = useSocket()
 
     const [theme] = useTheme()
@@ -265,60 +271,59 @@ export function LiveEnergyCard() {
     }
 
     return (
-        <Card className="bg-muted/50">
-            <CardHeader>
-                <CardTitle>{t('cards.liveEnergyCard.title')}</CardTitle>
-            </CardHeader>
-            <CardContent className="flex justify-center">
-                {data.nodes.length === 0 ? (
-                    <LoaderIcon className="animate-spin" size={64} />
-                ) : (
-                    <EChart
-                        use={[
-                            SankeyChart,
-                            CanvasRenderer,
-                            TooltipComponent,
-                            GridComponent,
-                        ]}
-                        className="w-full h-72"
-                        darkMode={theme === Theme.DARK}
-                        renderer={'canvas'}
-                        tooltip={{
-                            trigger: 'item',
-                            triggerOn: 'mousemove',
-                            formatter: (params) => {
-                                params = params as CallbackDataParams
+        <MoveableCard
+            type={type}
+            index={index}
+            moveCard={moveCard}
+            endDrag={endDrag}
+            title={t('cards.liveEnergyCard.title')}
+        >
+            {data.nodes.length === 0 ? (
+                <LoaderIcon className="animate-spin" size={64} />
+            ) : (
+                <EChart
+                    use={[
+                        SankeyChart,
+                        CanvasRenderer,
+                        TooltipComponent,
+                        GridComponent,
+                    ]}
+                    className="w-full h-72"
+                    darkMode={theme === Theme.DARK}
+                    renderer={'canvas'}
+                    tooltip={{
+                        trigger: 'item',
+                        triggerOn: 'mousemove',
+                        formatter: (params) => {
+                            params = params as CallbackDataParams
 
-                                if (
-                                    params.value !== undefined &&
-                                    typeof params.value === 'number'
-                                ) {
-                                    const formatedValue = formatPower(
-                                        params.value
-                                    )
-                                    return `${params.name}: ${formatedValue?.value} ${formatedValue?.unit}`
-                                }
-                                return ''
+                            if (
+                                params.value !== undefined &&
+                                typeof params.value === 'number'
+                            ) {
+                                const formatedValue = formatPower(params.value)
+                                return `${params.name}: ${formatedValue?.value} ${formatedValue?.unit}`
+                            }
+                            return ''
+                        },
+                    }}
+                    series={[
+                        {
+                            type: 'sankey',
+                            data: data.nodes,
+                            links: data.links,
+                            draggable: false,
+                            emphasis: {
+                                focus: 'adjacency',
                             },
-                        }}
-                        series={[
-                            {
-                                type: 'sankey',
-                                data: data.nodes,
-                                links: data.links,
-                                draggable: false,
-                                emphasis: {
-                                    focus: 'adjacency',
-                                },
-                                lineStyle: {
-                                    curveness: 0.5,
-                                    color: 'gradient',
-                                },
+                            lineStyle: {
+                                curveness: 0.5,
+                                color: 'gradient',
                             },
-                        ]}
-                    />
-                )}
-            </CardContent>
-        </Card>
+                        },
+                    ]}
+                />
+            )}
+        </MoveableCard>
     )
 }

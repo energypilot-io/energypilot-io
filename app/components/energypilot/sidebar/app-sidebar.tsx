@@ -48,6 +48,10 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
                 title: t('navigation.pages.settings.devices.title'),
                 url: '/settings/devices',
             },
+            {
+                title: t('navigation.pages.settings.dashboard.title'),
+                url: '/settings/dashboard',
+            },
         ],
     }
 
