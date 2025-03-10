@@ -44,30 +44,38 @@ export const loader = async ({ context, request }: LoaderFunctionArgs) => {
     const url = new URL(request.url)
     const query = url.searchParams.get('q')
 
-    let settingKeys
+    if (query !== null) {
+        const settingEntity = await getEntityManager().findOne(
+            Setting,
+            {
+                key: { $in: [query.toString()] },
+            },
+            {}
+        )
+        return settingEntity
+    }
 
-    if (query === null) {
+    if (url.searchParams.get('groupedDefs') !== null) {
         const groupedSettings = context.settings as GroupedSettingsDef
 
         if (groupedSettings === undefined || groupedSettings === null)
             return null
 
-        settingKeys = Object.keys(groupedSettings).reduce(
+        const settingKeys: string[] = Object.keys(groupedSettings).reduce(
             (accumulator: string[], currentValue: string) =>
                 accumulator.concat(Object.keys(groupedSettings[currentValue])),
             []
         )
-    } else {
-        settingKeys = query.toString().split(',')
+
+        const settingEntities = await getEntityManager().find(
+            Setting,
+            {
+                key: { $in: settingKeys },
+            },
+            {}
+        )
+        return settingEntities
     }
 
-    const settingEntities = await getEntityManager().find(
-        Setting,
-        {
-            key: { $in: settingKeys },
-        },
-        {}
-    )
-
-    return settingEntities
+    return null
 }

@@ -13,7 +13,7 @@ import { MoveableCard, MoveableCardDndProps } from './moveable-card'
 export type EnergyImportCardProps = MoveableCardDndProps & {}
 
 export function EnergyImportCard({
-    type,
+    type = 'energyImportCard',
     index,
     endDrag,
     moveCard,
