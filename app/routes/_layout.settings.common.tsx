@@ -205,8 +205,14 @@ export default function SettingsCommonPage() {
                                                         shouldUnregister={false}
                                                         disabled={isSubmitting}
                                                         defaultValue={
-                                                            parameter.defaultValue ??
-                                                            ''
+                                                            parameter.type ===
+                                                            'number'
+                                                                ? Number.parseFloat(
+                                                                      parameter.defaultValue ??
+                                                                          '0'
+                                                                  )
+                                                                : parameter.defaultValue ??
+                                                                  ''
                                                         }
                                                         render={({
                                                             field: {

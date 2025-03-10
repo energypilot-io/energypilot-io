@@ -97,9 +97,10 @@ export function zodSchemaDefinitionParser(
 
         if (zodFieldDefinition !== undefined && zodFieldDefinition !== null) {
             if (fieldDefinition.min !== undefined) {
+                console.log(zodFieldDefinition, fieldDefinition)
                 if (zodFieldDefinition instanceof zod.ZodString) {
                     // @ts-ignore
-                    zodFieldDefinition = zodFieldDefinition.minLength(
+                    zodFieldDefinition = zodFieldDefinition.min(
                         fieldDefinition.min
                     )
                 } else if (zodFieldDefinition instanceof zod.ZodNumber) {
@@ -112,7 +113,7 @@ export function zodSchemaDefinitionParser(
             if (fieldDefinition.max !== undefined) {
                 if (zodFieldDefinition instanceof zod.ZodString) {
                     // @ts-ignore
-                    zodFieldDefinition = zodFieldDefinition.maxLength(
+                    zodFieldDefinition = zodFieldDefinition.max(
                         fieldDefinition.max
                     )
                 } else if (zodFieldDefinition instanceof zod.ZodNumber) {
