@@ -125,6 +125,18 @@ export default {
             },
         },
 
+        weather: {
+            label: 'Weather',
+
+            api_key: {
+                label: 'API Key',
+            },
+
+            forecast_days: {
+                label: 'Forecast Days',
+            },
+        },
+
         dashboard: {
             cards: {
                 label: 'Cards',

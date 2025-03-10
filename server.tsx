@@ -5,6 +5,7 @@ import { getEntityManager, initDatabase } from 'server/core/database'
 import { initTemplateEngine } from 'server/core/template-engine'
 import { createDevice } from 'server/core/devices'
 import { initDataUpdate } from 'server/core/data-update-manager'
+import { initWeatherAddon } from 'server/addons/weather'
 
 const ENVIRONMENTAL_VARIABLES = ['DATA_DIR']
 
@@ -19,6 +20,12 @@ await initDatabase()
 await initTemplateEngine()
 
 await initWebServer()
+
+/*
+ * Load all AddOns
+ */
+
+await initWeatherAddon()
 
 /*
  * Load all devices stored in the database
