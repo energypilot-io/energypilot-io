@@ -7,8 +7,9 @@ import { useTranslation } from 'react-i18next'
 import { Header } from '~/components/energypilot/site/header'
 import { useCallback, useEffect } from 'react'
 import { SettingsMoveableCard } from '~/components/energypilot/cards/dashboard/settings-moveable-card'
-import { DEFAULT_DASHBOARD_CARDS_ORDER } from 'server/constants'
 import useState from 'react-usestateref'
+import { Setting } from 'server/database/entities/setting.entity'
+import { DASHBOARD_CARDS } from 'server/constants'
 
 export async function loader({ request }: LoaderFunctionArgs) {
     let t = await i18next.getFixedT(request)
@@ -27,6 +28,7 @@ export default function SettingsDashboardPage() {
     const { t } = useTranslation()
 
     const settingsFetcher = useFetcher()
+    const settingsSubmitter = useFetcher()
 
     const [cards, setCards, cardsRef] = useState<string[]>([])
 
@@ -37,16 +39,21 @@ export default function SettingsDashboardPage() {
     }, [])
 
     useEffect(() => {
-        if (!Array.isArray(settingsFetcher.data)) return
+        if (settingsFetcher.data === undefined) return
 
-        for (const setting of settingsFetcher.data) {
-            if (setting.key === cardOrderSettingsKey) {
-                setCards(JSON.parse(setting.value))
-                return
-            }
+        let savedCardsOrder: string[] = []
+
+        const fetchedSetting = settingsFetcher.data as Setting
+        if (fetchedSetting?.key === cardOrderSettingsKey) {
+            savedCardsOrder = JSON.parse(fetchedSetting.value)
         }
 
-        setCards(DEFAULT_DASHBOARD_CARDS_ORDER)
+        setCards([
+            ...savedCardsOrder,
+            ...Object.keys(DASHBOARD_CARDS).filter(
+                (value) => savedCardsOrder.indexOf(value) === -1
+            ),
+        ])
     }, [settingsFetcher.data])
 
     const moveCard = (dragIndex: number, hoverIndex: number) => {
@@ -66,7 +73,7 @@ export default function SettingsDashboardPage() {
         if (cardsRef.current === undefined || cardsRef.current.length === 0)
             return
 
-        settingsFetcher.submit(
+        settingsSubmitter.submit(
             {
                 [cardOrderSettingsKey]: JSON.stringify(cardsRef.current),
             },
@@ -102,7 +109,10 @@ export default function SettingsDashboardPage() {
                             endDrag={endDrag}
                             index={index}
                             title={t(`cards.${card}.title`)}
-                            description={t(`cards.${card}.description`)}
+                            description={t(
+                                `cards.${card}.description`,
+                                undefined
+                            )}
                         />
                     ))}
                 </div>

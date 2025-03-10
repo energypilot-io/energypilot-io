@@ -2,17 +2,14 @@ import i18next from '~/lib/i18n.server'
 
 import update from 'immutability-helper'
 import { useTranslation } from 'react-i18next'
-import { EnergyExportCard } from '~/components/energypilot/cards/dashboard/energy-export'
-import { EnergyImportCard } from '~/components/energypilot/cards/dashboard/energy-import'
-import { EnergyProductionCard } from '~/components/energypilot/cards/dashboard/energy-production'
-import { LiveEnergyCard } from '~/components/energypilot/cards/dashboard/live-energy'
 import { Header } from '~/components/energypilot/site/header'
 import { LoaderFunctionArgs } from '@remix-run/node'
 import { MetaFunction, useFetcher } from '@remix-run/react'
-import { useCallback, useEffect } from 'react'
+import { createElement, useCallback, useEffect } from 'react'
 import { Card } from '~/components/ui/card'
-import { DEFAULT_DASHBOARD_CARDS_ORDER } from 'server/constants'
 import useState from 'react-usestateref'
+import { Setting } from 'server/database/entities/setting.entity'
+import { DASHBOARD_CARDS } from 'server/constants'
 
 export async function loader({ request }: LoaderFunctionArgs) {
     let t = await i18next.getFixedT(request)
@@ -30,6 +27,7 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 export default function DashboardPage() {
     const { t } = useTranslation()
     const settingsFetcher = useFetcher()
+    const settingsSubmitter = useFetcher()
 
     const [cards, setCards, cardsRef] = useState<string[]>([])
 
@@ -40,16 +38,21 @@ export default function DashboardPage() {
     }, [])
 
     useEffect(() => {
-        if (!Array.isArray(settingsFetcher.data)) return
+        if (settingsFetcher.data === undefined) return
 
-        for (const setting of settingsFetcher.data) {
-            if (setting.key === cardOrderSettingsKey) {
-                setCards(JSON.parse(setting.value))
-                return
-            }
+        let savedCardsOrder: string[] = []
+
+        const fetchedSetting = settingsFetcher.data as Setting
+        if (fetchedSetting?.key === cardOrderSettingsKey) {
+            savedCardsOrder = JSON.parse(fetchedSetting.value)
         }
 
-        setCards(DEFAULT_DASHBOARD_CARDS_ORDER)
+        setCards([
+            ...savedCardsOrder,
+            ...Object.keys(DASHBOARD_CARDS).filter(
+                (value) => savedCardsOrder.indexOf(value) === -1
+            ),
+        ])
     }, [settingsFetcher.data])
 
     const moveCard = useCallback((dragIndex: number, hoverIndex: number) => {
@@ -69,7 +72,7 @@ export default function DashboardPage() {
         if (cardsRef.current === undefined || cardsRef.current.length === 0)
             return
 
-        settingsFetcher.submit(
+        settingsSubmitter.submit(
             {
                 [cardOrderSettingsKey]: JSON.stringify(cardsRef.current),
             },
@@ -81,53 +84,17 @@ export default function DashboardPage() {
     }, [cards])
 
     const renderCard = useCallback((card: string, index: number) => {
-        if (card === undefined) return <Card key="empty"></Card>
-
-        switch (card) {
-            case 'energyProductionCard':
-                return (
-                    <EnergyProductionCard
-                        type={card}
-                        key={index}
-                        index={index}
-                        moveCard={moveCard}
-                        endDrag={endDrag}
-                    />
-                )
-
-            case 'energyImportCard':
-                return (
-                    <EnergyImportCard
-                        type={card}
-                        key={index}
-                        index={index}
-                        moveCard={moveCard}
-                        endDrag={endDrag}
-                    />
-                )
-
-            case 'energyExportCard':
-                return (
-                    <EnergyExportCard
-                        type={card}
-                        key={index}
-                        index={index}
-                        moveCard={moveCard}
-                        endDrag={endDrag}
-                    />
-                )
-
-            case 'liveEnergyCard':
-                return (
-                    <LiveEnergyCard
-                        type={card}
-                        key={index}
-                        index={index}
-                        moveCard={moveCard}
-                        endDrag={endDrag}
-                    />
-                )
+        if (card === undefined || DASHBOARD_CARDS[card] === undefined) {
+            return <Card key="empty"></Card>
         }
+
+        return createElement(DASHBOARD_CARDS[card].class, {
+            key: index,
+            index: index,
+            moveCard: moveCard,
+            endDrag: endDrag,
+            defaultVisibility: DASHBOARD_CARDS[card].defaultVisibility,
+        })
     }, [])
 
     return (

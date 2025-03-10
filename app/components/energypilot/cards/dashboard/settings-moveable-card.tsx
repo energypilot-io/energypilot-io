@@ -18,6 +18,8 @@ import {
     TooltipTrigger,
 } from '~/components/ui/tooltip'
 import { useTranslation } from 'react-i18next'
+import { Setting } from 'server/database/entities/setting.entity'
+import { DASHBOARD_CARDS } from 'server/constants'
 
 export type MoveableCardProps = MoveableCardDndProps & {
     title: string
@@ -54,16 +56,20 @@ export function SettingsMoveableCard({
     }, [])
 
     useEffect(() => {
-        if (!Array.isArray(settingsFetcher.data)) return
-
-        for (const setting of settingsFetcher.data) {
-            if (setting.key === settingsKey) {
-                setIsVisible(setting.value === '1')
-                return
-            }
+        if (
+            settingsFetcher.data === null ||
+            settingsFetcher.data === undefined
+        ) {
+            setIsVisible(DASHBOARD_CARDS[type]?.defaultVisibility ?? false)
+            return
         }
 
-        setIsVisible(true)
+        const fetchedSetting = settingsFetcher.data as Setting
+
+        if (fetchedSetting.key === settingsKey) {
+            setIsVisible(fetchedSetting.value === '1')
+            return
+        }
     }, [settingsFetcher.data])
 
     const [{ handlerId }, drop] = useDrop<
@@ -145,7 +151,7 @@ export function SettingsMoveableCard({
                             {isVisible ? (
                                 <Tooltip>
                                     <TooltipTrigger>
-                                        <EyeOffIcon
+                                        <EyeIcon
                                             className="text-gray-300 hover:text-gray-800 cursor-pointer"
                                             size={20}
                                             onClick={() => toggleVisibility()}
@@ -162,7 +168,7 @@ export function SettingsMoveableCard({
                             ) : (
                                 <Tooltip>
                                     <TooltipTrigger>
-                                        <EyeIcon
+                                        <EyeOffIcon
                                             className="text-gray-300 hover:text-gray-800 cursor-pointer"
                                             size={20}
                                             onClick={() => toggleVisibility()}

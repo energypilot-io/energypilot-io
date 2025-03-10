@@ -13,7 +13,7 @@ import { MoveableCard, MoveableCardDndProps } from './moveable-card'
 export type EnergyProductionCardProps = MoveableCardDndProps & {}
 
 export function EnergyProductionCard({
-    type,
+    type = 'energyProductionCard',
     index,
     endDrag,
     moveCard,
@@ -39,18 +39,6 @@ export function EnergyProductionCard({
     ]
 
     const [timeframe, setTimeframe] = useState<string>(timeframes[0].days)
-
-    useEffect(() => {
-        if (!socket) return
-
-        socket.on(WS_EVENT_SNAPSHOT_CREATED, () => {
-            fetchData()
-        })
-    }, [socket])
-
-    useEffect(() => {
-        fetchData()
-    }, [timeframe])
 
     const fetchData = () => {
         let requestTimeframe = new Date()
@@ -90,6 +78,18 @@ export function EnergyProductionCard({
                   )
               )
             : undefined
+
+    useEffect(() => {
+        if (!socket) return
+
+        socket.on(WS_EVENT_SNAPSHOT_CREATED, () => {
+            fetchData()
+        })
+    }, [socket])
+
+    useEffect(() => {
+        fetchData()
+    }, [timeframe])
 
     return (
         <MoveableCard

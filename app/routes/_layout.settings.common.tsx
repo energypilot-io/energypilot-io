@@ -91,7 +91,7 @@ export default function SettingsCommonPage() {
     })
 
     useEffect(() => {
-        settingsFetcher.load('/api/settings')
+        settingsFetcher.load('/api/settings?groupedDefs')
     }, [])
 
     useEffect(() => {

@@ -7,7 +7,7 @@ import {
     CardTitle,
 } from '~/components/ui/card'
 
-import { EyeOffIcon, MenuIcon, MoveIcon } from 'lucide-react'
+import { EyeIcon, EyeOffIcon, MenuIcon, MoveIcon } from 'lucide-react'
 import { useDrag, useDrop } from 'react-dnd'
 import type { Identifier, XYCoord } from 'dnd-core'
 import { useFetcher } from '@remix-run/react'
@@ -19,6 +19,8 @@ import {
     TooltipTrigger,
 } from '~/components/ui/tooltip'
 import { useTranslation } from 'react-i18next'
+import { Setting } from 'server/database/entities/setting.entity'
+import { DASHBOARD_CARDS } from 'server/constants'
 
 export const DndItemTypes = {
     CARD: 'card',
@@ -67,16 +69,19 @@ export function MoveableCard({
     }, [])
 
     useEffect(() => {
-        if (!Array.isArray(settingsFetcher.data)) return
-
-        for (const setting of settingsFetcher.data) {
-            if (setting.key === settingsKey) {
-                setIsVisible(setting.value === '1')
-                return
-            }
+        if (
+            settingsFetcher.data === null ||
+            settingsFetcher.data === undefined
+        ) {
+            setIsVisible(DASHBOARD_CARDS[type]?.defaultVisibility ?? false)
+            return
         }
 
-        setIsVisible(true)
+        const fetchedSetting = settingsFetcher.data as Setting
+
+        if (fetchedSetting.key === settingsKey) {
+            setIsVisible(fetchedSetting.value === '1')
+        }
     }, [settingsFetcher.data])
 
     const [{ handlerId }, drop] = useDrop<
@@ -158,7 +163,7 @@ export function MoveableCard({
                         <div className="flex gap-2 absolute right-2 top-1">
                             <Tooltip>
                                 <TooltipTrigger>
-                                    <EyeOffIcon
+                                    <EyeIcon
                                         className="text-gray-300 hover:text-gray-800 cursor-pointer"
                                         size={20}
                                         onClick={() => toggleVisibility()}

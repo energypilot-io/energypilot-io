@@ -27,7 +27,7 @@ const consumerColorPalette = [
 export type LiveEnergyCardProps = MoveableCardDndProps & {}
 
 export function LiveEnergyCard({
-    type,
+    type = 'liveEnergyCard',
     index,
     endDrag,
     moveCard,

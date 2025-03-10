@@ -186,6 +186,10 @@ export default {
                 solar: 'Solar',
             },
         },
+
+        liveWeatherCard: {
+            title: 'Weather',
+        },
     },
 
     dialogs: {
