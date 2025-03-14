@@ -19,7 +19,7 @@ import { CanvasRenderer } from 'echarts/renderers'
 
 import { useEffect, useRef, useState } from 'react'
 import { Card, CardContent } from '~/components/ui/card'
-import { formatPower } from '~/lib/utils'
+import { formatPower, useI18nFormat } from '~/lib/utils'
 import { ToggleGroup, ToggleGroupItem } from '~/components/ui/toggle-group'
 import { CalendarIcon, LoaderIcon } from 'lucide-react'
 import { WS_EVENT_SNAPSHOT_CREATED } from 'server/constants'
@@ -35,7 +35,6 @@ import {
 } from '~/components/ui/popover'
 import { Button } from '~/components/ui/button'
 import { DateRange } from 'react-day-picker'
-import { format } from 'date-fns'
 import { Calendar } from '~/components/ui/calendar'
 import { cn } from '~/lib/utils'
 import { LoaderFunctionArgs } from '@remix-run/node'
@@ -55,6 +54,8 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 
 export default function GraphPage() {
     const { t } = useTranslation()
+    const { format } = useI18nFormat()
+
     const [theme] = useTheme()
     const socket = useSocket()
 

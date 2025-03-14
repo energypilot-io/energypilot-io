@@ -1,8 +1,12 @@
 import { clsx, type ClassValue } from 'clsx'
 import { useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { IFormParameterDefList } from 'server/defs/form-parameters'
 import { twMerge } from 'tailwind-merge'
 import * as zod from 'zod'
+
+import { format as format_date_fns } from 'date-fns'
+import { enGB, de } from 'date-fns/locale'
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
@@ -141,4 +145,26 @@ export function filterObject<T extends object>(
         }
     })
     return result
+}
+
+export function useI18nFormat() {
+    const { i18n } = useTranslation()
+
+    function format(date: string | number | Date, formatStr: string) {
+        let locale = enGB
+        switch (i18n.language) {
+            case 'de':
+                locale = de
+                break
+
+            default:
+                break
+        }
+
+        return format_date_fns(date, formatStr, {
+            locale: locale,
+        })
+    }
+
+    return { format }
 }
