@@ -7,7 +7,7 @@ import {
     AccordionTrigger,
 } from '~/components/ui/accordion'
 import { useEffect, useState } from 'react'
-import { formatEnergy, formatPower } from '~/lib/utils'
+import { formatEnergy, formatPower, useI18nFormat } from '~/lib/utils'
 import { EnrichedDevice } from '~/routes/api_.devices'
 import { useTranslation } from 'react-i18next'
 import { useSocket } from '~/context'
@@ -26,7 +26,6 @@ import {
 } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 import { Theme, useTheme } from 'remix-themes'
-import { format } from 'date-fns'
 
 export type DeviceLiveDataProps = {
     device: EnrichedDevice
@@ -34,6 +33,7 @@ export type DeviceLiveDataProps = {
 
 export function BatteryLiveData({ device }: DeviceLiveDataProps) {
     const { t } = useTranslation()
+    const { format } = useI18nFormat()
 
     const socket = useSocket()
 

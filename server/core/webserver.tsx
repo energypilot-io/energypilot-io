@@ -17,6 +17,10 @@ import { createContext } from './database.js'
 import { getTemplateDefs } from './template-engine.js'
 import { getInterfaceDefs, getInterfaceTranslations } from './devices.js'
 
+export type ClientConnectedObserver = () => void
+
+const _clientConnectedObservers: ClientConnectedObserver[] = []
+
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
@@ -123,7 +127,19 @@ export async function initWebServer() {
         getLogger('websocket').debug(
             `Websocket client connected: [${socket.id}]`
         )
+
+        setTimeout(() => {
+            _clientConnectedObservers.forEach((clientConnectedObserver) => {
+                clientConnectedObserver()
+            })
+        }, 1000)
     })
+}
+
+export function registerClientConnectedObserver(
+    observer: ClientConnectedObserver
+) {
+    _clientConnectedObservers.push(observer)
 }
 
 export function emitWebsocketEvent(event: string, ...args: any[]) {

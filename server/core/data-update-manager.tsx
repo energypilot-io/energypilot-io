@@ -8,7 +8,10 @@ import { DeviceSnapshot } from 'server/database/entities/device-snapshot.entity'
 import Semaphore from 'ts-semaphore'
 import { registerSettingObserver } from 'server/database/subscribers/setting-subscriber'
 import { getLogger } from './logmanager'
-import { emitWebsocketEvent } from './webserver'
+import {
+    emitWebsocketEvent,
+    registerClientConnectedObserver,
+} from './webserver'
 import {
     getSettingAsNumber as getSettingAsNumber,
     registerSettings,
@@ -21,7 +24,7 @@ import { BatteryDevice } from 'server/devices/battery'
 import { ConsumerDevice } from 'server/devices/consumer'
 import { getDeviceInstances, resetAllDeviceCaches } from './devices'
 
-let _latestSnapshot: DeviceSnapshot[] = []
+let _latestSnapshot: DeviceSnapshot[] | undefined = undefined
 
 let _pollDataInterval: NodeJS.Timeout
 let _createSnapshotInterval: NodeJS.Timeout
@@ -69,6 +72,7 @@ export async function initDataUpdate() {
         _settingKeySnapshotInterval,
         onChangeSnapshotInterval
     )
+    registerClientConnectedObserver(onWSClientConnected)
 }
 
 function onChangeSnapshotInterval(value: string) {
@@ -198,12 +202,15 @@ async function pollData() {
         }
     }
 
-    emitWebsocketEvent(WS_EVENT_LIVEDATA_UPDATED, snapshot)
     semaphore.use(async () => (_latestSnapshot = snapshot))
+
+    emitWebsocketEvent(WS_EVENT_LIVEDATA_UPDATED, _latestSnapshot)
 }
 
 async function createSnapshot() {
     semaphore.use(async () => {
+        if (_latestSnapshot === undefined) return
+
         const logger = getLogger('dataupdate')
 
         logger.log('Persisting data snapshot to database')
@@ -220,4 +227,9 @@ async function createSnapshot() {
 
         emitWebsocketEvent(WS_EVENT_SNAPSHOT_CREATED)
     })
+}
+
+function onWSClientConnected() {
+    if (_latestSnapshot === undefined) return
+    emitWebsocketEvent(WS_EVENT_LIVEDATA_UPDATED, _latestSnapshot)
 }

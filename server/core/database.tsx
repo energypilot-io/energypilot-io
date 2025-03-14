@@ -15,11 +15,11 @@ import { DeviceSubscriber } from 'server/database/subscribers/device-subscriber'
 import { SettingSubscriber } from 'server/database/subscribers/setting-subscriber'
 import { ChildLogger, getLogger } from './logmanager'
 
+export type DatabaseInitObserver = () => void
+
 var _orm: MikroORM
 
 const _initObservers: DatabaseInitObserver[] = []
-
-export type DatabaseInitObserver = () => void
 
 export function registerDatabaseInitObserver(observer: DatabaseInitObserver) {
     _initObservers.push(observer)
