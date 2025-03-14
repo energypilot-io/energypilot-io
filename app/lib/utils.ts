@@ -5,6 +5,12 @@ import { IFormParameterDefList } from 'server/defs/form-parameters'
 import { twMerge } from 'tailwind-merge'
 import * as zod from 'zod'
 
+import { EnergyExportCard } from '~/components/energypilot/cards/dashboard/energy-export'
+import { EnergyImportCard } from '~/components/energypilot/cards/dashboard/energy-import'
+import { EnergyProductionCard } from '~/components/energypilot/cards/dashboard/energy-production'
+import { LiveEnergyCard } from '~/components/energypilot/cards/dashboard/live-energy'
+import { LiveWeatherCard } from '~/components/energypilot/cards/dashboard/live-weather'
+
 import { format as format_date_fns } from 'date-fns'
 import { enGB, de } from 'date-fns/locale'
 
@@ -167,4 +173,30 @@ export function useI18nFormat() {
     }
 
     return { format }
+}
+
+export const DASHBOARD_CARDS: {
+    [key: string]: { class: any; defaultVisibility: boolean }
+} = {
+    energyProductionCard: {
+        class: EnergyProductionCard,
+        defaultVisibility: true,
+    },
+
+    energyImportCard: {
+        class: EnergyImportCard,
+        defaultVisibility: true,
+    },
+    energyExportCard: {
+        class: EnergyExportCard,
+        defaultVisibility: true,
+    },
+    liveEnergyCard: {
+        class: LiveEnergyCard,
+        defaultVisibility: true,
+    },
+    liveWeatherCard: {
+        class: LiveWeatherCard,
+        defaultVisibility: false,
+    },
 }

@@ -11,7 +11,7 @@ import { EyeIcon, EyeOffIcon, MenuIcon, MoveIcon } from 'lucide-react'
 import { useDrag, useDrop } from 'react-dnd'
 import type { Identifier, XYCoord } from 'dnd-core'
 import { useFetcher } from '@remix-run/react'
-import { cn } from '~/lib/utils'
+import { cn, DASHBOARD_CARDS } from '~/lib/utils'
 import {
     Tooltip,
     TooltipContent,
@@ -20,7 +20,6 @@ import {
 } from '~/components/ui/tooltip'
 import { useTranslation } from 'react-i18next'
 import { Setting } from 'server/database/entities/setting.entity'
-import { DASHBOARD_CARDS } from 'server/constants'
 
 export const DndItemTypes = {
     CARD: 'card',

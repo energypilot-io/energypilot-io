@@ -9,7 +9,7 @@ import { useCallback, useEffect } from 'react'
 import { SettingsMoveableCard } from '~/components/energypilot/cards/dashboard/settings-moveable-card'
 import useState from 'react-usestateref'
 import { Setting } from 'server/database/entities/setting.entity'
-import { DASHBOARD_CARDS } from 'server/constants'
+import { DASHBOARD_CARDS } from '~/lib/utils'
 
 export async function loader({ request }: LoaderFunctionArgs) {
     let t = await i18next.getFixedT(request)

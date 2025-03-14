@@ -19,7 +19,7 @@ import {
 } from '~/components/ui/tooltip'
 import { useTranslation } from 'react-i18next'
 import { Setting } from 'server/database/entities/setting.entity'
-import { DASHBOARD_CARDS } from 'server/constants'
+import { DASHBOARD_CARDS } from '~/lib/utils'
 
 export type MoveableCardProps = MoveableCardDndProps & {
     title: string
