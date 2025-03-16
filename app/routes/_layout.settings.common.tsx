@@ -188,17 +188,6 @@ export default function SettingsCommonPage() {
                                                         )}
                                                     </Label>
 
-                                                    {t(
-                                                        `settings.${groupName}.${parameterName}.description`,
-                                                        ''
-                                                    ) !== '' && (
-                                                        <p className="text-sm">
-                                                            {t(
-                                                                `settings.${groupName}.${parameterName}.description`
-                                                            )}
-                                                        </p>
-                                                    )}
-
                                                     <Controller
                                                         control={control}
                                                         name={key}
@@ -326,6 +315,17 @@ export default function SettingsCommonPage() {
                                                             }
                                                         }}
                                                     />
+
+                                                    {t(
+                                                        `settings.${groupName}.${parameterName}.description`,
+                                                        ''
+                                                    ) !== '' && (
+                                                        <p className="text-xs text-gray-500">
+                                                            {t(
+                                                                `settings.${groupName}.${parameterName}.description`
+                                                            )}
+                                                        </p>
+                                                    )}
 
                                                     {errors[key] && (
                                                         <p className="text-sm text-red-600">
