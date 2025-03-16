@@ -129,6 +129,12 @@ export default {
             forecast_days: {
                 label: 'Vorschau Tage',
             },
+
+            query: {
+                label: 'Abfrage Ort',
+                description:
+                    'Parameter um den Abfrage Ort zu bestimmen. Der Parameter kann folgende Werte haben: Längen- und Breitengrad, Ortsname, US zip, UK postcode, Canada postal code,...',
+            },
         },
 
         dashboard: {

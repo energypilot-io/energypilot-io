@@ -135,6 +135,12 @@ export default {
             forecast_days: {
                 label: 'Forecast Days',
             },
+
+            query: {
+                label: 'Location Query',
+                description:
+                    'Query parameter based on which data is sent back. It could be following: Latitude and Longitude, city name, US zip, UK postcode, Canada postal code,...',
+            },
         },
 
         dashboard: {
