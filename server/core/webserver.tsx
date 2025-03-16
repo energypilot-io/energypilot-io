@@ -20,6 +20,7 @@ import { getInterfaceDefs, getInterfaceTranslations } from './devices.js'
 export type ClientConnectedObserver = () => void
 
 const _clientConnectedObservers: ClientConnectedObserver[] = []
+const _wsEventListeners: { [ev: string]: ((...args: any[]) => void)[] } = {}
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -117,10 +118,6 @@ export async function initWebServer() {
     )
 
     _httpServer = createServer(app)
-    _httpServer.listen(port, () => {
-        getLogger('http').log(`App listening on http://localhost:${port}`)
-    })
-
     _io = new SocketServer(_httpServer)
 
     _io.on('connection', (socket) => {
@@ -128,11 +125,17 @@ export async function initWebServer() {
             `Websocket client connected: [${socket.id}]`
         )
 
-        setTimeout(() => {
-            _clientConnectedObservers.forEach((clientConnectedObserver) => {
-                clientConnectedObserver()
-            })
-        }, 1000)
+        Object.keys(_wsEventListeners).forEach((ev: string) => {
+            _wsEventListeners[ev].forEach((listener) => socket.on(ev, listener))
+        })
+
+        _clientConnectedObservers.forEach((clientConnectedObserver) => {
+            clientConnectedObserver()
+        })
+    })
+
+    _httpServer.listen(port, () => {
+        getLogger('http').log(`App listening on http://localhost:${port}`)
     })
 }
 
@@ -140,6 +143,17 @@ export function registerClientConnectedObserver(
     observer: ClientConnectedObserver
 ) {
     _clientConnectedObservers.push(observer)
+}
+
+export function registerWSEventListener(
+    ev: string,
+    listener: (...args: any[]) => void
+) {
+    if (!(ev in _wsEventListeners)) {
+        _wsEventListeners[ev] = []
+    }
+
+    _wsEventListeners[ev].push(listener)
 }
 
 export function emitWebsocketEvent(event: string, ...args: any[]) {

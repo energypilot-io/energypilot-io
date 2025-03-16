@@ -119,6 +119,18 @@ export default {
             },
         },
 
+        weather: {
+            label: 'Wetter',
+
+            api_key: {
+                label: 'API Schlüssel',
+            },
+
+            forecast_days: {
+                label: 'Vorschau Tage',
+            },
+        },
+
         dashboard: {
             cards: {
                 label: 'Karten',
@@ -179,6 +191,10 @@ export default {
                 grid: 'Netz',
                 solar: 'Solar',
             },
+        },
+
+        liveWeatherCard: {
+            title: 'Wetter',
         },
     },
 

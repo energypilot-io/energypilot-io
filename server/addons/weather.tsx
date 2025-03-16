@@ -1,4 +1,7 @@
-import { WS_EVENT_WEATHER_LIVEDATA_UPDATED } from 'server/constants'
+import {
+    WS_EVENT_REQUEST_WEATHER_LIVEDATA_UPDATE,
+    WS_EVENT_WEATHER_LIVEDATA_UPDATED,
+} from 'server/constants'
 import {
     getSetting,
     getSettingAsNumber,
@@ -6,7 +9,7 @@ import {
 } from 'server/core/settings'
 import {
     emitWebsocketEvent,
-    registerClientConnectedObserver,
+    registerWSEventListener,
 } from 'server/core/webserver'
 import { registerSettingObserver } from 'server/database/subscribers/setting-subscriber'
 
@@ -33,6 +36,7 @@ export type WeatherData = {
     forecasts: ForecastWeatherData[]
 }
 
+const _settingQuery = 'weather_query'
 const _settingKeyApiKey = 'weather_api_key'
 const _settingKeyForecastDays = 'weather_forecast_days'
 
@@ -40,9 +44,12 @@ let _lastWeatherData: WeatherData | undefined = undefined
 
 export async function initWeatherAddon() {
     registerSettings({
+        [_settingQuery]: {
+            type: 'string',
+        },
+
         [_settingKeyApiKey]: {
             type: 'string',
-            min: 10,
         },
 
         [_settingKeyForecastDays]: {
@@ -58,21 +65,31 @@ export async function initWeatherAddon() {
         clearInterval(pollWeatherInterval)
     })
 
+    registerSettingObserver(_settingQuery, pollData)
     registerSettingObserver(_settingKeyApiKey, pollData)
     registerSettingObserver(_settingKeyForecastDays, pollData)
-    registerClientConnectedObserver(onWSClientConnected)
+
+    registerWSEventListener(WS_EVENT_REQUEST_WEATHER_LIVEDATA_UPDATE, () => {
+        if (_lastWeatherData !== undefined) {
+            emitWebsocketEvent(
+                WS_EVENT_WEATHER_LIVEDATA_UPDATED,
+                _lastWeatherData
+            )
+        }
+    })
 
     pollData()
 }
 
 async function pollData() {
+    const query = await getSetting(_settingQuery)
     const apiKey = await getSetting(_settingKeyApiKey)
     const forecastDays = await getSettingAsNumber(_settingKeyForecastDays)
 
-    if (apiKey === undefined || forecastDays === undefined) return
+    if (query === null || apiKey === null || forecastDays === null) return
 
     const response = await fetch(
-        `http://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=Kumhausen&days=${forecastDays}&aqi=no&alerts=no`
+        `http://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${query}&days=${forecastDays}&aqi=no&alerts=no`
     )
 
     if (response.status !== 200) return
@@ -106,10 +123,5 @@ async function pollData() {
         ),
     }
 
-    emitWebsocketEvent(WS_EVENT_WEATHER_LIVEDATA_UPDATED, _lastWeatherData)
-}
-
-function onWSClientConnected() {
-    if (_lastWeatherData === undefined) return
     emitWebsocketEvent(WS_EVENT_WEATHER_LIVEDATA_UPDATED, _lastWeatherData)
 }

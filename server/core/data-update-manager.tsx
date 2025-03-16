@@ -1,5 +1,6 @@
 import {
     WS_EVENT_LIVEDATA_UPDATED,
+    WS_EVENT_REQUEST_LIVEDATA_UPDATE,
     WS_EVENT_SNAPSHOT_CREATED,
 } from 'server/constants'
 import { Snapshot } from 'server/database/entities/snapshot.entity'
@@ -8,10 +9,7 @@ import { DeviceSnapshot } from 'server/database/entities/device-snapshot.entity'
 import Semaphore from 'ts-semaphore'
 import { registerSettingObserver } from 'server/database/subscribers/setting-subscriber'
 import { getLogger } from './logmanager'
-import {
-    emitWebsocketEvent,
-    registerClientConnectedObserver,
-} from './webserver'
+import { emitWebsocketEvent, registerWSEventListener } from './webserver'
 import {
     getSettingAsNumber as getSettingAsNumber,
     registerSettings,
@@ -72,7 +70,12 @@ export async function initDataUpdate() {
         _settingKeySnapshotInterval,
         onChangeSnapshotInterval
     )
-    registerClientConnectedObserver(onWSClientConnected)
+
+    registerWSEventListener(WS_EVENT_REQUEST_LIVEDATA_UPDATE, () => {
+        if (_latestSnapshot !== undefined) {
+            emitWebsocketEvent(WS_EVENT_LIVEDATA_UPDATED, _latestSnapshot)
+        }
+    })
 }
 
 function onChangeSnapshotInterval(value: string) {
@@ -227,9 +230,4 @@ async function createSnapshot() {
 
         emitWebsocketEvent(WS_EVENT_SNAPSHOT_CREATED)
     })
-}
-
-function onWSClientConnected() {
-    if (_latestSnapshot === undefined) return
-    emitWebsocketEvent(WS_EVENT_LIVEDATA_UPDATED, _latestSnapshot)
 }
