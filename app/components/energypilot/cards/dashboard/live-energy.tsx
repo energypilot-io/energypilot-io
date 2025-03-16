@@ -8,7 +8,10 @@ import { CanvasRenderer } from 'echarts/renderers'
 import { useEffect, useState } from 'react'
 import { Theme, useTheme } from 'remix-themes'
 import { useSocket } from '~/context'
-import { WS_EVENT_LIVEDATA_UPDATED } from 'server/constants'
+import {
+    WS_EVENT_LIVEDATA_UPDATED,
+    WS_EVENT_REQUEST_LIVEDATA_UPDATE,
+} from 'server/constants'
 import { formatPower } from '~/lib/utils'
 import { CallbackDataParams } from 'echarts/types/dist/shared'
 import { LoaderIcon } from 'lucide-react'
@@ -82,6 +85,8 @@ export function LiveEnergyCard({
 
             createData(gridPower, batteryPower, pvPower, consumers)
         })
+
+        socket.emit(WS_EVENT_REQUEST_LIVEDATA_UPDATE)
     }, [socket])
 
     function processConsumers(

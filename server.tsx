@@ -22,12 +22,6 @@ await initTemplateEngine()
 await initWebServer()
 
 /*
- * Load all AddOns
- */
-
-await initWeatherAddon()
-
-/*
  * Load all devices stored in the database
  */
 
@@ -37,5 +31,11 @@ const deviceConfigurations = await em.findAll(Device)
 deviceConfigurations.map(async (device) => {
     await createDevice(device)
 })
+
+/*
+ * Load all AddOns
+ */
+
+await initWeatherAddon()
 
 await initDataUpdate()

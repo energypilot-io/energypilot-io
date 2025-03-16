@@ -16,10 +16,18 @@ import {
 
 import { useTranslation } from 'react-i18next'
 import { useSocket } from '~/context'
-import { WS_EVENT_WEATHER_LIVEDATA_UPDATED } from 'server/constants'
+import {
+    WS_EVENT_REQUEST_WEATHER_LIVEDATA_UPDATE,
+    WS_EVENT_WEATHER_LIVEDATA_UPDATED,
+} from 'server/constants'
 import { MoveableCard, MoveableCardDndProps } from './moveable-card'
 import { ForecastWeatherData, WeatherData } from 'server/addons/weather'
 import { useI18nFormat } from '~/lib/utils'
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from '~/components/ui/tooltip'
 
 export type LiveWeatherCardProps = MoveableCardDndProps & {}
 
@@ -43,14 +51,16 @@ export function LiveWeatherCard({
         socket.on(WS_EVENT_WEATHER_LIVEDATA_UPDATED, (data: WeatherData) => {
             setWeatherData(data)
         })
+
+        socket.emit(WS_EVENT_REQUEST_WEATHER_LIVEDATA_UPDATE)
     }, [socket])
 
     function getIconForCondition(condition: string) {
-        console.log(condition)
-        switch (condition) {
+        switch (condition.trim()) {
             case 'Sunny':
                 return <SunIcon size="3rem" />
             case 'Partly cloudy':
+            case 'Partly Cloudy':
                 return <CloudSunIcon size="3rem" />
             case 'Cloudy':
                 return <CloudyIcon size="3rem" />
@@ -61,6 +71,7 @@ export function LiveWeatherCard({
             case 'Freezing fog':
                 return <CloudFogIcon size="3rem" />
             case 'Patchy rain possible':
+            case 'Patchy rain nearby':
             case 'Patchy light rain':
             case 'Light rain':
             case 'Moderate rain at times':
@@ -86,7 +97,6 @@ export function LiveWeatherCard({
             case 'Light snow showers':
             case 'Moderate or heavy snow showers':
                 return <CloudSnowIcon size="3rem" />
-
             case 'Patchy freezing drizzle possible':
             case 'Patchy light drizzle':
             case 'Light drizzle':
@@ -108,6 +118,7 @@ export function LiveWeatherCard({
             case 'Moderate or heavy showers of ice pellets':
                 return <CloudHailIcon size="3rem" />
         }
+        console.log(condition)
         return <CloudDrizzleIcon size="3rem" />
     }
 
@@ -136,7 +147,16 @@ export function LiveWeatherCard({
                             </p>
                         </div>
                         <div className="flex gap-2 text-5xl">
-                            {getIconForCondition(weatherData.current.condition)}
+                            <Tooltip>
+                                <TooltipTrigger>
+                                    {getIconForCondition(
+                                        weatherData.current.condition
+                                    )}
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p>{weatherData.current.condition}</p>
+                                </TooltipContent>
+                            </Tooltip>
                             {weatherData.current.temperature} °C
                         </div>
                     </div>
@@ -157,9 +177,18 @@ export function LiveWeatherCard({
                                             'E'
                                         )}
                                     </p>
-                                    {getIconForCondition(
-                                        forecastWeatherData.condition
-                                    )}
+                                    <Tooltip>
+                                        <TooltipTrigger>
+                                            {getIconForCondition(
+                                                forecastWeatherData.condition
+                                            )}
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            <p>
+                                                {forecastWeatherData.condition}
+                                            </p>
+                                        </TooltipContent>
+                                    </Tooltip>
                                     {forecastWeatherData.temperature} °C
                                 </div>
                             )

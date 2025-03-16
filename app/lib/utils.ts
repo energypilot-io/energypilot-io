@@ -107,7 +107,6 @@ export function zodSchemaDefinitionParser(
 
         if (zodFieldDefinition !== undefined && zodFieldDefinition !== null) {
             if (fieldDefinition.min !== undefined) {
-                console.log(zodFieldDefinition, fieldDefinition)
                 if (zodFieldDefinition instanceof zod.ZodString) {
                     // @ts-ignore
                     zodFieldDefinition = zodFieldDefinition.min(
