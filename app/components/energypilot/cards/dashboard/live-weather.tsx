@@ -29,6 +29,8 @@ import {
     TooltipTrigger,
 } from '~/components/ui/tooltip'
 
+import weatherapiConditions from 'public/weatherapi_conditions.json'
+
 export type LiveWeatherCardProps = MoveableCardDndProps & {}
 
 export function LiveWeatherCard({
@@ -37,7 +39,7 @@ export function LiveWeatherCard({
     endDrag,
     moveCard,
 }: LiveWeatherCardProps) {
-    const { t } = useTranslation()
+    const { t, i18n } = useTranslation()
     const { format } = useI18nFormat()
     const socket = useSocket()
 
@@ -55,71 +57,85 @@ export function LiveWeatherCard({
         socket.emit(WS_EVENT_REQUEST_WEATHER_LIVEDATA_UPDATE)
     }, [socket])
 
-    function getIconForCondition(condition: string) {
-        switch (condition.trim()) {
-            case 'Sunny':
+    function getTextForCondition(condition_code: number) {
+        if (i18n === undefined) return null
+
+        for (const condition of weatherapiConditions.filter(
+            (condition) => condition.code === condition_code
+        )) {
+            for (const languageEntry of condition.languages) {
+                if (languageEntry.lang_iso === i18n.language) {
+                    return languageEntry.day_text
+                }
+            }
+
+            return condition.day
+        }
+
+        return null
+    }
+
+    function getIconForCondition(condition_code: number) {
+        switch (condition_code) {
+            case 1000:
                 return <SunIcon size="3rem" />
-            case 'Partly cloudy':
-            case 'Partly Cloudy':
+            case 1003:
                 return <CloudSunIcon size="3rem" />
-            case 'Cloudy':
+            case 1006:
                 return <CloudyIcon size="3rem" />
-            case 'Overcast':
+            case 1009:
                 return <CloudIcon size="3rem" />
-            case 'Mist':
-            case 'Fog':
-            case 'Freezing fog':
+            case 1030:
+            case 1135:
+            case 1147:
                 return <CloudFogIcon size="3rem" />
-            case 'Patchy rain possible':
-            case 'Patchy rain nearby':
-            case 'Patchy light rain':
-            case 'Light rain':
-            case 'Moderate rain at times':
-            case 'Moderate rain':
-            case 'Light freezing rain':
-            case 'Light rain shower':
-            case 'Moderate or heavy rain shower':
+            case 1063:
+            case 1180:
+            case 1183:
+            case 1186:
+            case 1189:
+            case 1198:
+            case 1240:
+            case 1243:
                 return <CloudRainIcon size="3rem" />
-            case 'Patchy snow possible':
-            case 'Patchy sleet possible':
-            case 'Blowing snow':
-            case 'Blizzard':
-            case 'Light sleet':
-            case 'Moderate or heavy sleet':
-            case 'Patchy light snow':
-            case 'Light snow':
-            case 'Patchy moderate snow':
-            case 'Moderate snow':
-            case 'Patchy heavy snow':
-            case 'Heavy snow':
-            case 'Light sleet showers':
-            case 'Moderate or heavy sleet showers':
-            case 'Light snow showers':
-            case 'Moderate or heavy snow showers':
+            case 1066:
+            case 1069:
+            case 1114:
+            case 1117:
+            case 1204:
+            case 1207:
+            case 1210:
+            case 1213:
+            case 1216:
+            case 1219:
+            case 1222:
+            case 1225:
+            case 1249:
+            case 1252:
+            case 1255:
+            case 1258:
+            case 1279:
+            case 1282:
                 return <CloudSnowIcon size="3rem" />
-            case 'Patchy freezing drizzle possible':
-            case 'Patchy light drizzle':
-            case 'Light drizzle':
-            case 'Freezing drizzle':
-            case 'Heavy freezing drizzle':
+            case 1072:
+            case 1150:
+            case 1153:
+            case 1168:
+            case 1171:
                 return <CloudDrizzleIcon size="3rem" />
-            case 'Thundery outbreaks possible':
-            case 'Heavy rain at times':
-            case 'Heavy rain':
-            case 'Moderate or heavy freezing rain':
-            case 'Torrential rain shower':
-            case 'Patchy light rain with thunder':
-            case 'Moderate or heavy rain with thunder':
-            case 'Patchy light snow with thunder':
-            case 'Moderate or heavy snow with thunder':
+            case 1087:
+            case 1192:
+            case 1195:
+            case 1201:
+            case 1246:
+            case 1273:
+            case 1276:
                 return <CloudRainWindIcon size="3rem" />
-            case 'Ice pellets':
-            case 'Light showers of ice pellets':
-            case 'Moderate or heavy showers of ice pellets':
+            case 1237:
+            case 1261:
+            case 1264:
                 return <CloudHailIcon size="3rem" />
         }
-        console.log(condition)
-        return <CloudDrizzleIcon size="3rem" />
     }
 
     return (
@@ -150,11 +166,15 @@ export function LiveWeatherCard({
                             <Tooltip>
                                 <TooltipTrigger>
                                     {getIconForCondition(
-                                        weatherData.current.condition
+                                        weatherData.current.condition_code
                                     )}
                                 </TooltipTrigger>
                                 <TooltipContent>
-                                    <p>{weatherData.current.condition}</p>
+                                    <p>
+                                        {getTextForCondition(
+                                            weatherData.current.condition_code
+                                        )}
+                                    </p>
                                 </TooltipContent>
                             </Tooltip>
                             {weatherData.current.temperature} °C
@@ -180,12 +200,14 @@ export function LiveWeatherCard({
                                     <Tooltip>
                                         <TooltipTrigger>
                                             {getIconForCondition(
-                                                forecastWeatherData.condition
+                                                forecastWeatherData.condition_code
                                             )}
                                         </TooltipTrigger>
                                         <TooltipContent>
                                             <p>
-                                                {forecastWeatherData.condition}
+                                                {getTextForCondition(
+                                                    forecastWeatherData.condition_code
+                                                )}
                                             </p>
                                         </TooltipContent>
                                     </Tooltip>
@@ -193,6 +215,20 @@ export function LiveWeatherCard({
                                 </div>
                             )
                         )}
+                    </div>
+
+                    <div className="flex justify-end">
+                        <p className="text-xs text-gray-500">
+                            Powered by{' '}
+                            <a
+                                href="https://www.weatherapi.com/"
+                                title="Weather API"
+                                className="underline"
+                                target="_blank"
+                            >
+                                WeatherAPI.com
+                            </a>
+                        </p>
                     </div>
                 </div>
             )}

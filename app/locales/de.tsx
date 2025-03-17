@@ -201,6 +201,7 @@ export default {
 
         liveWeatherCard: {
             title: 'Wetter',
+            description: 'Live Wetterdaten',
         },
     },
 

@@ -16,7 +16,7 @@ import { registerSettingObserver } from 'server/database/subscribers/setting-sub
 export type ForecastWeatherData = {
     localtime: number
     temperature: number
-    condition: string
+    condition_code: number
 }
 
 export type WeatherData = {
@@ -30,7 +30,7 @@ export type WeatherData = {
 
     current: {
         temperature: number
-        condition: string
+        condition_code: number
     }
 
     forecasts: ForecastWeatherData[]
@@ -109,7 +109,7 @@ async function pollData() {
 
         current: {
             temperature: responseBody.current.temp_c,
-            condition: responseBody.current.condition.text,
+            condition_code: responseBody.current.condition.code,
         },
 
         forecasts: responseBody.forecast.forecastday.map(
@@ -117,7 +117,7 @@ async function pollData() {
                 return {
                     localtime: forecastData.date_epoch * 1000,
                     temperature: forecastData.day.avgtemp_c,
-                    condition: forecastData.day.condition.text,
+                    condition_code: forecastData.day.condition.code,
                 } as ForecastWeatherData
             }
         ),
