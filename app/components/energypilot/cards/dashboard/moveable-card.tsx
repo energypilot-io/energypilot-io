@@ -179,7 +179,7 @@ export function MoveableCard({
                                 <TooltipTrigger>
                                     <div ref={drag}>
                                         <MenuIcon
-                                            className="text-gray-300 hover:text-gray-800 cursor-pointer"
+                                            className="text-gray-300 hover:text-gray-800 cursor-move"
                                             size={20}
                                         />
                                     </div>
