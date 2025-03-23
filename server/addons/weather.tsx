@@ -109,8 +109,6 @@ async function pollData() {
 
     if (responseBody === undefined) return
 
-    console.log(responseBody)
-
     _lastWeatherData = {
         is_metric: units === 'metric',
 
