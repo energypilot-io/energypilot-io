@@ -16,10 +16,12 @@ import { registerSettingObserver } from 'server/database/subscribers/setting-sub
 export type ForecastWeatherData = {
     localtime: number
     temperature: number
-    condition_code: number
+    conditions: string[]
 }
 
 export type WeatherData = {
+    is_metric: boolean
+
     location: {
         name: string
         country: string
@@ -30,7 +32,7 @@ export type WeatherData = {
 
     current: {
         temperature: number
-        condition_code: number
+        conditions: string[]
     }
 
     forecasts: ForecastWeatherData[]
@@ -38,6 +40,7 @@ export type WeatherData = {
 
 const _settingQuery = 'weather_query'
 const _settingKeyApiKey = 'weather_api_key'
+const _settingUnits = 'weather_units'
 const _settingKeyForecastDays = 'weather_forecast_days'
 
 let _lastWeatherData: WeatherData | undefined = undefined
@@ -50,6 +53,12 @@ export async function initWeatherAddon() {
 
         [_settingKeyApiKey]: {
             type: 'string',
+        },
+
+        [_settingUnits]: {
+            type: 'enum',
+            defaultValue: 'metric',
+            enumValues: ['metric', 'us'],
         },
 
         [_settingKeyForecastDays]: {
@@ -67,6 +76,7 @@ export async function initWeatherAddon() {
 
     registerSettingObserver(_settingQuery, pollData)
     registerSettingObserver(_settingKeyApiKey, pollData)
+    registerSettingObserver(_settingUnits, pollData)
     registerSettingObserver(_settingKeyForecastDays, pollData)
 
     registerWSEventListener(WS_EVENT_REQUEST_WEATHER_LIVEDATA_UPDATE, () => {
@@ -84,12 +94,13 @@ export async function initWeatherAddon() {
 async function pollData() {
     const query = await getSetting(_settingQuery)
     const apiKey = await getSetting(_settingKeyApiKey)
+    const units = await getSetting(_settingUnits)
     const forecastDays = await getSettingAsNumber(_settingKeyForecastDays)
 
     if (query === null || apiKey === null || forecastDays === null) return
 
     const response = await fetch(
-        `http://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${query}&days=${forecastDays}&aqi=no&alerts=no`
+        `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${query}?unitGroup=${units}&include=days&key=${apiKey}&contentType=json&lang=id`
     )
 
     if (response.status !== 200) return
@@ -98,29 +109,37 @@ async function pollData() {
 
     if (responseBody === undefined) return
 
+    console.log(responseBody)
+
     _lastWeatherData = {
+        is_metric: units === 'metric',
+
         location: {
-            name: responseBody.location.name,
-            country: responseBody.location.country,
-            lat: responseBody.location.lat,
-            lon: responseBody.location.lon,
-            localtime: responseBody.location.localtime_epoch * 1000,
+            name: responseBody.address,
+            country: responseBody.resolvedAddress,
+            lat: responseBody.latitude,
+            lon: responseBody.longitude,
+            localtime: responseBody.days[0].datetimeEpoch * 1000,
         },
 
         current: {
-            temperature: responseBody.current.temp_c,
-            condition_code: responseBody.current.condition.code,
+            temperature: responseBody.days[0].temp,
+            conditions: responseBody.days[0].conditions
+                .split(',')
+                .map((condition: string) => condition.trim()),
         },
 
-        forecasts: responseBody.forecast.forecastday.map(
-            (forecastData: any) => {
+        forecasts: responseBody.days
+            .slice(1, forecastDays + 1)
+            .map((forecastData: any) => {
                 return {
-                    localtime: forecastData.date_epoch * 1000,
-                    temperature: forecastData.day.avgtemp_c,
-                    condition_code: forecastData.day.condition.code,
+                    localtime: forecastData.datetimeEpoch * 1000,
+                    temperature: forecastData.temp,
+                    conditions: forecastData.conditions
+                        .split(',')
+                        .map((condition: string) => condition.trim()),
                 } as ForecastWeatherData
-            }
-        ),
+            }),
     }
 
     emitWebsocketEvent(WS_EVENT_WEATHER_LIVEDATA_UPDATED, _lastWeatherData)
