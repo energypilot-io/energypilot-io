@@ -130,6 +130,15 @@ export default {
                 label: 'Vorschau Tage',
             },
 
+            units: {
+                label: 'Einheiten',
+
+                values: {
+                    us: 'US (°F)',
+                    metric: 'Metrisch (°C)',
+                },
+            },
+
             query: {
                 label: 'Abfrage Ort',
                 description:

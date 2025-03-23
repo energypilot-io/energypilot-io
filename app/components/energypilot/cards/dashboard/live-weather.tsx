@@ -4,7 +4,6 @@ import {
     CloudDrizzleIcon,
     CloudFogIcon,
     CloudHailIcon,
-    CloudIcon,
     CloudRainIcon,
     CloudRainWindIcon,
     CloudSnowIcon,
@@ -29,7 +28,7 @@ import {
     TooltipTrigger,
 } from '~/components/ui/tooltip'
 
-import weatherapiConditions from 'public/weatherapi_conditions.json'
+import weather_conditions from 'public/weather_conditions.json'
 
 export type LiveWeatherCardProps = MoveableCardDndProps & {}
 
@@ -57,84 +56,82 @@ export function LiveWeatherCard({
         socket.emit(WS_EVENT_REQUEST_WEATHER_LIVEDATA_UPDATE)
     }, [socket])
 
-    function getTextForCondition(condition_code: number) {
+    function getTextForCondition(conditions: string[]) {
         if (i18n === undefined) return null
 
-        for (const condition of weatherapiConditions.filter(
-            (condition) => condition.code === condition_code
-        )) {
-            for (const languageEntry of condition.languages) {
-                if (languageEntry.lang_iso === i18n.language) {
-                    return languageEntry.day_text
-                }
-            }
+        const conditionText = conditions.map((condition) => {
+            return (weather_conditions as { [lang: string]: any })[
+                i18n.language
+            ][condition]
+        })
 
-            return condition.day
-        }
-
-        return null
+        return conditionText.join(', ')
     }
 
-    function getIconForCondition(condition_code: number) {
-        switch (condition_code) {
-            case 1000:
-                return <SunIcon size="3rem" />
-            case 1003:
-                return <CloudSunIcon size="3rem" />
-            case 1006:
-                return <CloudyIcon size="3rem" />
-            case 1009:
-                return <CloudIcon size="3rem" />
-            case 1030:
-            case 1135:
-            case 1147:
-                return <CloudFogIcon size="3rem" />
-            case 1063:
-            case 1180:
-            case 1183:
-            case 1186:
-            case 1189:
-            case 1198:
-            case 1240:
-            case 1243:
-                return <CloudRainIcon size="3rem" />
-            case 1066:
-            case 1069:
-            case 1114:
-            case 1117:
-            case 1204:
-            case 1207:
-            case 1210:
-            case 1213:
-            case 1216:
-            case 1219:
-            case 1222:
-            case 1225:
-            case 1249:
-            case 1252:
-            case 1255:
-            case 1258:
-            case 1279:
-            case 1282:
-                return <CloudSnowIcon size="3rem" />
-            case 1072:
-            case 1150:
-            case 1153:
-            case 1168:
-            case 1171:
-                return <CloudDrizzleIcon size="3rem" />
-            case 1087:
-            case 1192:
-            case 1195:
-            case 1201:
-            case 1246:
-            case 1273:
-            case 1276:
-                return <CloudRainWindIcon size="3rem" />
-            case 1237:
-            case 1261:
-            case 1264:
-                return <CloudHailIcon size="3rem" />
+    function getIconForCondition(conditions: string[]) {
+        for (const condition of conditions) {
+            switch (condition) {
+                case 'type_1':
+                    return <CloudSnowIcon size="3rem" />
+
+                case 'type_2':
+                case 'type_3':
+                case 'type_4':
+                case 'type_5':
+                case 'type_6':
+                    return <CloudDrizzleIcon size="3rem" />
+
+                case 'type_7':
+                case 'type_8':
+                case 'type_19':
+                    return <CloudFogIcon size="3rem" />
+
+                case 'type_9':
+                case 'type_10':
+                case 'type_11':
+                case 'type_12':
+                case 'type_13':
+                case 'type_14':
+                case 'type_17':
+                case 'type_31':
+                case 'type_32':
+                case 'type_33':
+                case 'type_34':
+                case 'type_35':
+                    return <CloudSnowIcon size="3rem" />
+
+                case 'type_16':
+                case 'type_39':
+                case 'type_40':
+                    return <CloudHailIcon size="3rem" />
+
+                case 'type_15':
+                case 'type_18':
+                case 'type_36':
+                case 'type_37':
+                case 'type_38':
+                    return <CloudRainWindIcon size="3rem" />
+
+                case 'type_20':
+                case 'type_21':
+                case 'type_22':
+                case 'type_23':
+                case 'type_24':
+                case 'type_25':
+                case 'type_26':
+                    return <CloudRainIcon size="3rem" />
+
+                case 'type_27':
+                case 'type_28':
+                    return <CloudSunIcon size="3rem" />
+
+                case 'type_41':
+                case 'type_42':
+                    return <CloudyIcon size="3rem" />
+
+                case 'type_43':
+                    return <SunIcon size="3rem" />
+            }
         }
     }
 
@@ -156,28 +153,26 @@ export function LiveWeatherCard({
                                 {weatherData.location.name}
                             </p>
                             <p className="text-sm text-gray-600">
-                                {new Date(
-                                    weatherData.location.localtime
-                                ).toLocaleString()}{' '}
-                                - {weatherData.location.country}
+                                {weatherData.location.country}
                             </p>
                         </div>
                         <div className="flex gap-2 text-5xl">
                             <Tooltip>
                                 <TooltipTrigger>
                                     {getIconForCondition(
-                                        weatherData.current.condition_code
+                                        weatherData.current.conditions
                                     )}
                                 </TooltipTrigger>
                                 <TooltipContent>
                                     <p>
                                         {getTextForCondition(
-                                            weatherData.current.condition_code
+                                            weatherData.current.conditions
                                         )}
                                     </p>
                                 </TooltipContent>
                             </Tooltip>
-                            {weatherData.current.temperature} °C
+                            {weatherData.current.temperature}{' '}
+                            {weatherData.is_metric ? '°C' : '°F'}
                         </div>
                     </div>
 
@@ -200,18 +195,19 @@ export function LiveWeatherCard({
                                     <Tooltip>
                                         <TooltipTrigger>
                                             {getIconForCondition(
-                                                forecastWeatherData.condition_code
+                                                forecastWeatherData.conditions
                                             )}
                                         </TooltipTrigger>
                                         <TooltipContent>
                                             <p>
                                                 {getTextForCondition(
-                                                    forecastWeatherData.condition_code
+                                                    forecastWeatherData.conditions
                                                 )}
                                             </p>
                                         </TooltipContent>
                                     </Tooltip>
-                                    {forecastWeatherData.temperature} °C
+                                    {forecastWeatherData.temperature}{' '}
+                                    {weatherData.is_metric ? '°C' : '°F'}
                                 </div>
                             )
                         )}
@@ -221,12 +217,12 @@ export function LiveWeatherCard({
                         <p className="text-xs text-gray-500">
                             Powered by{' '}
                             <a
-                                href="https://www.weatherapi.com/"
-                                title="Weather API"
-                                className="underline"
+                                href="https://www.visualcrossing.com/"
+                                title="visualcrossing.com"
+                                className="underline font-bold"
                                 target="_blank"
                             >
-                                WeatherAPI.com
+                                visualcrossing.com
                             </a>
                         </p>
                     </div>

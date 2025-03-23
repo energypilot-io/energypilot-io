@@ -136,6 +136,15 @@ export default {
                 label: 'Forecast Days',
             },
 
+            units: {
+                label: 'Units',
+
+                values: {
+                    us: 'US (°F)',
+                    metric: 'Metric (°C)',
+                },
+            },
+
             query: {
                 label: 'Location Query',
                 description:
