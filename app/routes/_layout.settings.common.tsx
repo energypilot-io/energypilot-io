@@ -26,6 +26,13 @@ import {
     SelectValue,
 } from '~/components/ui/select'
 import { GroupedSettingsDef } from 'server/core/settings'
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '~/components/ui/card'
 
 export async function loader({ context, request }: LoaderFunctionArgs) {
     let t = await i18next.getFixedT(request)
@@ -150,195 +157,200 @@ export default function SettingsCommonPage() {
                     ) : (
                         <>
                             {Object.keys(settings).map((groupName, index) => (
-                                <Fragment key={index}>
-                                    <div className="flex flex-col gap-2">
-                                        <p className="font-bold">
+                                <Card key={index}>
+                                    <CardHeader>
+                                        <CardTitle>
                                             {t(`settings.${groupName}.label`)}
-                                        </p>
+                                        </CardTitle>
                                         {t(
                                             `settings.${groupName}.description`,
                                             ''
                                         ) !== '' && (
-                                            <p className="text-sm">
+                                            <CardDescription>
                                                 {t(
                                                     `settings.${groupName}.description`
                                                 )}
-                                            </p>
+                                            </CardDescription>
                                         )}
-                                    </div>
+                                    </CardHeader>
+                                    <CardContent className="flex flex-col gap-4">
+                                        {Object.keys(settings[groupName]).map(
+                                            (key: string, index) => {
+                                                const parameter =
+                                                    settings[groupName][key]
 
-                                    {Object.keys(settings[groupName]).map(
-                                        (key: string, index) => {
-                                            const parameter =
-                                                settings[groupName][key]
+                                                const parameterName: string =
+                                                    key.substring(
+                                                        key.indexOf('_') + 1
+                                                    )
 
-                                            const parameterName: string =
-                                                key.substring(
-                                                    key.indexOf('_') + 1
-                                                )
+                                                return (
+                                                    <div
+                                                        className="flex flex-col gap-1"
+                                                        key={index}
+                                                    >
+                                                        <Label htmlFor={key}>
+                                                            {t(
+                                                                `settings.${groupName}.${parameterName}.label`
+                                                            )}
+                                                        </Label>
 
-                                            return (
-                                                <div
-                                                    className="flex flex-col gap-1"
-                                                    key={index}
-                                                >
-                                                    <Label htmlFor={key}>
-                                                        {t(
-                                                            `settings.${groupName}.${parameterName}.label`
-                                                        )}
-                                                    </Label>
-
-                                                    <Controller
-                                                        control={control}
-                                                        name={key}
-                                                        shouldUnregister={false}
-                                                        disabled={isSubmitting}
-                                                        defaultValue={
-                                                            parameter.type ===
-                                                            'number'
-                                                                ? Number.parseFloat(
-                                                                      parameter.defaultValue ??
-                                                                          '0'
-                                                                  )
-                                                                : parameter.defaultValue ??
-                                                                  ''
-                                                        }
-                                                        render={({
-                                                            field: {
-                                                                onChange,
-                                                                value,
-                                                            },
-                                                        }) => {
-                                                            if (
+                                                        <Controller
+                                                            control={control}
+                                                            name={key}
+                                                            shouldUnregister={
+                                                                false
+                                                            }
+                                                            disabled={
+                                                                isSubmitting
+                                                            }
+                                                            defaultValue={
                                                                 parameter.type ===
-                                                                'enum'
-                                                            ) {
-                                                                return (
-                                                                    <Select
-                                                                        onValueChange={
-                                                                            onChange
-                                                                        }
-                                                                        value={
-                                                                            value
-                                                                        }
-                                                                    >
-                                                                        <SelectTrigger className="max-w-72">
-                                                                            <SelectValue />
-                                                                        </SelectTrigger>
-                                                                        <SelectContent>
-                                                                            {parameter.enumValues?.map(
-                                                                                (
-                                                                                    enumValue: string,
-                                                                                    index: number
-                                                                                ) => (
-                                                                                    <SelectItem
-                                                                                        value={
-                                                                                            enumValue
-                                                                                        }
-                                                                                        key={
-                                                                                            index
-                                                                                        }
-                                                                                    >
-                                                                                        {t(
-                                                                                            `settings.${groupName}.${parameterName}.values.${enumValue}`,
-                                                                                            {
-                                                                                                defaultValue:
-                                                                                                    enumValue,
-                                                                                            }
-                                                                                        )}
-                                                                                    </SelectItem>
-                                                                                )
-                                                                            )}
-                                                                        </SelectContent>
-                                                                    </Select>
-                                                                )
-                                                            } else {
-                                                                return (
-                                                                    <div className="flex">
-                                                                        <Input
-                                                                            id={
-                                                                                key
+                                                                'number'
+                                                                    ? Number.parseFloat(
+                                                                          parameter.defaultValue ??
+                                                                              '0'
+                                                                      )
+                                                                    : parameter.defaultValue ??
+                                                                      ''
+                                                            }
+                                                            render={({
+                                                                field: {
+                                                                    onChange,
+                                                                    value,
+                                                                },
+                                                            }) => {
+                                                                if (
+                                                                    parameter.type ===
+                                                                    'enum'
+                                                                ) {
+                                                                    return (
+                                                                        <Select
+                                                                            onValueChange={
+                                                                                onChange
                                                                             }
-                                                                            type={
-                                                                                parameter.type ===
-                                                                                'ip'
-                                                                                    ? 'text'
-                                                                                    : parameter.type
-                                                                            }
-                                                                            className={`max-w-72 ${
-                                                                                parameter.unit !==
-                                                                                undefined
-                                                                                    ? 'rounded-r-none'
-                                                                                    : ''
-                                                                            }`}
                                                                             value={
                                                                                 value
                                                                             }
-                                                                            min={
-                                                                                parameter.min
-                                                                            }
-                                                                            max={
-                                                                                parameter.max
-                                                                            }
-                                                                            onChange={(
-                                                                                event
-                                                                            ) =>
-                                                                                onChange?.(
-                                                                                    parameter.type ===
-                                                                                        'number' &&
-                                                                                        event
-                                                                                            .target
-                                                                                            .value !==
-                                                                                            ''
-                                                                                        ? parseInt(
-                                                                                              event
-                                                                                                  .target
-                                                                                                  .value,
-                                                                                              10
-                                                                                          )
-                                                                                        : event
-                                                                                              .target
-                                                                                              .value
-                                                                                )
-                                                                            }
-                                                                        />
-
-                                                                        {parameter.unit && (
-                                                                            <div className="flex items-center justify-center px-3 border border-r-0 rounded-r bg-gray-300">
-                                                                                {
-                                                                                    parameter.unit
+                                                                        >
+                                                                            <SelectTrigger className="max-w-72">
+                                                                                <SelectValue />
+                                                                            </SelectTrigger>
+                                                                            <SelectContent>
+                                                                                {parameter.enumValues?.map(
+                                                                                    (
+                                                                                        enumValue: string,
+                                                                                        index: number
+                                                                                    ) => (
+                                                                                        <SelectItem
+                                                                                            value={
+                                                                                                enumValue
+                                                                                            }
+                                                                                            key={
+                                                                                                index
+                                                                                            }
+                                                                                        >
+                                                                                            {t(
+                                                                                                `settings.${groupName}.${parameterName}.values.${enumValue}`,
+                                                                                                {
+                                                                                                    defaultValue:
+                                                                                                        enumValue,
+                                                                                                }
+                                                                                            )}
+                                                                                        </SelectItem>
+                                                                                    )
+                                                                                )}
+                                                                            </SelectContent>
+                                                                        </Select>
+                                                                    )
+                                                                } else {
+                                                                    return (
+                                                                        <div className="flex">
+                                                                            <Input
+                                                                                id={
+                                                                                    key
                                                                                 }
-                                                                            </div>
-                                                                        )}
-                                                                    </div>
-                                                                )
-                                                            }
-                                                        }}
-                                                    />
+                                                                                type={
+                                                                                    parameter.type ===
+                                                                                    'ip'
+                                                                                        ? 'text'
+                                                                                        : parameter.type
+                                                                                }
+                                                                                className={`max-w-72 ${
+                                                                                    parameter.unit !==
+                                                                                    undefined
+                                                                                        ? 'rounded-r-none'
+                                                                                        : ''
+                                                                                }`}
+                                                                                value={
+                                                                                    value
+                                                                                }
+                                                                                min={
+                                                                                    parameter.min
+                                                                                }
+                                                                                max={
+                                                                                    parameter.max
+                                                                                }
+                                                                                onChange={(
+                                                                                    event
+                                                                                ) =>
+                                                                                    onChange?.(
+                                                                                        parameter.type ===
+                                                                                            'number' &&
+                                                                                            event
+                                                                                                .target
+                                                                                                .value !==
+                                                                                                ''
+                                                                                            ? parseInt(
+                                                                                                  event
+                                                                                                      .target
+                                                                                                      .value,
+                                                                                                  10
+                                                                                              )
+                                                                                            : event
+                                                                                                  .target
+                                                                                                  .value
+                                                                                    )
+                                                                                }
+                                                                            />
 
-                                                    {t(
-                                                        `settings.${groupName}.${parameterName}.description`,
-                                                        ''
-                                                    ) !== '' && (
-                                                        <p className="text-xs text-gray-500">
-                                                            {t(
-                                                                `settings.${groupName}.${parameterName}.description`
-                                                            )}
-                                                        </p>
-                                                    )}
+                                                                            {parameter.unit && (
+                                                                                <div className="flex items-center justify-center px-3 border border-r-0 rounded-r bg-gray-300">
+                                                                                    {
+                                                                                        parameter.unit
+                                                                                    }
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
+                                                                    )
+                                                                }
+                                                            }}
+                                                        />
 
-                                                    {errors[key] && (
-                                                        <p className="text-sm text-red-600">
-                                                            {errors[
-                                                                key
-                                                            ]!.message?.toString()}
-                                                        </p>
-                                                    )}
-                                                </div>
-                                            )
-                                        }
-                                    )}
-                                </Fragment>
+                                                        {t(
+                                                            `settings.${groupName}.${parameterName}.description`,
+                                                            ''
+                                                        ) !== '' && (
+                                                            <p className="text-xs text-gray-500">
+                                                                {t(
+                                                                    `settings.${groupName}.${parameterName}.description`
+                                                                )}
+                                                            </p>
+                                                        )}
+
+                                                        {errors[key] && (
+                                                            <p className="text-sm text-red-600">
+                                                                {errors[
+                                                                    key
+                                                                ]!.message?.toString()}
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                )
+                                            }
+                                        )}
+                                    </CardContent>
+                                </Card>
                             ))}
 
                             <div>

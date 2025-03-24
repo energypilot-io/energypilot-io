@@ -15,15 +15,17 @@ export function registerSettings(settings: IFormParameterDefList) {
 export function getRegisteredSettingDefs(): GroupedSettingsDef {
     const groupedSettings: GroupedSettingsDef = {}
 
-    Object.keys(_registeredSettings).forEach((key: string) => {
-        const settingDef = _registeredSettings[key]
-        const groupName = key.split('_')[0]
+    Object.keys(_registeredSettings)
+        .sort()
+        .forEach((key: string) => {
+            const settingDef = _registeredSettings[key]
+            const groupName = key.split('_')[0]
 
-        if (!(groupName in groupedSettings)) {
-            groupedSettings[groupName] = {}
-        }
-        groupedSettings[groupName][key] = settingDef
-    })
+            if (!(groupName in groupedSettings)) {
+                groupedSettings[groupName] = {}
+            }
+            groupedSettings[groupName][key] = settingDef
+        })
 
     return groupedSettings
 }
