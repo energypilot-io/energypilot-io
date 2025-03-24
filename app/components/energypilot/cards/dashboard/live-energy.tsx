@@ -58,22 +58,22 @@ export function LiveEnergyCard({
             data.forEach((element: any) => {
                 switch (element.type) {
                     case 'grid':
-                        gridPower += element.power
+                        gridPower += element.power ?? 0
                         break
 
                     case 'battery':
-                        batteryPower += element.power
+                        batteryPower += element.power ?? 0
                         break
 
                     case 'pv':
-                        pvPower += element.power
+                        pvPower += element.power ?? 0
                         break
 
                     case 'consumer':
                         if (element.power > 0) {
                             consumers.push({
                                 name: element.device.name,
-                                value: element.power,
+                                value: element.power ?? 0,
                             })
                         }
                         break

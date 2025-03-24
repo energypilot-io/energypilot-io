@@ -28,7 +28,7 @@ import {
     TooltipTrigger,
 } from '~/components/ui/tooltip'
 
-import weather_conditions from 'public/weather_conditions.json'
+import weather_conditions from '~/assets/weather_conditions.json'
 
 export type LiveWeatherCardProps = MoveableCardDndProps & {}
 

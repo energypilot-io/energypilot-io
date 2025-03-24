@@ -14,7 +14,7 @@ import {
     SidebarMenuItem,
     SidebarRail,
 } from '~/components/ui/sidebar'
-import { SiDiscord, SiGithub } from '@icons-pack/react-simple-icons'
+import { SiDiscord, SiGithub, SiMastodon } from '@icons-pack/react-simple-icons'
 import { useTranslation } from 'react-i18next'
 import { CollapsibleMenuItem } from './collapsible-menuitem'
 
@@ -29,6 +29,12 @@ const footerMenuItems = [
         href: 'https://github.com/energypilot-io/energypilot-io',
         icon: <SiGithub />,
         label: 'Github',
+    },
+
+    {
+        href: 'https://mastodon.social/@nekronomekron',
+        icon: <SiMastodon />,
+        label: 'Mastodon',
     },
 ]
 
