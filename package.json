@@ -83,6 +83,8 @@
     "devDependencies": {
         "@mikro-orm/cli": "^6.4.0",
         "@remix-run/dev": "^2.15.2",
+        "@remix-run/fs-routes": "^2.16.5",
+        "@remix-run/route-config": "^2.16.5",
         "@types/compression": "^1.7.5",
         "@types/express": "^5.0.0",
         "@types/node": "^22.10.1",
