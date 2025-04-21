@@ -8,7 +8,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu'
-import { useSubmit } from '@remix-run/react'
+import { useSubmit } from 'react-router';
 
 export function LanguageToggleButton({
     ...props

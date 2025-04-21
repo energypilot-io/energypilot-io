@@ -1,5 +1,5 @@
 import { getEntityManager } from '~/lib/db.server'
-import { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node'
+import { ActionFunctionArgs, LoaderFunctionArgs } from 'react-router';
 
 import { Device } from 'server/database/entities/device.entity'
 

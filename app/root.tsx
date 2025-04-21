@@ -9,8 +9,8 @@ import {
     ScrollRestoration,
     useLoaderData,
     useRouteLoaderData,
-} from '@remix-run/react'
-import type { LinksFunction, LoaderFunctionArgs } from '@remix-run/node'
+} from 'react-router';
+import type { LinksFunction, LoaderFunctionArgs } from 'react-router';
 import i18nServer, { localeCookie } from '~/lib/i18n.server'
 import { useChangeLanguage } from 'remix-i18next/react'
 

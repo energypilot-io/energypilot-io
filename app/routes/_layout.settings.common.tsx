@@ -1,7 +1,7 @@
 import i18next from '~/lib/i18n.server'
 
-import { LoaderFunctionArgs } from '@remix-run/node'
-import { MetaFunction, useFetcher, useLoaderData } from '@remix-run/react'
+import { LoaderFunctionArgs } from 'react-router';
+import { MetaFunction, useFetcher, useLoaderData } from 'react-router';
 import { LoaderIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Fragment } from 'react/jsx-runtime'

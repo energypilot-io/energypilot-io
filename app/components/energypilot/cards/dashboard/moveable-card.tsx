@@ -10,7 +10,7 @@ import {
 import { EyeIcon, EyeOffIcon, MenuIcon, MoveIcon } from 'lucide-react'
 import { useDrag, useDrop } from 'react-dnd'
 import type { Identifier, XYCoord } from 'dnd-core'
-import { useFetcher } from '@remix-run/react'
+import { useFetcher } from 'react-router';
 import { cn, DASHBOARD_CARDS } from '~/lib/utils'
 import {
     Tooltip,

@@ -1,4 +1,4 @@
-import { MetaFunction, useFetcher } from '@remix-run/react'
+import { MetaFunction, useFetcher } from 'react-router';
 import { useTranslation } from 'react-i18next'
 import { Header } from '~/components/energypilot/site/header'
 import i18next from '~/lib/i18n.server'
@@ -37,7 +37,7 @@ import { Button } from '~/components/ui/button'
 import { DateRange } from 'react-day-picker'
 import { Calendar } from '~/components/ui/calendar'
 import { cn } from '~/lib/utils'
-import { LoaderFunctionArgs } from '@remix-run/node'
+import { LoaderFunctionArgs } from 'react-router';
 
 export async function loader({ request }: LoaderFunctionArgs) {
     let t = await i18next.getFixedT(request)

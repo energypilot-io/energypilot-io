@@ -9,7 +9,7 @@ import {
 import { EyeIcon, EyeOffIcon, MenuIcon } from 'lucide-react'
 import { useDrag, useDrop } from 'react-dnd'
 import type { Identifier } from 'dnd-core'
-import { useFetcher } from '@remix-run/react'
+import { useFetcher } from 'react-router';
 import { DndItemTypes, MoveableCardDndProps } from './moveable-card'
 import {
     Tooltip,

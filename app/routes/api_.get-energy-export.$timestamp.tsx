@@ -1,6 +1,6 @@
 import { getEntityManager } from '~/lib/db.server'
 
-import { LoaderFunctionArgs } from '@remix-run/node'
+import { LoaderFunctionArgs } from 'react-router';
 import { GridEnergyExport } from 'server/database/views/grid-energy-export.entity'
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {

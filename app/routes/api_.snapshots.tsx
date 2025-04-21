@@ -1,6 +1,6 @@
 import { getEntityManager } from '~/lib/db.server'
 
-import { LoaderFunctionArgs } from '@remix-run/node'
+import { LoaderFunctionArgs } from 'react-router';
 import { Snapshot } from 'server/database/entities/snapshot.entity'
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {

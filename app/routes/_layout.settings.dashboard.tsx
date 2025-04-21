@@ -1,8 +1,8 @@
 import i18next from '~/lib/i18n.server'
 import update from 'immutability-helper'
 
-import { LoaderFunctionArgs } from '@remix-run/node'
-import { MetaFunction, useFetcher } from '@remix-run/react'
+import { LoaderFunctionArgs } from 'react-router';
+import { MetaFunction, useFetcher } from 'react-router';
 import { useTranslation } from 'react-i18next'
 import { Header } from '~/components/energypilot/site/header'
 import { useCallback, useEffect } from 'react'

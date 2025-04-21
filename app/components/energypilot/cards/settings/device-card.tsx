@@ -1,5 +1,5 @@
 import { Overlay } from '@radix-ui/react-alert-dialog'
-import { useFetcher } from '@remix-run/react'
+import { useFetcher } from 'react-router';
 import { CircleCheckIcon, CircleXIcon, TriangleAlert } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
