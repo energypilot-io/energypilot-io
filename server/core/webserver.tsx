@@ -96,7 +96,7 @@ export async function initWebServer() {
     }
 
     app.all(
-        '*',
+        /(.*)/,
         createRequestHandler({
             build: async () => {
                 const { error, build } = await getBuild()
