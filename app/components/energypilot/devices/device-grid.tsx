@@ -1,4 +1,4 @@
-import { useFetcher } from '@remix-run/react'
+import { useFetcher } from 'react-router';
 import { useEffect, useState } from 'react'
 import { DeviceCard } from '../cards/settings/device-card'
 import { EnrichedDevice } from '~/routes/api_.devices'

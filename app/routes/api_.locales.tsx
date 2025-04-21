@@ -1,4 +1,4 @@
-import { type LoaderFunctionArgs, data } from '@remix-run/node'
+import { type LoaderFunctionArgs, data } from 'react-router';
 import { cacheHeader } from 'pretty-cache-header'
 import { z } from 'zod'
 import { resources } from 'i18n'

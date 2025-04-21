@@ -2,7 +2,7 @@ import { getEntityManager } from '~/lib/db.server'
 
 import { Device } from 'server/database/entities/device.entity'
 
-import { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node'
+import { ActionFunctionArgs, LoaderFunctionArgs } from 'react-router';
 import { getValidatedFormData } from 'remix-hook-form'
 
 import * as zod from 'zod'

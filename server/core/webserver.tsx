@@ -2,10 +2,10 @@ import express from 'express'
 import compression from 'compression'
 import path from 'path'
 
-import { createRequestHandler } from '@remix-run/express'
+import { createRequestHandler } from '@react-router/express';
 import { createServer, Server as HTTPServer } from 'http'
 import { Server as SocketServer } from 'socket.io'
-import { ServerBuild } from '@remix-run/node'
+import { ServerBuild } from 'react-router';
 import { fileURLToPath } from 'url'
 import { getLogger } from './logmanager'
 import {
@@ -83,7 +83,7 @@ export async function initWebServer() {
         try {
             const build = viteDevServer
                 ? await viteDevServer.ssrLoadModule(
-                      'virtual:remix/server-build'
+                      'virtual:react-router/server-build'
                   )
                 : await import('../../build/server/index.js')
 

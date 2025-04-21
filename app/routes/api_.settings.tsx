@@ -1,4 +1,4 @@
-import { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node'
+import { ActionFunctionArgs, LoaderFunctionArgs } from 'react-router';
 import { parseFormData } from 'remix-hook-form'
 import { GroupedSettingsDef } from 'server/core/settings'
 import { Setting } from 'server/database/entities/setting.entity'

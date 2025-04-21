@@ -1,4 +1,4 @@
-import { Outlet } from '@remix-run/react'
+import { Outlet } from 'react-router';
 import { AppSidebar } from '~/components/energypilot/sidebar/app-sidebar'
 import { SidebarInset, SidebarProvider } from '~/components/ui/sidebar'
 
