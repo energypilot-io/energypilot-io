@@ -3,8 +3,8 @@ import i18next from '~/lib/i18n.server'
 import update from 'immutability-helper'
 import { useTranslation } from 'react-i18next'
 import { Header } from '~/components/energypilot/site/header'
-import { LoaderFunctionArgs } from 'react-router';
-import { MetaFunction, useFetcher } from 'react-router';
+import { LoaderFunctionArgs } from 'react-router'
+import { MetaFunction, useFetcher } from 'react-router'
 import { createElement, useCallback, useEffect } from 'react'
 import { Card } from '~/components/ui/card'
 import useState from 'react-usestateref'
