@@ -1,5 +1,5 @@
-import { LoaderFunctionArgs } from 'react-router';
-import { MetaFunction } from 'react-router';
+import { LoaderFunctionArgs } from 'react-router'
+import { MetaFunction } from 'react-router'
 import i18next from '~/lib/i18n.server'
 
 import { useTranslation } from 'react-i18next'

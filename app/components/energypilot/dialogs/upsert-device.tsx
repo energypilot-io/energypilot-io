@@ -14,7 +14,7 @@ import {
 } from '~/components/ui/dialog'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
-import { Link, useFetcher } from 'react-router';
+import { Link, useFetcher } from 'react-router'
 
 import { useRemixForm } from 'remix-hook-form'
 import { newDeviceSchema } from '~/routes/api_.devices'

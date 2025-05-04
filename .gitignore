@@ -7,3 +7,4 @@ vite.*.mjs
 package-lock.json
 /examples/*.log
 /examples/*.db
+.react-router/

@@ -2,6 +2,7 @@ import clsx from 'clsx'
 import { PreventFlashOnWrongTheme, ThemeProvider, useTheme } from 'remix-themes'
 
 import {
+    data,
     Links,
     Meta,
     Outlet,
@@ -9,8 +10,8 @@ import {
     ScrollRestoration,
     useLoaderData,
     useRouteLoaderData,
-} from 'react-router';
-import type { LinksFunction, LoaderFunctionArgs } from 'react-router';
+} from 'react-router'
+import type { LinksFunction, LoaderFunctionArgs } from 'react-router'
 import i18nServer, { localeCookie } from '~/lib/i18n.server'
 import { useChangeLanguage } from 'remix-i18next/react'
 
@@ -42,17 +43,19 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     const { getTheme } = await themeSessionResolver(request)
     const locale = await i18nServer.getLocale(request)
 
-    const body = JSON.stringify({
-        locale,
-        theme: getTheme(),
-        interfaceTranslations: context.interfaceTranslations,
-    })
-    return new Response(body, {
-        headers: {
-            'Content-Type': 'application/json',
-            'Set-Cookie': await localeCookie.serialize(locale),
+    return data(
+        {
+            locale,
+            theme: getTheme(),
+            interfaceTranslations: context.interfaceTranslations,
         },
-    })
+        {
+            headers: {
+                'Content-Type': 'application/json',
+                'Set-Cookie': await localeCookie.serialize(locale),
+            },
+        }
+    )
 }
 
 export function App() {
@@ -77,15 +80,18 @@ export function App() {
     }, [socket])
 
     useEffect(() => {
-        if (data?.interfaceTranslations === undefined) return
+        if (data === undefined || data.interfaceTranslations === undefined)
+            return
 
-        Object.keys(data!.interfaceTranslations).forEach((lang: string) => {
-            i18next.addResourceBundle(
-                lang,
-                defaultNS,
-                { interfaces: data!.interfaceTranslations[lang] },
-                true
-            )
+        Object.keys(data.interfaceTranslations).forEach((lang: string) => {
+            if (data.interfaceTranslations !== undefined) {
+                i18next.addResourceBundle(
+                    lang,
+                    defaultNS,
+                    { interfaces: data!.interfaceTranslations[lang] },
+                    true
+                )
+            }
         })
     }, [data])
 
@@ -174,7 +180,7 @@ export function App() {
                 />
 
                 <Meta />
-                <PreventFlashOnWrongTheme ssrTheme={Boolean(data.theme)} />
+                <PreventFlashOnWrongTheme ssrTheme={Boolean(data!.theme)} />
                 <Links />
             </head>
             <body>
