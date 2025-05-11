@@ -22,29 +22,29 @@
         {
             "id": "sungrow_1",
             "type": "modbus",
-            "host": "192.168.178.199",
+            "host": "Modbus_IP_as_String",
             "port": 502
         },
         {
             "id": "sungrow_2",
             "type": "modbus",
-            "host": "192.168.178.42",
+            "host": "Modbus_IP_as_String",
             "port": 502
         },
 
         {
             "id": "tapo_1",
             "type": "tapo",
-            "email": "reifialex@gmail.com",
-            "password": "6#Vb8N9qvpB2!O8",
-            "ip": "192.168.178.82"
+            "email": "your_tapo_email",
+            "password": "your_tapo_password",
+            "ip": "IP_as_String"
         },
 
         {
             "id": "abl_emh1",
             "type": "modbus",
             "transport": "ascii",
-            "host": "192.168.178.152",
+            "host": "Modbus_IP_as_String",
             "port": 502
         }
     ],
