@@ -17,7 +17,7 @@ import { Label } from '~/components/ui/label'
 import { Link, useFetcher } from 'react-router'
 
 import { useRemixForm } from 'remix-hook-form'
-import { newDeviceSchema } from '~/routes/api_.devices'
+import { newDeviceSchema } from '~/routes/api/devices/_index'
 import { zodResolver } from '@hookform/resolvers/zod'
 
 import * as zod from 'zod'

@@ -1,4 +1,4 @@
-import { useFetcher } from 'react-router';
+import { useFetcher } from 'react-router'
 import { useEffect, useState } from 'react'
 
 import { LoaderIcon } from 'lucide-react'
@@ -52,7 +52,7 @@ export function EnergyProductionCard({
             )
         }
 
-        fetcher.load(`api/get-energy-production/${requestTimeframe.getTime()}`)
+        fetcher.load(`api/energy-production/${requestTimeframe.getTime()}`)
     }
 
     const onTimeframeSelected = (value: string) => {

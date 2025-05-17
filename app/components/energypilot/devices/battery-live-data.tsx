@@ -8,7 +8,7 @@ import {
 } from '~/components/ui/accordion'
 import { useEffect, useState } from 'react'
 import { formatEnergy, formatPower, useI18nFormat } from '~/lib/utils'
-import { EnrichedDevice } from '~/routes/api_.devices'
+import { EnrichedDevice } from '~/routes/api/devices/_index'
 import { useTranslation } from 'react-i18next'
 import { useSocket } from '~/context'
 import { WS_EVENT_LIVEDATA_UPDATED } from 'server/constants'
