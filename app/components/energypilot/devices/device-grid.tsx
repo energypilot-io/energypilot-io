@@ -1,7 +1,7 @@
 import { useFetcher } from 'react-router'
 import { useEffect, useState } from 'react'
 import { DeviceCard } from '../cards/settings/device-card'
-import { EnrichedDevice } from '~/routes/api_.devices'
+import { EnrichedDevice } from '~/routes/api/devices/_index'
 import { FrownIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 

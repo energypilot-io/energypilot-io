@@ -1,9 +1,8 @@
 import { getEntityManager } from '~/lib/db.server'
-import { ActionFunctionArgs, LoaderFunctionArgs } from 'react-router';
-
 import { Device } from 'server/database/entities/device.entity'
+import type { Route } from './+types/device'
 
-export async function action({ params, request }: ActionFunctionArgs) {
+export async function action({ params, request }: Route.ActionArgs) {
     const em = await getEntityManager()
 
     const device = await em.findOneOrFail(Device, {
@@ -30,7 +29,7 @@ export async function action({ params, request }: ActionFunctionArgs) {
     return { success: false }
 }
 
-export const loader = async ({ params, context }: LoaderFunctionArgs) => {
+export const loader = async ({ params }: Route.LoaderArgs) => {
     const em = await getEntityManager()
 
     const device = await em.findOneOrFail(Device, {

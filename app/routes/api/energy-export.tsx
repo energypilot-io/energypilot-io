@@ -1,9 +1,8 @@
 import { getEntityManager } from '~/lib/db.server'
-
-import { LoaderFunctionArgs } from 'react-router';
 import { GridEnergyExport } from 'server/database/views/grid-energy-export.entity'
+import type { Route } from './+types/energy-export'
 
-export const loader = async ({ params }: LoaderFunctionArgs) => {
+export const loader = async ({ params }: Route.LoaderArgs) => {
     const timestamp =
         params.timestamp !== undefined
             ? new Date(Number.parseFloat(params.timestamp))

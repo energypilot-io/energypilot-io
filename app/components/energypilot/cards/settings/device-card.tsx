@@ -1,5 +1,5 @@
 import { Overlay } from '@radix-ui/react-alert-dialog'
-import { useFetcher } from 'react-router';
+import { useFetcher } from 'react-router'
 import { CircleCheckIcon, CircleXIcon, TriangleAlert } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -14,7 +14,7 @@ import {
 } from '~/components/ui/alert-dialog'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
-import { EnrichedDevice } from '~/routes/api_.devices'
+import { EnrichedDevice } from '~/routes/api/devices/_index'
 import { UpsertDeviceDialog } from '../../dialogs/upsert-device'
 import { Switch } from '~/components/ui/switch'
 import { useSocket } from '~/context'
