@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+        "outDir": "./out-tsc/app",
+        "lib": ["es2023"],
+        "module": "es2022",
+        "target": "es2022",
+        "allowJs": true,
+
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "moduleResolution": "node",
+
+        "paths": {
+            "@/*": ["./src/*"]
+        }
+    },
+    "include": ["src/**/*", "eslint.config.mjs"],
+    "exclude": ["node_modules"]
+}
