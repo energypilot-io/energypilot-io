@@ -2,11 +2,7 @@
 <section>
     @if (schema()) {
     <form [formGroup]="form" (ngSubmit)="onSubmit(model)">
-        <formly-form
-            [form]="form"
-            [fields]="fields()"
-            [model]="model"
-        ></formly-form>
+        <formly-form [form]="form" [fields]="fields()" [model]="model" />
         <button matButton="filled" type="submit" class="btn btn-default">
             Submit
         </button>

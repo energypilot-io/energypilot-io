@@ -30,6 +30,9 @@ export class AppComponent {
 
     onSubmit(model: object) {
         console.log(model)
+        this.api.sendData(model).subscribe((response) => {
+            console.log(response)
+        })
     }
 
     fields = signal<FormlyFieldConfig[]>([])

@@ -1,52 +1,54 @@
 {
-  "name": "energypilot-io",
-  "version": "0.0.0",
-  "scripts": {
-    "ng": "ng",
-    "start": "concurrently \"npm run serve-api\" \"npm run serve\"",
-    "build": "ng build",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test",
-    "serve": "ng serve --port 3333 --proxy-config proxy.config.json",
-    "serve-api": "cd server & nodemon --watch server"
-  },
-  "prettier": {
-    "plugins": [],
-    "trailingComma": "es5",
-    "tabWidth": 4,
-    "semi": false,
-    "singleQuote": true
-  },
-  "private": true,
-  "dependencies": {
-    "@angular/cdk": "~20.2.8",
-    "@angular/common": "^20.3.0",
-    "@angular/compiler": "^20.3.0",
-    "@angular/core": "^20.3.0",
-    "@angular/forms": "^20.3.0",
-    "@angular/material": "~20.2.8",
-    "@angular/platform-browser": "^20.3.0",
-    "@angular/router": "^20.3.0",
-    "@types/cors": "^2.8.19",
-    "concurrently": "^9.2.1",
-    "rxjs": "~7.8.0",
-    "tslib": "^2.3.0",
-    "zone.js": "~0.15.0",
-    "@ngx-formly/core": "^7.0.0",
-    "@ngx-formly/material": "^7.0.0"
-  },
-  "devDependencies": {
-    "@angular/build": "^20.3.5",
-    "@angular/cli": "^20.3.5",
-    "@angular/compiler-cli": "^20.3.0",
-    "@ngx-formly/schematics": "^7.0.0",
-    "@types/jasmine": "~5.1.0",
-    "jasmine-core": "~5.9.0",
-    "karma": "~6.4.0",
-    "karma-chrome-launcher": "~3.2.0",
-    "karma-coverage": "~2.2.0",
-    "karma-jasmine": "~5.1.0",
-    "karma-jasmine-html-reporter": "~2.1.0",
-    "typescript": "~5.9.2"
-  }
+    "name": "energypilot-io",
+    "version": "0.0.0",
+    "scripts": {
+        "ng": "ng",
+        "start": "concurrently \"npm run serve-api\" \"npm run serve\"",
+        "build": "ng build",
+        "watch": "ng build --watch --configuration development",
+        "test": "ng test",
+        "serve": "ng serve --port 3333 --proxy-config proxy.config.json",
+        "serve-api": "cd server & nodemon --watch server"
+    },
+    "prettier": {
+        "plugins": [],
+        "trailingComma": "es5",
+        "tabWidth": 4,
+        "semi": false,
+        "singleQuote": true
+    },
+    "private": true,
+    "dependencies": {
+        "@angular/cdk": "~20.2.8",
+        "@angular/common": "^20.3.0",
+        "@angular/compiler": "^20.3.0",
+        "@angular/core": "^20.3.0",
+        "@angular/forms": "^20.3.0",
+        "@angular/material": "~20.2.8",
+        "@angular/platform-browser": "^20.3.0",
+        "@angular/router": "^20.3.0",
+        "@ngx-formly/core": "^7.0.0",
+        "@ngx-formly/material": "^7.0.0",
+        "@types/cors": "^2.8.19",
+        "concurrently": "^9.2.1",
+        "express": "^5.1.0",
+        "rxjs": "~7.8.0",
+        "tslib": "^2.3.0",
+        "zone.js": "~0.15.0"
+    },
+    "devDependencies": {
+        "@angular/build": "^20.3.5",
+        "@angular/cli": "^20.3.5",
+        "@angular/compiler-cli": "^20.3.0",
+        "@ngx-formly/schematics": "^7.0.0",
+        "@types/express": "^5.0.5",
+        "@types/jasmine": "~5.1.0",
+        "jasmine-core": "~5.9.0",
+        "karma": "~6.4.0",
+        "karma-chrome-launcher": "~3.2.0",
+        "karma-coverage": "~2.2.0",
+        "karma-jasmine": "~5.1.0",
+        "karma-jasmine-html-reporter": "~2.1.0",
+        "typescript": "~5.9.2"
+    }
 }

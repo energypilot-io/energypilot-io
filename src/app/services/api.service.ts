@@ -7,6 +7,10 @@ export class ApiService {
     constructor(private http: HttpClient) {}
 
     getData(): Observable<object> {
-        return this.http.get<object>('/api/device-registry-schema')
+        return this.http.get<object>('/api/v1/devices/registry-schema')
+    }
+
+    sendData(data: any): Observable<any> {
+        return this.http.post<any>('/api/v1/devices', data)
     }
 }

@@ -11,13 +11,26 @@
         "lint": "eslint . --fix",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
+    "prettier": {
+        "plugins": [],
+        "trailingComma": "es5",
+        "tabWidth": 4,
+        "semi": false,
+        "singleQuote": true
+    },
     "dependencies": {
         "@adze/transport-file": "^1.0.3",
+        "@csllc/cs-modbus": "^3.3.5",
+        "@mikro-orm/core": "^6.5.9",
+        "@mikro-orm/reflection": "^6.5.9",
+        "@mikro-orm/sqlite": "^6.5.9",
         "@types/express": "^5.0.3",
         "adze": "^2.2.5",
         "cors": "^2.8.5",
         "express": "^5.1.0",
         "nodemon": "^3.1.10",
+        "serialport": "^13.0.0",
+        "sqlite3": "^5.1.7",
         "tsx": "^4.20.6",
         "typescript": "^5.9.3"
     },

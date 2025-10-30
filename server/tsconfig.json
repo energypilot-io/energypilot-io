@@ -11,6 +11,7 @@
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
         "moduleResolution": "node",
+        "experimentalDecorators": true,
 
         "paths": {
             "@/*": ["./src/*"]

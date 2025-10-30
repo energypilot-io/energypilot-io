@@ -3,6 +3,7 @@ import { posix } from 'path'
 
 import { getLogger } from './logmanager'
 import type { DeviceTemplateDef } from '@/defs/device-template'
+import { RegisteredInterfaces } from './config'
 
 export const ValidTemplateTypes: string[] = [
     'pv',
@@ -72,21 +73,68 @@ function scanTemplateInventory() {
     }
 }
 
+function buildSchemaForInterfaces(interfaces: string[]) {
+    return {
+        type: 'object',
+        properties: {
+            interface: {
+                type: 'string',
+                enum: [...interfaces],
+            },
+        },
+
+        required: ['interface'],
+
+        dependencies: {
+            interface: {
+                oneOf: interfaces.map((currentInterface) => ({
+                    properties: {
+                        interface: {
+                            enum: [currentInterface],
+                        },
+
+                        interfaceParameters:
+                            RegisteredInterfaces[
+                                currentInterface
+                            ]?.getParametersSchema(),
+                    },
+                })),
+            },
+        },
+    }
+}
+
 function buildDevicePropertiesSchemaForType(type: string) {
+    const subTemplate = _templateRegistry[type as keyof TemplateRegistry]
+
     return {
         type: 'object',
         properties: {
             device_model: {
                 type: 'string',
-                enum: [
-                    ...Object.keys(
-                        _templateRegistry[type as keyof TemplateRegistry]
-                    ).sort(),
-                ],
+                title: 'Device Model',
+                enum: [...Object.keys(subTemplate).sort()],
             },
         },
 
         required: ['device_model'],
+
+        dependencies: {
+            device_model: {
+                oneOf: Object.keys(subTemplate).map((model) => ({
+                    properties: {
+                        device_model: {
+                            enum: [model],
+                        },
+
+                        interface: buildSchemaForInterfaces(
+                            subTemplate[model as keyof TemplateRegistry]
+                                .interfaces
+                        ),
+                    },
+                })),
+            },
+        },
     }
 }
 
@@ -94,13 +142,18 @@ function buildDeviceRegistrySchema() {
     _deviceRegistrySchema = {
         type: 'object',
         properties: {
+            device_name: {
+                type: 'string',
+                title: 'Device Name',
+            },
+
             device_type: {
                 type: 'string',
                 enum: [...Object.keys(_templateRegistry).sort()],
             },
         },
 
-        required: ['device_type'],
+        required: ['device_name', 'device_type'],
 
         dependencies: {
             device_type: {
