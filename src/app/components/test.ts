@@ -34,7 +34,7 @@ export class AppComponent {
     ngOnInit() {
         this.fetchData()
 
-        this.websocket.getMessage().subscribe((message) => {
+        this.websocket.getMessage('snapshot:new').subscribe((message) => {
             console.log('Received message from server:', message)
         })
     }

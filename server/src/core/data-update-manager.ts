@@ -7,6 +7,8 @@ import { ConsumerDevice } from '@/devices/consumer'
 import { Snapshot } from '@/entities/snapshot.entity'
 import { persistEntity } from './database'
 import { DeviceValue } from '@/entities/device.value.entity'
+import { emitWebsocketEvent } from './webserver'
+import { WS_EVENT_SNAPSHOT_NEW } from '@/constants'
 
 let _pollDataIntervalObject: NodeJS.Timeout
 
@@ -163,5 +165,9 @@ async function pollData() {
         return
     }
 
+    emitWebsocketEvent(
+        WS_EVENT_SNAPSHOT_NEW,
+        JSON.stringify(snapshot.device_snapshots.toArray())
+    )
     await persistEntity(snapshot)
 }
