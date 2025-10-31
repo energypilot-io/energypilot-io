@@ -3,14 +3,7 @@ import { posix } from 'path'
 
 import { getLogger } from './logmanager'
 import type { DeviceTemplateDef } from '@/defs/device-template'
-import { RegisteredInterfaces } from './config'
-
-export const ValidTemplateTypes: string[] = [
-    'pv',
-    'battery',
-    'grid',
-    'consumer',
-]
+import { RegisteredDeviceClasses, RegisteredInterfaceClasses } from './config'
 
 export type TemplateRegistry = {
     [type: string]: {
@@ -53,7 +46,7 @@ function scanTemplateInventory() {
         ) as DeviceTemplateDef
 
         for (const type of Object.keys(template).filter(
-            (item) => ValidTemplateTypes.indexOf(item) > -1
+            (item) => item in RegisteredDeviceClasses
         )) {
             if (!(type in _templateRegistry)) {
                 _templateRegistry[type] = {}
@@ -94,7 +87,7 @@ function buildSchemaForInterfaces(interfaces: string[]) {
                         },
 
                         interfaceParameters:
-                            RegisteredInterfaces[
+                            RegisteredInterfaceClasses[
                                 currentInterface
                             ]?.getParametersSchema(),
                     },
@@ -169,4 +162,15 @@ function buildDeviceRegistrySchema() {
             },
         },
     }
+}
+
+export function getTemplateForModel(type: string, model: string) {
+    if (type in _templateRegistry) {
+        const templatesForType = _templateRegistry[type]
+
+        if (model in templatesForType) {
+            return templatesForType[model]
+        }
+    }
+    return undefined
 }

@@ -6,6 +6,7 @@ import { FormlyJsonschema } from '@ngx-formly/core/json-schema'
 import { FormlyFieldConfig, FormlyForm } from '@ngx-formly/core'
 import { JsonPipe } from '@angular/common'
 import { FormGroup, ReactiveFormsModule } from '@angular/forms'
+import { WebsocketService } from '../services/websocket.service'
 
 @Component({
     selector: 'api-test',
@@ -23,10 +24,20 @@ export class AppComponent {
 
     private api = inject(ApiService)
 
+    private websocket = inject(WebsocketService)
+
     form = new FormGroup({})
     model: any = {}
 
     schema = signal<object>({})
+
+    ngOnInit() {
+        this.fetchData()
+
+        this.websocket.getMessage().subscribe((message) => {
+            console.log('Received message from server:', message)
+        })
+    }
 
     onSubmit(model: object) {
         console.log(model)

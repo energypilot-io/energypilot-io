@@ -12,6 +12,9 @@ export class Device {
     @Unique()
     name!: string
 
+    @Property({ default: true })
+    is_enabled!: boolean
+
     @Property()
     type!: string
 
@@ -26,6 +29,7 @@ export class Device {
 
     constructor(options: {
         name: string
+        isEnabled: boolean
         type: string
         model: string
         interface: string
@@ -34,6 +38,7 @@ export class Device {
         this.created_at = new Date()
         this.type = options.type
         this.name = options.name
+        this.is_enabled = options.isEnabled
         this.model = options.model
         this.interface = options.interface
         this.properties = options.properties

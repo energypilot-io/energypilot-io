@@ -64,7 +64,7 @@ export class ModbusInterface extends IInterface {
         this._properties = properties
         this._logger = getLogger(`interfaces.modbus`)
 
-        switch (this._properties['schema']) {
+        switch (this._properties['connectionType']) {
             case 'tcpip': {
                 this._connection = new TcpConnection({
                     socket: new Socket(),
@@ -89,7 +89,9 @@ export class ModbusInterface extends IInterface {
             }
 
             default:
-                throw Error(`Unknown schema set for modbus interface [modbus]`)
+                throw Error(
+                    `Unknown connection type set for modbus interface [modbus]: ${this._properties['connectionType']}`
+                )
         }
 
         switch (this._properties['transport']) {
@@ -143,7 +145,7 @@ export class ModbusInterface extends IInterface {
         this._master.on('connected', () => {
             var message: string = ''
 
-            switch (this._properties['schema']) {
+            switch (this._properties['connectionType']) {
                 case 'tcpip': {
                     message = `Connected to [${this._properties['host']}:${this._properties['port']}]`
                     break
@@ -161,7 +163,7 @@ export class ModbusInterface extends IInterface {
         this._master.on('disconnected', () => {
             var message: string = ''
 
-            switch (this._properties['schema']) {
+            switch (this._properties['connectionType']) {
                 case 'tcpip': {
                     message = `Disconnected from [${this._properties['host']}:${this._properties['port']}]`
                     break

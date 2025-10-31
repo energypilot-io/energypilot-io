@@ -1,3 +1,5 @@
+import { ParameterDef } from '@/defs/device-template'
+
 export abstract class IInterface {
     templateInterfaceKey: string
 
@@ -8,4 +10,7 @@ export abstract class IInterface {
     static getParametersSchema(): object {
         throw new Error('Method not implemented.')
     }
+
+    abstract resetCache(): void
+    abstract read(parameterDef: ParameterDef): Promise<number | undefined>
 }

@@ -12,12 +12,20 @@ import { routes } from './app.routes'
 import { provideHttpClient } from '@angular/common/http'
 import { ObjectTypeComponent } from './components/object.type'
 
+import { SocketIoConfig, provideSocketIo } from 'ngx-socket-io'
+
+const config: SocketIoConfig = {
+    url: 'http://localhost:3000',
+    options: { transports: ['websocket'], reconnection: true },
+}
+
 export const appConfig: ApplicationConfig = {
     providers: [
         provideBrowserGlobalErrorListeners(),
         provideZoneChangeDetection({ eventCoalescing: true }),
         provideRouter(routes),
         provideHttpClient(),
+        provideSocketIo(config),
         provideFormlyCore([
             ...withFormlyMaterial(),
             { types: [{ name: 'object', component: ObjectTypeComponent }] },
