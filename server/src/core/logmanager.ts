@@ -33,7 +33,8 @@ export async function initLogging() {
         middleware: [_fileTransport],
     })
 
-    _globalStore.configuration.activeLevel = _levels['debug']
+    _globalStore.configuration.activeLevel =
+        _levels[process.env.NODE_ENV === 'production' ? 'info' : 'debug']
 
     const logger = getLogger('logmanager')
     logger.info('Logging initialized')

@@ -15,7 +15,7 @@ import { ObjectTypeComponent } from './components/object.type'
 import { SocketIoConfig, provideSocketIo } from 'ngx-socket-io'
 
 const config: SocketIoConfig = {
-    url: 'http://localhost:3000',
+    url: '/',
     options: { transports: ['websocket'], reconnection: true },
 }
 

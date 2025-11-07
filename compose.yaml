@@ -1,0 +1,14 @@
+services:
+    energypilot-io:
+        container_name: energypilot-io
+        build:
+            context: .
+        environment:
+            NODE_ENV: production
+        volumes:
+            # For persisting EnergyPilot's databases and common configuration
+            - ./data/:/data
+        ports:
+            # Default Web UI Port
+            - '3000:3000/tcp'
+        restart: unless-stopped

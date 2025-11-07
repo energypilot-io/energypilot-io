@@ -1,4 +1,4 @@
-import { Component } from '@angular/core'
+import { Component, computed, inject, signal } from '@angular/core'
 
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts'
 import * as echarts from 'echarts/core'
@@ -13,8 +13,19 @@ import {
     DatasetComponent,
     DataZoomComponent,
 } from 'echarts/components'
+import { formatPower } from '../../libs/utils'
+import { WebsocketService } from '../../services/websocket.service'
+import { ApiService } from '../../services/api.service'
 
-echarts.use([LineChart, CanvasRenderer, GridComponent])
+echarts.use([
+    TooltipComponent,
+    LineChart,
+    CanvasRenderer,
+    GridComponent,
+    LegendComponent,
+    DatasetComponent,
+    DataZoomComponent,
+])
 
 @Component({
     selector: 'com-energy-chart',
@@ -24,19 +35,191 @@ echarts.use([LineChart, CanvasRenderer, GridComponent])
     providers: [provideEchartsCore({ echarts })],
 })
 export class EnergyChartComponent {
+    private api = inject(ApiService)
+    private websocket = inject(WebsocketService)
+
+    private devices = signal<string[]>([])
+
+    private timestamps = signal<Date[]>([])
+
+    private powerValues = signal<{ [deviceName: string]: number[] }>({})
+    private socValues = signal<{ [deviceName: string]: number[] }>({})
+
+    mergeOption = computed<echarts.EChartsCoreOption>(() => {
+        return {
+            xAxis: {
+                type: 'category',
+                data: this.timestamps().map((timestamp: Date) => {
+                    return `${timestamp.toLocaleDateString()} ${timestamp.toLocaleTimeString()}`
+                }),
+            },
+
+            series: [
+                ...Object.keys(this.powerValues()).map((deviceName) => {
+                    return {
+                        name: deviceName,
+                        type: 'line',
+                        smooth: true,
+                        symbol: 'none',
+                        data: this.powerValues()[deviceName],
+                        tooltip: {
+                            valueFormatter: (value: number) => {
+                                const formattedValue = formatPower(value)
+                                return `${formattedValue?.value} ${formattedValue?.unit}`
+                            },
+                        },
+                    }
+                }),
+
+                ...Object.keys(this.socValues()).map((deviceName) => {
+                    return {
+                        name: `${deviceName} SoC`,
+                        type: 'line',
+                        smooth: true,
+                        symbol: 'none',
+                        yAxisIndex: 1,
+                        data: this.socValues()[deviceName],
+                        tooltip: {
+                            valueFormatter: (value: number) => {
+                                return `${value.toFixed(2)} %`
+                            },
+                        },
+                    }
+                }),
+            ],
+        }
+    })
+
     chartOption: echarts.EChartsCoreOption = {
-        xAxis: {
-            type: 'category',
-            data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        tooltip: {
+            trigger: 'axis',
+            triggerOn: 'mousemove',
+
+            axisPointer: {
+                type: 'cross',
+                label: {
+                    backgroundColor: '#6a7985',
+                },
+            },
         },
-        yAxis: {
-            type: 'value',
+        grid: {
+            left: '0',
+            right: '0',
+            outerBoundsContain: 'all',
         },
-        series: [
+        animation: true,
+        legend: {
+            show: true,
+        },
+        dataZoom: [
             {
-                data: [820, 932, 901, 934, 1290, 1330, 1320],
-                type: 'line',
+                type: 'slider',
+                filterMode: 'weakFilter',
+                showDataShadow: false,
+                labelFormatter: '',
+            },
+            {
+                type: 'inside',
+                filterMode: 'weakFilter',
             },
         ],
+
+        yAxis: [
+            {
+                type: 'value',
+                name: 'Power',
+                axisLabel: {
+                    formatter: function (a: number) {
+                        const formatedPower = formatPower(a)
+                        return `${formatedPower?.value} ${formatedPower?.unit}`
+                    },
+                },
+            },
+
+            {
+                type: 'value',
+                name: 'Battery SoC',
+                min: 0,
+                max: 100,
+                offset: 0,
+                axisLabel: {
+                    formatter: function (a: number) {
+                        return `${a}%`
+                    },
+                },
+            },
+        ],
+
+        xAxis: {
+            type: 'category',
+        },
+    }
+
+    private addSnapshotsToChart(snapshots: any[]) {
+        const powerValues = { ...this.powerValues() }
+        const socValues = { ...this.socValues() }
+        const timestamps = [...this.timestamps()]
+
+        snapshots.forEach((snapshot) => {
+            timestamps.push(new Date(snapshot.created_at))
+
+            snapshot.device_snapshots.forEach((deviceSnapshot: any) => {
+                if (deviceSnapshot.name === 'power') {
+                    if (!powerValues[deviceSnapshot.device_name]) {
+                        powerValues[deviceSnapshot.device_name] = []
+                    }
+                    powerValues[deviceSnapshot.device_name].push(
+                        deviceSnapshot.value
+                    )
+                } else if (deviceSnapshot.name === 'soc') {
+                    if (!socValues[deviceSnapshot.device_name]) {
+                        socValues[deviceSnapshot.device_name] = []
+                    }
+                    socValues[deviceSnapshot.device_name].push(
+                        deviceSnapshot.value
+                    )
+                }
+            })
+
+            this.devices()
+                .filter((deviceName) => {
+                    return snapshot.device_snapshots.every(
+                        (ds: any) => ds.device_name !== deviceName
+                    )
+                })
+                .forEach((deviceName) => {
+                    if (!powerValues[deviceName]) {
+                        powerValues[deviceName] = []
+                    }
+                    powerValues[deviceName].push(0)
+                })
+        })
+
+        this.powerValues.set(powerValues)
+        this.socValues.set(socValues)
+        this.timestamps.set(timestamps)
+    }
+
+    ngOnInit() {
+        this.api.getAllDevices().subscribe((devices) => {
+            // this.devices.set(
+            //     Object.assign(
+            //         {},
+            //         ...devices.map((device: any) => ({
+            //             [device.type]: device.name,
+            //         }))
+            //     )
+            // )
+
+            this.devices.set(devices.map((device: any) => device.name))
+
+            this.api.getSnapshots('today').subscribe((snapshots) => {
+                this.addSnapshotsToChart(snapshots)
+            })
+
+            this.websocket.getMessage('snapshot:new').subscribe((data) => {
+                this.addSnapshotsToChart([JSON.parse(data)])
+            })
+        })
     }
 }

@@ -9,7 +9,7 @@ import {
     LogContext,
     LoggerOptions,
     EntityManager,
-} from '@mikro-orm/sqlite'
+} from '@mikro-orm/better-sqlite'
 
 import config from '@/mikro-orm.config'
 import { ChildLogger, getLogger } from './logmanager'

@@ -1,6 +1,6 @@
 import { GridDevice } from '@/devices/grid'
 import { getDeviceInstances, resetAllDeviceCaches } from './device-manager'
-import { getLogger } from './logmanager'
+import { ChildLogger, getLogger } from './logmanager'
 import { PVDevice } from '@/devices/pv'
 import { BatteryDevice } from '@/devices/battery'
 import { ConsumerDevice } from '@/devices/consumer'
@@ -11,24 +11,43 @@ import { emitWebsocketEvent } from './webserver'
 import { WS_EVENT_SNAPSHOT_NEW } from '@/constants'
 
 let _pollDataIntervalObject: NodeJS.Timeout
+let _persistSnapshotIntervalObject: NodeJS.Timeout
+
+let _logger: ChildLogger
+
+let _deviceValuesCache: DeviceValue[] = []
 
 export async function initDataUpdateManager() {
-    _pollDataIntervalObject = setInterval(pollData, 5000)
+    _logger = getLogger('dataupdate')
+
+    _pollDataIntervalObject = setInterval(pollData, 10 * 1000) // every 60 seconds
+    _persistSnapshotIntervalObject = setInterval(persistSnapshot, 60 * 1000) // every 60 seconds
 
     process.on('exit', () => {
         clearInterval(_pollDataIntervalObject)
+        clearInterval(_persistSnapshotIntervalObject)
     })
+}
+
+async function persistSnapshot() {
+    if (_deviceValuesCache.length === 0) {
+        _logger.debug(
+            'No device values collected, skipping snapshot persistence'
+        )
+        return
+    }
+
+    const snapshot = new Snapshot()
+    snapshot.created_at = new Date()
+    snapshot.device_snapshots.add(_deviceValuesCache)
+
+    await persistEntity(snapshot)
 }
 
 async function pollData() {
     resetAllDeviceCaches()
 
-    const logger = getLogger('dataupdate')
-
-    logger.debug('Collecting live data from devices')
-
-    const snapshot = new Snapshot()
-    snapshot.created_at = new Date()
+    _logger.debug('Polling live data from devices')
 
     const deviceInstances = getDeviceInstances()
 
@@ -37,6 +56,8 @@ async function pollData() {
         const isEnabled = deviceInstance.deviceDefinition.is_enabled
 
         if (!isEnabled) continue
+
+        const deviceValues: DeviceValue[] = []
 
         if (deviceInstance instanceof GridDevice) {
             const power = await deviceInstance.getPowerValue()
@@ -48,7 +69,7 @@ async function pollData() {
                 energyImport !== undefined &&
                 energyExport !== undefined
             ) {
-                snapshot.device_snapshots.add(
+                deviceValues.push(
                     new DeviceValue({
                         device: deviceInstance.deviceDefinition,
                         name: 'power',
@@ -56,7 +77,7 @@ async function pollData() {
                     })
                 )
 
-                snapshot.device_snapshots.add(
+                deviceValues.push(
                     new DeviceValue({
                         device: deviceInstance.deviceDefinition,
                         name: 'energy_import',
@@ -64,7 +85,7 @@ async function pollData() {
                     })
                 )
 
-                snapshot.device_snapshots.add(
+                deviceValues.push(
                     new DeviceValue({
                         device: deviceInstance.deviceDefinition,
                         name: 'energy_export',
@@ -73,7 +94,7 @@ async function pollData() {
                 )
             }
 
-            logger.debug(
+            _logger.debug(
                 deviceInstance.deviceDefinition.name,
                 `Power: ${power} W, Energy Import: ${energyImport} kWh, Energy Export: ${energyExport} kWh`
             )
@@ -82,7 +103,7 @@ async function pollData() {
             const energy = await deviceInstance.getEnergyValue()
 
             if (power !== undefined && energy !== undefined) {
-                snapshot.device_snapshots.add(
+                deviceValues.push(
                     new DeviceValue({
                         device: deviceInstance.deviceDefinition,
                         name: 'power',
@@ -90,7 +111,7 @@ async function pollData() {
                     })
                 )
 
-                snapshot.device_snapshots.add(
+                deviceValues.push(
                     new DeviceValue({
                         device: deviceInstance.deviceDefinition,
                         name: 'energy',
@@ -99,7 +120,7 @@ async function pollData() {
                 )
             }
 
-            logger.debug(
+            _logger.debug(
                 deviceInstance.deviceDefinition.name,
                 `Power: ${power} W, Energy: ${energy} kWh`
             )
@@ -108,7 +129,7 @@ async function pollData() {
             const power = await deviceInstance.getPowerValue()
 
             if (power !== undefined && soc !== undefined) {
-                snapshot.device_snapshots.add(
+                deviceValues.push(
                     new DeviceValue({
                         device: deviceInstance.deviceDefinition,
                         name: 'power',
@@ -116,7 +137,7 @@ async function pollData() {
                     })
                 )
 
-                snapshot.device_snapshots.add(
+                deviceValues.push(
                     new DeviceValue({
                         device: deviceInstance.deviceDefinition,
                         name: 'soc',
@@ -125,7 +146,7 @@ async function pollData() {
                 )
             }
 
-            logger.debug(
+            _logger.debug(
                 deviceInstance.deviceDefinition.name,
                 `SoC: ${soc} %, Power: ${power} W`
             )
@@ -134,7 +155,7 @@ async function pollData() {
             const energy = await deviceInstance.getEnergyValue()
 
             if (power !== undefined && energy !== undefined) {
-                snapshot.device_snapshots.add(
+                deviceValues.push(
                     new DeviceValue({
                         device: deviceInstance.deviceDefinition,
                         name: 'power',
@@ -142,7 +163,7 @@ async function pollData() {
                     })
                 )
 
-                snapshot.device_snapshots.add(
+                deviceValues.push(
                     new DeviceValue({
                         device: deviceInstance.deviceDefinition,
                         name: 'energy',
@@ -151,23 +172,38 @@ async function pollData() {
                 )
             }
 
-            logger.debug(
+            _logger.debug(
                 deviceInstance.deviceDefinition.name,
                 `Power: ${power} W, Energy: ${energy} kWh`
             )
         }
-    }
 
-    if (snapshot.device_snapshots.isEmpty()) {
-        logger.debug(
-            'No device values collected, skipping snapshot persistence'
-        )
-        return
+        if (deviceValues.length > 0) {
+            _deviceValuesCache = [
+                ..._deviceValuesCache.filter(
+                    (value: DeviceValue) =>
+                        value.device.id !== deviceInstance.deviceDefinition.id
+                ),
+            ]
+
+            _deviceValuesCache.push(...deviceValues)
+        }
     }
 
     emitWebsocketEvent(
         WS_EVENT_SNAPSHOT_NEW,
-        JSON.stringify(snapshot.device_snapshots.toArray())
+        JSON.stringify({
+            created_at: new Date(),
+            device_snapshots: _deviceValuesCache.map(
+                (deviceValue: DeviceValue) => {
+                    return {
+                        device_id: deviceValue.device.id,
+                        device_name: deviceValue.device.name,
+                        name: deviceValue.name,
+                        value: deviceValue.value,
+                    }
+                }
+            ),
+        })
     )
-    await persistEntity(snapshot)
 }

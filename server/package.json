@@ -21,9 +21,9 @@
     "dependencies": {
         "@adze/transport-file": "^1.0.3",
         "@csllc/cs-modbus": "^3.3.5",
+        "@mikro-orm/better-sqlite": "^6.5.9",
         "@mikro-orm/core": "^6.5.9",
         "@mikro-orm/reflection": "^6.5.9",
-        "@mikro-orm/sqlite": "^6.5.9",
         "adze": "^2.2.5",
         "compression": "^1.8.1",
         "cors": "^2.8.5",
@@ -31,13 +31,12 @@
         "nodemon": "^3.1.10",
         "serialport": "^13.0.0",
         "socket.io": "^4.8.1",
-        "sqlite3": "^5.1.7",
         "tsx": "^4.20.6",
         "typescript": "^5.9.3"
     },
     "devDependencies": {
-        "@types/express": "^5.0.3",
         "@types/compression": "^1.8.1",
+        "@types/express": "^5.0.3",
         "@types/socket.io": "^3.0.1",
         "@typescript-eslint/eslint-plugin": "^8.46.0",
         "@typescript-eslint/parser": "^8.46.0",

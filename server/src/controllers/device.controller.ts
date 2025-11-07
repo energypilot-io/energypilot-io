@@ -1,6 +1,7 @@
-import { Request, Response } from 'express'
-import { getDeviceRegistrySchema } from '@/core/template-engine'
 import express from 'express'
+import { Request, Response } from 'express'
+
+import { getDeviceRegistrySchema } from '@/core/template-engine'
 import { getEntityManager, persistEntity } from '@/core/database'
 import { Device } from '@/entities/device.entity'
 
@@ -16,6 +17,7 @@ router.post('/', async (req: Request, res: Response) => {
         type: req.body.device_type,
         model: req.body.device_model.device_model,
         interface: req.body.device_model.interface.interface,
+        isEnabled: true,
         properties: JSON.stringify(
             req.body.device_model.interface.interfaceParameters
         ),
@@ -25,6 +27,16 @@ router.post('/', async (req: Request, res: Response) => {
         return res.status(201).json({ message: 'OK' })
     } else {
         return res.status(500).json({ message: 'Error' })
+    }
+})
+
+router.get('/', async (req: Request, res: Response) => {
+    try {
+        const devices = await getEntityManager().findAll(Device)
+
+        return res.json(devices)
+    } catch (e: any) {
+        return res.status(400).json({ message: e.message })
     }
 })
 

@@ -13,4 +13,12 @@ export class ApiService {
     sendData(data: any): Observable<any> {
         return this.http.post<any>('/api/v1/devices', data)
     }
+
+    getAllDevices(): Observable<any> {
+        return this.http.get<any>('/api/v1/devices')
+    }
+
+    getSnapshots(tag: string): Observable<any> {
+        return this.http.get<any>(`/api/v1/snapshots/${tag}`)
+    }
 }

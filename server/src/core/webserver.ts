@@ -6,7 +6,7 @@ import { createServer, Server as HTTPServer } from 'http'
 import { Server as SocketServer } from 'socket.io'
 import { getLogger } from './logmanager'
 
-import { DeviceController } from '@/controllers'
+import { DeviceController, SnapshotController } from '@/controllers'
 
 let _httpServer: HTTPServer<any, any>
 let _io: SocketServer
@@ -20,12 +20,16 @@ export async function initWebServer() {
     app.disable('x-powered-by')
     app.use(express.json())
 
-    app.get('/', (req, res) => {
-        res.send('Hello from Express!')
-    })
-
     app.use('/api/v1/devices', DeviceController)
-    app.use((req, res) => res.status(404).json({ message: 'No route found' }))
+    app.use('/api/v1/snapshots', SnapshotController)
+
+    if (process.env.NODE_ENV! === 'production') {
+        app.use(express.static('/usr/share/html'))
+
+        app.get('/{*all}', function (req, res) {
+            res.sendFile('/usr/share/html/index.html')
+        })
+    }
 
     _httpServer = createServer(app)
     _io = new SocketServer(_httpServer)
