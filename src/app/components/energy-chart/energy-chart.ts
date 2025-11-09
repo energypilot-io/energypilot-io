@@ -17,6 +17,13 @@ import { formatPower } from '../../libs/utils'
 import { WebsocketService } from '../../services/websocket.service'
 import { ApiService } from '../../services/api.service'
 
+import {
+    TranslateService,
+    TranslatePipe,
+    TranslateDirective,
+    _,
+} from '@ngx-translate/core'
+
 echarts.use([
     TooltipComponent,
     LineChart,
@@ -29,7 +36,7 @@ echarts.use([
 
 @Component({
     selector: 'com-energy-chart',
-    imports: [NgxEchartsDirective],
+    imports: [NgxEchartsDirective, TranslatePipe, TranslateDirective],
     templateUrl: './energy-chart.html',
     styleUrl: './energy-chart.css',
     providers: [provideEchartsCore({ echarts })],
@@ -37,6 +44,7 @@ echarts.use([
 export class EnergyChartComponent {
     private api = inject(ApiService)
     private websocket = inject(WebsocketService)
+    private translate = inject(TranslateService)
 
     private devices = signal<string[]>([])
 
@@ -155,13 +163,30 @@ export class EnergyChartComponent {
         },
     }
 
+    constructor() {
+        this.translate.addLangs(['de', 'en'])
+        this.translate.setFallbackLang('en')
+        this.translate.use('en')
+
+        this.translate
+            .get(_('app.hello'), { value: 'world' })
+            .subscribe((res: string) => {
+                console.log(res)
+                //=> 'hello world'
+            })
+    }
+
     private addSnapshotsToChart(snapshots: any[]) {
         const powerValues = { ...this.powerValues() }
         const socValues = { ...this.socValues() }
         const timestamps = [...this.timestamps()]
 
+        const translatedHomeName = 'Home'
+
         snapshots.forEach((snapshot) => {
             timestamps.push(new Date(snapshot.created_at))
+
+            var homePowerConsumption = 0
 
             snapshot.device_snapshots.forEach((deviceSnapshot: any) => {
                 if (deviceSnapshot.name === 'power') {
@@ -171,6 +196,8 @@ export class EnergyChartComponent {
                     powerValues[deviceSnapshot.device_name].push(
                         deviceSnapshot.value
                     )
+
+                    homePowerConsumption += deviceSnapshot.value
                 } else if (deviceSnapshot.name === 'soc') {
                     if (!socValues[deviceSnapshot.device_name]) {
                         socValues[deviceSnapshot.device_name] = []
@@ -193,6 +220,11 @@ export class EnergyChartComponent {
                     }
                     powerValues[deviceName].push(0)
                 })
+
+            if (!powerValues[translatedHomeName]) {
+                powerValues[translatedHomeName] = []
+            }
+            powerValues[translatedHomeName].push(homePowerConsumption)
         })
 
         this.powerValues.set(powerValues)
@@ -201,16 +233,9 @@ export class EnergyChartComponent {
     }
 
     ngOnInit() {
-        this.api.getAllDevices().subscribe((devices) => {
-            // this.devices.set(
-            //     Object.assign(
-            //         {},
-            //         ...devices.map((device: any) => ({
-            //             [device.type]: device.name,
-            //         }))
-            //     )
-            // )
+        console.log('EnergyChartComponent initialized')
 
+        this.api.getAllDevices().subscribe((devices) => {
             this.devices.set(devices.map((device: any) => device.name))
 
             this.api.getSnapshots('today').subscribe((snapshots) => {
