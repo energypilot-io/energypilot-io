@@ -114,7 +114,7 @@
                                 "address": 13020,
                                 "size": 1,
                                 "datatype": "int16be",
-                                "scale": -0.1
+                                "scale": 0.1
                             }
                         ]
                     }
