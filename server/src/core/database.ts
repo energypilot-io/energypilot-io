@@ -64,6 +64,9 @@ export async function initDatabase() {
 
     await _orm.schema.updateSchema({ dropTables: false })
 
+    const em = _orm.em.fork()
+    await em.execute('PRAGMA journal_mode=WAL;')
+
     _initObservers.forEach((initObserver) => {
         initObserver()
     })
