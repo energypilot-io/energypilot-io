@@ -33,7 +33,8 @@
 **/secrets.dev.yaml
 **/values.dev.yaml
 **/.angular
-**/package-lock.json
+**/dist
+\*\*/package-lock.json
 \*\*/test
 LICENSE
 README.md
