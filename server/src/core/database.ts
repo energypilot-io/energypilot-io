@@ -66,6 +66,7 @@ export async function initDatabase() {
 
     const em = _orm.em.fork()
     await em.execute('PRAGMA journal_mode=WAL;')
+    await em.execute('PRAGMA auto_vacuum=FULL;')
 
     _initObservers.forEach((initObserver) => {
         initObserver()
