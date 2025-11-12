@@ -48,6 +48,8 @@ export class EnergyChartComponent {
     private translate = inject(TranslateService)
 
     private getDevicesSubscription?: Subscription
+    private getSnapshotsSubscription?: Subscription
+    private webserviceSubscription?: Subscription
 
     private devices = signal<string[]>([])
 
@@ -166,13 +168,6 @@ export class EnergyChartComponent {
         },
     }
 
-    constructor() {
-        this.translate.get(_('device.home')).subscribe((res: string) => {
-            console.log(res)
-            //=> 'hello world'
-        })
-    }
-
     private addSnapshotsToChart(snapshots: any[]) {
         const powerValues = { ...this.powerValues() }
         const socValues = { ...this.socValues() }
@@ -237,17 +232,23 @@ export class EnergyChartComponent {
             .subscribe((devices) => {
                 this.devices.set(devices.map((device: any) => device.name))
 
-                this.api.getSnapshots('today').subscribe((snapshots) => {
-                    this.addSnapshotsToChart(snapshots)
-                })
+                this.getSnapshotsSubscription = this.api
+                    .getSnapshots('today')
+                    .subscribe((snapshots) => {
+                        this.addSnapshotsToChart(snapshots)
+                    })
 
-                this.websocket.getMessage('snapshot:new').subscribe((data) => {
-                    this.addSnapshotsToChart([JSON.parse(data)])
-                })
+                this.webserviceSubscription = this.websocket
+                    .getMessage('snapshot:new')
+                    .subscribe((data) => {
+                        this.addSnapshotsToChart([JSON.parse(data)])
+                    })
             })
     }
 
     ngOnDestroy(): void {
         this.getDevicesSubscription?.unsubscribe()
+        this.webserviceSubscription?.unsubscribe()
+        this.getSnapshotsSubscription?.unsubscribe()
     }
 }
