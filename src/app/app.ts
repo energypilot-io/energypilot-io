@@ -7,6 +7,7 @@ import { MatButtonModule } from '@angular/material/button'
 import { MatIconModule } from '@angular/material/icon'
 import { MatSidenavModule } from '@angular/material/sidenav'
 import { CustomSidenav } from './components/custom-sidenav/custom-sidenav'
+import { ThemePickerComponent } from './components/theme-picker/theme-picker'
 
 @Component({
     selector: 'app-root',
@@ -18,6 +19,7 @@ import { CustomSidenav } from './components/custom-sidenav/custom-sidenav'
         MatIconModule,
         MatSidenavModule,
         CustomSidenav,
+        ThemePickerComponent,
     ],
     templateUrl: './app.html',
     styleUrl: './app.css',

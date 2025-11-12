@@ -22,7 +22,7 @@
                                 "input": "public"
                             }
                         ],
-                        "styles": ["src/custom-theme.scss", "src/styles.css"]
+                        "styles": ["src/app/styles/theme.css", "src/styles.css"]
                     },
                     "configurations": {
                         "production": {

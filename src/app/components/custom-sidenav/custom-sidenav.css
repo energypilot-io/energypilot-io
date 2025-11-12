@@ -1,3 +1,7 @@
 :host * {
     transition: all 500ms ease-in-out;
 }
+
+.sidenav-list .mat-mdc-list-item {
+    border-radius: 0;
+}
