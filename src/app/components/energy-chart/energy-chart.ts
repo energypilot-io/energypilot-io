@@ -167,16 +167,10 @@ export class EnergyChartComponent {
     }
 
     constructor() {
-        this.translate.addLangs(['de', 'en'])
-        this.translate.setFallbackLang('en')
-        this.translate.use(this.translate.getBrowserLang() ?? 'en')
-
-        // this.translate
-        //     .get(_('app.hello'), { value: 'world' })
-        //     .subscribe((res: string) => {
-        //         console.log(res)
-        //         //=> 'hello world'
-        //     })
+        this.translate.get(_('device.home')).subscribe((res: string) => {
+            console.log(res)
+            //=> 'hello world'
+        })
     }
 
     private addSnapshotsToChart(snapshots: any[]) {

@@ -1,8 +1,13 @@
-<mat-toolbar class="mat-elevation-z3">
+<mat-toolbar>
     <button mat-icon-button (click)="sidenavCollapsed.set(!sidenavCollapsed())">
         <mat-icon>menu</mat-icon>
     </button>
-    <app-theme-picker class="ml-auto" />
+    <span class="ml-4">EnergyPilot.io</span>
+
+    <span class="example-spacer"></span>
+
+    <app-theme-picker />
+    <app-language-picker />
 </mat-toolbar>
 
 <mat-sidenav-container>

@@ -1,0 +1,11 @@
+<button matIconButton [matMenuTriggerFor]="menu">
+    <mat-icon svgIcon="flag_{{translate.getCurrentLang()}}" />
+</button>
+<mat-menu #menu="matMenu">
+    @for(lang of supportedLanguages; track lang.isocode) {
+    <button mat-menu-item (click)="changeLanguage(lang.isocode)">
+        <mat-icon svgIcon="flag_{{lang.isocode}}" />
+        <span>{{lang.label}}</span>
+    </button>
+    }
+</mat-menu>

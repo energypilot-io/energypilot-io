@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing'
 
-import { ThemePickerComponent } from './theme-picker'
+import { LanguagePickerComponent } from './language-picker'
 
-describe('ThemePicker', () => {
-    let component: ThemePickerComponent
-    let fixture: ComponentFixture<ThemePickerComponent>
+describe('LanguagePicker', () => {
+    let component: LanguagePickerComponent
+    let fixture: ComponentFixture<LanguagePickerComponent>
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            imports: [ThemePickerComponent],
+            imports: [LanguagePickerComponent],
         }).compileComponents()
 
-        fixture = TestBed.createComponent(ThemePickerComponent)
+        fixture = TestBed.createComponent(LanguagePickerComponent)
         component = fixture.componentInstance
         fixture.detectChanges()
     })
