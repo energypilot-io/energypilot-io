@@ -30,6 +30,12 @@ export class CustomSidenav {
         },
 
         {
+            label: 'Graph',
+            icon: 'show_chart',
+            route: 'graph',
+        },
+
+        {
             label: 'Devices',
             icon: 'devices',
             route: 'devices',

@@ -1,21 +1,34 @@
-<mat-toolbar>
-    <button mat-icon-button (click)="sidenavCollapsed.set(!sidenavCollapsed())">
-        <mat-icon>menu</mat-icon>
-    </button>
-    <span class="ml-4">EnergyPilot.io</span>
-
-    <span class="example-spacer"></span>
-
-    <app-theme-picker />
-    <app-language-picker />
-</mat-toolbar>
-
 <mat-sidenav-container>
     <mat-sidenav mode="side" opened [style.width]="sidenavWidth()">
+        <div class="flex gap-4 p-4">
+            <mat-icon svgIcon="plane" class="scale-100" />
+            @if(!sidenavCollapsed()) {
+            <div class="flex align-bottom">
+                <span class="font-bold">EnergyPilot.io</span>
+                <span class="align-bottom text-sm">v0.1</span>
+            </div>
+            }
+        </div>
+
         <app-custom-sidenav [collapsed]="sidenavCollapsed()" />
     </mat-sidenav>
 
-    <mat-sidenav-content class="content" [style.margin-left]="sidenavWidth()">
-        <router-outlet />
+    <mat-sidenav-content [style.margin-left]="sidenavWidth()">
+        <mat-toolbar class="shadow-sm">
+            <button mat-icon-button (click)="storeStatus(!sidenavCollapsed())">
+                <mat-icon>
+                    @if(!sidenavCollapsed()) { arrow_back_ios } @else
+                    {arrow_forward_ios}
+                </mat-icon>
+            </button>
+            <span class="example-spacer"></span>
+
+            <app-theme-picker />
+            <app-language-picker />
+        </mat-toolbar>
+
+        <div class="p-4">
+            <router-outlet />
+        </div>
     </mat-sidenav-content>
 </mat-sidenav-container>

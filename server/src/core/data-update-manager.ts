@@ -9,6 +9,7 @@ import { persistEntity } from './database'
 import { DeviceValue } from '@/entities/device.value.entity'
 import { emitWebsocketEvent } from './webserver'
 import { WS_EVENT_SNAPSHOT_NEW } from '@/constants'
+import { Semaphore } from '@/libs/semaphore'
 
 let _pollDataIntervalObject: NodeJS.Timeout
 let _persistSnapshotIntervalObject: NodeJS.Timeout
@@ -16,6 +17,8 @@ let _persistSnapshotIntervalObject: NodeJS.Timeout
 let _logger: ChildLogger
 
 let _deviceValuesCache: DeviceValue[] = []
+
+const _deviceValueCacheResource = new Semaphore('deviceValuesCache', 1)
 
 export async function initDataUpdateManager() {
     _logger = getLogger('dataupdate')
@@ -29,19 +32,31 @@ export async function initDataUpdateManager() {
     })
 }
 
-async function persistSnapshot() {
-    if (_deviceValuesCache.length === 0) {
+export async function getLatestSnapshot() {
+    const lock = await _deviceValueCacheResource.acquire()
+    const deviceValues = [..._deviceValuesCache]
+    lock.release()
+
+    if (deviceValues.length === 0) {
         _logger.debug(
             'No device values collected, skipping snapshot persistence'
         )
-        return
+        return undefined
     }
 
     const snapshot = new Snapshot()
     snapshot.created_at = new Date()
-    snapshot.device_snapshots.add(_deviceValuesCache)
+    snapshot.device_snapshots.add(deviceValues)
 
-    await persistEntity(snapshot)
+    return snapshot
+}
+
+async function persistSnapshot() {
+    const snapshot = await getLatestSnapshot()
+
+    if (snapshot) {
+        await persistEntity(snapshot)
+    }
 }
 
 async function pollData() {
@@ -178,6 +193,7 @@ async function pollData() {
             )
         }
 
+        const lock = await _deviceValueCacheResource.acquire()
         if (deviceValues.length > 0) {
             _deviceValuesCache = [
                 ..._deviceValuesCache.filter(
@@ -188,6 +204,7 @@ async function pollData() {
 
             _deviceValuesCache.push(...deviceValues)
         }
+        lock.release()
     }
 
     emitWebsocketEvent(

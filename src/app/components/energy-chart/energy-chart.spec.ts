@@ -1,23 +1,22 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing'
 
-import { EnergyChart } from './energy-chart';
+import { EnergyChartComponent } from './energy-chart'
 
 describe('EnergyChart', () => {
-  let component: EnergyChart;
-  let fixture: ComponentFixture<EnergyChart>;
+    let component: EnergyChartComponent
+    let fixture: ComponentFixture<EnergyChartComponent>
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [EnergyChart]
+    beforeEach(async () => {
+        await TestBed.configureTestingModule({
+            imports: [EnergyChartComponent],
+        }).compileComponents()
+
+        fixture = TestBed.createComponent(EnergyChartComponent)
+        component = fixture.componentInstance
+        fixture.detectChanges()
     })
-    .compileComponents();
 
-    fixture = TestBed.createComponent(EnergyChart);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-});
+    it('should create', () => {
+        expect(component).toBeTruthy()
+    })
+})

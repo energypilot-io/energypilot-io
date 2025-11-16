@@ -1,3 +1,4 @@
+import { getLatestSnapshot } from '@/core/data-update-manager'
 import { getEntityManager } from '@/core/database'
 import { Snapshot } from '@/entities/snapshot.entity'
 import express from 'express'
@@ -10,6 +11,27 @@ router.get('/today', async (req: Request, res: Response) => {
     startOfToday.setHours(0, 0, 0, 0)
 
     return res.json(await findSnapshotsBetweenDates(startOfToday))
+})
+
+router.get('/latest', async (req: Request, res: Response) => {
+    const snapshot = await getLatestSnapshot()
+
+    if (snapshot) {
+        return res.json({
+            created_at: snapshot.created_at,
+
+            device_snapshots: snapshot.device_snapshots
+                .getItems()
+                .map((deviceValue) => ({
+                    device_id: deviceValue.device.id,
+                    device_name: deviceValue.device.name,
+                    name: deviceValue.name,
+                    value: deviceValue.value,
+                })),
+        })
+    } else {
+        return res.status(400)
+    }
 })
 
 async function findSnapshotsBetweenDates(

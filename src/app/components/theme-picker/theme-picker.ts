@@ -11,7 +11,7 @@ import { MatTooltipModule } from '@angular/material/tooltip'
 })
 export class ThemePickerComponent implements OnInit {
     mode = signal('light')
-    static storageKey = 'docs-theme-storage-current-name'
+    static storageKey = 'energypilot-color-style'
 
     /**
      *

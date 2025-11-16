@@ -186,7 +186,7 @@ export class EnergyChartComponent {
                         powerValues[deviceSnapshot.device_name] = []
                     }
                     powerValues[deviceSnapshot.device_name].push(
-                        deviceSnapshot.value
+                        deviceSnapshot.value ?? 0
                     )
 
                     homePowerConsumption += deviceSnapshot.value
@@ -195,22 +195,27 @@ export class EnergyChartComponent {
                         socValues[deviceSnapshot.device_name] = []
                     }
                     socValues[deviceSnapshot.device_name].push(
-                        deviceSnapshot.value
+                        deviceSnapshot.value ?? 0
                     )
                 }
             })
 
             this.devices()
-                .filter((deviceName) => {
-                    return snapshot.device_snapshots.every(
-                        (ds: any) => ds.device_name !== deviceName
-                    )
-                })
+                .filter(
+                    (deviceName) =>
+                        snapshot.device_snapshots
+                            .filter(
+                                (ds: any) =>
+                                    ds.name == 'power' || ds.name == 'soc'
+                            )
+                            .map((ds: any) => ds.device_name)
+                            .indexOf(deviceName) === -1
+                )
                 .forEach((deviceName) => {
                     if (!powerValues[deviceName]) {
                         powerValues[deviceName] = []
                     }
-                    powerValues[deviceName].push(0)
+                    powerValues[deviceName].push(0.0)
                 })
 
             if (!powerValues[translatedHomeName]) {
@@ -225,8 +230,6 @@ export class EnergyChartComponent {
     }
 
     ngOnInit() {
-        console.log('EnergyChartComponent initialized')
-
         this.getDevicesSubscription = this.api
             .getAllDevices()
             .subscribe((devices) => {

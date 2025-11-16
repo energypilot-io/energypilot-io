@@ -1,5 +1,5 @@
 .content {
-    padding: 24px;
+    padding: 0px;
 }
 
 .example-spacer {
@@ -12,7 +12,7 @@ mat-toolbar {
 }
 
 mat-sidenav-container {
-    height: calc(100vh - 64px);
+    height: 100%;
 }
 
 mat-sidenav,

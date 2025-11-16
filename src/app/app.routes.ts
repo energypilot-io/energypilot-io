@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router'
-import { DashboardComponent } from './pages/dashboard/dashboard'
-import { DevicesComponent } from './pages/devices/devices'
+import { DashboardPage } from './pages/dashboard/dashboard'
+import { DevicesComponent as DevicesPage } from './pages/devices/devices'
+import { GraphPage } from './pages/graph/graph'
 
 export const routes: Routes = [
     {
@@ -8,13 +9,19 @@ export const routes: Routes = [
         pathMatch: 'full',
         redirectTo: 'dashboard',
     },
+
+    {
+        path: 'graph',
+        component: GraphPage,
+    },
+
     {
         path: 'dashboard',
-        component: DashboardComponent,
+        component: DashboardPage,
     },
 
     {
         path: 'devices',
-        component: DevicesComponent,
+        component: DevicesPage,
     },
 ]
