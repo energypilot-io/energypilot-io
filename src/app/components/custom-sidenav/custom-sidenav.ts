@@ -1,13 +1,16 @@
-import { Component, Input, signal } from '@angular/core'
+import { Component, inject, Input, signal } from '@angular/core'
 
 import { MatListModule } from '@angular/material/list'
-import { MatIconModule } from '@angular/material/icon'
+import { MatIconModule, MatIconRegistry } from '@angular/material/icon'
 import { RouterModule } from '@angular/router'
+import { DomSanitizer } from '@angular/platform-browser'
 
 export type MenuItem = {
     label: string
-    icon: string
+    icon?: string
+    svgIcon?: string
     route?: string
+    externalLink?: string
 }
 
 @Component({
@@ -18,27 +21,32 @@ export type MenuItem = {
 })
 export class CustomSidenav {
     sidenavCollapsed = signal(false)
+    _items = signal<MenuItem[]>([])
+
     @Input() set collapsed(val: boolean) {
         this.sidenavCollapsed.set(val)
     }
 
-    menuItems = signal<MenuItem[]>([
-        {
-            label: 'Dashboard',
-            icon: 'dashboard',
-            route: 'dashboard',
-        },
+    @Input() set items(val: MenuItem[]) {
+        console.log(val.map((i) => i.route))
+        this._items.set(val)
+    }
 
-        {
-            label: 'Graph',
-            icon: 'show_chart',
-            route: 'graph',
-        },
+    constructor() {
+        const iconRegistry = inject(MatIconRegistry)
+        const sanitizer = inject(DomSanitizer)
 
-        {
-            label: 'Devices',
-            icon: 'devices',
-            route: 'devices',
-        },
-    ])
+        iconRegistry.addSvgIcon(
+            'github',
+            sanitizer.bypassSecurityTrustResourceUrl(
+                'assets/icons/github-142-svgrepo-com.svg'
+            )
+        )
+        iconRegistry.addSvgIcon(
+            'discord',
+            sanitizer.bypassSecurityTrustResourceUrl(
+                'assets/icons/discord-icon-svgrepo-com.svg'
+            )
+        )
+    }
 }

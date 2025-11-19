@@ -1,16 +1,38 @@
 <mat-nav-list class="sidenav-list">
-    @for(item of menuItems(); track item.label){
-    <a
-        mat-list-item
-        [routerLink]="item.route"
-        routerLinkActive
-        #rla="routerLinkActive"
-        [activated]="rla.isActive"
-    >
-        <mat-icon matListItemIcon>{{item.icon}}</mat-icon>
-        @if(!sidenavCollapsed()) {
-        <span matListItemTitle>{{item.label}}</span>
+    @for (item of _items(); track item.label) {
+        @if (item.route) {
+            <a
+                mat-list-item
+                routerLink="{{ item.route }}"
+                routerLinkActive
+                #rla="routerLinkActive"
+                [activated]="rla.isActive">
+                @if (item.svgIcon) {
+                    <mat-icon
+                        matListItemIcon
+                        svgIcon="{{ item.svgIcon }}"></mat-icon>
+                } @else {
+                    <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+                }
+
+                @if (!sidenavCollapsed()) {
+                    <span matListItemTitle>{{ item.label }}</span>
+                }
+            </a>
+        } @else {
+            <a mat-list-item href="{{ item.externalLink }}" target="_blank">
+                @if (item.svgIcon) {
+                    <mat-icon
+                        matListItemIcon
+                        svgIcon="{{ item.svgIcon }}"></mat-icon>
+                } @else {
+                    <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+                }
+
+                @if (!sidenavCollapsed()) {
+                    <span matListItemTitle>{{ item.label }}</span>
+                }
+            </a>
         }
-    </a>
     }
 </mat-nav-list>

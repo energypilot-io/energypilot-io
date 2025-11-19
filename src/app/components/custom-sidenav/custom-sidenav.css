@@ -5,3 +5,7 @@
 .sidenav-list .mat-mdc-list-item {
     border-radius: 0;
 }
+
+.example-spacer {
+    flex: 1 1 auto;
+}

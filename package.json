@@ -12,11 +12,26 @@
         "extract-i18n": "ng extract-i18n --format=json --output-path=src/locale"
     },
     "prettier": {
-        "plugins": [],
+        "plugins": [
+            "prettier-plugin-tailwindcss"
+        ],
         "trailingComma": "es5",
         "tabWidth": 4,
-        "semi": false,
-        "singleQuote": true
+        "useTabs": false,
+        "semi": true,
+        "singleQuote": true,
+        "htmlWhitespaceSensitivity": "ignore",
+        "arrowParens": "avoid",
+        "bracketSpacing": true,
+        "bracketSameLine": true,
+        "overrides": [
+            {
+                "files": "*.html",
+                "options": {
+                    "parser": "angular"
+                }
+            }
+        ]
     },
     "private": true,
     "dependencies": {
@@ -52,12 +67,18 @@
         "@ngx-formly/schematics": "^7.0.0",
         "@types/express": "^5.0.5",
         "@types/jasmine": "~5.1.0",
+        "angular-eslint": "^20.6.0",
+        "eslint-config-prettier": "^10.1.8",
+        "eslint-plugin-prettier": "^5.5.4",
+        "eslint-plugin-unused-imports": "^4.3.0",
         "jasmine-core": "~5.9.0",
         "karma": "~6.4.0",
         "karma-chrome-launcher": "~3.2.0",
         "karma-coverage": "~2.2.0",
         "karma-jasmine": "~5.1.0",
         "karma-jasmine-html-reporter": "~2.1.0",
-        "typescript": "~5.9.2"
+        "prettier-plugin-tailwindcss": "^0.7.1",
+        "typescript": "~5.9.2",
+        "typescript-eslint": "^8.47.0"
     }
 }

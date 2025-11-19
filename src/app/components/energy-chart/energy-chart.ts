@@ -77,7 +77,7 @@ export class EnergyChartComponent {
                         data: this.powerValues()[deviceName],
                         tooltip: {
                             valueFormatter: (value: number) => {
-                                const formattedValue = formatPower(value, true)
+                                const formattedValue = formatPower(value)
                                 return `${formattedValue?.value} ${formattedValue?.unit}`
                             },
                         },
