@@ -28,7 +28,6 @@ export class CustomSidenav {
     }
 
     @Input() set items(val: MenuItem[]) {
-        console.log(val.map((i) => i.route))
         this._items.set(val)
     }
 

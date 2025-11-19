@@ -68,7 +68,7 @@ export class EnergyChartComponent {
             },
 
             series: [
-                ...Object.keys(this.powerValues()).map((deviceName) => {
+                ...Object.keys(this.powerValues()).map(deviceName => {
                     return {
                         name: deviceName,
                         type: 'line',
@@ -84,7 +84,7 @@ export class EnergyChartComponent {
                     }
                 }),
 
-                ...Object.keys(this.socValues()).map((deviceName) => {
+                ...Object.keys(this.socValues()).map(deviceName => {
                     return {
                         name: `${deviceName} SoC`,
                         type: 'line',
@@ -175,12 +175,20 @@ export class EnergyChartComponent {
 
         const translatedHomeName = this.translate.instant('device.home')
 
-        snapshots.forEach((snapshot) => {
+        snapshots.forEach(snapshot => {
             timestamps.push(new Date(snapshot.created_at))
 
             var homePowerConsumption = 0
 
-            snapshot.device_snapshots.forEach((deviceSnapshot: any) => {
+            const sortedDeviceSnapshots = snapshot.device_snapshots.sort(
+                (n1: any, n2: any) => {
+                    if (n1.device_name < n2.device_name) return -1
+                    if (n1.device_name > n2.device_name) return 1
+                    return 0
+                }
+            )
+
+            sortedDeviceSnapshots.forEach((deviceSnapshot: any) => {
                 if (deviceSnapshot.name === 'power') {
                     if (!powerValues[deviceSnapshot.device_name]) {
                         powerValues[deviceSnapshot.device_name] = []
@@ -202,8 +210,8 @@ export class EnergyChartComponent {
 
             this.devices()
                 .filter(
-                    (deviceName) =>
-                        snapshot.device_snapshots
+                    deviceName =>
+                        sortedDeviceSnapshots
                             .filter(
                                 (ds: any) =>
                                     ds.name == 'power' || ds.name == 'soc'
@@ -211,7 +219,7 @@ export class EnergyChartComponent {
                             .map((ds: any) => ds.device_name)
                             .indexOf(deviceName) === -1
                 )
-                .forEach((deviceName) => {
+                .forEach(deviceName => {
                     if (!powerValues[deviceName]) {
                         powerValues[deviceName] = []
                     }
@@ -232,18 +240,26 @@ export class EnergyChartComponent {
     ngOnInit() {
         this.getDevicesSubscription = this.api
             .getAllDevices()
-            .subscribe((devices) => {
-                this.devices.set(devices.map((device: any) => device.name))
+            .subscribe(devices => {
+                this.devices.set(
+                    devices
+                        .sort((a: any, b: any) => {
+                            if (a.name < b.name) return -1
+                            if (a.name > b.name) return 1
+                            return 0
+                        })
+                        .map((device: any) => device.name)
+                )
 
                 this.getSnapshotsSubscription = this.api
                     .getSnapshots('today')
-                    .subscribe((snapshots) => {
+                    .subscribe(snapshots => {
                         this.addSnapshotsToChart(snapshots)
                     })
 
                 this.webserviceSubscription = this.websocket
                     .getMessage('snapshot:new')
-                    .subscribe((data) => {
+                    .subscribe(data => {
                         this.addSnapshotsToChart([JSON.parse(data)])
                     })
             })
