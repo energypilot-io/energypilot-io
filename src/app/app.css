@@ -19,3 +19,9 @@ mat-sidenav,
 mat-sidenav-content {
     transition: all 500ms ease-in-out;
 }
+
+.app-title {
+    font-family: 'Leckerli One', cursive;
+    font-weight: 400;
+    font-style: normal;
+}

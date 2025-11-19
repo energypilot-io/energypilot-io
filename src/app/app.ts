@@ -34,7 +34,9 @@ export class App {
     private translate = inject(TranslateService)
 
     sidenavCollapsed = signal(false)
-    sidenavWidth = computed(() => (this.sidenavCollapsed() ? '60px' : '200px'))
+    sidenavWidth = computed(() =>
+        this.sidenavCollapsed() === true ? '60px' : '250px'
+    )
 
     constructor() {
         this.translate.addLangs(['de', 'en'])
@@ -45,8 +47,8 @@ export class App {
         const sanitizer = inject(DomSanitizer)
 
         iconRegistry.addSvgIcon(
-            'plane',
-            sanitizer.bypassSecurityTrustResourceUrl('assets/icons/plane.svg')
+            'logo',
+            sanitizer.bypassSecurityTrustResourceUrl('assets/icons/logo.svg')
         )
     }
 
@@ -64,7 +66,7 @@ export class App {
 
     getStoredStatus(): boolean | null {
         try {
-            return window.localStorage[App.storageKey] || null
+            return (window.localStorage[App.storageKey] || null) === 'true'
         } catch {
             return null
         }

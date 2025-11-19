@@ -1,12 +1,9 @@
 <mat-sidenav-container>
     <mat-sidenav mode="side" opened [style.width]="sidenavWidth()">
-        <div class="flex gap-4 p-4">
-            <mat-icon svgIcon="plane" class="scale-100" />
+        <div class="flex gap-4 p-4 items-center h-16">
+            <mat-icon svgIcon="logo" class="scale-150" />
             @if(!sidenavCollapsed()) {
-            <div class="flex align-bottom">
-                <span class="font-bold">EnergyPilot.io</span>
-                <span class="align-bottom text-sm">v0.1</span>
-            </div>
+            <span class="app-title text-2xl self-center">EnergyPilot.io</span>
             }
         </div>
 
