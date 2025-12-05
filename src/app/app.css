@@ -17,3 +17,8 @@ mat-sidenav-content {
     font-weight: 400;
     font-style: normal;
 }
+
+.mat-drawer {
+    border-radius: 0 !important;
+    border-right: var(--mat-sys-outline-variant) solid 1px !important;
+}

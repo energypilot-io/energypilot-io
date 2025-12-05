@@ -1,0 +1,68 @@
+<mat-card appearance="outlined">
+    <mat-card-content>
+        <div class="flex gap-2 rounded-full bg-stone-200 p-2">
+            <button
+                [matButton]="
+                    currentTimeRange() === TimeRange.Day ? 'filled' : 'outlined'
+                "
+                (click)="setTimeRange(TimeRange.Day)">
+                Day
+            </button>
+            <button
+                [matButton]="
+                    currentTimeRange() === TimeRange.Week
+                        ? 'filled'
+                        : 'outlined'
+                "
+                (click)="setTimeRange(TimeRange.Week)">
+                Week
+            </button>
+            <button
+                [matButton]="
+                    currentTimeRange() === TimeRange.Month
+                        ? 'filled'
+                        : 'outlined'
+                "
+                (click)="setTimeRange(TimeRange.Month)">
+                Month
+            </button>
+            <button
+                [matButton]="
+                    currentTimeRange() === TimeRange.Year
+                        ? 'filled'
+                        : 'outlined'
+                "
+                (click)="setTimeRange(TimeRange.Year)">
+                Year
+            </button>
+        </div>
+
+        <div class="grid grid-cols-3">
+            <div class="py-5">
+                <div class="h-full rounded-l-md bg-stone-200 p-4">
+                    <div class="text-sm text-stone-500">Production</div>
+                    <div class="text-2xl font-bold">
+                        {{ totalProduction() | energy }}
+                    </div>
+                </div>
+            </div>
+            <div class="relative py-5">
+                <div
+                    echarts
+                    [options]="chartOption"
+                    [merge]="mergeOption()"
+                    class="absolute top-0 h-full w-full"></div>
+
+                <div class="h-full bg-stone-200"></div>
+            </div>
+            <div class="py-5">
+                <div class="h-full rounded-r-md bg-stone-200 p-4">
+                    <div class="text-sm text-stone-500">Export</div>
+                    <div class="text-2xl font-bold">
+                        {{ totalExport() | energy }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </mat-card-content>
+</mat-card>

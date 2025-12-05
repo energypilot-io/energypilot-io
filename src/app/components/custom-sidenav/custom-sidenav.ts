@@ -30,22 +30,4 @@ export class CustomSidenav {
     @Input() set items(val: MenuItem[]) {
         this._items.set(val)
     }
-
-    constructor() {
-        const iconRegistry = inject(MatIconRegistry)
-        const sanitizer = inject(DomSanitizer)
-
-        iconRegistry.addSvgIcon(
-            'github',
-            sanitizer.bypassSecurityTrustResourceUrl(
-                'assets/icons/github-142-svgrepo-com.svg'
-            )
-        )
-        iconRegistry.addSvgIcon(
-            'discord',
-            sanitizer.bypassSecurityTrustResourceUrl(
-                'assets/icons/discord-icon-svgrepo-com.svg'
-            )
-        )
-    }
 }
