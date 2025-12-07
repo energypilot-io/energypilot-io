@@ -1,5 +1,24 @@
 {
     "device": {
         "home": "Home"
+    },
+
+    "kpi": {
+        "production": "Production",
+        "import": "Import",
+        "export": "Export",
+        "consumption": "Consumption",
+        "own-consumption": "Own Consumption",
+        "total-consumption": "Total Consumption",
+        "autonomy": "Autonomy"
+    },
+
+    "common": {
+        "timerange": {
+            "day": "Day",
+            "week": "Week",
+            "month": "Month",
+            "year": "Year"
+        }
     }
 }

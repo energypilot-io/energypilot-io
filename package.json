@@ -50,6 +50,7 @@
         "@tailwindcss/postcss": "^4.1.17",
         "@types/cors": "^2.8.19",
         "concurrently": "^9.2.1",
+        "date-fns": "^4.1.0",
         "echarts": "^6.0.0",
         "express": "^5.1.0",
         "ngx-echarts": "^20.0.2",

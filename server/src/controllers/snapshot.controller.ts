@@ -6,22 +6,26 @@ import { Request, Response } from 'express'
 
 const router = express.Router()
 
-router.get('/today', async (req: Request, res: Response) => {
-    const startOfToday = new Date()
-    startOfToday.setHours(0, 0, 0, 0)
-
-    return res.json(
-        await findSnapshotsBetweenDates({ startDate: startOfToday })
-    )
-})
-
-router.get('/today/:limit', async (req: Request, res: Response) => {
-    const startOfToday = new Date()
-    startOfToday.setHours(0, 0, 0, 0)
+router.get('/:from-:to', async (req: Request, res: Response) => {
+    const startTimestamp = new Date(parseInt(req.params.from))
+    const endTimestamp = new Date(parseInt(req.params.to))
 
     return res.json(
         await findSnapshotsBetweenDates({
-            startDate: startOfToday,
+            startDate: startTimestamp,
+            endDate: endTimestamp,
+        })
+    )
+})
+
+router.get('/:from-:to/:limit', async (req: Request, res: Response) => {
+    const startTimestamp = new Date(parseInt(req.params.from))
+    const endTimestamp = new Date(parseInt(req.params.to))
+
+    return res.json(
+        await findSnapshotsBetweenDates({
+            startDate: startTimestamp,
+            endDate: endTimestamp,
             limit: req.params.limit ? parseInt(req.params.limit) : undefined,
         })
     )
