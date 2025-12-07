@@ -216,6 +216,7 @@ async function pollData() {
                     return {
                         device_id: deviceValue.device.id,
                         device_name: deviceValue.device.name,
+                        device_type: deviceValue.device.type,
                         name: deviceValue.name,
                         value: deviceValue.value,
                     }

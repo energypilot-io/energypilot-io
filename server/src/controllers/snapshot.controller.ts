@@ -46,6 +46,7 @@ function snapshotToJSON(snapshot: Snapshot): object {
             .map((deviceValue) => ({
                 device_id: deviceValue.device.id,
                 device_name: deviceValue.device.name,
+                device_type: deviceValue.device.type,
                 name: deviceValue.name,
                 value: deviceValue.value,
             })),

@@ -47,8 +47,14 @@ export class KpiComponent {
     private baseProduction: number = 0
     private baseTotalExport: number = 0
 
+    private baseConsumption: number = 0
+    private baseTotalImport: number = 0
+
     totalProduction = signal<number>(0)
     totalExport = signal<number>(0)
+
+    totalConsumption = signal<number>(0)
+    totalImport = signal<number>(0)
 
     mergeOption = computed<echarts.EChartsCoreOption>(() => {
         return {
@@ -109,55 +115,75 @@ export class KpiComponent {
     }
 
     private setBaseValues(snapshot: any) {
-        var baseTotalExport: number = 0
-        var baseProduction: number = 0
+        this.baseTotalExport = 0
+        this.baseProduction = 0
+        this.baseConsumption = 0
+        this.baseTotalImport = 0
 
         snapshot.device_snapshots
             .filter((deviceSnapshot: any) => {
                 return (
                     deviceSnapshot.name === 'energy_export' ||
+                    deviceSnapshot.name === 'energy_import' ||
                     deviceSnapshot.name === 'energy'
                 )
             })
             .forEach((deviceSnapshot: any) => {
-                if (deviceSnapshot.name === 'energy') {
-                    baseProduction += deviceSnapshot.value
-                } else if (
-                    deviceSnapshot.name === 'energy_export' &&
-                    deviceSnapshot.value > 0
-                ) {
-                    baseTotalExport += deviceSnapshot.value
+                if (deviceSnapshot.device_type === "pv" && deviceSnapshot.name === 'energy') {
+                    this.baseProduction += deviceSnapshot.value
+                } else if(deviceSnapshot.device_type === "grid") {
+                    if (deviceSnapshot.name === 'energy_import') {
+                        this.baseTotalImport += deviceSnapshot.value
+                    }
+                    else if (
+                        deviceSnapshot.name === 'energy_export' &&
+                        deviceSnapshot.value > 0
+                    ) {
+                        this.baseTotalExport += deviceSnapshot.value
+                    } else if (deviceSnapshot.name === 'energy') {
+                        this.baseConsumption += deviceSnapshot.value
+                    }
                 }
             })
-
-        this.baseTotalExport = baseTotalExport
-        this.baseProduction = baseProduction
     }
 
     private updateKPIValues(snapshot: any) {
         var totalExport: number = 0
         var totalProduction: number = 0
+        var totalImport: number = 0
+        var totalConsumption: number = 0
 
         snapshot.device_snapshots
             .filter((deviceSnapshot: any) => {
                 return (
                     deviceSnapshot.name === 'energy_export' ||
+                    deviceSnapshot.name === 'energy_import' ||
                     deviceSnapshot.name === 'energy'
                 )
             })
             .forEach((deviceSnapshot: any) => {
-                if (deviceSnapshot.name === 'energy') {
+                if(deviceSnapshot.device_type === "pv" && deviceSnapshot.name === 'energy') {
                     totalProduction += deviceSnapshot.value
-                } else if (
-                    deviceSnapshot.name === 'energy_export' &&
-                    deviceSnapshot.value > 0
-                ) {
-                    totalExport += deviceSnapshot.value
+                } else if(deviceSnapshot.device_type === "grid") {
+                    if (
+                        deviceSnapshot.name === 'energy_export' &&
+                        deviceSnapshot.value > 0
+                    ) {
+                        totalExport += deviceSnapshot.value
+                    } else if (
+                        deviceSnapshot.name === 'energy_import'
+                    ) {
+                        totalImport += deviceSnapshot.value
+                    } else if (deviceSnapshot.name === 'energy') {
+                        totalConsumption += deviceSnapshot.value
+                    }
                 }
             })
 
         this.totalProduction.set(totalProduction - this.baseProduction)
         this.totalExport.set(totalExport - this.baseTotalExport)
+        this.totalConsumption.set(totalConsumption - this.baseConsumption)
+        this.totalImport.set(totalImport - this.baseTotalImport)
     }
 
     ngOnInit() {
