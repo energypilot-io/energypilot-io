@@ -120,7 +120,10 @@
                         {{ 'kpi.autonomy' | translate }}
                     </div>
                     <div class="text-right text-2xl font-bold">
-                        {{ 1.0 - totalImport() / totalConsumption() | percent }}
+                        {{
+                            totalConsumption() /
+                                (totalImport() + totalConsumption()) | percent
+                        }}
                     </div>
                 </div>
             </div>
