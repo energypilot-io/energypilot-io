@@ -24,6 +24,7 @@ import {
     _,
 } from '@ngx-translate/core'
 import { Subscription } from 'rxjs'
+import { endOfDay, startOfDay } from 'date-fns'
 
 echarts.use([
     TooltipComponent,
@@ -238,6 +239,11 @@ export class EnergyChartComponent {
     }
 
     ngOnInit() {
+        const now = new Date()
+
+        var fromDate = startOfDay(now)
+        var toDate = endOfDay(now)
+
         this.getDevicesSubscription = this.api
             .getAllDevices()
             .subscribe(devices => {
@@ -252,7 +258,7 @@ export class EnergyChartComponent {
                 )
 
                 this.getSnapshotsSubscription = this.api
-                    .getSnapshots('today')
+                    .getSnapshots(`${fromDate!.getTime()}-${toDate!.getTime()}`)
                     .subscribe(snapshots => {
                         this.addSnapshotsToChart(snapshots)
                     })
