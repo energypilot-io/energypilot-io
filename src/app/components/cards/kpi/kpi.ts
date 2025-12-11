@@ -241,11 +241,13 @@ export class KpiComponent {
 
         var totalOwnConsumption = totalProduction - totalExport
 
-        this.totalProduction.set(totalProduction - this.baseProduction)
-        this.totalExport.set(totalExport - this.baseTotalExport)
-        this.totalImport.set(totalImport - this.baseTotalImport)
+        this.totalProduction.set(
+            Math.abs(totalProduction - this.baseProduction)
+        )
+        this.totalExport.set(Math.abs(totalExport - this.baseTotalExport))
+        this.totalImport.set(Math.abs(totalImport - this.baseTotalImport))
         this.totalOwnConsumption.set(
-            totalOwnConsumption - this.baseOwnConsumption
+            Math.abs(totalOwnConsumption - this.baseOwnConsumption)
         )
     }
 

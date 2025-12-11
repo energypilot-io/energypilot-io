@@ -15,7 +15,7 @@
                     <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
                 }
 
-                @if (!sidenavCollapsed()) {
+                @if (isMobile() || !sidenavCollapsed()) {
                     <span matListItemTitle>{{ item.label }}</span>
                 }
             </a>
@@ -29,7 +29,7 @@
                     <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
                 }
 
-                @if (!sidenavCollapsed()) {
+                @if (isMobile() || !sidenavCollapsed()) {
                     <span matListItemTitle>{{ item.label }}</span>
                 }
             </a>

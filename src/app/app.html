@@ -1,13 +1,18 @@
 <mat-sidenav-container>
-    <mat-sidenav mode="side" opened [style.width]="sidenavWidth()">
-        <div class="flex flex-col h-full">
+    <mat-sidenav
+        [opened]="!isMobile()"
+        [style.width]="sidenavWidth()"
+        [mode]="isMobile() ? 'over' : 'side'"
+        [fixedInViewport]="isMobile()"
+        #snav>
+        <div class="flex h-full flex-col">
             <a href="/">
-                <div class="flex gap-4 p-4 items-center h-16">
+                <div class="flex h-16 items-center gap-4 p-4">
                     <mat-icon svgIcon="logo" class="scale-150" />
-                    @if(!sidenavCollapsed()) {
-                    <span class="app-title text-2xl self-center"
-                        >EnergyPilot.io</span
-                    >
+                    @if (!sidenavCollapsed()) {
+                        <span class="app-title self-center text-2xl">
+                            EnergyPilot.io
+                        </span>
                     }
                 </div>
             </a>
@@ -15,28 +20,43 @@
             <app-custom-sidenav
                 [collapsed]="sidenavCollapsed()"
                 [items]="topMenuItems()"
-            />
+                [mobile]="isMobile()" />
 
             <span class="grow"></span>
 
             <app-custom-sidenav
                 [collapsed]="sidenavCollapsed()"
-                [items]="bottomMenuItems()"
-            />
-            <div class="text-xs p-2">v2025.1</div>
+                [items]="bottomMenuItems()" />
+            <div class="p-2 text-xs">v2025.1</div>
         </div>
     </mat-sidenav>
 
-    <mat-sidenav-content [style.margin-left]="sidenavWidth()">
-        <mat-toolbar class="shadow-sm">
-            <button mat-icon-button (click)="storeStatus(!sidenavCollapsed())">
-                <mat-icon>
-                    @if(!sidenavCollapsed()) { arrow_back_ios } @else
-                    {arrow_forward_ios}
-                </mat-icon>
-            </button>
+    <mat-sidenav-content
+        [style.margin-left]="!isMobile() ? sidenavWidth() : '0px'">
+        <mat-toolbar class="shadow-sm" [class.fixed-header]="isMobile()">
+            @if (!isMobile()) {
+                <button
+                    mat-icon-button
+                    (click)="storeStatus(!sidenavCollapsed())">
+                    <mat-icon>
+                        @if (!sidenavCollapsed()) {
+                            arrow_back_ios
+                        } @else {
+                            arrow_forward_ios
+                        }
+                    </mat-icon>
+                </button>
 
-            <span class="grow"></span>
+                <span class="grow"></span>
+            } @else {
+                <button matIconButton (click)="snav.toggle()">
+                    <mat-icon>menu</mat-icon>
+                </button>
+
+                <span class="app-title grow text-center text-2xl">
+                    EnergyPilot.io
+                </span>
+            }
 
             <app-theme-picker />
             <app-language-picker />

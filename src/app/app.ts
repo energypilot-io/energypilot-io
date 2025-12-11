@@ -1,4 +1,5 @@
 import { Component, computed, inject, signal } from '@angular/core'
+import { MediaMatcher } from '@angular/cdk/layout'
 import { RouterOutlet } from '@angular/router'
 import { AppComponent } from './components/test'
 
@@ -36,10 +37,19 @@ export class App {
 
     private translate = inject(TranslateService)
 
+    protected readonly isMobile = signal(true)
+
+    private readonly _mobileQuery: MediaQueryList
+    private readonly _mobileQueryListener: () => void
+
     sidenavCollapsed = signal(false)
-    sidenavWidth = computed(() =>
-        this.sidenavCollapsed() === true ? '60px' : '250px'
-    )
+    sidenavWidth = computed(() => {
+        if (this.isMobile()) {
+            return '85%'
+        }
+
+        return this.sidenavCollapsed() === true ? '60px' : '250px'
+    })
 
     topMenuItems = signal<MenuItem[]>([
         {
@@ -75,6 +85,13 @@ export class App {
         },
     ])
 
+    ngOnDestroy(): void {
+        this._mobileQuery.removeEventListener(
+            'change',
+            this._mobileQueryListener
+        )
+    }
+
     constructor() {
         this.translate.addLangs(['de', 'en'])
         this.translate.setFallbackLang('en')
@@ -100,6 +117,14 @@ export class App {
                 'assets/icons/discord-icon-svgrepo-com.svg'
             )
         )
+
+        const media = inject(MediaMatcher)
+
+        this._mobileQuery = media.matchMedia('(max-width: 600px)')
+        this.isMobile.set(this._mobileQuery.matches)
+        this._mobileQueryListener = () =>
+            this.isMobile.set(this._mobileQuery.matches)
+        this._mobileQuery.addEventListener('change', this._mobileQueryListener)
     }
 
     ngOnInit(): void {

@@ -20,8 +20,10 @@ export type MenuItem = {
     styleUrl: './custom-sidenav.css',
 })
 export class CustomSidenav {
-    sidenavCollapsed = signal(false)
     _items = signal<MenuItem[]>([])
+
+    sidenavCollapsed = signal(false)
+    isMobile = signal(false)
 
     @Input() set collapsed(val: boolean) {
         this.sidenavCollapsed.set(val)
@@ -29,5 +31,9 @@ export class CustomSidenav {
 
     @Input() set items(val: MenuItem[]) {
         this._items.set(val)
+    }
+
+    @Input() set mobile(val: boolean) {
+        this.isMobile.set(val)
     }
 }
