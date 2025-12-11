@@ -62,6 +62,10 @@ async function findSnapshotsBetweenDates(params: {
     endDate?: Date
     limit?: number
 }): Promise<object> {
+    console.log(
+        `{startDate: ${params.startDate}, endDate: ${params.endDate}, limit: ${params.limit}}`
+    )
+
     const snapshots = await getEntityManager().find(
         Snapshot,
         {
@@ -72,8 +76,8 @@ async function findSnapshotsBetweenDates(params: {
         },
         {
             populate: ['*'],
-            orderBy: { created_at: 'ASC' },
-            limit: params.limit,
+            orderBy: { created_at: (params.limit ?? 0) < 0 ? 'DESC' : 'ASC' },
+            limit: params.limit ? Math.abs(params.limit) : undefined,
         }
     )
 

@@ -3,6 +3,10 @@ import { MatButtonModule } from '@angular/material/button'
 import { MatCardModule } from '@angular/material/card'
 
 import {
+    addDays,
+    addMonths,
+    addWeeks,
+    addYears,
     endOfDay,
     endOfMonth,
     endOfWeek,
@@ -25,6 +29,7 @@ import { from, Subscription } from 'rxjs'
 import { WebsocketService } from '@/app/services/websocket.service'
 import { FormatEnergyPipe } from '@/app/components/pipes/formatEnergy.pipe'
 import { PercentPipe } from '@angular/common'
+import { MatIconModule } from '@angular/material/icon'
 
 echarts.use([TooltipComponent, PieChart, CanvasRenderer, GridComponent])
 
@@ -45,6 +50,7 @@ enum TimeRange {
         PercentPipe,
         TranslatePipe,
         TranslateDirective,
+        MatIconModule,
     ],
     templateUrl: './kpi.html',
     styleUrl: './kpi.css',
@@ -63,7 +69,22 @@ export class KpiComponent {
     private baseOwnConsumption: number = 0
     private baseTotalImport: number = 0
 
+    private timeRangeModifier = signal<number>(0)
+
+    private fromDate = signal<Date>(new Date())
+    private toDate = signal<Date>(new Date())
+
     currentTimeRange = signal<TimeRange>(TimeRange.Day)
+    currentTimeRangeLabel = computed<string>(() => {
+        const fromDate = this.fromDate().toLocaleDateString()
+        const toDate = this.toDate().toLocaleDateString()
+
+        if (fromDate === toDate) {
+            return fromDate
+        }
+
+        return `${fromDate} - ${toDate}`
+    })
 
     totalProduction = signal<number>(0)
     totalExport = signal<number>(0)
@@ -162,6 +183,15 @@ export class KpiComponent {
 
     public setTimeRange(range: TimeRange): void {
         this.currentTimeRange.set(range)
+        this.timeRangeModifier.set(0)
+    }
+
+    public incrementTimeRange(): void {
+        this.timeRangeModifier.update(value => (value < 0 ? value + 1 : value))
+    }
+
+    public decrementTimeRange(): void {
+        this.timeRangeModifier.update(value => value - 1)
     }
 
     private setBaseValues(snapshot: any) {
@@ -203,12 +233,25 @@ export class KpiComponent {
         this.totalImport.set(0)
         this.totalOwnConsumption.set(0)
 
-        this.api.getSnapshots('latest').subscribe(snapshot => {
-            this.updateKPIValues(snapshot)
-        })
+        this.api
+            .getSnapshots(
+                `${this.fromDate().getTime()}-${this.toDate().getTime()}/-1`
+            )
+            .subscribe(snapshots => {
+                this.updateKPIValues(snapshots[0])
+            })
     }
 
     private updateKPIValues(snapshot: any) {
+        const snapshotCreateDate = new Date(snapshot.created_at)
+
+        if (
+            snapshotCreateDate.getTime() < this.fromDate().getTime() ||
+            snapshotCreateDate.getTime() > this.toDate().getTime()
+        ) {
+            return
+        }
+
         var totalExport: number = 0
         var totalProduction: number = 0
         var totalImport: number = 0
@@ -255,27 +298,34 @@ export class KpiComponent {
         effect(() => {
             const now = new Date()
 
-            var fromDate: Date
-            var toDate: Date
-
             if (this.currentTimeRange() === TimeRange.Day) {
-                fromDate = startOfDay(now)
-                toDate = endOfDay(now)
+                const date = addDays(now, this.timeRangeModifier())
+
+                this.fromDate.set(startOfDay(date))
+                this.toDate.set(endOfDay(date))
             } else if (this.currentTimeRange() === TimeRange.Week) {
-                fromDate = startOfWeek(now)
-                toDate = endOfWeek(now)
+                const date = addWeeks(now, this.timeRangeModifier())
+
+                this.fromDate.set(startOfWeek(date))
+                this.toDate.set(endOfWeek(date))
             } else if (this.currentTimeRange() === TimeRange.Month) {
-                fromDate = startOfMonth(now)
-                toDate = endOfMonth(now)
+                const date = addMonths(now, this.timeRangeModifier())
+
+                this.fromDate.set(startOfMonth(date))
+                this.toDate.set(endOfMonth(date))
             } else if (this.currentTimeRange() === TimeRange.Year) {
-                fromDate = startOfYear(now)
-                toDate = endOfYear(now)
+                const date = addYears(now, this.timeRangeModifier())
+
+                this.fromDate.set(startOfYear(date))
+                this.toDate.set(endOfYear(date))
             }
 
             this.getFirstSnapshotsSubscription = this.api
-                .getSnapshots(`${fromDate!.getTime()}-${toDate!.getTime()}/1`)
-                .subscribe(snapshot => {
-                    this.setBaseValues(snapshot[0])
+                .getSnapshots(
+                    `${this.fromDate().getTime()}-${this.toDate().getTime()}/1`
+                )
+                .subscribe(snapshots => {
+                    this.setBaseValues(snapshots[0])
                 })
         })
     }

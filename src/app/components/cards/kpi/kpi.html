@@ -1,7 +1,7 @@
 <mat-card appearance="outlined">
     <mat-card-content>
         <div class="flex flex-col gap-4">
-            <div class="flex gap-2 rounded-full bg-stone-200 p-2">
+            <div class="flex gap-2 p-2">
                 <button
                     [matButton]="
                         currentTimeRange() === TimeRange.Day
@@ -37,6 +37,20 @@
                     "
                     (click)="setTimeRange(TimeRange.Year)">
                     {{ 'common.timerange.year' | translate }}
+                </button>
+            </div>
+
+            <div class="flex items-center justify-between">
+                <button matIconButton (click)="decrementTimeRange()">
+                    <mat-icon>arrow_circle_left</mat-icon>
+                </button>
+
+                <div>
+                    {{ currentTimeRangeLabel() }}
+                </div>
+
+                <button matIconButton (click)="incrementTimeRange()">
+                    <mat-icon>arrow_circle_right</mat-icon>
                 </button>
             </div>
 
