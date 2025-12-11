@@ -1,22 +1,7 @@
 import { Component, computed, inject, signal, effect } from '@angular/core'
-import { MatButtonModule } from '@angular/material/button'
 import { MatCardModule } from '@angular/material/card'
 
-import {
-    addDays,
-    addMonths,
-    addWeeks,
-    addYears,
-    endOfDay,
-    endOfMonth,
-    endOfWeek,
-    endOfYear,
-    startOfDay,
-    startOfMonth,
-    startOfWeek,
-    startOfYear,
-} from 'date-fns'
-import { TranslatePipe, TranslateDirective } from '@ngx-translate/core'
+import { TranslatePipe } from '@ngx-translate/core'
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts'
 import * as echarts from 'echarts/core'
 import { PieChart } from 'echarts/charts'
@@ -25,32 +10,26 @@ import { GridComponent, TooltipComponent } from 'echarts/components'
 import { CallbackDataParams } from 'echarts/types/dist/shared'
 import { formatEnergy } from '@/app/libs/utils'
 import { ApiService } from '@/app/services/api.service'
-import { from, Subscription } from 'rxjs'
+import { Subscription } from 'rxjs'
 import { WebsocketService } from '@/app/services/websocket.service'
 import { FormatEnergyPipe } from '@/app/components/pipes/formatEnergy.pipe'
 import { PercentPipe } from '@angular/common'
-import { MatIconModule } from '@angular/material/icon'
+import {
+    onTimeRangeChangeEvent,
+    TimerangeSelectorComponent,
+} from '../../ui/timerange-selector/timerange-selector'
 
 echarts.use([TooltipComponent, PieChart, CanvasRenderer, GridComponent])
-
-enum TimeRange {
-    Day = 'day',
-    Week = 'week',
-    Month = 'month',
-    Year = 'year',
-}
 
 @Component({
     selector: 'app-kpi',
     imports: [
         NgxEchartsDirective,
         MatCardModule,
-        MatButtonModule,
         FormatEnergyPipe,
         PercentPipe,
         TranslatePipe,
-        TranslateDirective,
-        MatIconModule,
+        TimerangeSelectorComponent,
     ],
     templateUrl: './kpi.html',
     styleUrl: './kpi.css',
@@ -69,22 +48,8 @@ export class KpiComponent {
     private baseOwnConsumption: number = 0
     private baseTotalImport: number = 0
 
-    private timeRangeModifier = signal<number>(0)
-
     private fromDate = signal<Date>(new Date())
     private toDate = signal<Date>(new Date())
-
-    currentTimeRange = signal<TimeRange>(TimeRange.Day)
-    currentTimeRangeLabel = computed<string>(() => {
-        const fromDate = this.fromDate().toLocaleDateString()
-        const toDate = this.toDate().toLocaleDateString()
-
-        if (fromDate === toDate) {
-            return fromDate
-        }
-
-        return `${fromDate} - ${toDate}`
-    })
 
     totalProduction = signal<number>(0)
     totalExport = signal<number>(0)
@@ -177,28 +142,18 @@ export class KpiComponent {
         },
     }
 
-    public get TimeRange(): typeof TimeRange {
-        return TimeRange
-    }
-
-    public setTimeRange(range: TimeRange): void {
-        this.currentTimeRange.set(range)
-        this.timeRangeModifier.set(0)
-    }
-
-    public incrementTimeRange(): void {
-        this.timeRangeModifier.update(value => (value < 0 ? value + 1 : value))
-    }
-
-    public decrementTimeRange(): void {
-        this.timeRangeModifier.update(value => value - 1)
-    }
-
     private setBaseValues(snapshot: any) {
         this.baseTotalExport = 0
         this.baseProduction = 0
         this.baseOwnConsumption = 0
         this.baseTotalImport = 0
+
+        this.totalProduction.set(0)
+        this.totalExport.set(0)
+        this.totalImport.set(0)
+        this.totalOwnConsumption.set(0)
+
+        if (!snapshot) return
 
         snapshot.device_snapshots
             .filter((deviceSnapshot: any) => {
@@ -227,11 +182,6 @@ export class KpiComponent {
                     }
                 }
             })
-
-        this.totalProduction.set(0)
-        this.totalExport.set(0)
-        this.totalImport.set(0)
-        this.totalOwnConsumption.set(0)
 
         this.api
             .getSnapshots(
@@ -294,32 +244,15 @@ export class KpiComponent {
         )
     }
 
+    public onTimeRangeChange(event: onTimeRangeChangeEvent): void {
+        this.fromDate.set(event.fromDate)
+        this.toDate.set(event.toDate)
+
+        console.log(event)
+    }
+
     constructor() {
         effect(() => {
-            const now = new Date()
-
-            if (this.currentTimeRange() === TimeRange.Day) {
-                const date = addDays(now, this.timeRangeModifier())
-
-                this.fromDate.set(startOfDay(date))
-                this.toDate.set(endOfDay(date))
-            } else if (this.currentTimeRange() === TimeRange.Week) {
-                const date = addWeeks(now, this.timeRangeModifier())
-
-                this.fromDate.set(startOfWeek(date))
-                this.toDate.set(endOfWeek(date))
-            } else if (this.currentTimeRange() === TimeRange.Month) {
-                const date = addMonths(now, this.timeRangeModifier())
-
-                this.fromDate.set(startOfMonth(date))
-                this.toDate.set(endOfMonth(date))
-            } else if (this.currentTimeRange() === TimeRange.Year) {
-                const date = addYears(now, this.timeRangeModifier())
-
-                this.fromDate.set(startOfYear(date))
-                this.toDate.set(endOfYear(date))
-            }
-
             this.getFirstSnapshotsSubscription = this.api
                 .getSnapshots(
                     `${this.fromDate().getTime()}-${this.toDate().getTime()}/1`

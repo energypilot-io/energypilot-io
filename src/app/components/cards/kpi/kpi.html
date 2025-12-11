@@ -1,58 +1,8 @@
 <mat-card appearance="outlined">
     <mat-card-content>
         <div class="flex flex-col gap-4">
-            <div class="flex gap-2 p-2">
-                <button
-                    [matButton]="
-                        currentTimeRange() === TimeRange.Day
-                            ? 'filled'
-                            : 'outlined'
-                    "
-                    (click)="setTimeRange(TimeRange.Day)">
-                    {{ 'common.timerange.day' | translate }}
-                </button>
-                <button
-                    [matButton]="
-                        currentTimeRange() === TimeRange.Week
-                            ? 'filled'
-                            : 'outlined'
-                    "
-                    (click)="setTimeRange(TimeRange.Week)">
-                    {{ 'common.timerange.week' | translate }}
-                </button>
-                <button
-                    [matButton]="
-                        currentTimeRange() === TimeRange.Month
-                            ? 'filled'
-                            : 'outlined'
-                    "
-                    (click)="setTimeRange(TimeRange.Month)">
-                    {{ 'common.timerange.month' | translate }}
-                </button>
-                <button
-                    [matButton]="
-                        currentTimeRange() === TimeRange.Year
-                            ? 'filled'
-                            : 'outlined'
-                    "
-                    (click)="setTimeRange(TimeRange.Year)">
-                    {{ 'common.timerange.year' | translate }}
-                </button>
-            </div>
-
-            <div class="flex items-center justify-between">
-                <button matIconButton (click)="decrementTimeRange()">
-                    <mat-icon>arrow_circle_left</mat-icon>
-                </button>
-
-                <div>
-                    {{ currentTimeRangeLabel() }}
-                </div>
-
-                <button matIconButton (click)="incrementTimeRange()">
-                    <mat-icon>arrow_circle_right</mat-icon>
-                </button>
-            </div>
+            <app-timerange-selector
+                (onTimeRangeChange)="onTimeRangeChange($event)" />
 
             <div class="grid grid-cols-3">
                 <div class="py-5">
