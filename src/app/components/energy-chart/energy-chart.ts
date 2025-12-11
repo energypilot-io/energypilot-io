@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core'
+import { Component, computed, effect, inject, signal } from '@angular/core'
 
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts'
 import * as echarts from 'echarts/core'
@@ -25,6 +25,10 @@ import {
 } from '@ngx-translate/core'
 import { Subscription } from 'rxjs'
 import { endOfDay, startOfDay } from 'date-fns'
+import {
+    onTimeRangeChangeEvent,
+    TimerangeSelectorComponent,
+} from '../ui/timerange-selector/timerange-selector'
 
 echarts.use([
     TooltipComponent,
@@ -38,7 +42,12 @@ echarts.use([
 
 @Component({
     selector: 'com-energy-chart',
-    imports: [NgxEchartsDirective, TranslatePipe, TranslateDirective],
+    imports: [
+        NgxEchartsDirective,
+        TranslatePipe,
+        TranslateDirective,
+        TimerangeSelectorComponent,
+    ],
     templateUrl: './energy-chart.html',
     styleUrl: './energy-chart.css',
     providers: [provideEchartsCore({ echarts })],
@@ -51,6 +60,9 @@ export class EnergyChartComponent {
     private getDevicesSubscription?: Subscription
     private getSnapshotsSubscription?: Subscription
     private webserviceSubscription?: Subscription
+
+    private fromDate = signal<Date>(new Date())
+    private toDate = signal<Date>(new Date())
 
     private devices = signal<string[]>([])
 
@@ -177,6 +189,15 @@ export class EnergyChartComponent {
         const translatedHomeName = this.translate.instant('device.home')
 
         snapshots.forEach(snapshot => {
+            const snapshotCreateDate = new Date(snapshot.created_at)
+
+            if (
+                snapshotCreateDate.getTime() < this.fromDate().getTime() ||
+                snapshotCreateDate.getTime() > this.toDate().getTime()
+            ) {
+                return
+            }
+
             timestamps.push(new Date(snapshot.created_at))
 
             var homePowerConsumption = 0
@@ -238,12 +259,32 @@ export class EnergyChartComponent {
         this.timestamps.set(timestamps)
     }
 
+    public onTimeRangeChange(event: onTimeRangeChangeEvent): void {
+        this.fromDate.set(event.fromDate)
+        this.toDate.set(event.toDate)
+    }
+
+    constructor() {
+        effect(() => {
+            if (this.devices().length === 0) {
+                return
+            }
+
+            this.timestamps.set([])
+            this.powerValues.set({})
+            this.socValues.set({})
+
+            this.getSnapshotsSubscription = this.api
+                .getSnapshots(
+                    `${this.fromDate().getTime()}-${this.toDate().getTime()}`
+                )
+                .subscribe(snapshots => {
+                    this.addSnapshotsToChart(snapshots)
+                })
+        })
+    }
+
     ngOnInit() {
-        const now = new Date()
-
-        var fromDate = startOfDay(now)
-        var toDate = endOfDay(now)
-
         this.getDevicesSubscription = this.api
             .getAllDevices()
             .subscribe(devices => {
@@ -256,12 +297,6 @@ export class EnergyChartComponent {
                         })
                         .map((device: any) => device.name)
                 )
-
-                this.getSnapshotsSubscription = this.api
-                    .getSnapshots(`${fromDate!.getTime()}-${toDate!.getTime()}`)
-                    .subscribe(snapshots => {
-                        this.addSnapshotsToChart(snapshots)
-                    })
 
                 this.webserviceSubscription = this.websocket
                     .getMessage('snapshot:new')

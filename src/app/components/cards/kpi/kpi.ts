@@ -247,8 +247,6 @@ export class KpiComponent {
     public onTimeRangeChange(event: onTimeRangeChangeEvent): void {
         this.fromDate.set(event.fromDate)
         this.toDate.set(event.toDate)
-
-        console.log(event)
     }
 
     constructor() {
