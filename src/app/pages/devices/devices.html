@@ -1,7 +1,13 @@
-<p>devices works!</p>
-
-@for (device of devices(); track device.id) {
+<div class="flex flex-col gap-4">
     <div>
-        <p>{{ device.name }}</p>
+        <button matButton="filled" (click)="openCreateDeviceDialog()">
+            <mat-icon>add</mat-icon>
+            Create
+        </button>
     </div>
-}
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        @for (device of devices(); track device.id) {
+            <app-device-info [device]="device" />
+        }
+    </div>
+</div>

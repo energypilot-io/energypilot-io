@@ -1,19 +1,33 @@
+import { MatButtonModule } from '@angular/material/button'
+import { MatIconModule } from '@angular/material/icon'
 import { Component, inject, signal } from '@angular/core'
 import { ApiService } from '@/app/services/api.service'
 import { Subscription } from 'rxjs'
+import { DeviceInfoComponent } from '@/app/components/cards/device-info/device-info'
+import { MatDialog } from '@angular/material/dialog'
+import { CreateDeviceComponent } from '@/app/components/dialog/create-device/create-device'
 
 @Component({
     selector: 'app-devices',
-    imports: [],
+    imports: [DeviceInfoComponent, MatButtonModule, MatIconModule],
     templateUrl: './devices.html',
     styleUrl: './devices.css',
 })
 export class DevicesComponent {
-    private api = inject(ApiService)
+    readonly api = inject(ApiService)
+    readonly dialog = inject(MatDialog)
 
     private getDevicesSubscription?: Subscription
 
     devices = signal<any[]>([])
+
+    openCreateDeviceDialog() {
+        const dialogRef = this.dialog.open(CreateDeviceComponent)
+
+        dialogRef.afterClosed().subscribe(result => {
+            console.log(`Dialog result: ${result}`)
+        })
+    }
 
     ngOnInit() {
         this.getDevicesSubscription = this.api
