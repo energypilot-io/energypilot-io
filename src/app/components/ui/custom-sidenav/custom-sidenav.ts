@@ -1,9 +1,8 @@
-import { Component, inject, Input, signal } from '@angular/core'
+import { Component, EventEmitter, Input, Output, signal } from '@angular/core'
 
 import { MatListModule } from '@angular/material/list'
-import { MatIconModule, MatIconRegistry } from '@angular/material/icon'
+import { MatIconModule } from '@angular/material/icon'
 import { RouterModule } from '@angular/router'
-import { DomSanitizer } from '@angular/platform-browser'
 
 export type MenuItem = {
     label: string
@@ -36,4 +35,6 @@ export class CustomSidenav {
     @Input() set mobile(val: boolean) {
         this.isMobile.set(val)
     }
+
+    @Output() onLinkClick = new EventEmitter<{}>()
 }

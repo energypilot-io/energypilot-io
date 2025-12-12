@@ -11,7 +11,7 @@
                     <mat-icon svgIcon="logo" class="scale-150" />
                     @if (!sidenavCollapsed()) {
                         <span class="app-title self-center text-2xl">
-                            EnergyPilot.io
+                            Energy Pilot
                         </span>
                     }
                 </div>
@@ -20,7 +20,8 @@
             <app-custom-sidenav
                 [collapsed]="sidenavCollapsed()"
                 [items]="topMenuItems()"
-                [mobile]="isMobile()" />
+                [mobile]="isMobile()"
+                (onLinkClick)="isMobile() ? snav.close() : null" />
 
             <span class="grow"></span>
 
@@ -54,7 +55,7 @@
                 </button>
 
                 <span class="app-title grow text-center text-2xl">
-                    EnergyPilot.io
+                    Energy Pilot
                 </span>
             }
 

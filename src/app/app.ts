@@ -1,7 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core'
 import { MediaMatcher } from '@angular/cdk/layout'
 import { RouterOutlet } from '@angular/router'
-import { AppComponent } from './components/test'
 
 import { MatToolbarModule } from '@angular/material/toolbar'
 import { MatButtonModule } from '@angular/material/button'
@@ -10,17 +9,16 @@ import { MatSidenavModule } from '@angular/material/sidenav'
 import {
     CustomSidenav,
     MenuItem,
-} from './components/custom-sidenav/custom-sidenav'
-import { ThemePickerComponent } from './components/theme-picker/theme-picker'
+} from './components/ui/custom-sidenav/custom-sidenav'
+import { ThemePickerComponent } from './components/ui/theme-picker/theme-picker'
 import { TranslateService } from '@ngx-translate/core'
-import { LanguagePickerComponent as LanguagePickerComponent } from './components/language-picker/language-picker'
+import { LanguagePickerComponent as LanguagePickerComponent } from './components/ui/language-picker/language-picker'
 import { DomSanitizer } from '@angular/platform-browser'
 
 @Component({
     selector: 'app-root',
     imports: [
         RouterOutlet,
-        AppComponent,
         MatToolbarModule,
         MatButtonModule,
         MatIconModule,
@@ -116,6 +114,15 @@ export class App {
             sanitizer.bypassSecurityTrustResourceUrl(
                 'assets/icons/discord-icon-svgrepo-com.svg'
             )
+        )
+
+        iconRegistry.addSvgIcon(
+            'flag_de',
+            sanitizer.bypassSecurityTrustResourceUrl('assets/flags/de.svg')
+        )
+        iconRegistry.addSvgIcon(
+            'flag_en',
+            sanitizer.bypassSecurityTrustResourceUrl('assets/flags/gb.svg')
         )
 
         const media = inject(MediaMatcher)

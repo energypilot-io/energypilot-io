@@ -6,7 +6,8 @@
                 routerLink="{{ item.route }}"
                 routerLinkActive
                 #rla="routerLinkActive"
-                [activated]="rla.isActive">
+                [activated]="rla.isActive"
+                (click)="onLinkClick.emit()">
                 @if (item.svgIcon) {
                     <mat-icon
                         matListItemIcon
@@ -20,7 +21,11 @@
                 }
             </a>
         } @else {
-            <a mat-list-item href="{{ item.externalLink }}" target="_blank">
+            <a
+                mat-list-item
+                href="{{ item.externalLink }}"
+                target="_blank"
+                (click)="onLinkClick.emit()">
                 @if (item.svgIcon) {
                     <mat-icon
                         matListItemIcon

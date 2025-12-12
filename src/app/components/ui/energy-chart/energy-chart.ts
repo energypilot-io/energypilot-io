@@ -13,22 +13,16 @@ import {
     DatasetComponent,
     DataZoomComponent,
 } from 'echarts/components'
-import { formatPower } from '../../libs/utils'
-import { WebsocketService } from '../../services/websocket.service'
-import { ApiService } from '../../services/api.service'
+import { formatPower } from '@/app/libs/utils'
+import { WebsocketService } from '@/app/services/websocket.service'
+import { ApiService } from '@/app/services/api.service'
 
-import {
-    TranslateService,
-    TranslatePipe,
-    TranslateDirective,
-    _,
-} from '@ngx-translate/core'
+import { TranslateService, _ } from '@ngx-translate/core'
 import { Subscription } from 'rxjs'
-import { endOfDay, startOfDay } from 'date-fns'
 import {
     onTimeRangeChangeEvent,
     TimerangeSelectorComponent,
-} from '../ui/timerange-selector/timerange-selector'
+} from '@/app/components/ui/timerange-selector/timerange-selector'
 
 echarts.use([
     TooltipComponent,
@@ -42,12 +36,7 @@ echarts.use([
 
 @Component({
     selector: 'com-energy-chart',
-    imports: [
-        NgxEchartsDirective,
-        TranslatePipe,
-        TranslateDirective,
-        TimerangeSelectorComponent,
-    ],
+    imports: [NgxEchartsDirective, TimerangeSelectorComponent],
     templateUrl: './energy-chart.html',
     styleUrl: './energy-chart.css',
     providers: [provideEchartsCore({ echarts })],

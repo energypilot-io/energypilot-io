@@ -12,7 +12,7 @@ import { formatEnergy } from '@/app/libs/utils'
 import { ApiService } from '@/app/services/api.service'
 import { Subscription } from 'rxjs'
 import { WebsocketService } from '@/app/services/websocket.service'
-import { FormatEnergyPipe } from '@/app/components/pipes/formatEnergy.pipe'
+import { FormatEnergyPipe } from '@/app/pipes/formatEnergy.pipe'
 import { PercentPipe } from '@angular/common'
 import {
     onTimeRangeChangeEvent,

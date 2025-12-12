@@ -1,5 +1,5 @@
 import { Component } from '@angular/core'
-import { EnergyChartComponent } from '../../components/energy-chart/energy-chart'
+import { EnergyChartComponent } from '@/app/components/ui/energy-chart/energy-chart'
 
 @Component({
     selector: 'app-graph',

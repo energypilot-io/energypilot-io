@@ -1,3 +1,7 @@
 <p>devices works!</p>
 
-<api-test />
+@for (device of devices(); track device.id) {
+    <div>
+        <p>{{ device.name }}</p>
+    </div>
+}
