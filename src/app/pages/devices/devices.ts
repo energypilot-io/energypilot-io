@@ -4,7 +4,7 @@ import { Component, inject, signal } from '@angular/core'
 import { ApiService } from '@/app/services/api.service'
 import { Subscription } from 'rxjs'
 import { DeviceInfoComponent } from '@/app/components/cards/device-info/device-info'
-import { MatDialog } from '@angular/material/dialog'
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog'
 import { CreateDeviceComponent } from '@/app/components/dialog/create-device/create-device'
 
 @Component({
@@ -22,7 +22,12 @@ export class DevicesComponent {
     devices = signal<any[]>([])
 
     openCreateDeviceDialog() {
-        const dialogRef = this.dialog.open(CreateDeviceComponent)
+        const dialogRef = this.dialog.open(CreateDeviceComponent, {
+            disableClose: true,
+            autoFocus: true,
+            hasBackdrop: true,
+            data: {},
+        })
 
         dialogRef.afterClosed().subscribe(result => {
             console.log(`Dialog result: ${result}`)

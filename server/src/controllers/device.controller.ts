@@ -47,10 +47,25 @@ router.get('/:id', async (req: Request, res: Response) => {
         })
 
         if (!device) {
-            return res.status(404).json({ message: 'Book not found' })
+            return res.status(404).json({ message: 'Device not found' })
         }
 
         return res.json(device)
+    } catch (e: any) {
+        return res.status(400).json({ message: e.message })
+    }
+})
+
+router.delete('/:id', async (req: Request, res: Response) => {
+    try {
+        const device = await getEntityManager().findOne(Device, {
+            id: parseInt(req.params.id),
+        })
+        if (!device) {
+            return res.status(404).json({ message: 'Device not found' })
+        }
+        await getEntityManager().remove(device)
+        return res.json({ message: 'Device deleted successfully' })
     } catch (e: any) {
         return res.status(400).json({ message: e.message })
     }

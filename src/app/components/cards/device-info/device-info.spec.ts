@@ -1,23 +1,22 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing'
 
-import { DeviceInfo } from './device-info';
+import { DeviceInfoComponent } from './device-info'
 
 describe('DeviceInfo', () => {
-  let component: DeviceInfo;
-  let fixture: ComponentFixture<DeviceInfo>;
+    let component: DeviceInfoComponent
+    let fixture: ComponentFixture<DeviceInfoComponent>
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [DeviceInfo]
+    beforeEach(async () => {
+        await TestBed.configureTestingModule({
+            imports: [DeviceInfoComponent],
+        }).compileComponents()
+
+        fixture = TestBed.createComponent(DeviceInfoComponent)
+        component = fixture.componentInstance
+        fixture.detectChanges()
     })
-    .compileComponents();
 
-    fixture = TestBed.createComponent(DeviceInfo);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-});
+    it('should create', () => {
+        expect(component).toBeTruthy()
+    })
+})

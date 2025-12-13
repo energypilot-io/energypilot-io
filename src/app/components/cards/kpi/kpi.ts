@@ -36,8 +36,8 @@ echarts.use([TooltipComponent, PieChart, CanvasRenderer, GridComponent])
     providers: [provideEchartsCore({ echarts })],
 })
 export class KpiComponent {
-    private api = inject(ApiService)
-    private websocket = inject(WebsocketService)
+    readonly api = inject(ApiService)
+    readonly websocket = inject(WebsocketService)
 
     private getFirstSnapshotsSubscription?: Subscription
     private webserviceSubscription?: Subscription
