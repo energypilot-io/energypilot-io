@@ -4,6 +4,7 @@ import { Request, Response } from 'express'
 import { getDeviceRegistrySchema } from '@/core/template-engine'
 import { getEntityManager, persistEntity } from '@/core/database'
 import { Device } from '@/entities/device.entity'
+import { createDevice, removeDevice } from '@/core/device-manager'
 
 const router = express.Router()
 
@@ -24,6 +25,8 @@ router.post('/', async (req: Request, res: Response) => {
     })
 
     if (await persistEntity(device)) {
+        createDevice(device)
+
         return res.status(201).json({ message: 'OK' })
     } else {
         return res.status(500).json({ message: 'Error' })
@@ -64,7 +67,9 @@ router.delete('/:id', async (req: Request, res: Response) => {
         if (!device) {
             return res.status(404).json({ message: 'Device not found' })
         }
-        await getEntityManager().remove(device)
+        await getEntityManager().remove(device).flush()
+        removeDevice(device.name)
+
         return res.json({ message: 'Device deleted successfully' })
     } catch (e: any) {
         return res.status(400).json({ message: e.message })

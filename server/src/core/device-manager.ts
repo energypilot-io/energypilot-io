@@ -89,6 +89,12 @@ export async function createDevice(deviceDefinition: Device) {
     return _deviceInstances[deviceDefinition.name]
 }
 
+export function removeDevice(deviceName: string) {
+    if (deviceName in _deviceInstances) {
+        delete _deviceInstances[deviceName]
+    }
+}
+
 export function resetAllDeviceCaches() {
     Object.keys(_interfaceInstances).forEach((interfaceKey) => {
         _interfaceInstances[interfaceKey].resetCache()

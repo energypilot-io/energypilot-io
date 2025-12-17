@@ -1,4 +1,10 @@
-import { Entity, ManyToOne, PrimaryKey, Property } from '@mikro-orm/core'
+import {
+    Cascade,
+    Entity,
+    ManyToOne,
+    PrimaryKey,
+    Property,
+} from '@mikro-orm/core'
 import { Snapshot } from './snapshot.entity'
 import { Device } from './device.entity'
 
@@ -10,7 +16,7 @@ export class DeviceValue {
     @ManyToOne()
     snapshot!: Snapshot
 
-    @ManyToOne()
+    @ManyToOne({ deleteRule: 'cascade' })
     device!: Device
 
     @Property()

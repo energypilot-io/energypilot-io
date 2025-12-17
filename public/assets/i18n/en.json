@@ -20,5 +20,12 @@
             "month": "Month",
             "year": "Year"
         }
+    },
+
+    "dialog": {
+        "delete-device": {
+            "title": "Delete Device",
+            "message": "Are you sure you want to delete device \"{{deviceName}}\"? This action cannot be undone."
+        }
     }
 }

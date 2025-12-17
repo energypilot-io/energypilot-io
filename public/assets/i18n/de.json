@@ -20,5 +20,12 @@
             "month": "Monat",
             "year": "Jahr"
         }
+    },
+
+    "dialog": {
+        "delete-device": {
+            "title": "Gerät entfernen",
+            "message": "Wollen Sie das Gerät \"{{deviceName}}\" wirklich entfernen? Diese Vorgang kann nicht rückgängig gemacht werden."
+        }
     }
 }

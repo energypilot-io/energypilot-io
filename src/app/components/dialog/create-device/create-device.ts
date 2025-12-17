@@ -41,10 +41,9 @@ export class CreateDeviceComponent {
     }
 
     onSubmit(model: object) {
-        console.log(model)
-        // this.api.sendData(model).subscribe((response) => {
-        //     console.log(response)
-        // })
+        this.api.sendData(model).subscribe(response => {
+            console.log(response)
+        })
     }
 
     fetchData() {

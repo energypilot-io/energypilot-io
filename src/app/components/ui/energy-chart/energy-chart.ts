@@ -53,7 +53,7 @@ export class EnergyChartComponent {
     private fromDate = signal<Date>(new Date())
     private toDate = signal<Date>(new Date())
 
-    private devices = signal<string[]>([])
+    private devices = signal<any[]>([])
 
     private timestamps = signal<Date[]>([])
 
@@ -221,20 +221,27 @@ export class EnergyChartComponent {
 
             this.devices()
                 .filter(
-                    deviceName =>
+                    device =>
                         sortedDeviceSnapshots
                             .filter(
                                 (ds: any) =>
                                     ds.name == 'power' || ds.name == 'soc'
                             )
                             .map((ds: any) => ds.device_name)
-                            .indexOf(deviceName) === -1
+                            .indexOf(device.name) === -1
                 )
-                .forEach(deviceName => {
-                    if (!powerValues[deviceName]) {
-                        powerValues[deviceName] = []
+                .forEach(device => {
+                    if (!powerValues[device.name]) {
+                        powerValues[device.name] = []
                     }
-                    powerValues[deviceName].push(0.0)
+                    powerValues[device.name].push(0.0)
+
+                    if (device.type === 'battery') {
+                        if (!socValues[device.name]) {
+                            socValues[device.name] = []
+                        }
+                        socValues[device.name].push(0.0)
+                    }
                 })
 
             if (!powerValues[translatedHomeName]) {
@@ -278,13 +285,11 @@ export class EnergyChartComponent {
             .getAllDevices()
             .subscribe(devices => {
                 this.devices.set(
-                    devices
-                        .sort((a: any, b: any) => {
-                            if (a.name < b.name) return -1
-                            if (a.name > b.name) return 1
-                            return 0
-                        })
-                        .map((device: any) => device.name)
+                    devices.sort((a: any, b: any) => {
+                        if (a.name < b.name) return -1
+                        if (a.name > b.name) return 1
+                        return 0
+                    })
                 )
 
                 this.webserviceSubscription = this.websocket

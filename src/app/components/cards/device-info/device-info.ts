@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon'
 import { ConfirmDialogComponent } from '../../dialog/confirm-dialog/confirm-dialog'
 import { MatDialog } from '@angular/material/dialog'
 import { ApiService } from '@/app/services/api.service'
+import { TranslateService } from '@ngx-translate/core'
 
 @Component({
     selector: 'app-device-info',
@@ -17,20 +18,25 @@ export class DeviceInfoComponent {
 
     readonly dialog = inject(MatDialog)
     readonly api = inject(ApiService)
+    readonly translate = inject(TranslateService)
 
     deleteDevice(): void {
         const dialogRef = this.dialog.open(ConfirmDialogComponent, {
             data: {
-                title: 'Delete Device',
-                message: `Are you sure you want to delete device "${this.device.name}"? This action cannot be undone.`,
+                title: this.translate.instant('dialog.delete-device.title'),
+                message: this.translate.instant(
+                    'dialog.delete-device.message',
+                    {
+                        deviceName: this.device.name,
+                    }
+                ),
             },
         })
 
         dialogRef.afterClosed().subscribe(dialogResult => {
             if (dialogResult) {
                 this.api.deleteDevice(this.device.id).subscribe(response => {
-                    console.log('Device deleted:', response)
-                    // window.location.reload()
+                    window.location.reload()
                 })
             }
         })
