@@ -77,6 +77,12 @@ export class App {
         },
 
         {
+            label: 'Mastodon',
+            svgIcon: 'mastodon',
+            externalLink: 'https://mastodon.social/@nekronomekron',
+        },
+
+        {
             label: 'Discord',
             svgIcon: 'discord',
             externalLink: 'https://discord.gg/YAsTew8m92',
@@ -109,10 +115,18 @@ export class App {
                 'assets/icons/github-142-svgrepo-com.svg'
             )
         )
+
         iconRegistry.addSvgIcon(
             'discord',
             sanitizer.bypassSecurityTrustResourceUrl(
                 'assets/icons/discord-icon-svgrepo-com.svg'
+            )
+        )
+
+        iconRegistry.addSvgIcon(
+            'mastodon',
+            sanitizer.bypassSecurityTrustResourceUrl(
+                'assets/icons/mastodon-simple-svgrepo-com.svg'
             )
         )
 

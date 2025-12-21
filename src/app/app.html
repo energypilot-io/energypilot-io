@@ -9,7 +9,7 @@
             <a href="/">
                 <div class="flex h-16 items-center gap-4 p-4">
                     <mat-icon svgIcon="logo" class="scale-150" />
-                    @if (!sidenavCollapsed()) {
+                    @if (isMobile() || !sidenavCollapsed()) {
                         <span class="app-title self-center text-2xl">
                             Energy Pilot
                         </span>
