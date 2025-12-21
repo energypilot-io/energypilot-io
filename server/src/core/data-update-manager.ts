@@ -16,9 +16,13 @@ let _persistSnapshotIntervalObject: NodeJS.Timeout
 
 let _logger: ChildLogger
 
-let _deviceValuesCache: DeviceValue[] = []
+let _deviceValuesPersistanceCache: { [deviceName: string]: DeviceValue[][] } =
+    {}
 
-const _deviceValueCacheResource = new Semaphore('deviceValuesCache', 1)
+const _deviceValueCacheResource = new Semaphore(
+    'deviceValuesPersistanceCache',
+    1
+)
 
 export async function initDataUpdateManager() {
     _logger = getLogger('dataupdate')
@@ -32,31 +36,53 @@ export async function initDataUpdateManager() {
     })
 }
 
-export async function getLatestSnapshot() {
+async function persistSnapshot() {
     const lock = await _deviceValueCacheResource.acquire()
-    const deviceValues = [..._deviceValuesCache]
+
+    const deviceValues: DeviceValue[] = []
+
+    Object.values(_deviceValuesPersistanceCache).map((deviceValuesArrays) => {
+        const valuesByType: { [name: string]: number[] } = {}
+
+        deviceValuesArrays.forEach((deviceValues) => {
+            deviceValues.forEach((deviceValue) => {
+                if (!(deviceValue.name in valuesByType)) {
+                    valuesByType[deviceValue.name] = []
+                }
+                valuesByType[deviceValue.name].push(deviceValue.value)
+            })
+        })
+
+        Object.keys(valuesByType).forEach((valueName) => {
+            const values = valuesByType[valueName]
+            const averageValue =
+                values.reduce((a, b) => a + b, 0) / values.length
+
+            deviceValues.push(
+                new DeviceValue({
+                    device: deviceValuesArrays[0][0].device,
+                    name: valueName,
+                    value: averageValue,
+                })
+            )
+        })
+    })
+
+    _deviceValuesPersistanceCache = {}
     lock.release()
 
     if (deviceValues.length === 0) {
         _logger.debug(
             'No device values collected, skipping snapshot persistence'
         )
-        return undefined
+        return
     }
 
     const snapshot = new Snapshot()
     snapshot.created_at = new Date()
     snapshot.device_snapshots.add(deviceValues)
 
-    return snapshot
-}
-
-async function persistSnapshot() {
-    const snapshot = await getLatestSnapshot()
-
-    if (snapshot) {
-        await persistEntity(snapshot)
-    }
+    await persistEntity(snapshot)
 }
 
 async function pollData() {
@@ -65,6 +91,7 @@ async function pollData() {
     _logger.debug('Polling live data from devices')
 
     const deviceInstances = getDeviceInstances()
+    const deviceValuesCache: DeviceValue[] = []
 
     for (let key in deviceInstances) {
         const deviceInstance = deviceInstances[key]
@@ -195,14 +222,20 @@ async function pollData() {
 
         const lock = await _deviceValueCacheResource.acquire()
         if (deviceValues.length > 0) {
-            _deviceValuesCache = [
-                ..._deviceValuesCache.filter(
-                    (value: DeviceValue) =>
-                        value.device.id !== deviceInstance.deviceDefinition.id
-                ),
-            ]
+            if (
+                !_deviceValuesPersistanceCache[
+                    deviceInstance.deviceDefinition.name
+                ]
+            ) {
+                _deviceValuesPersistanceCache[
+                    deviceInstance.deviceDefinition.name
+                ] = []
+            }
+            _deviceValuesPersistanceCache[
+                deviceInstance.deviceDefinition.name
+            ].push(deviceValues)
 
-            _deviceValuesCache.push(...deviceValues)
+            deviceValuesCache.push(...deviceValues)
         }
         lock.release()
     }
@@ -211,7 +244,7 @@ async function pollData() {
         WS_EVENT_SNAPSHOT_NEW,
         JSON.stringify({
             created_at: new Date(),
-            device_snapshots: _deviceValuesCache.map(
+            device_snapshots: deviceValuesCache.map(
                 (deviceValue: DeviceValue) => {
                     return {
                         device_id: deviceValue.device.id,

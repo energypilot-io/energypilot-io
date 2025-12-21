@@ -1,4 +1,3 @@
-import { getLatestSnapshot } from '@/core/data-update-manager'
 import { getEntityManager } from '@/core/database'
 import { Snapshot } from '@/entities/snapshot.entity'
 import express from 'express'
@@ -32,12 +31,12 @@ router.get('/:from-:to/:limit', async (req: Request, res: Response) => {
 })
 
 router.get('/latest', async (req: Request, res: Response) => {
-    const snapshot = await getLatestSnapshot()
+    const snapshots = await findSnapshotsBetweenDates({ limit: -1 })
 
-    if (snapshot) {
-        return res.json(snapshotToJSON(snapshot))
+    if (snapshots && (snapshots as object[]).length > 0) {
+        return res.json(snapshots)
     } else {
-        return res.status(400)
+        return res.status(404)
     }
 })
 
@@ -68,12 +67,14 @@ async function findSnapshotsBetweenDates(params: {
 
     const snapshots = await getEntityManager().find(
         Snapshot,
-        {
-            created_at: {
-                $gte: params.startDate,
-                $lte: params.endDate ?? new Date(),
-            },
-        },
+        params.startDate && params.endDate
+            ? {
+                  created_at: {
+                      $gte: params.startDate,
+                      $lte: params.endDate ?? new Date(),
+                  },
+              }
+            : {},
         {
             populate: ['*'],
             orderBy: { created_at: (params.limit ?? 0) < 0 ? 'DESC' : 'ASC' },
