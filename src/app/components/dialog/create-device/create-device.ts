@@ -31,25 +31,23 @@ export class CreateDeviceComponent {
     fields = signal<FormlyFieldConfig[]>([])
 
     form = new FormGroup({})
-    model: any = {}
+    model: any = this.data || {}
     schema = signal<object>({})
 
     constructor(private formlyJsonschema: FormlyJsonschema) {}
 
     ngOnInit() {
-        this.fetchData()
-    }
-
-    onSubmit(model: object) {
-        this.api.sendData(model).subscribe(response => {
-            console.log(response)
-        })
-    }
-
-    fetchData() {
         this.api.getData().subscribe(result => {
             this.fields.set([new FormlyJsonschema().toFieldConfig(result)])
             this.schema.set(result)
         })
+    }
+
+    onSubmit(model: object) {
+        console.log(model)
+
+        // this.api.sendData(model).subscribe(response => {
+        //     console.log(response)
+        // })
     }
 }

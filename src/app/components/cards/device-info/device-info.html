@@ -3,13 +3,14 @@
         <mat-card-title>{{ device.name }}</mat-card-title>
     </mat-card-header>
     <mat-card-content></mat-card-content>
-    <mat-card-actions>
-        <button matIconButton>
-            <mat-icon
-                [style.color]="'var(--mat-sys-error)'"
-                (click)="deleteDevice()">
-                delete
-            </mat-icon>
+    <mat-card-actions align="end" class="gap-2">
+        <button matButton (click)="deleteDevice()" [style.color]="'red'">
+            Delete
+        </button>
+
+        <button matButton="filled" (click)="editDevice()">
+            <mat-icon>edit</mat-icon>
+            Edit
         </button>
     </mat-card-actions>
 </mat-card>

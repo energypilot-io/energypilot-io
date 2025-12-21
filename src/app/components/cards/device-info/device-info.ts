@@ -6,6 +6,7 @@ import { ConfirmDialogComponent } from '../../dialog/confirm-dialog/confirm-dial
 import { MatDialog } from '@angular/material/dialog'
 import { ApiService } from '@/app/services/api.service'
 import { TranslateService } from '@ngx-translate/core'
+import { CreateDeviceComponent } from '../../dialog/create-device/create-device'
 
 @Component({
     selector: 'app-device-info',
@@ -20,8 +21,35 @@ export class DeviceInfoComponent {
     readonly api = inject(ApiService)
     readonly translate = inject(TranslateService)
 
+    editDevice(): void {
+        console.log('Edit device:', this.device)
+        const dialogReg = this.dialog.open(CreateDeviceComponent, {
+            disableClose: true,
+            autoFocus: true,
+            hasBackdrop: true,
+            data: {
+                device_name: this.device.name,
+                device_type: this.device.type,
+                device_model: {
+                    device_model: this.device.model,
+                    interface: {
+                        interface: this.device.interface,
+                        interfaceParameters: JSON.parse(this.device.properties),
+                    }
+                }
+            },
+        })
+
+        dialogReg.afterClosed().subscribe(result => {
+            this.api.sendData
+        })
+    }
+
     deleteDevice(): void {
         const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+            disableClose: true,
+            autoFocus: true,
+            hasBackdrop: true,
             data: {
                 title: this.translate.instant('dialog.delete-device.title'),
                 message: this.translate.instant(
