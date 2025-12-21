@@ -3,7 +3,7 @@ import { Entity, PrimaryKey, Property, Unique } from '@mikro-orm/core'
 @Entity()
 export class Device {
     @PrimaryKey()
-    id!: number
+    id?: number
 
     @Property()
     created_at = new Date()
@@ -28,6 +28,7 @@ export class Device {
     properties!: string
 
     constructor(options: {
+        id?: number
         name: string
         isEnabled: boolean
         type: string
@@ -35,6 +36,7 @@ export class Device {
         interface: string
         properties: string
     }) {
+        this.id = options.id
         this.created_at = new Date()
         this.type = options.type
         this.name = options.name

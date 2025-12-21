@@ -2,7 +2,7 @@ import express from 'express'
 import { Request, Response } from 'express'
 
 import { getDeviceRegistrySchema } from '@/core/template-engine'
-import { getEntityManager, persistEntity } from '@/core/database'
+import { getEntityManager, upsertEntity } from '@/core/database'
 import { Device } from '@/entities/device.entity'
 import { createDevice, removeDevice } from '@/core/device-manager'
 
@@ -14,18 +14,18 @@ router.get('/registry-schema', (req, res) => {
 
 router.post('/', async (req: Request, res: Response) => {
     const device = new Device({
+        id: req.body.id,
         name: req.body.device_name,
         type: req.body.device_type,
-        model: req.body.device_model.device_model,
-        interface: req.body.device_model.interface.interface,
+        model: req.body.device_model,
+        interface: req.body.interface,
         isEnabled: true,
-        properties: JSON.stringify(
-            req.body.device_model.interface.interfaceParameters
-        ),
+        properties: JSON.stringify(req.body.interface_properties),
     })
 
-    if (await persistEntity(device)) {
-        createDevice(device)
+    if (await upsertEntity(device)) {
+        removeDevice(device.name)
+        await createDevice(device)
 
         return res.status(201).json({ message: 'OK' })
     } else {

@@ -22,12 +22,12 @@ export class DeviceInfoComponent {
     readonly translate = inject(TranslateService)
 
     editDevice(): void {
-        console.log('Edit device:', this.device)
         const dialogReg = this.dialog.open(CreateDeviceComponent, {
             disableClose: true,
             autoFocus: true,
             hasBackdrop: true,
             data: {
+                id: this.device.id,
                 device_name: this.device.name,
                 device_type: this.device.type,
                 device_model: {
@@ -41,7 +41,7 @@ export class DeviceInfoComponent {
         })
 
         dialogReg.afterClosed().subscribe(result => {
-            this.api.sendData
+            if(result) window.location.reload()
         })
     }
 
