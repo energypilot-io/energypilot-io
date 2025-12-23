@@ -77,9 +77,9 @@ export class App {
         },
 
         {
-            label: 'Mastodon',
-            svgIcon: 'mastodon',
-            externalLink: 'https://mastodon.social/@nekronomekron',
+            label: '@Bluesky',
+            svgIcon: 'bluesky',
+            externalLink: 'https://bsky.app/profile/nuker.bsky.social',
         },
 
         {
@@ -124,9 +124,9 @@ export class App {
         )
 
         iconRegistry.addSvgIcon(
-            'mastodon',
+            'bluesky',
             sanitizer.bypassSecurityTrustResourceUrl(
-                'assets/icons/mastodon-simple-svgrepo-com.svg'
+                'assets/icons/bluesky_logo.svg'
             )
         )
 
