@@ -127,6 +127,35 @@ export class App {
             'bluesky',
             sanitizer.bypassSecurityTrustResourceUrl(
                 'assets/icons/bluesky_logo.svg'
+            ),
+            {}
+        )
+
+        iconRegistry.addSvgIcon(
+            'electric_plug',
+            sanitizer.bypassSecurityTrustResourceUrl(
+                'assets/icons/power_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg'
+            )
+        )
+
+        iconRegistry.addSvgIcon(
+            'battery',
+            sanitizer.bypassSecurityTrustResourceUrl(
+                'assets/icons/battery_0_bar_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg'
+            )
+        )
+
+        iconRegistry.addSvgIcon(
+            'pv',
+            sanitizer.bypassSecurityTrustResourceUrl(
+                'assets/icons/solar_power_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg'
+            )
+        )
+
+        iconRegistry.addSvgIcon(
+            'electric_grid',
+            sanitizer.bypassSecurityTrustResourceUrl(
+                'assets/icons/power_input_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg'
             )
         )
 

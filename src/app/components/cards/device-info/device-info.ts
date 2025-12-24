@@ -2,6 +2,7 @@ import { Component, inject, Input } from '@angular/core'
 import { MatButtonModule } from '@angular/material/button'
 import { MatCardModule } from '@angular/material/card'
 import { MatIconModule } from '@angular/material/icon'
+import { MatExpansionModule } from '@angular/material/expansion'
 import { ConfirmDialogComponent } from '../../dialog/confirm-dialog/confirm-dialog'
 import { MatDialog } from '@angular/material/dialog'
 import { ApiService } from '@/app/services/api.service'
@@ -10,7 +11,12 @@ import { CreateDeviceComponent } from '../../dialog/create-device/create-device'
 
 @Component({
     selector: 'app-device-info',
-    imports: [MatCardModule, MatButtonModule, MatIconModule],
+    imports: [
+        MatCardModule,
+        MatButtonModule,
+        MatIconModule,
+        MatExpansionModule,
+    ],
     templateUrl: './device-info.html',
     styleUrl: './device-info.css',
 })
@@ -20,6 +26,10 @@ export class DeviceInfoComponent {
     readonly dialog = inject(MatDialog)
     readonly api = inject(ApiService)
     readonly translate = inject(TranslateService)
+
+    ngOnInit(): void {
+        console.log(this.device)
+    }
 
     editDevice(): void {
         const dialogReg = this.dialog.open(CreateDeviceComponent, {
@@ -35,13 +45,13 @@ export class DeviceInfoComponent {
                     interface: {
                         interface: this.device.interface,
                         interfaceParameters: JSON.parse(this.device.properties),
-                    }
-                }
+                    },
+                },
             },
         })
 
         dialogReg.afterClosed().subscribe(result => {
-            if(result) window.location.reload()
+            if (result) window.location.reload()
         })
     }
 

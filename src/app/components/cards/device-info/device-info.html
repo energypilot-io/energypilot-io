@@ -2,7 +2,33 @@
     <mat-card-header>
         <mat-card-title>{{ device.name }}</mat-card-title>
     </mat-card-header>
-    <mat-card-content></mat-card-content>
+    <mat-card-content>
+        <div class="flex flex-col gap-2">
+            <div class="flex gap-2">
+                @if (device.type == 'consumer') {
+                    <mat-icon
+                        svgIcon="electric_plug"
+                        color="primary"></mat-icon>
+                } @else if (device.type == 'grid') {
+                    <mat-icon
+                        svgIcon="electric_grid"
+                        color="primary"></mat-icon>
+                } @else if (device.type == 'pv') {
+                    <mat-icon svgIcon="pv" color="primary"></mat-icon>
+                } @else if (device.type == 'battery') {
+                    <mat-icon svgIcon="battery" color="primary"></mat-icon>
+                }
+                <p>{{ device.model }}</p>
+            </div>
+
+            <mat-expansion-panel>
+                <mat-expansion-panel-header>
+                    <mat-panel-title>Properties</mat-panel-title>
+                </mat-expansion-panel-header>
+                <p>This is the primary content of the panel.</p>
+            </mat-expansion-panel>
+        </div>
+    </mat-card-content>
     <mat-card-actions align="end" class="gap-2">
         <button matButton (click)="deleteDevice()" [style.color]="'red'">
             Delete

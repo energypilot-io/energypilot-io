@@ -169,13 +169,15 @@ export class EnergyDistributionComponent {
     ngOnInit() {
         this.getSnapshotsSubscription = this.api
             .getSnapshots('latest')
-            .subscribe((snapshot) => {
-                this.addSnapshotsToChart(snapshot)
+            .subscribe(snapshot => {
+                if (snapshot && Array.isArray(snapshot)) {
+                    this.addSnapshotsToChart(snapshot[0])
+                }
             })
 
         this.webserviceSubscription = this.websocket
             .getMessage('snapshot:new')
-            .subscribe((data) => {
+            .subscribe(data => {
                 this.addSnapshotsToChart(JSON.parse(data))
             })
     }
