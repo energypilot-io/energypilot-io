@@ -8,7 +8,7 @@ import { Snapshot } from '@/entities/snapshot.entity'
 import { persistEntity } from './database'
 import { DeviceValue } from '@/entities/device.value.entity'
 import { emitWebsocketEvent } from './webserver'
-import { WS_EVENT_SNAPSHOT_NEW } from '@/constants'
+import { WS_EVENT_SNAPSHOT_NEW, WS_EVENT_DEVICE_UPDATE } from '@/constants'
 import { Semaphore } from '@/libs/semaphore'
 
 let _pollDataIntervalObject: NodeJS.Timeout
@@ -134,6 +134,10 @@ async function pollData() {
                         value: energyExport,
                     })
                 )
+
+                deviceInstance.deviceDefinition.connected = true
+            } else {
+                deviceInstance.deviceDefinition.connected = false
             }
 
             _logger.debug(
@@ -160,6 +164,10 @@ async function pollData() {
                         value: energy,
                     })
                 )
+
+                deviceInstance.deviceDefinition.connected = true
+            } else {
+                deviceInstance.deviceDefinition.connected = false
             }
 
             _logger.debug(
@@ -186,6 +194,10 @@ async function pollData() {
                         value: soc,
                     })
                 )
+
+                deviceInstance.deviceDefinition.connected = true
+            } else {
+                deviceInstance.deviceDefinition.connected = false
             }
 
             _logger.debug(
@@ -212,6 +224,10 @@ async function pollData() {
                         value: energy,
                     })
                 )
+
+                deviceInstance.deviceDefinition.connected = true
+            } else {
+                deviceInstance.deviceDefinition.connected = false
             }
 
             _logger.debug(
@@ -256,5 +272,23 @@ async function pollData() {
                 }
             ),
         })
+    )
+
+    emitWebsocketEvent(
+        WS_EVENT_DEVICE_UPDATE,
+        JSON.stringify(
+            Object.values(deviceInstances).map((deviceInstance) => {
+                return {
+                    id: deviceInstance.deviceDefinition.id,
+                    name: deviceInstance.deviceDefinition.name,
+                    is_enabled: deviceInstance.deviceDefinition.is_enabled,
+                    type: deviceInstance.deviceDefinition.type,
+                    model: deviceInstance.deviceDefinition.model,
+                    interface: deviceInstance.deviceDefinition.interface,
+                    properties: deviceInstance.deviceDefinition.properties,
+                    connected: deviceInstance.deviceDefinition.connected,
+                }
+            })
+        )
     )
 }

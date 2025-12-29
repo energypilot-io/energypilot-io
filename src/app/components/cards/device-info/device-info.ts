@@ -1,4 +1,4 @@
-import { Component, inject, Input } from '@angular/core'
+import { Component, inject, Input, signal } from '@angular/core'
 import { MatButtonModule } from '@angular/material/button'
 import { MatCardModule } from '@angular/material/card'
 import { MatIconModule } from '@angular/material/icon'
@@ -8,6 +8,8 @@ import { MatDialog } from '@angular/material/dialog'
 import { ApiService } from '@/app/services/api.service'
 import { TranslateService } from '@ngx-translate/core'
 import { CreateDeviceComponent } from '../../dialog/create-device/create-device'
+import { Subscription } from 'rxjs'
+import { WebsocketService } from '@/app/services/websocket.service'
 
 @Component({
     selector: 'app-device-info',
@@ -23,12 +25,29 @@ import { CreateDeviceComponent } from '../../dialog/create-device/create-device'
 export class DeviceInfoComponent {
     @Input() device: any = null
 
+    private webserviceSubscription?: Subscription
+
     readonly dialog = inject(MatDialog)
     readonly api = inject(ApiService)
     readonly translate = inject(TranslateService)
+    readonly websocket = inject(WebsocketService)
+
+    isConnected = signal<boolean | undefined>(undefined)
 
     ngOnInit(): void {
-        console.log(this.device)
+        this.webserviceSubscription = this.websocket
+            .getMessage('device:update')
+            .subscribe(data => {
+                JSON.parse(data).map((updatedDevice: any) => {
+                    if (updatedDevice.id === this.device.id) {
+                        this.isConnected.set(updatedDevice.connected)
+                    }
+                })
+            })
+    }
+
+    ngOnDestroy(): void {
+        this.webserviceSubscription?.unsubscribe()
     }
 
     editDevice(): void {

@@ -27,6 +27,8 @@ export class Device {
     @Property()
     properties!: string
 
+    connected: boolean = false
+
     constructor(options: {
         id?: number
         name: string

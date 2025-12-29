@@ -160,6 +160,13 @@ export class App {
         )
 
         iconRegistry.addSvgIcon(
+            'connection_state',
+            sanitizer.bypassSecurityTrustResourceUrl(
+                'assets/icons/radio_button_checked_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg'
+            )
+        )
+
+        iconRegistry.addSvgIcon(
             'flag_de',
             sanitizer.bypassSecurityTrustResourceUrl('assets/flags/de.svg')
         )

@@ -1,22 +1,31 @@
 <mat-card appearance="outlined">
     <mat-card-header>
-        <mat-card-title>{{ device.name }}</mat-card-title>
+        <div class="flex w-full">
+            <mat-card-title>{{ device.name }}</mat-card-title>
+            <div class="grow"></div>
+            <div
+                [class]="
+                    isConnected() === undefined
+                        ? 'text-gray-400'
+                        : isConnected()
+                          ? 'text-green-700'
+                          : 'text-red-400'
+                ">
+                <mat-icon svgIcon="connection_state"></mat-icon>
+            </div>
+        </div>
     </mat-card-header>
     <mat-card-content>
         <div class="flex flex-col gap-2">
             <div class="flex gap-2">
                 @if (device.type == 'consumer') {
-                    <mat-icon
-                        svgIcon="electric_plug"
-                        color="primary"></mat-icon>
+                    <mat-icon svgIcon="electric_plug"></mat-icon>
                 } @else if (device.type == 'grid') {
-                    <mat-icon
-                        svgIcon="electric_grid"
-                        color="primary"></mat-icon>
+                    <mat-icon svgIcon="electric_grid"></mat-icon>
                 } @else if (device.type == 'pv') {
-                    <mat-icon svgIcon="pv" color="primary"></mat-icon>
+                    <mat-icon svgIcon="pv"></mat-icon>
                 } @else if (device.type == 'battery') {
-                    <mat-icon svgIcon="battery" color="primary"></mat-icon>
+                    <mat-icon svgIcon="battery"></mat-icon>
                 }
                 <p>{{ device.model }}</p>
             </div>
@@ -30,7 +39,10 @@
         </div>
     </mat-card-content>
     <mat-card-actions align="end" class="gap-2">
-        <button matButton (click)="deleteDevice()" [style.color]="'red'">
+        <button
+            matButton
+            (click)="deleteDevice()"
+            [style.color]="'text-red-400'">
             Delete
         </button>
 
