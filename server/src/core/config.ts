@@ -3,9 +3,11 @@ import { ConsumerDevice } from '@/devices/consumer'
 import { GridDevice } from '@/devices/grid'
 import { PVDevice } from '@/devices/pv'
 import { ModbusInterface } from '@/interfaces/modbus'
+import { TPLinkTapoInterface } from '@/interfaces/tplink-tapo'
 
 export const RegisteredInterfaceClasses: { [key: string]: any } = {
     modbus: ModbusInterface,
+    tapo: TPLinkTapoInterface,
 }
 
 export const RegisteredDeviceClasses: { [key: string]: any } = {
