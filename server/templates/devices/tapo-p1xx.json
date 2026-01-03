@@ -8,7 +8,7 @@
             "tapo": {
                 "request": "getEnergyUsage",
                 "parameter": "current_power",
-                "scale": 0.001
+                "scale": -0.001
             }
         }
     }
