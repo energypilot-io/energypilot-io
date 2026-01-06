@@ -1,5 +1,4 @@
 import { Component, computed, inject, signal } from '@angular/core'
-import { MediaMatcher } from '@angular/cdk/layout'
 import { RouterOutlet } from '@angular/router'
 
 import { MatToolbarModule } from '@angular/material/toolbar'
@@ -14,7 +13,7 @@ import { ThemePickerComponent } from './components/ui/theme-picker/theme-picker'
 import { TranslateService } from '@ngx-translate/core'
 import { LanguagePickerComponent as LanguagePickerComponent } from './components/ui/language-picker/language-picker'
 import { DomSanitizer } from '@angular/platform-browser'
-import { DeviceDetectorService, DeviceInfo } from 'ngx-device-detector'
+import { DeviceDetectorService } from 'ngx-device-detector'
 
 @Component({
     selector: 'app-root',
