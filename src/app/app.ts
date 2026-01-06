@@ -77,7 +77,7 @@ export class App {
         },
 
         {
-            label: '@Bluesky',
+            label: 'Bluesky',
             svgIcon: 'bluesky',
             externalLink: 'https://bsky.app/profile/nuker.bsky.social',
         },

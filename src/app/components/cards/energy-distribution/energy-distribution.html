@@ -1,13 +1,14 @@
 <mat-card appearance="outlined">
     <mat-card-header>
-        <mat-card-title>Energy Distribution</mat-card-title>
+        <mat-card-title>
+            {{ 'cards.energy-distribution.title' | translate }}
+        </mat-card-title>
     </mat-card-header>
     <mat-card-content>
         <div
             echarts
             [options]="chartOption"
             [merge]="mergeOption()"
-            class="w-full h-72"
-        ></div>
+            class="h-72 w-full"></div>
     </mat-card-content>
 </mat-card>

@@ -72,6 +72,7 @@ function buildSchemaForInterfaces(interfaces: string[]) {
         properties: {
             interface: {
                 type: 'string',
+                title: '{{ device.interfaces.interface }}',
                 enum: [...interfaces],
             },
         },
@@ -105,7 +106,7 @@ function buildDevicePropertiesSchemaForType(type: string) {
         properties: {
             device_model: {
                 type: 'string',
-                title: 'Device Model',
+                title: '{{ device.interfaces.deviceModel }}',
                 enum: [...Object.keys(subTemplate).sort()],
             },
         },
@@ -137,11 +138,12 @@ function buildDeviceRegistrySchema() {
         properties: {
             device_name: {
                 type: 'string',
-                title: 'Device Name',
+                title: '{{ device.interfaces.deviceName }}',
             },
 
             device_type: {
                 type: 'string',
+                title: '{{ device.interfaces.deviceType }}',
                 enum: [...Object.keys(_templateRegistry).sort()],
             },
         },

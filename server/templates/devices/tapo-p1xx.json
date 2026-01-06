@@ -1,5 +1,5 @@
 {
-    "name": "TP-Link TAPO P110",
+    "name": "TP-Link TAPO P110/P115",
     "interfaces": ["tapo"],
     "logo": "/logos/tp-link.jpeg",
 
@@ -9,6 +9,13 @@
                 "request": "getEnergyUsage",
                 "parameter": "current_power",
                 "scale": -0.001
+            }
+        },
+        "energy": {
+            "tapo": {
+                "request": "getEnergyUsage",
+                "parameter": "month_energy",
+                "scale": 0.001
             }
         }
     }

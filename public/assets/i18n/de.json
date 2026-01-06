@@ -1,6 +1,46 @@
 {
     "device": {
-        "home": "Heim"
+        "home": "Heim",
+
+        "interfaces": {
+            "deviceName": "Gerätename",
+            "deviceType": "Typ",
+            "deviceModel": "Modell",
+            "interface": "Schnittstelle",
+
+            "tapo": {
+                "parameters": {
+                    "email": "E-Mail",
+                    "password": "Passwort",
+                    "ip": "IP-Adresse"
+                }
+            },
+
+            "modbus": {
+                "parameters": {
+                    "connectionType": "Verbindungstyp",
+                    "transport": "Protokoll",
+                    "modbusId": "Modbus ID",
+                    "timeout": "Timeout",
+
+                    "tcpip": {
+                        "host": "Host",
+                        "port": "Port"
+                    },
+
+                    "serial": {
+                        "device": "Gerät",
+                        "baud": "Baudrate"
+                    }
+                }
+            }
+        }
+    },
+
+    "cards": {
+        "energy-distribution": {
+            "title": "Energieverteilung"
+        }
     },
 
     "kpi": {
@@ -14,6 +54,14 @@
     },
 
     "common": {
+        "buttons": {
+            "create": "Erstellen",
+            "update": "Aktualisieren",
+            "cancel": "Abbrechen",
+            "delete": "Löschen",
+            "confirm": "Bestätigen"
+        },
+
         "timerange": {
             "day": "Tag",
             "week": "Woche",
@@ -23,6 +71,11 @@
     },
 
     "dialog": {
+        "upsertDevice": {
+            "create": "Gerät erstellen",
+            "update": "Gerät aktualisieren"
+        },
+
         "delete-device": {
             "title": "Gerät entfernen",
             "message": "Wollen Sie das Gerät \"{{deviceName}}\" wirklich entfernen? Diese Vorgang kann nicht rückgängig gemacht werden."

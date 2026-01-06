@@ -1,6 +1,46 @@
 {
     "device": {
-        "home": "Home"
+        "home": "Home",
+
+        "interfaces": {
+            "deviceName": "Device Name",
+            "deviceType": "Type",
+            "deviceModel": "Model",
+            "interface": "Interface",
+
+            "tapo": {
+                "parameters": {
+                    "email": "E-Mail",
+                    "password": "Password",
+                    "ip": "IP Address"
+                }
+            },
+
+            "modbus": {
+                "parameters": {
+                    "connectionType": "Connection Type",
+                    "transport": "Protocol",
+                    "modbusId": "Modbus ID",
+                    "timeout": "Timeout",
+
+                    "tcpip": {
+                        "host": "Host",
+                        "port": "Port"
+                    },
+
+                    "serial": {
+                        "device": "Device",
+                        "baud": "Baud Rate"
+                    }
+                }
+            }
+        }
+    },
+
+    "cards": {
+        "energy-distribution": {
+            "title": "Energy Distribution"
+        }
     },
 
     "kpi": {
@@ -14,6 +54,14 @@
     },
 
     "common": {
+        "buttons": {
+            "create": "Create",
+            "update": "Update",
+            "cancel": "Cancel",
+            "delete": "Delete",
+            "confirm": "Confirm"
+        },
+
         "timerange": {
             "day": "Day",
             "week": "Week",
@@ -23,6 +71,11 @@
     },
 
     "dialog": {
+        "upsertDevice": {
+            "create": "Create Device",
+            "update": "Update Device"
+        },
+
         "delete-device": {
             "title": "Delete Device",
             "message": "Are you sure you want to delete device \"{{deviceName}}\"? This action cannot be undone."

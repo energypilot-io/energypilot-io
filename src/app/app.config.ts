@@ -5,7 +5,7 @@ import {
 } from '@angular/core'
 import { provideRouter } from '@angular/router'
 
-import { provideFormlyCore } from '@ngx-formly/core'
+import { FORMLY_CONFIG, provideFormlyCore } from '@ngx-formly/core'
 import { withFormlyMaterial } from '@ngx-formly/material'
 
 import { routes } from './app.routes'
@@ -14,8 +14,9 @@ import { ObjectTypeComponent } from './components/object.type'
 
 import { SocketIoConfig, provideSocketIo } from 'ngx-socket-io'
 
-import { provideTranslateService } from '@ngx-translate/core'
+import { provideTranslateService, TranslateService } from '@ngx-translate/core'
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader'
+import { registerTranslateExtension } from './translate.extension'
 
 const config: SocketIoConfig = {
     url: '/',
@@ -36,6 +37,12 @@ export const appConfig: ApplicationConfig = {
         provideRouter(routes),
         provideHttpClient(),
         provideSocketIo(config),
+        {
+            provide: FORMLY_CONFIG,
+            multi: true,
+            useFactory: registerTranslateExtension,
+            deps: [TranslateService],
+        },
         provideFormlyCore([
             ...withFormlyMaterial(),
             { types: [{ name: 'object', component: ObjectTypeComponent }] },

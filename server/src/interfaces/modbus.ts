@@ -273,6 +273,7 @@ export class ModbusInterface extends IInterface {
 
             properties: {
                 connectionType: {
+                    title: '{{ device.interfaces.modbus.parameters.connectionType }}',
                     type: 'string',
                     enum: ['tcpip', 'serial'],
                     default: 'tcpip',
@@ -284,12 +285,14 @@ export class ModbusInterface extends IInterface {
                 },
 
                 transport: {
+                    title: '{{ device.interfaces.modbus.parameters.transport }}',
                     type: 'string',
                     enum: ['ip', 'rtu', 'ascii'],
                     default: 'ip',
                 },
 
                 modbusId: {
+                    title: '{{ device.interfaces.modbus.parameters.modbusId }}',
                     type: 'number',
                     minimum: 1,
                     maximum: 247,
@@ -297,6 +300,7 @@ export class ModbusInterface extends IInterface {
                 },
 
                 timeout: {
+                    title: '{{ device.interfaces.modbus.parameters.timeout }}',
                     type: 'number',
                     minimum: 100,
                     default: 2500,
@@ -315,10 +319,12 @@ export class ModbusInterface extends IInterface {
                                 },
 
                                 host: {
+                                    title: '{{ device.interfaces.modbus.parameters.tcpip.host }}',
                                     type: 'string',
                                 },
 
                                 port: {
+                                    title: '{{ device.interfaces.modbus.parameters.tcpip.port }}',
                                     type: 'number',
                                     minimum: 1,
                                     maximum: 65535,
@@ -336,10 +342,12 @@ export class ModbusInterface extends IInterface {
                                 },
 
                                 device: {
+                                    title: '{{ device.interfaces.modbus.parameters.serial.device }}',
                                     type: 'string',
                                 },
 
                                 baud: {
+                                    title: '{{ device.interfaces.modbus.parameters.serial.baud }}',
                                     type: 'number',
                                     minimum: 1,
                                     default: 19200,

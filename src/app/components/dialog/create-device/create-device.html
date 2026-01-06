@@ -1,14 +1,26 @@
 <form [formGroup]="form" (ngSubmit)="onSubmit(model)" #createDeviceForm>
-    <h2 mat-dialog-title>Create Device</h2>
+    <h2 mat-dialog-title>
+        {{
+            (model.id
+                ? 'dialog.upsertDevice.update'
+                : 'dialog.upsertDevice.create'
+            ) | translate
+        }}
+    </h2>
     <mat-dialog-content>
         @if (schema()) {
             <formly-form [form]="form" [fields]="fields()" [model]="model" />
         }
     </mat-dialog-content>
     <mat-dialog-actions align="end">
-        <button matButton mat-dialog-close>Cancel</button>
-        <button type="submit" matButton cdkFocusInitial>
-            {{ model.id ? 'Update' : 'Create' }}
+        <button matButton mat-dialog-close>
+            {{ 'common.buttons.cancel' | translate }}
+        </button>
+        <button type="submit" matButton="filled" cdkFocusInitial>
+            {{
+                (model.id ? 'common.buttons.update' : 'common.buttons.create')
+                    | translate
+            }}
         </button>
     </mat-dialog-actions>
 </form>

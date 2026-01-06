@@ -7,9 +7,14 @@ import {
 } from '@angular/core'
 import { FormGroup, ReactiveFormsModule } from '@angular/forms'
 import { MatButtonModule } from '@angular/material/button'
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog'
+import {
+    MAT_DIALOG_DATA,
+    MatDialogModule,
+    MatDialogRef,
+} from '@angular/material/dialog'
 import { FormlyFieldConfig, FormlyForm } from '@ngx-formly/core'
 import { FormlyJsonschema } from '@ngx-formly/core/json-schema'
+import { TranslatePipe } from '@ngx-translate/core'
 
 @Component({
     selector: 'app-create-device',
@@ -18,6 +23,7 @@ import { FormlyJsonschema } from '@ngx-formly/core/json-schema'
         MatDialogModule,
         ReactiveFormsModule,
         FormlyForm,
+        TranslatePipe,
     ],
     templateUrl: './create-device.html',
     styleUrl: './create-device.css',
@@ -34,8 +40,7 @@ export class CreateDeviceComponent {
     model: any = this.data || {}
     schema = signal<object>({})
 
-    constructor(public matDialogRef: MatDialogRef<CreateDeviceComponent>) {
-    }
+    constructor(public matDialogRef: MatDialogRef<CreateDeviceComponent>) {}
 
     ngOnInit() {
         this.api.getData().subscribe(result => {
@@ -45,17 +50,20 @@ export class CreateDeviceComponent {
     }
 
     onSubmit(model: any) {
-        this.api.sendData({
-            id: model.id,
-            device_name: model.device_name,
-            device_type: model.device_type,
-            device_model: model.device_model.device_model,
-            interface: model.device_model.interface.interface,
-            interface_properties: model.device_model.interface.interfaceParameters
-        }).subscribe(response => {
-            console.log(response)
+        this.api
+            .sendData({
+                id: model.id,
+                device_name: model.device_name,
+                device_type: model.device_type,
+                device_model: model.device_model.device_model,
+                interface: model.device_model.interface.interface,
+                interface_properties:
+                    model.device_model.interface.interfaceParameters,
+            })
+            .subscribe(response => {
+                console.log(response)
 
-            this.matDialogRef.close(true)
-        })
+                this.matDialogRef.close(true)
+            })
     }
 }

@@ -6,7 +6,7 @@ import { MatExpansionModule } from '@angular/material/expansion'
 import { ConfirmDialogComponent } from '../../dialog/confirm-dialog/confirm-dialog'
 import { MatDialog } from '@angular/material/dialog'
 import { ApiService } from '@/app/services/api.service'
-import { TranslateService } from '@ngx-translate/core'
+import { TranslatePipe, TranslateService } from '@ngx-translate/core'
 import { CreateDeviceComponent } from '../../dialog/create-device/create-device'
 import { Subscription } from 'rxjs'
 import { WebsocketService } from '@/app/services/websocket.service'
@@ -18,6 +18,7 @@ import { WebsocketService } from '@/app/services/websocket.service'
         MatButtonModule,
         MatIconModule,
         MatExpansionModule,
+        TranslatePipe,
     ],
     templateUrl: './device-info.html',
     styleUrl: './device-info.css',

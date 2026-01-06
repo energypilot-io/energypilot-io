@@ -3,6 +3,7 @@ import { ChildLogger, getLogger } from '@/core/logmanager'
 import { IInterface } from './interface'
 
 import { loginDeviceByIp } from 'tp-link-tapo-connect'
+import { title } from 'node:process'
 
 type TPLinkTapoParameterDef = ParameterDef & {
     request: string
@@ -31,15 +32,24 @@ export class TPLinkTapoInterface extends IInterface {
 
             properties: {
                 email: {
-                    type: 'string',
+                    title: '{{ device.interfaces.tapo.parameters.email }}',
+                    type: 'input',
+                    templateOptions: {
+                        type: 'email',
+                    },
                     default: 'user@provider.com',
                 },
 
                 password: {
-                    type: 'string',
+                    title: '{{ device.interfaces.tapo.parameters.password }}',
+                    type: 'input',
+                    templateOptions: {
+                        type: 'password',
+                    },
                 },
 
                 ip: {
+                    title: '{{ device.interfaces.tapo.parameters.ip }}',
                     type: 'string',
                 },
             },

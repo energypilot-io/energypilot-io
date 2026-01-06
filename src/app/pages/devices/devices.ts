@@ -6,10 +6,16 @@ import { Subscription } from 'rxjs'
 import { DeviceInfoComponent } from '@/app/components/cards/device-info/device-info'
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog'
 import { CreateDeviceComponent } from '@/app/components/dialog/create-device/create-device'
+import { TranslatePipe } from '@ngx-translate/core'
 
 @Component({
     selector: 'app-devices',
-    imports: [DeviceInfoComponent, MatButtonModule, MatIconModule],
+    imports: [
+        DeviceInfoComponent,
+        MatButtonModule,
+        MatIconModule,
+        TranslatePipe,
+    ],
     templateUrl: './devices.html',
     styleUrl: './devices.css',
 })
