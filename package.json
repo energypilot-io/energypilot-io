@@ -59,7 +59,8 @@
         "rxjs": "~7.8.0",
         "tailwindcss": "^4.1.17",
         "tslib": "^2.3.0",
-        "zone.js": "~0.15.0"
+        "zone.js": "~0.15.0",
+        "ngx-device-detector": "^10.0.0"
     },
     "devDependencies": {
         "@angular/build": "^20.3.5",

@@ -14,6 +14,7 @@ import { ThemePickerComponent } from './components/ui/theme-picker/theme-picker'
 import { TranslateService } from '@ngx-translate/core'
 import { LanguagePickerComponent as LanguagePickerComponent } from './components/ui/language-picker/language-picker'
 import { DomSanitizer } from '@angular/platform-browser'
+import { DeviceDetectorService, DeviceInfo } from 'ngx-device-detector'
 
 @Component({
     selector: 'app-root',
@@ -36,9 +37,6 @@ export class App {
     private translate = inject(TranslateService)
 
     protected readonly isMobile = signal(true)
-
-    private readonly _mobileQuery: MediaQueryList
-    private readonly _mobileQueryListener: () => void
 
     sidenavCollapsed = signal(false)
     sidenavWidth = computed(() => {
@@ -89,14 +87,7 @@ export class App {
         },
     ])
 
-    ngOnDestroy(): void {
-        this._mobileQuery.removeEventListener(
-            'change',
-            this._mobileQueryListener
-        )
-    }
-
-    constructor() {
+    constructor(private deviceService: DeviceDetectorService) {
         this.translate.addLangs(['de', 'en'])
         this.translate.setFallbackLang('en')
         this.translate.use(this.translate.getBrowserLang() ?? 'en')
@@ -175,13 +166,8 @@ export class App {
             sanitizer.bypassSecurityTrustResourceUrl('assets/flags/gb.svg')
         )
 
-        const media = inject(MediaMatcher)
-
-        this._mobileQuery = media.matchMedia('(max-width: 600px)')
-        this.isMobile.set(this._mobileQuery.matches)
-        this._mobileQueryListener = () =>
-            this.isMobile.set(this._mobileQuery.matches)
-        this._mobileQuery.addEventListener('change', this._mobileQueryListener)
+        const deviceInfo = this.deviceService.getDeviceInfo()
+        this.isMobile.set(deviceService.isMobile())
     }
 
     ngOnInit(): void {
