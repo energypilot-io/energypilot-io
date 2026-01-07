@@ -76,7 +76,7 @@ export class App {
         {
             label: 'Bluesky',
             svgIcon: 'bluesky',
-            externalLink: 'https://bsky.app/profile/nuker.bsky.social',
+            externalLink: 'https://bsky.app/profile/energypilot.io',
         },
 
         {
