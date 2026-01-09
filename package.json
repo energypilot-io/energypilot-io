@@ -72,6 +72,7 @@
         "@types/express": "^5.0.5",
         "@types/jasmine": "~5.1.0",
         "angular-eslint": "^20.6.0",
+        "baseline-browser-mapping": "^2.9.13",
         "eslint-config-prettier": "^10.1.8",
         "eslint-plugin-prettier": "^5.5.4",
         "eslint-plugin-unused-imports": "^4.3.0",
