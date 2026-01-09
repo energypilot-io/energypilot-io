@@ -34,6 +34,14 @@
                     }
                 }
             }
+        },
+
+        "values": {
+            "power": "Leistung",
+            "energy": "Energie",
+            "energy_import": "Energie Import",
+            "energy_export": "Energie Export",
+            "soc": "SoC"
         }
     },
 

@@ -3,6 +3,7 @@
 EnergyPilot.io is an easy to use and feature rich Energy Management Platform focused on homes with solar energy production.
 
 ![Screenshot](docs/screenshots/dashboard.png)
+![Screenshot](docs/screenshots/dashboard_mobile.png)
 ![Screenshot](docs/screenshots/live-data.png)
 ![Screenshot](docs/screenshots/settings-devices.png)
 
@@ -24,15 +25,15 @@ EnergyPilot.io is an easy to use and feature rich Energy Management Platform foc
 
 ### Solar systems
 
--   Sungrow Hybrid
+- Sungrow Hybrid
 
 ### Wallboxes
 
--   ABL emh1/2/4
+- ABL emh1/2/4
 
 ### Other consumers
 
--   TP-Link Tapo P1xx
+- TP-Link Tapo P1xx
 
 ## Support
 
@@ -44,8 +45,8 @@ If you would like to support this project, please consider buying me a coffee.
 
 ### Requirements
 
--   Node.js installation >= 22.12.0
--   Clone/Download the Git Repository to your local drive
+- Node.js installation >= 22.12.0
+- Clone/Download the Git Repository to your local drive
 
 ### Setup environment
 

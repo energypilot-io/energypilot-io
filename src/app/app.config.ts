@@ -20,6 +20,7 @@ import { registerTranslateExtension } from './translate.extension'
 import { provideDateFnsAdapter } from '@angular/material-date-fns-adapter'
 import { MAT_DATE_LOCALE } from '@angular/material/core'
 import { enUS } from 'date-fns/locale'
+import { provideNgxSkeletonLoader } from 'ngx-skeleton-loader'
 
 const config: SocketIoConfig = {
     url: '/',
@@ -52,5 +53,12 @@ export const appConfig: ApplicationConfig = {
         ]),
         provideDateFnsAdapter(),
         { provide: MAT_DATE_LOCALE, useValue: enUS },
+
+        provideNgxSkeletonLoader({
+            theme: {
+                extendsFromRoot: true,
+                height: '30px',
+            },
+        }),
     ],
 }

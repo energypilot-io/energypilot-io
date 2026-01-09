@@ -30,12 +30,31 @@
                 <p>{{ device.model }}</p>
             </div>
 
-            <mat-expansion-panel>
-                <mat-expansion-panel-header>
-                    <mat-panel-title>Properties</mat-panel-title>
-                </mat-expansion-panel-header>
-                <p>This is the primary content of the panel.</p>
-            </mat-expansion-panel>
+            <mat-card appearance="outlined">
+                <mat-card-content>
+                    @if (!liveValues()) {
+                        <ngx-skeleton-loader
+                            count="1"
+                            appearance="line"
+                            animation="pulse-dark"></ngx-skeleton-loader>
+                    } @else {
+                        @for (
+                            snapshotValue of liveValues() | keyvalue;
+                            track snapshotValue.key
+                        ) {
+                            <div class="flex justify-between">
+                                <p class="font-medium">
+                                    {{
+                                        `device.values.${snapshotValue.key}`
+                                            | translate
+                                    }}
+                                </p>
+                                <p>{{ snapshotValue.value }}</p>
+                            </div>
+                        }
+                    }
+                </mat-card-content>
+            </mat-card>
         </div>
     </mat-card-content>
     <mat-card-actions align="end" class="gap-2">
