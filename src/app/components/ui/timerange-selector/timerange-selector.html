@@ -1,46 +1,56 @@
 <div class="flex flex-col gap-4">
-    <div class="flex gap-2 p-2">
-        <button
-            [matButton]="
-                currentTimeRange() === TimeRange.Day ? 'filled' : 'outlined'
-            "
-            (click)="setTimeRange(TimeRange.Day)">
-            {{ 'common.timerange.day' | translate }}
-        </button>
-        <button
-            [matButton]="
-                currentTimeRange() === TimeRange.Week ? 'filled' : 'outlined'
-            "
-            (click)="setTimeRange(TimeRange.Week)">
-            {{ 'common.timerange.week' | translate }}
-        </button>
-        <button
-            [matButton]="
-                currentTimeRange() === TimeRange.Month ? 'filled' : 'outlined'
-            "
-            (click)="setTimeRange(TimeRange.Month)">
-            {{ 'common.timerange.month' | translate }}
-        </button>
-        <button
-            [matButton]="
-                currentTimeRange() === TimeRange.Year ? 'filled' : 'outlined'
-            "
-            (click)="setTimeRange(TimeRange.Year)">
-            {{ 'common.timerange.year' | translate }}
-        </button>
+    <div class="flex justify-center">
+        <mat-button-toggle-group
+            name="favoriteColor"
+            aria-label="Favorite Color"
+            [hideSingleSelectionIndicator]="true"
+            (change)="onTimeRangeSelectionChange($event)"
+            [value]="currentTimeRange()">
+            @for (range of TimeRange | keyvalue: null; track range.key) {
+                <mat-button-toggle [value]="range.value">
+                    {{ `common.timerange.${range.value}` | translate }}
+                </mat-button-toggle>
+            }
+        </mat-button-toggle-group>
     </div>
 
-    <div class="flex items-center justify-between">
-        <button matIconButton (click)="decrementTimeRange()">
-            <mat-icon>arrow_circle_left</mat-icon>
-        </button>
+    @if (currentTimeRange() !== TimeRange.Custom) {
+        <div class="flex items-center justify-between">
+            <button matIconButton (click)="decrementTimeRange()">
+                <mat-icon>arrow_circle_left</mat-icon>
+            </button>
 
-        <div>
-            {{ currentTimeRangeLabel() }}
+            <p>{{ currentTimeRangeLabel() }}</p>
+
+            <button matIconButton (click)="incrementTimeRange()">
+                <mat-icon>arrow_circle_right</mat-icon>
+            </button>
         </div>
-
-        <button matIconButton (click)="incrementTimeRange()">
-            <mat-icon>arrow_circle_right</mat-icon>
-        </button>
-    </div>
+    } @else {
+        <div class="flex justify-center">
+            <div class="flex items-center">
+                <mat-date-range-input [rangePicker]="picker">
+                    <input
+                        disabled
+                        matStartDate
+                        [style.color]="'var(--ep-color-text-primary)'"
+                        [value]="fromDate()"
+                        (dateChange)="onDateChange('from', $event)" />
+                    <input
+                        disabled
+                        matEndDate
+                        [style.color]="'var(--ep-color-text-primary)'"
+                        [value]="toDate()"
+                        (dateChange)="onDateChange('to', $event)" />
+                </mat-date-range-input>
+                <mat-datepicker-toggle
+                    matIconSuffix
+                    [for]="picker"></mat-datepicker-toggle>
+                <mat-date-range-picker
+                    disabled="false"
+                    [touchUi]="isMobile()"
+                    #picker></mat-date-range-picker>
+            </div>
+        </div>
+    }
 </div>

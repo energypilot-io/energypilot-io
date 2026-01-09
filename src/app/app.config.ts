@@ -17,6 +17,9 @@ import { SocketIoConfig, provideSocketIo } from 'ngx-socket-io'
 import { provideTranslateService, TranslateService } from '@ngx-translate/core'
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader'
 import { registerTranslateExtension } from './translate.extension'
+import { provideDateFnsAdapter } from '@angular/material-date-fns-adapter'
+import { MAT_DATE_LOCALE } from '@angular/material/core'
+import { enUS } from 'date-fns/locale'
 
 const config: SocketIoConfig = {
     url: '/',
@@ -47,5 +50,7 @@ export const appConfig: ApplicationConfig = {
             ...withFormlyMaterial(),
             { types: [{ name: 'object', component: ObjectTypeComponent }] },
         ]),
+        provideDateFnsAdapter(),
+        { provide: MAT_DATE_LOCALE, useValue: enUS },
     ],
 }

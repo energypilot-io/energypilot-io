@@ -165,7 +165,6 @@ export class App {
             sanitizer.bypassSecurityTrustResourceUrl('assets/flags/gb.svg')
         )
 
-        const deviceInfo = this.deviceService.getDeviceInfo()
         this.isMobile.set(deviceService.isMobile())
     }
 

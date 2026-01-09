@@ -1,10 +1,11 @@
 import { Component, inject } from '@angular/core'
 import { MatButtonModule } from '@angular/material/button'
-import { MatOptionModule } from '@angular/material/core'
+import { DateAdapter, MatOptionModule } from '@angular/material/core'
 import { MatSelectModule } from '@angular/material/select'
 import { MatIconModule } from '@angular/material/icon'
 import { MatMenuModule } from '@angular/material/menu'
 import { TranslateService } from '@ngx-translate/core'
+import { enUS, de } from 'date-fns/locale'
 
 type LanguageItem = {
     label: string
@@ -40,15 +41,32 @@ export class LanguagePickerComponent {
         },
     ]
 
+    constructor(private _adapter: DateAdapter<any>) {}
+
+    private setLanguage(lang: string) {
+        this.translate.use(lang)
+
+        switch (lang) {
+            case 'de':
+                this._adapter.setLocale(de)
+                break
+
+            case 'en':
+            default:
+                this._adapter.setLocale(enUS)
+                break
+        }
+    }
+
     ngOnInit(): void {
         const currentLang = this.getStoredLanguage() ?? 'en'
         if (currentLang) {
-            this.translate.use(currentLang)
+            this.setLanguage(currentLang)
         }
     }
 
     changeLanguage(lang: string) {
-        this.translate.use(lang)
+        this.setLanguage(lang)
         this.storeLanguage(this.translate.getCurrentLang())
         this.reloadPage()
     }
