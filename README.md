@@ -4,8 +4,6 @@ EnergyPilot.io is an easy to use and feature rich Energy Management Platform foc
 
 ![Screenshot](docs/screenshots/dashboard.png)
 ![Screenshot](docs/screenshots/dashboard_mobile.png)
-![Screenshot](docs/screenshots/live-data.png)
-![Screenshot](docs/screenshots/settings-devices.png)
 
 ## Features
 
@@ -37,11 +35,53 @@ EnergyPilot.io is an easy to use and feature rich Energy Management Platform foc
 
 ## Support
 
+Join us on Discord
+<a href="https://discord.gg/YAsTew8m92" target="_blank">EnergyPilot.io@Discord</a>
+
 If you would like to support this project, please consider buying me a coffee.
 
 <a href="https://www.buymeacoffee.com/nekronomekron" target="_blank"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=nekronomekron&button_colour=FFDD00&font_colour=000000&font_family=Bree&outline_colour=000000&coffee_colour=ffffff" /></a>
 
-## Getting started
+## Quickstart
+
+### Step 1: Ensure Docker Componse is installed
+
+Docker Compose is the easiest way to start and maintain your Homebridge Docker image. Make sure you have the latest version of the docker-compose command installed on your system.
+
+See https://docs.docker.com/compose/install/ for instructions.
+
+### Step 2: Create Docker Compose Manifest
+
+After ensuring Docker Compose is installed create a new file named docker-compose.yml that contains the following:
+
+```yml
+services:
+    energypilot:
+        container_name: energypilot-io
+        image: energypilot/energypilot:latest
+        restart: unless-stopped
+        network_mode: host
+
+        volumes:
+            # For persisting EnergyPilot's databases and common configuration
+            - ./data/:/data
+        ports:
+            # Default Web UI Port
+            - '3000:3000/tcp'
+```
+
+> [!NOTE]
+> Volumes are recommended for persisting data across container re-creations for updating images.
+
+### Step 3: Start EnergyPilot.io
+
+Run the following command to start the Homebridge Docker container:
+
+```
+docker-compose up -d
+```
+
+## Setup Development Environment
 
 ### Requirements
 
@@ -56,42 +96,15 @@ Install all Node.js dependencies
 npm i
 ```
 
-Build the UI React application
+Install all Node.js dependencies for the server
 
 ```
-npm run build
+cd ./server/
+npm i
 ```
 
-## Quick Start
-
-Using [Docker-compose](https://docs.docker.com/compose/install/):
-
-1. Copy the below docker compose example and update as needed:
-
-```yml
-services:
-    energypilot-io:
-        container_name: energypilot-io
-        build:
-            context: .
-        environment:
-            NODE_ENV: production
-        volumes:
-            # For persisting EnergyPilot's databases and common configuration
-            - ./data/:/data
-        ports:
-            # Default Web UI Port
-            - '3000:3000/tcp'
-        restart: unless-stopped
-```
-
-2. Run `docker compose up -d` to build and start EnergyPilot.io (Syntax may be `docker-compose` on older systems).
-
-> [!NOTE]
-> Volumes are recommended for persisting data across container re-creations for updating images.
-
-## Start local development server
+Build the Angular application and start your local instance
 
 ```
-node --import tsx server.tsx
+npm run start
 ```
