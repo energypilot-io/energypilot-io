@@ -1,0 +1,71 @@
+<div class="d-flex flex-column flex-shrink-0 bg-body-tertiary border-end h-100">
+    <div class="position-relative">
+        <a
+            href="/"
+            class="align-items-center gap-2 px-3 py-3 link-body-emphasis text-decoration-none border-bottom d-flex">
+            <ng-icon name="logo" size="32" />
+            @if (isMobile() || !sidenavCollapsed()) {
+                <div class="logo-header">
+                    {{ 'application.name' | translate }}
+                </div>
+            }
+        </a>
+        <a
+            href="#"
+            (click)="closeEvent.emit(); $event.preventDefault()"
+            class="link-body-emphasis ms-auto d-md-none d-inline p-2 position-absolute top-0 end-0">
+            <ng-icon name="tablerCircleX" size="32" />
+        </a>
+    </div>
+
+    <ul class="nav nav-pills nav-flush flex-column mb-auto">
+        @for (item of topMenuItems; track item.label) {
+            <li class="nav-item">
+                <a
+                    class="nav-link border-bottom rounded-0 px-3 py-1"
+                    [ngClass]="rla.isActive ? 'active' : 'link-body-emphasis'"
+                    aria-current="page"
+                    routerLinkActive
+                    routerLink="{{ item.route }}"
+                    #rla="routerLinkActive"
+                    placement="end"
+                    ngbTooltip="{{ item.label }}"
+                    [disableTooltip]="!sidenavCollapsed() || isMobile()"
+                    (click)="closeEvent.emit()">
+                    <div class="d-flex flex-nowrap align-items-center gap-3">
+                        <ng-icon name="{{ item.icon }}" size="24" class="m-1" />
+                        @if (isMobile() || !sidenavCollapsed()) {
+                            <div>{{ item.label | translate }}</div>
+                        }
+                    </div>
+                </a>
+            </li>
+        }
+    </ul>
+
+    <ul class="nav nav-pills nav-flush flex-column">
+        @for (item of bottomMenuItems; track item.label) {
+            <li class="nav-item">
+                <a
+                    class="nav-link border-bottom rounded-0 px-3 py-1 link-body-emphasis"
+                    href="{{ item.externalLink }}"
+                    placement="end"
+                    target="_blank"
+                    ngbTooltip="{{ item.label }}"
+                    [disableTooltip]="!sidenavCollapsed() || isMobile()"
+                    (click)="closeEvent.emit()">
+                    <div class="d-flex flex-nowrap align-items-center gap-3">
+                        <ng-icon name="{{ item.icon }}" size="24" class="m-1" />
+                        @if (isMobile() || !sidenavCollapsed()) {
+                            <div>{{ item.label }}</div>
+                        }
+                    </div>
+                </a>
+            </li>
+        }
+    </ul>
+
+    <div class="p-2 fw-lighter" style="font-size: smaller">
+        {{ 'application.version' | translate }}
+    </div>
+</div>

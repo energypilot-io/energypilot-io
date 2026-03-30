@@ -1,42 +1,41 @@
-import { MatButtonModule } from '@angular/material/button'
-import { MatIconModule } from '@angular/material/icon'
-import { Component, inject, signal } from '@angular/core'
+import { DeviceForm } from '@/app/components/forms/device-form/device-form'
+import { DeviceInfoCard } from '@/app/components/ui/devices/device-info-card/device-info-card'
 import { ApiService } from '@/app/services/api.service'
+import { Component, inject, signal } from '@angular/core'
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap'
 import { Subscription } from 'rxjs'
-import { DeviceInfoComponent } from '@/app/components/cards/device-info/device-info'
-import { MatDialog, MatDialogConfig } from '@angular/material/dialog'
-import { CreateDeviceComponent } from '@/app/components/dialog/create-device/create-device'
-import { TranslatePipe } from '@ngx-translate/core'
 
 @Component({
     selector: 'app-devices',
-    imports: [
-        DeviceInfoComponent,
-        MatButtonModule,
-        MatIconModule,
-        TranslatePipe,
-    ],
+    imports: [DeviceInfoCard],
     templateUrl: './devices.html',
-    styleUrl: './devices.css',
+    styleUrl: './devices.scss',
 })
-export class DevicesComponent {
-    readonly api = inject(ApiService)
-    readonly dialog = inject(MatDialog)
+export class DevicesPage {
+    private readonly api = inject(ApiService)
+    private readonly modalService = inject(NgbModal)
 
     private getDevicesSubscription?: Subscription
 
     devices = signal<any[]>([])
 
     openCreateDeviceDialog() {
-        const dialogRef = this.dialog.open(CreateDeviceComponent, {
-            disableClose: true,
-            autoFocus: true,
-            hasBackdrop: true,
-            data: {},
-        })
+        this.modalService.open(DeviceForm).result.then(result => {
+            this.api
+                .sendData({
+                    id: result.id,
+                    device_name: result.device_name,
+                    device_type: result.device_type,
+                    device_model: result.device_model.device_model,
+                    interface: result.device_model.interface.interface,
+                    interface_properties:
+                        result.device_model.interface.interfaceParameters,
+                })
+                .subscribe(response => {
+                    console.log(response)
 
-        dialogRef.afterClosed().subscribe(result => {
-            console.log(`Dialog result: ${result}`)
+                    // this.matDialogRef.close(true)
+                })
         })
     }
 

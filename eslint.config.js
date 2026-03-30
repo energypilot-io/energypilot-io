@@ -1,9 +1,9 @@
 // @ts-check
-const eslint = require('@eslint/js');
-const tseslint = require('typescript-eslint');
-const angular = require('angular-eslint');
-const unusedImports = require('eslint-plugin-unused-imports');
-const eslintPluginPrettierRecommended = require('eslint-plugin-prettier/recommended');
+const eslint = require('@eslint/js')
+const tseslint = require('typescript-eslint')
+const angular = require('angular-eslint')
+const unusedImports = require('eslint-plugin-unused-imports')
+const eslintPluginPrettierRecommended = require('eslint-plugin-prettier/recommended')
 
 module.exports = tseslint.config(
     {
@@ -59,4 +59,4 @@ module.exports = tseslint.config(
         ],
         rules: {},
     }
-);
+)

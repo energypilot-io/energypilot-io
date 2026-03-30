@@ -1,0 +1,108 @@
+<div class="card">
+    <div class="card-body d-flex flex-column gap-3">
+        <div class="d-flex fw-bold gap-2">
+            @if (device.type == 'consumer') {
+                <ng-icon name="tablerPlug" size="24" />
+            } @else if (device.type == 'grid') {
+                <ng-icon name="tablerWavesElectricity" size="24" />
+            } @else if (device.type == 'pv') {
+                <ng-icon name="tablerSolarPanel2" size="24" />
+            } @else if (device.type == 'battery') {
+                <ng-icon name="tablerBatteryVerticalCharging" size="24" />
+            }
+
+            {{ device.name }}
+
+            <div class="flex-grow-1"></div>
+
+            <ng-icon
+                name="tablerCircleFill"
+                size="24"
+                [color]="
+                    !liveValues()
+                        ? 'var(--bs-secondary-bg)'
+                        : (liveValues()! | keyvalue).length > 0
+                          ? 'var(--bs-success)'
+                          : 'var(--bs-danger)'
+                " />
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <div class="card-text">
+                    <div class="row">
+                        <div class="col fw-bold">
+                            {{ 'device.interfaces.deviceType' | translate }}
+                        </div>
+                        <div class="col-auto text-end">{{ device.type }}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col fw-bold">
+                            {{ 'device.interfaces.deviceModel' | translate }}
+                        </div>
+                        <div class="col-auto text-end">{{ device.model }}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col fw-bold">
+                            {{ 'device.interfaces.interface' | translate }}
+                        </div>
+                        <div class="col-auto text-end">
+                            {{ device.interface }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div ngbAccordion>
+            <div ngbAccordionItem>
+                <div ngbAccordionHeader>
+                    <button ngbAccordionButton class="fw-bold">
+                        <ng-icon name="tablerChartBar" size="24" class="me-2" />
+                        Live Values
+                    </button>
+                </div>
+                <div ngbAccordionCollapse>
+                    <div ngbAccordionBody>
+                        <ng-template>
+                            @if (!liveValues()) {
+                                <ngx-skeleton-loader
+                                    count="2"
+                                    appearance="line"
+                                    animation="pulse-dark"></ngx-skeleton-loader>
+                            } @else {
+                                @for (
+                                    snapshotValue of liveValues() | keyvalue;
+                                    track snapshotValue.key
+                                ) {
+                                    <div class="row">
+                                        <div class="col fw-bold">
+                                            {{
+                                                `device.values.${snapshotValue.key}`
+                                                    | translate
+                                            }}
+                                        </div>
+                                        <div class="col-auto text-end">
+                                            {{ snapshotValue.value }}
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </ng-template>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-footer d-flex justify-content-end">
+        <button
+            type="button"
+            class="btn btn-link link-danger"
+            (click)="deleteDevice()">
+            Delete
+        </button>
+        <button type="button" class="btn btn-primary" (click)="editDevice()">
+            Edit Device
+        </button>
+    </div>
+</div>

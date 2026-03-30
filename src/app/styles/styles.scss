@@ -1,0 +1,23 @@
+/* You can add global styles to this file, and also import other style files */
+
+/* Importing Bootstrap SCSS file. */
+
+@import 'variables';
+@import 'bootstrap/scss/bootstrap';
+@import 'bootswatch';
+
+@font-face {
+    font-family: 'Leckerli One';
+    src: url('/assets/fonts/LeckerliOne-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body {
+    height: 100vh;
+}
+
+.logo-header {
+    font-family: 'Leckerli One';
+    font-size: 1.25rem;
+}

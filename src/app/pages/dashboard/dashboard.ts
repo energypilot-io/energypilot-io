@@ -1,11 +1,11 @@
 import { Component } from '@angular/core'
-import { EnergyDistributionComponent } from '../../components/cards/energy-distribution/energy-distribution'
-import { KpiComponent } from '@/app/components/cards/kpi/kpi'
+import { EnergyDistribution } from '../../components/widgets/energy-distribution/energy-distribution'
+import { EnergyKpis } from '@/app/components/widgets/energy-kpis/energy-kpis'
 
 @Component({
     selector: 'app-dashboard',
-    imports: [EnergyDistributionComponent, KpiComponent],
+    imports: [EnergyDistribution, EnergyKpis],
     templateUrl: './dashboard.html',
-    styleUrl: './dashboard.css',
+    styleUrl: './dashboard.scss',
 })
 export class DashboardPage {}

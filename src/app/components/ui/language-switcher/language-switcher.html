@@ -1,0 +1,25 @@
+<div ngbDropdown>
+    <a
+        class="nav-link fs-4"
+        tabindex="0"
+        ngbDropdownToggle
+        id="navbarDropdown1"
+        role="button">
+        <ng-icon name="{{ translate.getCurrentLang() }}" />
+    </a>
+
+    <div ngbDropdownMenu class="dropdown-menu">
+        @for (lang of supportedLanguages; track lang.isocode) {
+            <a ngbDropdownItem href="#">
+                <div
+                    class="d-flex align-items-center gap-2"
+                    (click)="
+                        changeLanguage(lang.isocode); $event.preventDefault()
+                    ">
+                    <ng-icon name="{{ lang.isocode }}" />
+                    <span>{{ lang.label }}</span>
+                </div>
+            </a>
+        }
+    </div>
+</div>

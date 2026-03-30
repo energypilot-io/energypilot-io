@@ -1,70 +1,50 @@
-<mat-sidenav-container>
-    <mat-sidenav
-        [opened]="!isMobile()"
-        [style.width]="sidenavWidth()"
-        [mode]="isMobile() ? 'over' : 'side'"
-        [fixedInViewport]="isMobile()"
-        #snav>
-        <div class="flex h-full flex-col">
-            <a href="/">
-                <div class="flex h-16 items-center gap-4 p-4">
-                    <mat-icon svgIcon="logo" class="scale-150" />
-                    @if (isMobile() || !sidenavCollapsed()) {
-                        <span class="app-title self-center text-2xl">
-                            Energy Pilot
-                        </span>
-                    }
+<div class="d-flex h-100">
+    <app-sidenav
+        [collapsed]="sidenavCollapsed()"
+        [mobile]="false"
+        class="d-md-inline d-none" />
+
+    <div class="flex-grow-1">
+        <div class="d-flex flex-column">
+            <div class="d-flex p-2 border-bottom justify-content-between">
+                <div>
+                    <a
+                        href="#"
+                        (click)="
+                            storeStatus(!sidenavCollapsed());
+                            $event.preventDefault()
+                        "
+                        class="link-body-emphasis me-auto d-md-inline d-none">
+                        <ng-icon
+                            [name]="
+                                sidenavCollapsed()
+                                    ? 'tablerChevronRight'
+                                    : 'tablerChevronLeft'
+                            "
+                            size="32" />
+                    </a>
+
+                    <a
+                        href="#"
+                        (click)="openMenuOffcanvas(); $event.preventDefault()"
+                        class="link-body-emphasis me-auto d-md-none d-inline">
+                        <ng-icon name="tablerMenu2" size="32" />
+                    </a>
                 </div>
-            </a>
 
-            <app-custom-sidenav
-                [collapsed]="sidenavCollapsed()"
-                [items]="topMenuItems()"
-                [mobile]="isMobile()"
-                (onLinkClick)="isMobile() ? snav.close() : null" />
+                <div class="logo-header d-md-none d-inline">
+                    {{ 'application.name' | translate }}
+                </div>
 
-            <span class="grow"></span>
+                <div class="d-flex gap-3">
+                    <app-language-switcher />
+                    <app-theme-switcher />
+                </div>
+            </div>
 
-            <app-custom-sidenav
-                [collapsed]="sidenavCollapsed()"
-                [items]="bottomMenuItems()" />
-            <div class="p-2 text-xs">v2026.1</div>
+            <div class="p-2">
+                <router-outlet />
+            </div>
         </div>
-    </mat-sidenav>
-
-    <mat-sidenav-content
-        [style.margin-left]="!isMobile() ? sidenavWidth() : '0px'">
-        <mat-toolbar class="shadow-sm" [class.fixed-header]="isMobile()">
-            @if (!isMobile()) {
-                <button
-                    mat-icon-button
-                    (click)="storeStatus(!sidenavCollapsed())">
-                    <mat-icon>
-                        @if (!sidenavCollapsed()) {
-                            arrow_back_ios
-                        } @else {
-                            arrow_forward_ios
-                        }
-                    </mat-icon>
-                </button>
-
-                <span class="grow"></span>
-            } @else {
-                <button matIconButton (click)="snav.toggle()">
-                    <mat-icon>menu</mat-icon>
-                </button>
-
-                <span class="app-title grow text-center text-2xl">
-                    Energy Pilot
-                </span>
-            }
-
-            <app-theme-picker />
-            <app-language-picker />
-        </mat-toolbar>
-
-        <div class="p-4">
-            <router-outlet />
-        </div>
-    </mat-sidenav-content>
-</mat-sidenav-container>
+    </div>
+</div>

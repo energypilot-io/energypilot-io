@@ -1,0 +1,42 @@
+<div ngbDropdown>
+    <a
+        class="nav-link fs-4"
+        tabindex="0"
+        ngbDropdownToggle
+        id="navbarDropdown1"
+        role="button">
+        @if (theme() === 'light') {
+            <ng-icon name="tablerSun" />
+        } @else if (theme() === 'dark') {
+            <ng-icon name="tablerMoon" />
+        } @else {
+            <ng-icon name="tablerSunMoon" />
+        }
+    </a>
+    <div
+        ngbDropdownMenu
+        aria-labelledby="navbarDropdown1"
+        class="dropdown-menu">
+        <a ngbDropdownItem href="#" (click)="storeTheme('light')">
+            <div class="d-flex align-items-center gap-2">
+                <ng-icon name="tablerSun" size="24" />
+                <span>Light</span>
+            </div>
+        </a>
+        <a ngbDropdownItem href="#" (click)="storeTheme('dark')">
+            <div class="d-flex align-items-center gap-2">
+                <ng-icon name="tablerMoon" size="24" />
+                <span>Dark</span>
+            </div>
+        </a>
+
+        <hr class="dropdown-divider" />
+
+        <a ngbDropdownItem href="#" (click)="storeTheme('auto')">
+            <div class="d-flex align-items-center gap-2">
+                <ng-icon name="tablerSunMoon" size="24" />
+                <span>Auto</span>
+            </div>
+        </a>
+    </div>
+</div>

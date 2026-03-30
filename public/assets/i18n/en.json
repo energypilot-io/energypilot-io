@@ -1,93 +1,92 @@
 {
-    "device": {
-        "home": "Home",
+  "device": {
+    "home": "Home",
 
-        "interfaces": {
-            "deviceName": "Device Name",
-            "deviceType": "Type",
-            "deviceModel": "Model",
-            "interface": "Interface",
+    "interfaces": {
+      "deviceName": "Device Name",
+      "deviceType": "Type",
+      "deviceModel": "Model",
+      "interface": "Interface",
 
-            "tapo": {
-                "parameters": {
-                    "email": "E-Mail",
-                    "password": "Password",
-                    "ip": "IP Address"
-                }
-            },
-
-            "modbus": {
-                "parameters": {
-                    "connectionType": "Connection Type",
-                    "transport": "Protocol",
-                    "modbusId": "Modbus ID",
-                    "timeout": "Timeout",
-
-                    "tcpip": {
-                        "host": "Host",
-                        "port": "Port"
-                    },
-
-                    "serial": {
-                        "device": "Device",
-                        "baud": "Baud Rate"
-                    }
-                }
-            }
-        },
-
-        "values": {
-            "power": "Power",
-            "energy": "Energy",
-            "energy_import": "Energy Import",
-            "energy_export": "Energy Export",
-            "soc": "SoC"
+      "tapo": {
+        "parameters": {
+          "email": "E-Mail",
+          "password": "Password",
+          "ip": "IP Address"
         }
+      },
+
+      "modbus": {
+        "parameters": {
+          "connectionType": "Connection Type",
+          "transport": "Protocol",
+          "modbusId": "Modbus ID",
+          "timeout": "Timeout",
+
+          "tcpip": {
+            "host": "Host",
+            "port": "Port"
+          },
+
+          "serial": {
+            "device": "Device",
+            "baud": "Baud Rate"
+          }
+        }
+      }
     },
 
-    "cards": {
-        "energy-distribution": {
-            "title": "Energy Distribution"
-        }
-    },
-
-    "kpi": {
-        "production": "Production",
-        "import": "Import",
-        "export": "Export",
-        "consumption": "Consumption",
-        "own-consumption": "Own Consumption",
-        "total-consumption": "Total Consumption",
-        "autonomy": "Autonomy"
-    },
-
-    "common": {
-        "buttons": {
-            "create": "Create",
-            "update": "Update",
-            "cancel": "Cancel",
-            "delete": "Delete",
-            "confirm": "Confirm"
-        },
-
-        "timerange": {
-            "day": "Day",
-            "week": "Week",
-            "month": "Month",
-            "year": "Year",
-            "custom": "Custom"
-        }
-    },
-
-    "dialog": {
-        "upsertDevice": {
-            "create": "Create Device",
-            "update": "Update Device"
-        },
-
-        "delete-device": {
-            "title": "Delete Device",
-            "message": "Are you sure you want to delete device \"{{deviceName}}\"? This action cannot be undone."
-        }
+    "values": {
+      "power": "Power",
+      "energy": "Energy",
+      "energy_import": "Energy Import",
+      "energy_export": "Energy Export",
+      "soc": "SoC"
     }
+  },
+
+  "application": {
+    "name": "EnergyPilot.io",
+    "version": "v2026.2"
+  },
+
+  "pages": {
+    "dashboard": "Dashboard",
+    "devices": "Devices",
+    "graphs": "Graph"
+  },
+
+  "devices": {
+    "home": "Home"
+  },
+
+  "widgets": {
+    "kpi": {
+      "production": "Production",
+      "import": "Import",
+      "export": "Export",
+      "consumption": "Consumption",
+      "own-consumption": "Own Consumption",
+      "total-consumption": "Total Consumption",
+      "autonomy": "Autonomy"
+    }
+  },
+
+  "common": {
+    "buttons": {
+      "create": "Create",
+      "update": "Update",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "confirm": "Confirm"
+    },
+
+    "timerange": {
+      "day": "Day",
+      "week": "Week",
+      "month": "Month",
+      "year": "Year",
+      "custom": "Custom"
+    }
+  }
 }

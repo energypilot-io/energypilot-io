@@ -14,6 +14,10 @@ export class ApiService {
         return this.http.post<any>('/api/v1/devices', data)
     }
 
+    getDevice(deviceId: string): Observable<any> {
+        return this.http.get<any>(`/api/v1/devices/${deviceId}`)
+    }
+
     deleteDevice(deviceId: string): Observable<any> {
         return this.http.delete<any>(`/api/v1/devices/${deviceId}`)
     }

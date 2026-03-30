@@ -28,7 +28,7 @@ export async function initDataUpdateManager() {
     _logger = getLogger('dataupdate')
 
     _pollDataIntervalObject = setInterval(pollData, 10 * 1000) // every 60 seconds
-    _persistSnapshotIntervalObject = setInterval(persistSnapshot, 60 * 1000) // every 60 seconds
+    _persistSnapshotIntervalObject = setInterval(persistSnapshot, 5 * 60 * 1000) // every 60 seconds
 
     process.on('exit', () => {
         clearInterval(_pollDataIntervalObject)

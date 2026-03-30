@@ -1,56 +1,109 @@
-<div class="flex flex-col gap-4">
-    <div class="flex justify-center">
-        <mat-button-toggle-group
-            name="favoriteColor"
-            aria-label="Favorite Color"
-            [hideSingleSelectionIndicator]="true"
-            (change)="onTimeRangeSelectionChange($event)"
-            [value]="currentTimeRange()">
+<div class="d-flex flex-column">
+    <div class="d-flex justify-content-center mb-3">
+        <div class="btn-group" role="group">
             @for (range of TimeRange | keyvalue: null; track range.key) {
-                <mat-button-toggle [value]="range.value">
+                <input
+                    type="radio"
+                    class="btn-check"
+                    name="btnradio"
+                    id="{{ `button.${range.value}` }}"
+                    autocomplete="off"
+                    [checked]="range.value === currentTimeRange()"
+                    (change)="onTimeRangeSelectionChange(range.value)" />
+                <label
+                    class="btn btn-outline-primary"
+                    for="{{ `button.${range.value}` }}">
                     {{ `common.timerange.${range.value}` | translate }}
-                </mat-button-toggle>
+                </label>
             }
-        </mat-button-toggle-group>
+        </div>
     </div>
 
-    @if (currentTimeRange() !== TimeRange.Custom) {
-        <div class="flex items-center justify-between">
-            <button matIconButton (click)="decrementTimeRange()">
-                <mat-icon>arrow_circle_left</mat-icon>
-            </button>
-
-            <p>{{ currentTimeRangeLabel() }}</p>
-
-            <button matIconButton (click)="incrementTimeRange()">
-                <mat-icon>arrow_circle_right</mat-icon>
-            </button>
+    @if (currentTimeRange() === TimeRange.Custom) {
+        <div class="d-flex justify-content-center align-items-center">
+            <form class="row row-cols-sm-auto">
+                <div class="col-12">
+                    <div class="dp-hidden position-absolute">
+                        <div class="input-group">
+                            <input
+                                name="datepicker"
+                                class="form-control"
+                                ngbDatepicker
+                                #datepicker="ngbDatepicker"
+                                [autoClose]="'outside'"
+                                (dateSelect)="onDateSelection($event)"
+                                [displayMonths]="2"
+                                [dayTemplate]="t"
+                                outsideDays="hidden"
+                                [startDate]="toNgbDate(fromDate()!)"
+                                tabindex="-1" />
+                            <ng-template #t let-date let-focused="focused">
+                                <span
+                                    class="custom-day"
+                                    [class.focused]="focused"
+                                    [class.range]="isRange(date)"
+                                    [class.faded]="
+                                        isHovered(date) || isInside(date)
+                                    "
+                                    (mouseenter)="hoveredDate = date"
+                                    (mouseleave)="hoveredDate = null">
+                                    {{ date.day }}
+                                </span>
+                            </ng-template>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <input
+                            #dpFromDate
+                            class="form-control"
+                            name="dpFromDate"
+                            [value]="formatDate(fromDate())"
+                            (input)="
+                                fromDate.set(
+                                    validateInput(fromDate(), dpFromDate.value)!
+                                )
+                            " />
+                        <button
+                            class="btn btn-outline-secondary"
+                            (click)="datepicker.toggle()"
+                            type="button">
+                            <ng-icon name="tablerCalendarMonth" size="16" />
+                        </button>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="input-group">
+                        <input
+                            #dpToDate
+                            class="form-control"
+                            name="dpToDate"
+                            [value]="formatDate(toDate()!)"
+                            (input)="
+                                toDate.set(
+                                    validateInput(toDate(), dpToDate.value)!
+                                )
+                            " />
+                        <button
+                            class="btn btn-outline-secondary"
+                            (click)="datepicker.toggle()"
+                            type="button">
+                            <ng-icon name="tablerCalendarMonth" size="16" />
+                        </button>
+                    </div>
+                </div>
+            </form>
         </div>
     } @else {
-        <div class="flex justify-center">
-            <div class="flex items-center">
-                <mat-date-range-input [rangePicker]="picker">
-                    <input
-                        disabled
-                        matStartDate
-                        [style.color]="'var(--ep-color-text-primary)'"
-                        [value]="fromDate()"
-                        (dateChange)="onDateChange('from', $event)" />
-                    <input
-                        disabled
-                        matEndDate
-                        [style.color]="'var(--ep-color-text-primary)'"
-                        [value]="toDate()"
-                        (dateChange)="onDateChange('to', $event)" />
-                </mat-date-range-input>
-                <mat-datepicker-toggle
-                    matIconSuffix
-                    [for]="picker"></mat-datepicker-toggle>
-                <mat-date-range-picker
-                    disabled="false"
-                    [touchUi]="isMobile()"
-                    #picker></mat-date-range-picker>
-            </div>
+        <div class="d-flex justify-content-between align-items-center">
+            <button class="btn p-0" (click)="decrementTimeRange()">
+                <ng-icon name="tablerCircleChevronLeft" size="32" />
+            </button>
+
+            <div>{{ currentTimeRangeLabel() }}</div>
+
+            <button class="btn p-0" (click)="incrementTimeRange()">
+                <ng-icon name="tablerCircleChevronRight" size="32" />
+            </button>
         </div>
     }
 </div>

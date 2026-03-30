@@ -14,10 +14,7 @@
                     "builder": "@angular/build:application",
                     "options": {
                         "browser": "src/main.ts",
-                        "polyfills": [
-                          "zone.js",
-                          "@angular/localize/init"
-                        ],
+                        "polyfills": ["zone.js", "@angular/localize/init"],
                         "tsConfig": "tsconfig.app.json",
                         "assets": [
                             {
@@ -25,10 +22,8 @@
                                 "input": "public"
                             }
                         ],
-                        "styles": [
-                          "node_modules/bootstrap/dist/css/bootstrap.min.css",
-                          "src/styles.css"
-                        ]
+                        "inlineStyleLanguage": "scss",
+                        "styles": ["src/app/styles/styles.scss"]
                     },
                     "configurations": {
                         "production": {
@@ -74,9 +69,9 @@
                     "builder": "@angular/build:karma",
                     "options": {
                         "polyfills": [
-                          "zone.js",
-                          "zone.js/testing",
-                          "@angular/localize/init"
+                            "zone.js",
+                            "zone.js/testing",
+                            "@angular/localize/init"
                         ],
                         "tsConfig": "tsconfig.spec.json",
                         "assets": [
@@ -85,7 +80,8 @@
                                 "input": "public"
                             }
                         ],
-                        "styles": ["src/styles.css"]
+                        "inlineStyleLanguage": "scss",
+                        "styles": ["src/app/styles/styles.scss"]
                     }
                 },
                 "lint": {
@@ -95,6 +91,11 @@
                     }
                 }
             }
+        }
+    },
+    "schematics": {
+        "@schematics/angular:component": {
+            "style": "scss"
         }
     },
     "cli": {

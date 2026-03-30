@@ -1,0 +1,29 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit(model)" #createDeviceForm>
+    <div class="modal-header">
+        {{
+            (model.id
+                ? 'dialog.upsertDevice.update'
+                : 'dialog.upsertDevice.create'
+            ) | translate
+        }}
+    </div>
+    <div class="modal-body">
+        @if (schema()) {
+            <formly-form [form]="form" [fields]="fields()" [model]="model" />
+        }
+    </div>
+    <div class="modal-footer">
+        <button
+            type="button"
+            class="btn btn-outline-secondary"
+            (click)="modal.dismiss('cancel click')">
+            {{ 'common.buttons.cancel' }}
+        </button>
+        <button
+            type="button"
+            class="btn btn-danger"
+            (click)="modal.close(model)">
+            {{ model.id ? 'common.buttons.update' : 'common.buttons.create' }}
+        </button>
+    </div>
+</form>

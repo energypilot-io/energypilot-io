@@ -1,0 +1,93 @@
+{
+    "device": {
+        "home": "Heim",
+
+        "interfaces": {
+            "deviceName": "Gerätename",
+            "deviceType": "Typ",
+            "deviceModel": "Modell",
+            "interface": "Schnittstelle",
+
+            "tapo": {
+                "parameters": {
+                    "email": "E-Mail",
+                    "password": "Passwort",
+                    "ip": "IP-Adresse"
+                }
+            },
+
+            "modbus": {
+                "parameters": {
+                    "connectionType": "Verbindungstyp",
+                    "transport": "Protokoll",
+                    "modbusId": "Modbus ID",
+                    "timeout": "Timeout",
+
+                    "tcpip": {
+                        "host": "Host",
+                        "port": "Port"
+                    },
+
+                    "serial": {
+                        "device": "Gerät",
+                        "baud": "Baudrate"
+                    }
+                }
+            }
+        },
+
+        "values": {
+            "power": "Leistung",
+            "energy": "Energie",
+            "energy_import": "Energie Import",
+            "energy_export": "Energie Export",
+            "soc": "SoC"
+        }
+    },
+
+    "cards": {
+        "energy-distribution": {
+            "title": "Energieverteilung"
+        }
+    },
+
+    "kpi": {
+        "production": "Produktion",
+        "import": "Import",
+        "export": "Export",
+        "consumption": "Verbrauch",
+        "own-consumption": "Eigenverbrauch",
+        "total-consumption": "Gesamtverbrauch",
+        "autonomy": "Autarkie"
+    },
+
+    "common": {
+        "buttons": {
+            "create": "Erstellen",
+            "update": "Aktualisieren",
+            "cancel": "Abbrechen",
+            "delete": "Löschen",
+            "confirm": "Bestätigen"
+        },
+
+        "timerange": {
+            "day": "Tag",
+            "week": "Woche",
+            "month": "Monat",
+            "year": "Jahr",
+            "custom": "Benutzer"
+        }
+    },
+
+    "dialog": {
+        "upsertDevice": {
+            "create": "Gerät erstellen",
+            "update": "Gerät aktualisieren"
+        },
+
+        "delete-device": {
+            "title": "Gerät entfernen",
+            "message": "Wollen Sie das Gerät \"{{deviceName}}\" wirklich entfernen? Diese Vorgang kann nicht rückgängig gemacht werden."
+        }
+    }
+}

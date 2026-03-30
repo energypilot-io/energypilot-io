@@ -1,10 +1,10 @@
+import { EnergyChart } from '@/app/components/energy-chart/energy-chart'
 import { Component } from '@angular/core'
-import { EnergyChartComponent } from '@/app/components/ui/energy-chart/energy-chart'
 
 @Component({
     selector: 'app-graph',
-    imports: [EnergyChartComponent],
+    imports: [EnergyChart],
     templateUrl: './graph.html',
-    styleUrl: './graph.css',
+    styleUrl: './graph.scss',
 })
 export class GraphPage {}
