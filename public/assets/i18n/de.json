@@ -1,92 +1,110 @@
 {
-  "device": {
-    "home": "Heim",
+    "device": {
+        "home": "Heim",
 
-    "interfaces": {
-      "deviceName": "Gerätename",
-      "deviceType": "Typ",
-      "deviceModel": "Modell",
-      "interface": "Schnittstelle",
+        "interfaces": {
+            "deviceName": "Gerätename",
+            "deviceType": "Typ",
+            "deviceModel": "Modell",
+            "interface": "Schnittstelle",
 
-      "tapo": {
-        "parameters": {
-          "email": "E-Mail",
-          "password": "Passwort",
-          "ip": "IP-Adresse"
+            "tapo": {
+                "parameters": {
+                    "email": "E-Mail",
+                    "password": "Passwort",
+                    "ip": "IP-Adresse"
+                }
+            },
+
+            "modbus": {
+                "parameters": {
+                    "connectionType": "Verbindungstyp",
+                    "transport": "Protokoll",
+                    "modbusId": "Modbus ID",
+                    "timeout": "Timeout",
+
+                    "tcpip": {
+                        "host": "Host",
+                        "port": "Port"
+                    },
+
+                    "serial": {
+                        "device": "Gerät",
+                        "baud": "Baudrate"
+                    }
+                }
+            }
+        },
+
+        "values": {
+            "power": "Leistung",
+            "energy": "Energie",
+            "energy_import": "Energie Import",
+            "energy_export": "Energie Export",
+            "soc": "SoC"
         }
-      },
-
-      "modbus": {
-        "parameters": {
-          "connectionType": "Verbindungstyp",
-          "transport": "Protokoll",
-          "modbusId": "Modbus ID",
-          "timeout": "Timeout",
-
-          "tcpip": {
-            "host": "Host",
-            "port": "Port"
-          },
-
-          "serial": {
-            "device": "Gerät",
-            "baud": "Baudrate"
-          }
-        }
-      }
     },
 
-    "values": {
-      "power": "Leistung",
-      "energy": "Energie",
-      "energy_import": "Energie Import",
-      "energy_export": "Energie Export",
-      "soc": "SoC"
-    }
-  },
-
-  "application": {
-    "name": "EnergyPilot.io",
-    "version": "v2026.2"
-  },
-
-  "pages": {
-    "dashboard": "Dashboard",
-    "devices": "Geräte",
-    "graphs": "Graph"
-  },
-
-  "devices": {
-    "home": "Zuhause"
-  },
-
-  "widgets": {
-    "kpi": {
-      "production": "Produktion",
-      "import": "Import",
-      "export": "Export",
-      "consumption": "Verbrauch",
-      "own-consumption": "Eigenverbrauch",
-      "total-consumption": "Gesamtverbrauch",
-      "autonomy": "Autarkie"
-    }
-  },
-
-  "common": {
-    "buttons": {
-      "create": "Erstellen",
-      "update": "Aktualisieren",
-      "cancel": "Abbrechen",
-      "delete": "Löschen",
-      "confirm": "Bestätigen"
+    "application": {
+        "name": "EnergyPilot.io",
+        "version": "v2026.2"
     },
 
-    "timerange": {
-      "day": "Tag",
-      "week": "Woche",
-      "month": "Monat",
-      "year": "Jahr",
-      "custom": "Benutzer"
+    "pages": {
+        "dashboard": "Dashboard",
+        "devices": "Geräte",
+        "graphs": "Graph"
+    },
+
+    "devices": {
+        "home": "Zuhause"
+    },
+
+    "widgets": {
+        "kpi": {
+            "production": "Produktion",
+            "import": "Netzbezug",
+            "export": "Einspeisung",
+            "consumption": "Verbrauch",
+            "own-consumption": "Eigenverbrauch",
+            "total-consumption": "Gesamtverbrauch",
+            "autonomy": "Autarkie"
+        }
+    },
+
+    "dialogs": {
+        "delete_device": {
+            "title": "Gerät löschen",
+            "message": "Möchten Sie dieses Gerät wirklich löschen? Alle zugehörigen Daten gehen verloren.",
+            "confirm_button": "Löschen",
+            "cancel_button": "Abbrechen"
+        },
+
+        "upsert_device": {
+            "title_create": "Gerät erstellen",
+            "title_update": "Gerät aktualisieren",
+            "confirm_button_create": "Erstellen",
+            "confirm_button_update": "Aktualisieren"
+        }
+    },
+
+    "common": {
+        "buttons": {
+            "create": "Erstellen",
+            "update": "Aktualisieren",
+            "cancel": "Abbrechen",
+            "delete": "Löschen",
+            "confirm": "Bestätigen",
+            "create_device": "Gerät erstellen",
+            "edit_device": "Gerät bearbeiten"
+        },
+
+        "timerange": {
+            "day": "Tag",
+            "week": "Woche",
+            "month": "Monat",
+            "year": "Jahr",
+            "custom": "Benutzer"
+        }
     }
-  }
 }

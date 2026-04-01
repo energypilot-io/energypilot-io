@@ -4,11 +4,12 @@
             type="button"
             class="btn btn-primary"
             (click)="openCreateDeviceDialog()">
-            Create Device
+            <ng-icon name="tablerPlus" />
+            {{ 'common.buttons.create_device' | translate }}
         </button>
     </div>
 
-    <div class="row g-2">
+    <div class="row g-4 g-md-2">
         @for (device of devices(); track device.id) {
             <app-device-info-card
                 class="col-12 col-md-6 col-lg-4 col-xl-3"

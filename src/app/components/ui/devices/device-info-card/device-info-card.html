@@ -94,15 +94,19 @@
             </div>
         </div>
     </div>
-    <div class="card-footer d-flex justify-content-end">
+
+    <div class="card-footer gap-2 d-flex justify-content-md-end">
         <button
             type="button"
-            class="btn btn-link link-danger"
+            class="btn btn-outline-danger"
             (click)="deleteDevice()">
-            Delete
+            <ng-icon name="tablerTrash" />
         </button>
-        <button type="button" class="btn btn-primary" (click)="editDevice()">
-            Edit Device
+        <button
+            type="button"
+            class="btn btn-primary flex-md-grow-0 flex-grow-1"
+            (click)="editDevice()">
+            {{ 'common.buttons.edit_device' | translate }}
         </button>
     </div>
 </div>

@@ -11,6 +11,7 @@ import {
     tablerSolarPanel2,
     tablerWavesElectricity,
     tablerChartBar,
+    tablerTrash,
 } from '@ng-icons/tabler-icons'
 
 import { tablerCircleFill } from '@ng-icons/tabler-icons/fill'
@@ -41,6 +42,7 @@ import { JsonParsePipe } from '@/app/pipes/jsonParse.pipe'
             tablerWavesElectricity,
             tablerCircleFill,
             tablerChartBar,
+            tablerTrash,
         }),
     ],
 })
@@ -87,7 +89,11 @@ export class DeviceInfoCard {
     }
 
     editDevice(): void {
-        const modalRef = this.modalService.open(DeviceForm)
+        const modalRef = this.modalService.open(DeviceForm, {
+            centered: true,
+            scrollable: true,
+            backdrop: 'static',
+        })
         modalRef.componentInstance.model = {
             id: this.device.id,
             device_name: this.device.name,

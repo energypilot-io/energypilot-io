@@ -3,6 +3,7 @@
 # Compiled output
 /dist
 /tmp
+/data
 /out-tsc
 /bazel-out
 /.angular

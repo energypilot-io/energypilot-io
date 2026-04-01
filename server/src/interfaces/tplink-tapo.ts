@@ -34,7 +34,7 @@ export class TPLinkTapoInterface extends IInterface {
                 email: {
                     title: '{{ device.interfaces.tapo.parameters.email }}',
                     type: 'input',
-                    templateOptions: {
+                    props: {
                         type: 'email',
                     },
                     default: 'user@provider.com',
@@ -43,7 +43,7 @@ export class TPLinkTapoInterface extends IInterface {
                 password: {
                     title: '{{ device.interfaces.tapo.parameters.password }}',
                     type: 'input',
-                    templateOptions: {
+                    props: {
                         type: 'password',
                     },
                 },

@@ -49,6 +49,7 @@
         "@eslint/js": "^10.0.1",
         "@ngx-formly/schematics": "^7.1.0",
         "@types/jasmine": "~5.1.0",
+        "@types/lodash": "^4.17.24",
         "angular-eslint": "21.3.1",
         "eslint": "^10.0.3",
         "eslint-config-prettier": "^10.1.8",

@@ -5,11 +5,20 @@ import { Component, inject, signal } from '@angular/core'
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap'
 import { Subscription } from 'rxjs'
 
+import { tablerPlus } from '@ng-icons/tabler-icons'
+import { NgIcon, provideIcons } from '@ng-icons/core'
+import { TranslatePipe } from '@ngx-translate/core'
+
 @Component({
     selector: 'app-devices',
-    imports: [DeviceInfoCard],
+    imports: [DeviceInfoCard, NgIcon, TranslatePipe],
     templateUrl: './devices.html',
     styleUrl: './devices.scss',
+    providers: [
+        provideIcons({
+            tablerPlus,
+        }),
+    ],
 })
 export class DevicesPage {
     private readonly api = inject(ApiService)
@@ -20,23 +29,14 @@ export class DevicesPage {
     devices = signal<any[]>([])
 
     openCreateDeviceDialog() {
-        this.modalService.open(DeviceForm).result.then(result => {
-            this.api
-                .sendData({
-                    id: result.id,
-                    device_name: result.device_name,
-                    device_type: result.device_type,
-                    device_model: result.device_model.device_model,
-                    interface: result.device_model.interface.interface,
-                    interface_properties:
-                        result.device_model.interface.interfaceParameters,
-                })
-                .subscribe(response => {
-                    console.log(response)
-
-                    // this.matDialogRef.close(true)
-                })
-        })
+        this.modalService
+            .open(DeviceForm, {
+                centered: true,
+                scrollable: true,
+                fullscreen: 'md',
+                backdrop: 'static',
+            })
+            .result.then(result => {})
     }
 
     ngOnInit() {

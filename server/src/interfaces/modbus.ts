@@ -29,13 +29,17 @@ type ModbusParameterDef = ParameterDef & {
     datatype:
         | 'int8'
         | 'uint8'
+        | 'int16'
         | 'int16be'
         | 'int16le'
+        | 'uint16'
         | 'uint16be'
         | 'uint16le'
+        | 'int32'
         | 'int32be'
         | 'int32le'
         | 'int32sw'
+        | 'uint32'
         | 'uint32be'
         | 'uint32le'
         | 'uint32sw'
@@ -191,7 +195,7 @@ export class ModbusInterface extends IInterface {
             }
         })
 
-        process.on('exit', (code) => {
+        process.on('exit', code => {
             if (this._connection !== undefined) {
                 this._connection.destroy()
             }
@@ -216,12 +220,14 @@ export class ModbusInterface extends IInterface {
             case 'uint8':
                 value = buffer.readUInt8(offset) * parameterDef.scale
                 break
+            case 'int16':
             case 'int16be':
                 value = buffer.readInt16BE(offset) * parameterDef.scale
                 break
             case 'int16le':
                 value = buffer.readInt16LE(offset) * parameterDef.scale
                 break
+            case 'uint16':
             case 'uint16be':
             case 'bool16':
                 value = buffer.readUInt16BE(offset) * parameterDef.scale
@@ -229,6 +235,7 @@ export class ModbusInterface extends IInterface {
             case 'uint16le':
                 value = buffer.readUInt16LE(offset) * parameterDef.scale
                 break
+            case 'int32':
             case 'int32be':
                 value = buffer.readInt32BE(offset) * parameterDef.scale
                 break
@@ -238,6 +245,7 @@ export class ModbusInterface extends IInterface {
             case 'int32sw':
                 value = buffer.swap16().readInt32LE(offset) * parameterDef.scale
                 break
+            case 'uint32':
             case 'uint32be':
             case 'bool32':
                 value = buffer.readUInt32BE(offset) * parameterDef.scale
@@ -369,7 +377,7 @@ export class ModbusInterface extends IInterface {
     public async read(
         parameterDef: Partial<ParameterDef> = {}
     ): Promise<number | undefined> {
-        return new Promise<number | undefined>((resolve) => {
+        return new Promise<number | undefined>(resolve => {
             if (this._master === undefined || this._connection === undefined)
                 return resolve(undefined)
 
