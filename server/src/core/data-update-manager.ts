@@ -1,15 +1,15 @@
-import { GridDevice } from '@/devices/grid'
 import { getDeviceInstances, resetAllDeviceCaches } from './device-manager'
 import { ChildLogger, getLogger } from './logmanager'
-import { PVDevice } from '@/devices/pv'
-import { BatteryDevice } from '@/devices/battery'
-import { ConsumerDevice } from '@/devices/consumer'
 import { Snapshot } from '@/entities/snapshot.entity'
 import { persistEntity } from './database'
 import { DeviceValue } from '@/entities/device.value.entity'
 import { emitWebsocketEvent } from './webserver'
 import { WS_EVENT_SNAPSHOT_NEW, WS_EVENT_DEVICE_UPDATE } from '@/constants'
 import { Semaphore } from '@/libs/semaphore'
+import { BatteryDevice } from '@/devices/battery.device'
+import { GridDevice } from '@/devices/grid.device'
+import { PVDevice } from '@/devices/pv.device'
+import { ConsumerDevice } from '@/devices/consumer.device'
 
 let _pollDataIntervalObject: NodeJS.Timeout
 let _persistSnapshotIntervalObject: NodeJS.Timeout
@@ -41,11 +41,11 @@ async function persistSnapshot() {
 
     const deviceValues: DeviceValue[] = []
 
-    Object.values(_deviceValuesPersistanceCache).map((deviceValuesArrays) => {
+    Object.values(_deviceValuesPersistanceCache).map(deviceValuesArrays => {
         const valuesByType: { [name: string]: number[] } = {}
 
-        deviceValuesArrays.forEach((deviceValues) => {
-            deviceValues.forEach((deviceValue) => {
+        deviceValuesArrays.forEach(deviceValues => {
+            deviceValues.forEach(deviceValue => {
                 if (!(deviceValue.name in valuesByType)) {
                     valuesByType[deviceValue.name] = []
                 }
@@ -53,7 +53,7 @@ async function persistSnapshot() {
             })
         })
 
-        Object.keys(valuesByType).forEach((valueName) => {
+        Object.keys(valuesByType).forEach(valueName => {
             const values = valuesByType[valueName]
             const averageValue =
                 values.reduce((a, b) => a + b, 0) / values.length
@@ -94,17 +94,25 @@ async function pollData() {
     const deviceValuesCache: DeviceValue[] = []
 
     for (let key in deviceInstances) {
-        const deviceInstance = deviceInstances[key]
+        const deviceInstance: any = deviceInstances[key]
         const isEnabled = deviceInstance.deviceDefinition.is_enabled
 
         if (!isEnabled) continue
 
         const deviceValues: DeviceValue[] = []
 
-        if (deviceInstance instanceof GridDevice) {
-            const power = await deviceInstance.getPowerValue()
-            const energyImport = await deviceInstance.getEnergyImportValue()
-            const energyExport = await deviceInstance.getEnergyExportValue()
+        if (
+            deviceInstance.constructor
+                .getDeviceDefinition()
+                .types.includes(GridDevice.DEVICE_TYPE)
+        ) {
+            const gridDeviceInstance = deviceInstance as GridDevice
+
+            const power = await gridDeviceInstance.getGridPowerValue()
+            const energyImport =
+                await gridDeviceInstance.getGridEnergyImportValue()
+            const energyExport =
+                await gridDeviceInstance.getGridEnergyExportValue()
 
             if (
                 power !== undefined &&
@@ -144,39 +152,15 @@ async function pollData() {
                 deviceInstance.deviceDefinition.name,
                 `Power: ${power} W, Energy Import: ${energyImport} kWh, Energy Export: ${energyExport} kWh`
             )
-        } else if (deviceInstance instanceof PVDevice) {
-            const power = await deviceInstance.getPowerValue()
-            const energy = await deviceInstance.getEnergyValue()
+        } else if (
+            deviceInstance.constructor
+                .getDeviceDefinition()
+                .types.includes(BatteryDevice.DEVICE_TYPE)
+        ) {
+            const batteryDeviceInstance = deviceInstance as BatteryDevice
 
-            if (power !== undefined && energy !== undefined) {
-                deviceValues.push(
-                    new DeviceValue({
-                        device: deviceInstance.deviceDefinition,
-                        name: 'power',
-                        value: power,
-                    })
-                )
-
-                deviceValues.push(
-                    new DeviceValue({
-                        device: deviceInstance.deviceDefinition,
-                        name: 'energy',
-                        value: energy,
-                    })
-                )
-
-                deviceInstance.deviceDefinition.connected = true
-            } else {
-                deviceInstance.deviceDefinition.connected = false
-            }
-
-            _logger.debug(
-                deviceInstance.deviceDefinition.name,
-                `Power: ${power} W, Energy: ${energy} kWh`
-            )
-        } else if (deviceInstance instanceof BatteryDevice) {
-            const soc = await deviceInstance.getSoCValue()
-            const power = await deviceInstance.getPowerValue()
+            const soc = await batteryDeviceInstance.getBatterySoCValue()
+            const power = await batteryDeviceInstance.getBatteryPowerValue()
 
             if (power !== undefined && soc !== undefined) {
                 deviceValues.push(
@@ -204,9 +188,51 @@ async function pollData() {
                 deviceInstance.deviceDefinition.name,
                 `SoC: ${soc} %, Power: ${power} W`
             )
-        } else if (deviceInstance instanceof ConsumerDevice) {
-            const power = await deviceInstance.getPowerValue()
-            const energy = await deviceInstance.getEnergyValue()
+        } else if (
+            deviceInstance.constructor
+                .getDeviceDefinition()
+                .types.includes(PVDevice.DEVICE_TYPE)
+        ) {
+            const pvDeviceInstance = deviceInstance as PVDevice
+
+            const power = await pvDeviceInstance.getPVPowerValue()
+            const energy = await pvDeviceInstance.getPVEnergyValue()
+
+            if (power !== undefined && energy !== undefined) {
+                deviceValues.push(
+                    new DeviceValue({
+                        device: deviceInstance.deviceDefinition,
+                        name: 'power',
+                        value: power,
+                    })
+                )
+
+                deviceValues.push(
+                    new DeviceValue({
+                        device: deviceInstance.deviceDefinition,
+                        name: 'energy',
+                        value: energy,
+                    })
+                )
+
+                deviceInstance.deviceDefinition.connected = true
+            } else {
+                deviceInstance.deviceDefinition.connected = false
+            }
+
+            _logger.debug(
+                deviceInstance.deviceDefinition.name,
+                `Power: ${power} W, Energy: ${energy} kWh`
+            )
+        } else if (
+            deviceInstance.constructor
+                .getDeviceDefinition()
+                .types.includes(ConsumerDevice.DEVICE_TYPE)
+        ) {
+            const consumerDeviceInstance = deviceInstance as ConsumerDevice
+
+            const power = await consumerDeviceInstance.getConsumerPowerValue()
+            const energy = await consumerDeviceInstance.getConsumerEnergyValue()
 
             if (power !== undefined && energy !== undefined) {
                 deviceValues.push(
@@ -277,7 +303,7 @@ async function pollData() {
     emitWebsocketEvent(
         WS_EVENT_DEVICE_UPDATE,
         JSON.stringify(
-            Object.values(deviceInstances).map((deviceInstance) => {
+            Object.values(deviceInstances).map(deviceInstance => {
                 return {
                     id: deviceInstance.deviceDefinition.id,
                     name: deviceInstance.deviceDefinition.name,

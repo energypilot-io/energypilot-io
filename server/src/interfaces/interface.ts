@@ -1,5 +1,3 @@
-import { ParameterDef } from '@/defs/device-template'
-
 export abstract class IInterface {
     templateInterfaceKey: string
 
@@ -12,5 +10,5 @@ export abstract class IInterface {
     }
 
     abstract resetCache(): void
-    abstract read(parameterDef: ParameterDef): Promise<number | undefined>
+    abstract read(parameterDef: any): Promise<number | undefined>
 }

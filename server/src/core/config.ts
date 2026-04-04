@@ -1,18 +1,19 @@
-import { BatteryDevice } from '@/devices/battery'
-import { ConsumerDevice } from '@/devices/consumer'
-import { GridDevice } from '@/devices/grid'
-import { PVDevice } from '@/devices/pv'
+import { DeviceBase } from '@/devices/device.base'
+
 import { ModbusInterface } from '@/interfaces/modbus'
 import { TPLinkTapoInterface } from '@/interfaces/tplink-tapo'
+
+import { ABLemh124 } from '@/devices/abl/abl.emh124'
+import { SungrowAC011E01 } from '@/devices/sungrow/sungrow.ac011e-01'
+import { SungrowHybrid } from '@/devices/sungrow/sungrow.hybrid'
 
 export const RegisteredInterfaceClasses: { [key: string]: any } = {
     modbus: ModbusInterface,
     tapo: TPLinkTapoInterface,
 }
 
-export const RegisteredDeviceClasses: { [key: string]: any } = {
-    pv: PVDevice,
-    battery: BatteryDevice,
-    grid: GridDevice,
-    consumer: ConsumerDevice,
-}
+export const RegisteredDeviceClasses: (typeof DeviceBase)[] = [
+    SungrowHybrid,
+    SungrowAC011E01,
+    ABLemh124,
+]

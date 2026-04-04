@@ -33,7 +33,7 @@ export function registerTranslateExtension(translate: TranslateService) {
             {
                 name: 'other',
                 message(err: any, field: FormlyFieldConfig) {
-                    return translate.stream('FORM.VALIDATION.REQUIRED')
+                    return translate.stream(err)
                 },
             },
         ],

@@ -1,11 +1,10 @@
-import { defaultParameterDef, ParameterDef } from '@/defs/device-template'
 import { ChildLogger, getLogger } from '@/core/logmanager'
 import { IInterface } from './interface'
 
 import { loginDeviceByIp } from 'tp-link-tapo-connect'
-import { title } from 'node:process'
 
-type TPLinkTapoParameterDef = ParameterDef & {
+type TPLinkTapoParameterDef = {
+    scale: number
     request: string
     parameter: string
 }
@@ -74,7 +73,7 @@ export class TPLinkTapoInterface extends IInterface {
         this._cache = {}
     }
 
-    public async read(parameterDef: Partial<ParameterDef> = {}) {
+    public async read(parameterDef: TPLinkTapoParameterDef) {
         await this.connect(
             this._properties['email'],
             this._properties['password'],
@@ -83,17 +82,12 @@ export class TPLinkTapoInterface extends IInterface {
 
         if (this._device === undefined) return undefined
 
-        const tplinkTapoParameter = {
-            ...defaultParameterDef,
-            ...parameterDef,
-        } as TPLinkTapoParameterDef
-
         let response
-        if (tplinkTapoParameter.request in this._cache) {
-            response = this._cache[tplinkTapoParameter.request]
+        if (parameterDef.request in this._cache) {
+            response = this._cache[parameterDef.request]
         } else {
             try {
-                switch (tplinkTapoParameter.request) {
+                switch (parameterDef.request) {
                     case 'getEnergyUsage':
                         response = await this._device.getEnergyUsage()
                         break
@@ -113,18 +107,15 @@ export class TPLinkTapoInterface extends IInterface {
                 return undefined
             }
 
-            this._cache[tplinkTapoParameter.request] = response
+            this._cache[parameterDef.request] = response
         }
 
-        if (
-            response === undefined ||
-            !(tplinkTapoParameter.parameter in response)
-        )
+        if (response === undefined || !(parameterDef.parameter in response))
             return undefined
 
         return (
-            Number.parseFloat(response[tplinkTapoParameter.parameter]) *
-            tplinkTapoParameter.scale
+            Number.parseFloat(response[parameterDef.parameter]) *
+            parameterDef.scale
         )
     }
 }

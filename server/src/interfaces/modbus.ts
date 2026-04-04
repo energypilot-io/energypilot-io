@@ -19,33 +19,35 @@ import functions from '@csllc/cs-modbus/lib/functions'
 
 import AsciiTransport from '@/libs/cs-modbus/transports/AsciiTransport'
 
-import { defaultParameterDef, ParameterDef } from '@/defs/device-template'
 import { ChildLogger, getLogger } from '@/core/logmanager'
 import { IInterface } from './interface'
 
-type ModbusParameterDef = ParameterDef & {
+export type ModbusDatatype =
+    | 'int8'
+    | 'uint8'
+    | 'int16'
+    | 'int16be'
+    | 'int16le'
+    | 'uint16'
+    | 'uint16be'
+    | 'uint16le'
+    | 'int32'
+    | 'int32be'
+    | 'int32le'
+    | 'int32sw'
+    | 'uint32'
+    | 'uint32be'
+    | 'uint32le'
+    | 'uint32sw'
+    | 'bool8'
+    | 'bool16'
+    | 'bool32'
+
+type ModbusParameterDef = {
+    scale: number
     address: number
     size: number
-    datatype:
-        | 'int8'
-        | 'uint8'
-        | 'int16'
-        | 'int16be'
-        | 'int16le'
-        | 'uint16'
-        | 'uint16be'
-        | 'uint16le'
-        | 'int32'
-        | 'int32be'
-        | 'int32le'
-        | 'int32sw'
-        | 'uint32'
-        | 'uint32be'
-        | 'uint32le'
-        | 'uint32sw'
-        | 'bool8'
-        | 'bool16'
-        | 'bool32'
+    datatype: ModbusDatatype
     register?: 'input' | 'holding'
     bitmask?: number
     offset?: number
@@ -275,7 +277,7 @@ export class ModbusInterface extends IInterface {
         return value
     }
 
-    static getParametersSchema(): object {
+    static override getParametersSchema(): object {
         return {
             type: 'object',
 
@@ -375,42 +377,37 @@ export class ModbusInterface extends IInterface {
     }
 
     public async read(
-        parameterDef: Partial<ParameterDef> = {}
+        parameterDef: ModbusParameterDef
     ): Promise<number | undefined> {
         return new Promise<number | undefined>(resolve => {
             if (this._master === undefined || this._connection === undefined)
                 return resolve(undefined)
 
-            const modbusParameter = {
-                ...defaultParameterDef,
-                ...parameterDef,
-            } as ModbusParameterDef
-
             const cacheKey = JSON.stringify({
-                address: modbusParameter.address,
-                size: modbusParameter.size,
-                register: modbusParameter.register ?? 'input',
+                address: parameterDef.address,
+                size: parameterDef.size,
+                register: parameterDef.register ?? 'input',
             })
 
             if (cacheKey in this._cache) {
                 const buffer = this._cache[cacheKey]
-                return resolve(this.getParameterValue(buffer, modbusParameter))
+                return resolve(this.getParameterValue(buffer, parameterDef))
             }
 
             var request: any = undefined
-            switch (modbusParameter.register ?? 'input') {
+            switch (parameterDef.register ?? 'input') {
                 case 'input': {
                     request = new functions.ReadInputRegistersRequest(
-                        modbusParameter.address,
-                        modbusParameter.size
+                        parameterDef.address,
+                        parameterDef.size
                     )
                     break
                 }
 
                 case 'holding': {
                     request = new functions.ReadHoldingRegistersRequest(
-                        modbusParameter.address,
-                        modbusParameter.size
+                        parameterDef.address,
+                        parameterDef.size
                     )
                     break
                 }
@@ -436,9 +433,7 @@ export class ModbusInterface extends IInterface {
                     const buffer: Buffer = response.getValues()
                     this._cache[cacheKey] = buffer
 
-                    return resolve(
-                        this.getParameterValue(buffer, modbusParameter)
-                    )
+                    return resolve(this.getParameterValue(buffer, parameterDef))
                 }
             })
 

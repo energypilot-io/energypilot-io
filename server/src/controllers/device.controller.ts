@@ -1,10 +1,13 @@
 import express from 'express'
 import { Request, Response } from 'express'
 
-import { getDeviceRegistrySchema } from '@/core/template-engine'
 import { getEntityManager, upsertEntity } from '@/core/database'
 import { Device } from '@/entities/device.entity'
-import { createDevice, removeDevice } from '@/core/device-manager'
+import {
+    createDevice,
+    getDeviceRegistrySchema,
+    removeDevice,
+} from '@/core/device-manager'
 
 const router = express.Router()
 
@@ -22,6 +25,10 @@ router.post('/', async (req: Request, res: Response) => {
         isEnabled: true,
         properties: JSON.stringify(req.body.interface_properties),
     })
+
+    // return res.status(400).json({
+    //     device_name: 'required',
+    // })
 
     if (await upsertEntity(device)) {
         removeDevice(device.name)

@@ -10,7 +10,8 @@
         "esModuleInterop": true,
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
-        "moduleResolution": "node",
+        "moduleResolution": "node10",
+        "ignoreDeprecations": "6.0",
         "experimentalDecorators": true,
 
         "paths": {
