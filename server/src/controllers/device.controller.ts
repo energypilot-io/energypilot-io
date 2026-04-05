@@ -5,9 +5,11 @@ import { getEntityManager, upsertEntity } from '@/core/database'
 import { Device } from '@/entities/device.entity'
 import {
     createDevice,
+    getDeviceClassForDeviceDefinition,
     getDeviceRegistrySchema,
     removeDevice,
 } from '@/core/device-manager'
+import { RegisteredInterfaceClasses } from '@/core/config'
 
 const router = express.Router()
 
@@ -26,17 +28,19 @@ router.post('/', async (req: Request, res: Response) => {
         properties: JSON.stringify(req.body.interface_properties),
     })
 
-    // return res.status(400).json({
-    //     device_name: 'required',
-    // })
+    var errors: { [key: string]: string } = validateDeviceInput(device)
 
-    if (await upsertEntity(device)) {
-        removeDevice(device.name)
-        await createDevice(device)
-
-        return res.status(201).json({ message: 'OK' })
+    if (Object.keys(errors).length > 0) {
+        return res.status(400).json(errors)
     } else {
-        return res.status(500).json({ message: 'Error' })
+        if (await upsertEntity(device)) {
+            removeDevice(device.name)
+            await createDevice(device)
+
+            return res.status(201).json({ message: 'OK' })
+        } else {
+            return res.status(500).json({ message: 'Error' })
+        }
     }
 })
 
@@ -82,5 +86,41 @@ router.delete('/:id', async (req: Request, res: Response) => {
         return res.status(400).json({ message: e.message })
     }
 })
+
+function validateDeviceInput(device: Device): { [key: string]: string } {
+    var errors: { [key: string]: string } = {}
+
+    if (!device.name) {
+        errors['device_name'] = 'required'
+    }
+
+    if (!device.type) {
+        errors['device_type'] = 'required'
+    }
+
+    if (!device.model) {
+        errors['device_model'] = 'required'
+    }
+
+    if (!device.interface) {
+        errors['interface'] = 'required'
+    }
+
+    getDeviceClassForDeviceDefinition(device) ||
+        (errors['device_definition'] = 'invalid_device_definition')
+
+    if (RegisteredInterfaceClasses.includes(device.interface)) {
+        const interfaceClass = RegisteredInterfaceClasses[device.interface]
+
+        errors = {
+            ...errors,
+            ...interfaceClass.validateParameters(device.properties),
+        }
+    } else {
+        errors['interface'] = 'invalid_interface'
+    }
+
+    return errors
+}
 
 export const DeviceController = router

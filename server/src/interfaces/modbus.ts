@@ -277,6 +277,10 @@ export class ModbusInterface extends IInterface {
         return value
     }
 
+    static override validateParameters(): { [key: string]: string } {
+        return {}
+    }
+
     static override getParametersSchema(): object {
         return {
             type: 'object',

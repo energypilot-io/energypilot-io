@@ -178,7 +178,7 @@ function createInterface(interfaceName: string, properties: string) {
     return _interfaceInstances[interfaceName + properties]
 }
 
-function getDeviceClassForDeviceDefinition(
+export function getDeviceClassForDeviceDefinition(
     device: Device
 ): DeviceClass | undefined {
     for (const deviceClass of RegisteredDeviceClasses as DeviceClass[]) {

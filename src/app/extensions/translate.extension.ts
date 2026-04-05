@@ -27,7 +27,7 @@ export function registerTranslateExtension(translate: TranslateService) {
             {
                 name: 'required',
                 message() {
-                    return translate.stream('FORM.VALIDATION.REQUIRED')
+                    return translate.stream('messages.validations.required')
                 },
             },
             {

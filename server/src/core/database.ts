@@ -58,17 +58,17 @@ export async function initDatabase() {
     _orm = await MikroORM.init({
         ...config,
         dbName: getFilename(),
-        loggerFactory: (options) => new CustomLogger(options),
+        loggerFactory: options => new CustomLogger(options),
         subscribers: [],
     })
 
-    await _orm.schema.updateSchema({ dropTables: false })
+    await _orm.schema.updateSchema({ safe: true, dropTables: false })
 
     const em = _orm.em.fork()
     await em.execute('PRAGMA journal_mode=DELETE;')
     await em.execute('PRAGMA auto_vacuum=FULL;')
 
-    _initObservers.forEach((initObserver) => {
+    _initObservers.forEach(initObserver => {
         initObserver()
     })
 }

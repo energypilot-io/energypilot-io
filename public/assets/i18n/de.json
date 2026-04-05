@@ -106,5 +106,13 @@
             "year": "Jahr",
             "custom": "Benutzer"
         }
+    },
+
+    "messages": {
+        "validations": {
+            "required": "Dieses Feld ist erforderlich",
+            "invalid_ip": "Ungültige IP-Adresse",
+            "invalid_email": "Ungültige E-Mail-Adresse"
+        }
     }
 }
