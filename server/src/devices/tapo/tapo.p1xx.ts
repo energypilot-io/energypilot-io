@@ -6,7 +6,7 @@ import { TPLinkTapoInterface } from '@/interfaces/tplink-tapo'
 export class TapoP1xx extends DeviceBase implements ConsumerDevice {
     static override getDeviceDefinition(): DeviceDefinition {
         return {
-            model: 'Tapo P1xx',
+            model: 'TP-Link TAPO P110/P115',
             types: [ConsumerDevice.DEVICE_TYPE],
             interfaces: ['tapo'],
         }

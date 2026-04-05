@@ -101,11 +101,7 @@ async function pollData() {
 
         const deviceValues: DeviceValue[] = []
 
-        if (
-            deviceInstance.constructor
-                .getDeviceDefinition()
-                .types.includes(GridDevice.DEVICE_TYPE)
-        ) {
+        if (deviceInstance.deviceDefinition.type == GridDevice.DEVICE_TYPE) {
             const gridDeviceInstance = deviceInstance as GridDevice
 
             const power = await gridDeviceInstance.getGridPowerValue()
@@ -153,9 +149,7 @@ async function pollData() {
                 `Power: ${power} W, Energy Import: ${energyImport} kWh, Energy Export: ${energyExport} kWh`
             )
         } else if (
-            deviceInstance.constructor
-                .getDeviceDefinition()
-                .types.includes(BatteryDevice.DEVICE_TYPE)
+            deviceInstance.deviceDefinition.type == BatteryDevice.DEVICE_TYPE
         ) {
             const batteryDeviceInstance = deviceInstance as BatteryDevice
 
@@ -189,9 +183,7 @@ async function pollData() {
                 `SoC: ${soc} %, Power: ${power} W`
             )
         } else if (
-            deviceInstance.constructor
-                .getDeviceDefinition()
-                .types.includes(PVDevice.DEVICE_TYPE)
+            deviceInstance.deviceDefinition.type == PVDevice.DEVICE_TYPE
         ) {
             const pvDeviceInstance = deviceInstance as PVDevice
 
@@ -225,9 +217,7 @@ async function pollData() {
                 `Power: ${power} W, Energy: ${energy} kWh`
             )
         } else if (
-            deviceInstance.constructor
-                .getDeviceDefinition()
-                .types.includes(ConsumerDevice.DEVICE_TYPE)
+            deviceInstance.deviceDefinition.type == ConsumerDevice.DEVICE_TYPE
         ) {
             const consumerDeviceInstance = deviceInstance as ConsumerDevice
 

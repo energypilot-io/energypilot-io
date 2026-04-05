@@ -38,10 +38,6 @@ export class ABLemh124 extends DeviceBase implements ConsumerDevice {
     }
 
     async getConsumerPowerValue(): Promise<number | undefined> {
-        return undefined
-    }
-
-    async getConsumerEnergyValue(): Promise<number | undefined> {
         const isActive = await this.getValue(
             15,
             5,
@@ -52,8 +48,8 @@ export class ABLemh124 extends DeviceBase implements ConsumerDevice {
             4095
         )
 
-        if (isActive === undefined || isActive - 1000 === 0) {
-            return undefined
+        if (isActive && isActive - 1000 === 0) {
+            return 0
         }
 
         const current1 = await this.getValue(
@@ -86,5 +82,9 @@ export class ABLemh124 extends DeviceBase implements ConsumerDevice {
         }
 
         return undefined
+    }
+
+    async getConsumerEnergyValue(): Promise<number | undefined> {
+        return 0
     }
 }

@@ -34,17 +34,17 @@ export class SungrowAC011E01 extends DeviceBase implements ConsumerDevice {
     }
 
     async getConsumerPowerValue(): Promise<number | undefined> {
+        const power = await this.getValue(21307, 2, -1, 'uint32sw', 'input')
+        const isActive = await this.getValue(21267, 1, 1, 'uint16', 'input')
+
+        if (power !== undefined && isActive !== undefined) {
+            return power * isActive
+        }
+
         return undefined
     }
 
     async getConsumerEnergyValue(): Promise<number | undefined> {
-        const voltage = await this.getValue(21307, 2, 0.1, 'uint32sw', 'input')
-        const current = await this.getValue(21267, 1, 1, 'uint16', 'input')
-
-        if (voltage && current) {
-            return voltage * current
-        }
-
-        return undefined
+        return await this.getValue(21200, 2, 0.01, 'uint32sw')
     }
 }

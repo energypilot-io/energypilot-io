@@ -73,7 +73,12 @@ export class SungrowHybrid
         const mpptVoltage2 = await this.getValue(5012, 1, 0.1, 'uint16be')
         const mpptCurrent2 = await this.getValue(5011, 1, 0.1, 'uint16be')
 
-        if (mpptVoltage1 && mpptCurrent1 && mpptVoltage2 && mpptCurrent2) {
+        if (
+            mpptVoltage1 !== undefined &&
+            mpptCurrent1 !== undefined &&
+            mpptVoltage2 !== undefined &&
+            mpptCurrent2 !== undefined
+        ) {
             return mpptVoltage1 * mpptCurrent1 + mpptVoltage2 * mpptCurrent2
         }
 

@@ -6,6 +6,7 @@ import { TPLinkTapoInterface } from '@/interfaces/tplink-tapo'
 import { ABLemh124 } from '@/devices/abl/abl.emh124'
 import { SungrowAC011E01 } from '@/devices/sungrow/sungrow.ac011e-01'
 import { SungrowHybrid } from '@/devices/sungrow/sungrow.hybrid'
+import { TapoP1xx } from '@/devices/tapo/tapo.p1xx'
 
 export const RegisteredInterfaceClasses: { [key: string]: any } = {
     modbus: ModbusInterface,
@@ -16,4 +17,5 @@ export const RegisteredDeviceClasses: (typeof DeviceBase)[] = [
     SungrowHybrid,
     SungrowAC011E01,
     ABLemh124,
+    TapoP1xx,
 ]
