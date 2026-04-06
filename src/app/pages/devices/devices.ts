@@ -3,7 +3,7 @@ import { DeviceInfoCard } from '@/app/components/ui/devices/device-info-card/dev
 import { ApiService } from '@/app/services/api.service'
 import { Component, inject, signal } from '@angular/core'
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap'
-import { Subscription } from 'rxjs'
+import { BehaviorSubject, Subscription } from 'rxjs'
 
 import { tablerPlus } from '@ng-icons/tabler-icons'
 import { NgIcon, provideIcons } from '@ng-icons/core'
@@ -24,6 +24,8 @@ export class DevicesPage {
     private readonly api = inject(ApiService)
     private readonly modalService = inject(NgbModal)
 
+    private readonly refreshToken$ = new BehaviorSubject<void>(undefined)
+
     private getDevicesSubscription?: Subscription
 
     devices = signal<any[]>([])
@@ -36,14 +38,13 @@ export class DevicesPage {
                 backdrop: 'static',
             })
             .result.then(result => {
-                window.location.reload()
+                this.refreshToken$.next()
             })
     }
 
     ngOnInit() {
-        this.getDevicesSubscription = this.api
-            .getAllDevices()
-            .subscribe(devices => {
+        this.getDevicesSubscription = this.refreshToken$.subscribe(() => {
+            this.api.getAllDevices().subscribe(devices => {
                 this.devices.set(
                     devices.sort((a: any, b: any) => {
                         if (a.name < b.name) return -1
@@ -52,6 +53,21 @@ export class DevicesPage {
                     })
                 )
             })
+        })
+
+        // this.getDevicesSubscription = this.api
+        //     .getAllDevices()
+        //     .subscribe(devices => {
+        //         this.devices.set(
+        //             devices.sort((a: any, b: any) => {
+        //                 if (a.name < b.name) return -1
+        //                 if (a.name > b.name) return 1
+        //                 return 0
+        //             })
+        //         )
+        //     })
+
+        this.refreshToken$.next()
     }
 
     ngOnDestroy(): void {
