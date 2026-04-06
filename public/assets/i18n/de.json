@@ -75,9 +75,9 @@
     "dialogs": {
         "delete_device": {
             "title": "Gerät löschen",
-            "message": "Möchten Sie dieses Gerät wirklich löschen? Alle zugehörigen Daten gehen verloren.",
-            "confirm_button": "Löschen",
-            "cancel_button": "Abbrechen"
+            "message": "Möchten Sie das Gerät [{{ device_name }}] wirklich löschen?",
+            "description": "Alle zugehörigen Daten gehen verloren. Diese Aktion kann nicht rückgängig gemacht werden.",
+            "confirm_text": "Löschen"
         },
 
         "upsert_device": {
@@ -111,8 +111,11 @@
     "messages": {
         "validations": {
             "required": "Dieses Feld ist erforderlich",
-            "invalid_ip": "Ungültige IP-Adresse",
-            "invalid_email": "Ungültige E-Mail-Adresse"
+            "invalid_ip_address": "Ungültige IP-Adresse",
+            "invalid_email": "Ungültige E-Mail-Adresse",
+            "invalid_value": "Ungültiger Wert",
+            "invalid_device_definition": "Ungültige Gerätedefinition",
+            "invalid_interface": "Ungültige Schnittstelle"
         }
     }
 }

@@ -7,30 +7,31 @@
         (click)="modal.dismiss('Cross click')"></button>
 </div>
 <div class="modal-body">
+    @if(message) {
     <p>
         <strong>
-            Are you sure you want to delete
-            <span class="text-primary">"John Doe"</span>
-            profile?
+            {{ message }}
         </strong>
     </p>
+    }
+
+    @if(description) {
     <p>
-        All information associated to this user profile will be permanently
-        deleted.
-        <span class="text-danger">This operation can not be undone.</span>
+        {{ description }}
     </p>
+    }
 </div>
 <div class="modal-footer">
     <button
         type="button"
         class="btn btn-outline-secondary"
         (click)="modal.dismiss('cancel click')">
-        Cancel
+        {{ cancelText | translate }}
     </button>
     <button
         type="button"
         class="btn btn-danger"
         (click)="modal.close('Ok click')">
-        Ok
+        {{ confirmText | translate }}
     </button>
 </div>

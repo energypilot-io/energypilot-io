@@ -57,7 +57,7 @@ router.get('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
     try {
         const device = await getEntityManager().findOne(Device, {
-            id: parseInt(req.params.id),
+            id: parseInt(req.params.id as string),
         })
 
         if (!device) {
@@ -73,7 +73,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 router.delete('/:id', async (req: Request, res: Response) => {
     try {
         const device = await getEntityManager().findOne(Device, {
-            id: parseInt(req.params.id),
+            id: parseInt(req.params.id as string),
         })
         if (!device) {
             return res.status(404).json({ message: 'Device not found' })
@@ -91,33 +91,33 @@ function validateDeviceInput(device: Device): { [key: string]: string } {
     var errors: { [key: string]: string } = {}
 
     if (!device.name) {
-        errors['device_name'] = 'required'
+        errors['device_name'] = 'messages.validations.required'
     }
 
     if (!device.type) {
-        errors['device_type'] = 'required'
+        errors['device_type'] = 'messages.validations.required'
     }
 
     if (!device.model) {
-        errors['device_model'] = 'required'
+        errors['device_model'] = 'messages.validations.required'
     }
 
     if (!device.interface) {
-        errors['interface'] = 'required'
+        errors['interface'] = 'messages.validations.required'
     }
 
     getDeviceClassForDeviceDefinition(device) ||
-        (errors['device_definition'] = 'invalid_device_definition')
+        (errors['device_definition'] = 'messages.validations.invalid_device_definition')
 
-    if (RegisteredInterfaceClasses.includes(device.interface)) {
+    if (Object.keys(RegisteredInterfaceClasses).includes(device.interface)) {
         const interfaceClass = RegisteredInterfaceClasses[device.interface]
 
         errors = {
             ...errors,
-            ...interfaceClass.validateParameters(device.properties),
+            ...interfaceClass.validateParameters(JSON.parse(device.properties)),
         }
     } else {
-        errors['interface'] = 'invalid_interface'
+        errors['interface'] = 'messages.validations.invalid_interface'
     }
 
     return errors

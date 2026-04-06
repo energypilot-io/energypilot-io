@@ -21,6 +21,7 @@ import AsciiTransport from '@/libs/cs-modbus/transports/AsciiTransport'
 
 import { ChildLogger, getLogger } from '@/core/logmanager'
 import { IInterface } from './interface'
+import { validateAllowedValues, validateIsNotEmpty, validateIsPositiveInteger } from '@/libs/validators'
 
 export type ModbusDatatype =
     | 'int8'
@@ -277,8 +278,49 @@ export class ModbusInterface extends IInterface {
         return value
     }
 
-    static override validateParameters(): { [key: string]: string } {
-        return {}
+    static override validateParameters(parameters: { [key: string]: string }): { [key: string]: string } {
+        var errors: { [key: string]: string } = {
+            ...validateAllowedValues(
+                'connectionType',
+                parameters['connectionType'],
+                ['tcpip', 'serial']
+            ),
+            ...validateAllowedValues(
+                'transport',
+                parameters['transport'],
+                ['ip', 'rtu', 'ascii']
+            ),
+            ...validateIsPositiveInteger(
+                'modbusId',
+                parameters['modbusId'] ?? ''
+            ),
+            ...validateIsPositiveInteger(
+                'timeout',
+                parameters['timeout'] ?? ''
+            ),
+        }
+
+        if (parameters['connectionType'] === 'tcpip') {
+            errors = {
+                ...errors,
+                ...validateIsNotEmpty('host', parameters['host'] ?? ''),
+                ...validateIsPositiveInteger(
+                    'port',
+                    parameters['port'] ?? ''
+                )
+            }
+        } else if (parameters['connectionType'] === 'serial') {
+            errors = {
+                ...errors,
+                ...validateIsNotEmpty('device', parameters['device'] ?? ''),
+                ...validateIsPositiveInteger(
+                    'baud',
+                    parameters['baud'] ?? ''
+                )
+            }
+        }
+
+        return errors
     }
 
     static override getParametersSchema(): object {

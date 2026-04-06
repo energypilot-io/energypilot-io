@@ -32,11 +32,12 @@ export class DevicesPage {
         this.modalService
             .open(DeviceForm, {
                 centered: true,
-                scrollable: true,
                 fullscreen: 'md',
                 backdrop: 'static',
             })
-            .result.then(result => {})
+            .result.then(result => {
+                window.location.reload()
+            })
     }
 
     ngOnInit() {

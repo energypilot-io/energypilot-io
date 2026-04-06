@@ -72,13 +72,31 @@
     }
   },
 
+  "dialogs": {
+        "delete_device": {
+            "title": "Delete Device",
+            "message": "Are you sure you want to delete the device [{{ device_name }}]?",
+            "description": "All associated data will be lost. This action cannot be undone.",
+            "confirm_text": "Delete"
+        },
+
+        "upsert_device": {
+            "title_create": "Create Device",
+            "title_update": "Update Device",
+            "confirm_button_create": "Create",
+            "confirm_button_update": "Update"
+        }
+    },
+
   "common": {
     "buttons": {
       "create": "Create",
       "update": "Update",
       "cancel": "Cancel",
       "delete": "Delete",
-      "confirm": "Confirm"
+      "confirm": "Confirm",
+      "create_device": "Create Device",
+            "edit_device": "Edit Device"
     },
 
     "timerange": {
@@ -88,5 +106,16 @@
       "year": "Year",
       "custom": "Custom"
     }
-  }
+  },
+
+  "messages": {
+        "validations": {
+            "required": "This field is required",
+            "invalid_ip_address": "Invalid IP Address",
+            "invalid_email": "Invalid Email Address",
+            "invalid_value": "Invalid Value",
+            "invalid_device_definition": "Invalid Device Definition",
+            "invalid_interface": "Invalid Interface"
+        }
+    }
 }

@@ -14,10 +14,10 @@ import _ from 'lodash'
     styleUrl: './device-form.scss',
 })
 export class DeviceForm {
-    model: any = {}
-
     readonly api = inject(ApiService)
     readonly modal = inject(NgbActiveModal)
+
+    model: any = {}
 
     fields = signal<FormlyFieldConfig[]>([])
 
@@ -74,20 +74,10 @@ export class DeviceForm {
             })
             .subscribe({
                 complete: () => {
-                    console.log(model)
+                    this.modal.close(model)
                 },
                 error: (err: any) => {
                     this.setErrorMessages(this.form.controls, err['error'])
-
-                    // _.forEach(
-                    //     this.form.controls,
-                    //     (ctrl: AbstractControl, name: string) => {
-                    //         console.log(name)
-                    //         if (err['error'][name]) {
-                    //             ctrl.setErrors({ other: err['error'][name] })
-                    //         }
-                    //     }
-                    // )
                 },
             })
     }

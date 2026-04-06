@@ -1,0 +1,16 @@
+{
+    "keepSettings": {
+        "type": 1,
+        "amount": 10
+    },
+    "auditFilename": "audit.json",
+    "hashType": "md5",
+    "extension": ".log",
+    "files": [
+        {
+            "date": 1775459045782,
+            "name": "D:\\Projects\\energypilot-io\\data\\energypilot-io.2026-04-06.0.log",
+            "hash": "c88cb62419300d4cd458dc9100515852"
+        }
+    ]
+}

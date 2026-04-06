@@ -19,7 +19,7 @@ import { Subscription } from 'rxjs'
 import { WebsocketService } from '@/app/services/websocket.service'
 import { toEnergyString, toPowerString } from '@/app/libs/utils'
 import { KeyValuePipe } from '@angular/common'
-import { TranslatePipe } from '@ngx-translate/core'
+import { TranslatePipe, TranslateService } from '@ngx-translate/core'
 import { JsonParsePipe } from '@/app/pipes/jsonParse.pipe'
 
 @Component({
@@ -49,9 +49,10 @@ import { JsonParsePipe } from '@/app/pipes/jsonParse.pipe'
 export class DeviceInfoCard {
     @Input() device: any = null
 
-    readonly api = inject(ApiService)
+    private readonly api = inject(ApiService)
     private readonly modalService = inject(NgbModal)
     private readonly websocket = inject(WebsocketService)
+    private readonly translate = inject(TranslateService)
 
     private webserviceSnapshotSubscription?: Subscription
 
@@ -131,8 +132,11 @@ export class DeviceInfoCard {
             centered: true,
             backdrop: 'static',
         })
-        modalRef.componentInstance.title = 'Delete Device'
-
+        modalRef.componentInstance.title = this.translate.instant('dialogs.delete_device.title')
+        modalRef.componentInstance.message = this.translate.instant('dialogs.delete_device.message', { device_name: this.device.name })
+        modalRef.componentInstance.description = this.translate.instant('dialogs.delete_device.description')
+        modalRef.componentInstance.confirmText = this.translate.instant('dialogs.delete_device.confirm_text')
+        
         modalRef.result.then(_result => {
             this.api.deleteDevice(this.device.id).subscribe(_response => {
                 window.location.reload()

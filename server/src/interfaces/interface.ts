@@ -9,7 +9,7 @@ export abstract class IInterface {
         throw new Error('Method not implemented.')
     }
 
-    static validateParameters(): { [key: string]: string } {
+    static validateParameters(parameters: { [key: string]: string }): { [key: string]: string } {
         throw new Error('Method not implemented.')
     }
 
