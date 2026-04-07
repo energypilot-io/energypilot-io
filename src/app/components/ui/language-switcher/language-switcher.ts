@@ -81,8 +81,6 @@ export class LanguageSwitcher {
     changeLanguage(lang: string) {
         this.setLanguage(lang)
         this.storeLanguage(this.translate.getCurrentLang())
-
-        // window.location.reload();
     }
 
     storeLanguage(lang: string) {
