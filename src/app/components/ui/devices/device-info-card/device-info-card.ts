@@ -15,7 +15,7 @@ import {
 } from '@ng-icons/tabler-icons'
 
 import { tablerCircleFill } from '@ng-icons/tabler-icons/fill'
-import { Subscription } from 'rxjs'
+import { BehaviorSubject, Subscription } from 'rxjs'
 import { WebsocketService } from '@/app/services/websocket.service'
 import { toEnergyString, toPowerString } from '@/app/libs/utils'
 import { KeyValuePipe } from '@angular/common'
@@ -48,6 +48,8 @@ import { JsonParsePipe } from '@/app/pipes/jsonParse.pipe'
 })
 export class DeviceInfoCard {
     @Input() device: any = null
+
+    @Input() refreshToken?: BehaviorSubject<void> = undefined
 
     private readonly api = inject(ApiService)
     private readonly modalService = inject(NgbModal)
@@ -132,14 +134,27 @@ export class DeviceInfoCard {
             centered: true,
             backdrop: 'static',
         })
-        modalRef.componentInstance.title = this.translate.instant('dialogs.delete_device.title')
-        modalRef.componentInstance.message = this.translate.instant('dialogs.delete_device.message', { device_name: this.device.name })
-        modalRef.componentInstance.description = this.translate.instant('dialogs.delete_device.description')
-        modalRef.componentInstance.confirmText = this.translate.instant('dialogs.delete_device.confirm_text')
-        
+        modalRef.componentInstance.title = this.translate.instant(
+            'dialogs.delete_device.title'
+        )
+        modalRef.componentInstance.message = this.translate.instant(
+            'dialogs.delete_device.message',
+            { device_name: this.device.name }
+        )
+        modalRef.componentInstance.description = this.translate.instant(
+            'dialogs.delete_device.description'
+        )
+        modalRef.componentInstance.confirmText = this.translate.instant(
+            'dialogs.delete_device.confirm_text'
+        )
+
         modalRef.result.then(_result => {
             this.api.deleteDevice(this.device.id).subscribe(_response => {
-                window.location.reload()
+                if (this.refreshToken) {
+                    this.refreshToken.next()
+                } else {
+                    window.location.reload()
+                }
             })
         })
     }

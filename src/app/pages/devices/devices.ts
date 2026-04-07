@@ -24,9 +24,9 @@ export class DevicesPage {
     private readonly api = inject(ApiService)
     private readonly modalService = inject(NgbModal)
 
-    private readonly refreshToken$ = new BehaviorSubject<void>(undefined)
-
     private getDevicesSubscription?: Subscription
+
+    readonly refreshToken$ = new BehaviorSubject<void>(undefined)
 
     devices = signal<any[]>([])
 
