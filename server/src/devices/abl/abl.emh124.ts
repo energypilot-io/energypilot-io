@@ -55,7 +55,7 @@ export class ABLemh124 extends DeviceBase implements ConsumerDevice {
         const current1 = await this.getValue(
             46,
             5,
-            0.01,
+            0.1,
             'uint16be',
             'holding',
             4
@@ -63,7 +63,7 @@ export class ABLemh124 extends DeviceBase implements ConsumerDevice {
         const current2 = await this.getValue(
             46,
             5,
-            0.01,
+            0.1,
             'uint16be',
             'holding',
             6
@@ -71,13 +71,17 @@ export class ABLemh124 extends DeviceBase implements ConsumerDevice {
         const current3 = await this.getValue(
             46,
             5,
-            0.01,
+            0.1,
             'uint16be',
             'holding',
             8
         )
 
-        if (current1 && current2 && current3) {
+        if (
+            current1 !== undefined &&
+            current2 !== undefined &&
+            current3 !== undefined
+        ) {
             return (current1 + current2 + current3) * -230
         }
 

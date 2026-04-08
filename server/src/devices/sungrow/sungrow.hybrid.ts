@@ -48,7 +48,7 @@ export class SungrowHybrid
         const voltage = await this.getValue(13019, 1, 0.1, 'uint16be')
         const current = await this.getValue(13020, 1, 0.1, 'int16be')
 
-        if (voltage && current) {
+        if (voltage !== undefined && current !== undefined) {
             return voltage * current
         }
 

@@ -17,7 +17,7 @@ import { NgIcon, provideIcons } from '@ng-icons/core'
 import { formatPower } from '@/app/libs/utils'
 
 type DeviceValue = {
-    id: string
+    id: number
     deviceName: string
     value: number
     formattedValue: string
@@ -53,7 +53,6 @@ export class EnergyLiveValues {
     deviceValues: DeviceValue[] = []
 
     private getDeviceValueEntry(
-        id: number,
         name: string,
         deviceName: string,
         value: number
@@ -82,7 +81,7 @@ export class EnergyLiveValues {
         }
 
         return {
-            id: `${id}-${name}`,
+            id: 0,
             deviceName: deviceName,
             formattedValue: formattedValue,
             value: value,
@@ -110,24 +109,24 @@ export class EnergyLiveValues {
                 homePowerConsumption +=
                     deviceSnapshot.name === 'power' ? deviceSnapshot.value : 0
 
-                updatedDeviceValues.push(
-                    this.getDeviceValueEntry(
-                        deviceSnapshot.device_id,
+                updatedDeviceValues.push({
+                    ...this.getDeviceValueEntry(
                         deviceSnapshot.name,
                         deviceSnapshot.device_name,
                         deviceSnapshot.value
-                    )
-                )
+                    ),
+                    id: updatedDeviceValues.length + 1,
+                })
             })
 
-        updatedDeviceValues.push(
-            this.getDeviceValueEntry(
-                -1,
+        updatedDeviceValues.push({
+            ...this.getDeviceValueEntry(
                 'power',
                 translatedHomeName,
                 homePowerConsumption
-            )
-        )
+            ),
+            id: updatedDeviceValues.length + 1,
+        })
 
         this.deviceValues = updatedDeviceValues.sort((a, b) =>
             a.deviceName.localeCompare(b.deviceName)
