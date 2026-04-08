@@ -1,7 +1,7 @@
 import { ApiService } from '@/app/services/api.service'
 import { WebsocketService } from '@/app/services/websocket.service'
 import { Component, effect, inject } from '@angular/core'
-import { TranslateService } from '@ngx-translate/core'
+import { TranslatePipe, TranslateService } from '@ngx-translate/core'
 import { Subscription } from 'rxjs'
 
 import {
@@ -27,7 +27,7 @@ type DeviceValue = {
 
 @Component({
     selector: 'app-energy-live-values',
-    imports: [NgIcon],
+    imports: [NgIcon, TranslatePipe],
     templateUrl: './energy-live-values.html',
     styleUrl: './energy-live-values.scss',
     providers: [
@@ -94,7 +94,7 @@ export class EnergyLiveValues {
         const updatedDeviceValues: DeviceValue[] = []
 
         var homePowerConsumption = 0
-        const translatedHomeName = this.translate.instant('devices.home')
+        const translatedHomeName = this.translate.instant('device.home')
 
         snapshot.device_snapshots
             .filter((deviceSnapshot: any) => {

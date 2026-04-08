@@ -1,6 +1,6 @@
 {
     "device": {
-        "home": "Heim",
+        "home": "Zuhause",
 
         "interfaces": {
             "deviceName": "Gerätename",
@@ -56,10 +56,6 @@
         "graphs": "Graph"
     },
 
-    "devices": {
-        "home": "Zuhause"
-    },
-
     "widgets": {
         "kpi": {
             "production": "Produktion",
@@ -69,6 +65,12 @@
             "own-consumption": "Eigenverbrauch",
             "total-consumption": "Gesamtverbrauch",
             "autonomy": "Autarkie"
+        },
+        "live-values": {
+            "title": "Live Werte"
+        },
+        "energy-distribution": {
+            "title": "Energieverteilung"
         }
     },
 

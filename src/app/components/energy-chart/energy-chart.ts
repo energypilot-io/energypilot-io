@@ -175,7 +175,7 @@ export class EnergyChart {
         const socValues = { ...this.socValues() }
         const timestamps = [...this.timestamps()]
 
-        const translatedHomeName = this.translate.instant('devices.home')
+        const translatedHomeName = this.translate.instant('device.home')
 
         snapshots.forEach(snapshot => {
             const snapshotCreateDate = new Date(snapshot.created_at)
