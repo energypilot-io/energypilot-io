@@ -1,6 +1,7 @@
 {
     "device": {
         "home": "Home",
+        "pv": "PV",
 
         "interfaces": {
             "deviceName": "Device Name",

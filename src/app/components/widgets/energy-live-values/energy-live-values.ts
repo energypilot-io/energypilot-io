@@ -93,36 +93,47 @@ export class EnergyLiveValues {
     private updateKPIValues(snapshot: any) {
         const updatedDeviceValues: DeviceValue[] = []
 
+        var totalPVPower = 0
         var homePowerConsumption = 0
-        const translatedHomeName = this.translate.instant('device.home')
 
         snapshot.device_snapshots
             .filter((deviceSnapshot: any) => {
                 return (
                     deviceSnapshot.name === 'soc' ||
                     deviceSnapshot.name === 'power'
-                    // (deviceSnapshot.device_type === 'grid' &&
-                    //     deviceSnapshot.name === 'power')
                 )
             })
             .forEach((deviceSnapshot: any) => {
                 homePowerConsumption +=
                     deviceSnapshot.name === 'power' ? deviceSnapshot.value : 0
 
-                updatedDeviceValues.push({
-                    ...this.getDeviceValueEntry(
-                        deviceSnapshot.name,
-                        deviceSnapshot.device_name,
-                        deviceSnapshot.value
-                    ),
-                    id: updatedDeviceValues.length + 1,
-                })
+                if (deviceSnapshot.device_type === 'pv') {
+                    totalPVPower += deviceSnapshot.value
+                } else {
+                    updatedDeviceValues.push({
+                        ...this.getDeviceValueEntry(
+                            deviceSnapshot.name,
+                            deviceSnapshot.device_name,
+                            deviceSnapshot.value
+                        ),
+                        id: updatedDeviceValues.length + 1,
+                    })
+                }
             })
 
         updatedDeviceValues.push({
             ...this.getDeviceValueEntry(
                 'power',
-                translatedHomeName,
+                this.translate.instant('device.pv'),
+                totalPVPower
+            ),
+            id: updatedDeviceValues.length + 1,
+        })
+
+        updatedDeviceValues.push({
+            ...this.getDeviceValueEntry(
+                'power',
+                this.translate.instant('device.home'),
                 homePowerConsumption
             ),
             id: updatedDeviceValues.length + 1,

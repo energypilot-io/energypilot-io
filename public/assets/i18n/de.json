@@ -1,6 +1,7 @@
 {
     "device": {
         "home": "Zuhause",
+        "pv": "PV",
 
         "interfaces": {
             "deviceName": "Gerätename",
