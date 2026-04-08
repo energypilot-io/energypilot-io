@@ -2,16 +2,50 @@
     <div class="card-body">
         <h5 class="card-title">Live Values</h5>
         <div class="row g-3">
-            @for (deviceValue of deviceValues; track deviceValue.deviceName) {
+            @for (deviceValue of deviceValues; track deviceValue.id) {
                 <div class="col-6">
                     <div class="card">
                         <div class="card-body">
-                            <h6 class="card-subtitle mb-2 text-muted">
+                            <h6
+                                class="card-subtitle mb-2 text-muted fs-6 fw-light">
                                 {{ deviceValue.deviceName }}
                             </h6>
-                            <p class="card-text display-6">
-                                {{ deviceValue.value }} {{ deviceValue.unit }}
-                            </p>
+                            <div
+                                class="d-flex align-items-center gap-1 justify-content-end">
+                                <div
+                                    class="card-text fs-4 fw-light text-nowrap">
+                                    {{ deviceValue.formattedValue }}
+                                    {{ deviceValue.unit }}
+                                </div>
+                                @if (deviceValue.trend > 0) {
+                                    <ng-icon
+                                        color="var(--bs-success)"
+                                        [name]="
+                                            deviceValue.trend > 1000
+                                                ? 'tablerArrowBigUpLinesFill'
+                                                : deviceValue.trend > 100
+                                                  ? 'tablerArrowBigUpLineFill'
+                                                  : 'tablerArrowBigUpFill'
+                                        "
+                                        size="32" />
+                                } @else if (deviceValue.trend < 0) {
+                                    <ng-icon
+                                        color="var(--bs-danger)"
+                                        [name]="
+                                            deviceValue.trend < -1000
+                                                ? 'tablerArrowBigDownLinesFill'
+                                                : deviceValue.trend < -100
+                                                  ? 'tablerArrowBigDownLineFill'
+                                                  : 'tablerArrowBigDownFill'
+                                        "
+                                        size="32" />
+                                } @else {
+                                    <ng-icon
+                                        color="var(--bs-secondary)"
+                                        name="tablerCircleFill"
+                                        size="32" />
+                                }
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -20,7 +20,6 @@ import { WebsocketService } from '@/app/services/websocket.service'
 import { toEnergyString, toPowerString } from '@/app/libs/utils'
 import { KeyValuePipe } from '@angular/common'
 import { TranslatePipe, TranslateService } from '@ngx-translate/core'
-import { JsonParsePipe } from '@/app/pipes/jsonParse.pipe'
 
 @Component({
     selector: 'app-device-info-card',
@@ -30,7 +29,6 @@ import { JsonParsePipe } from '@/app/pipes/jsonParse.pipe'
         NgxSkeletonLoaderModule,
         TranslatePipe,
         NgbModule,
-        JsonParsePipe,
     ],
     templateUrl: './device-info-card.html',
     styleUrl: './device-info-card.scss',
