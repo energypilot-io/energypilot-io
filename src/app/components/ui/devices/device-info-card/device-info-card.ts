@@ -92,7 +92,6 @@ export class DeviceInfoCard {
     editDevice(): void {
         const modalRef = this.modalService.open(DeviceForm, {
             centered: true,
-            scrollable: true,
             backdrop: 'static',
         })
         modalRef.componentInstance.model = {

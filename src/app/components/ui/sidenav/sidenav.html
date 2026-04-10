@@ -29,7 +29,7 @@
                     routerLink="{{ item.route }}"
                     #rla="routerLinkActive"
                     placement="end"
-                    ngbTooltip="{{ item.label }}"
+                    ngbTooltip="{{ item.label | translate }}"
                     [disableTooltip]="!sidenavCollapsed() || isMobile()"
                     (click)="closeEvent.emit()">
                     <div class="d-flex flex-nowrap align-items-center gap-3">
