@@ -11,7 +11,7 @@ import {
     tablerArrowBigDownFill,
     tablerArrowBigDownLineFill,
     tablerArrowBigDownLinesFill,
-    tablerCircleFill,
+    tablerArrowBigRightFill,
 } from '@ng-icons/tabler-icons/fill'
 import { NgIcon, provideIcons } from '@ng-icons/core'
 import { formatPower } from '@/app/libs/utils'
@@ -34,7 +34,7 @@ type DeviceValue = {
         provideIcons({
             tablerArrowBigUpFill,
             tablerArrowBigDownFill,
-            tablerCircleFill,
+            tablerArrowBigRightFill,
             tablerArrowBigUpLineFill,
             tablerArrowBigUpLinesFill,
             tablerArrowBigDownLineFill,
