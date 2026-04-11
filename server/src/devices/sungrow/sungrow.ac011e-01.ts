@@ -18,7 +18,7 @@ export class SungrowAC011E01 extends DeviceBase implements ConsumerDevice {
         datatype: ModbusDatatype,
         register: 'holding' | 'input' = 'holding'
     ) {
-        var value: number | undefined = undefined
+        let value: number | undefined = undefined
 
         if (this._connector instanceof ModbusInterface) {
             value = await this._connector.read({

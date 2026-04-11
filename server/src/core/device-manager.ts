@@ -21,8 +21,8 @@ type DeviceClass = {
     getDeviceDefinition(): DeviceDefinition
 }
 
-var _deviceRegistry: DeviceRegistry = {}
-var _deviceRegistrySchema: object = {}
+const _deviceRegistry: DeviceRegistry = {}
+let _deviceRegistrySchema: object = {}
 
 export async function initDeviceManager() {
     _logger = getLogger('device-manager')

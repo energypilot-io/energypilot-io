@@ -19,6 +19,7 @@ export async function initWebServer() {
     app.use(compression())
     app.disable('x-powered-by')
     app.use(express.json())
+    app.use(express.urlencoded({ extended: true }))
 
     app.use('/api/v1/devices', DeviceController)
     app.use('/api/v1/snapshots', SnapshotController)
@@ -34,7 +35,7 @@ export async function initWebServer() {
     _httpServer = createServer(app)
     _io = new SocketServer(_httpServer)
 
-    _io.on('connection', (socket) => {
+    _io.on('connection', socket => {
         getLogger('websocket').debug(
             `Websocket client connected: [${socket.id}]`
         )

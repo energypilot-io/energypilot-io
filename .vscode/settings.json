@@ -13,7 +13,8 @@
     "prettier.configPath": ".prettierrc.json",
     "editor.formatOnSave": true,
     "terminal.integrated.env.windows": {
-        "DATA_DIR": "D:\\Projects\\energypilot-io\\data",
+        "DATA_DIR_": "D:\\Projects\\energypilot-io\\data",
+        "DATA_DIR": "Z:\\energypilot-io\\",
         "NODE_ENV": "development"
     }
 }

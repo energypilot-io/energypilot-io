@@ -20,7 +20,7 @@ export class ABLemh124 extends DeviceBase implements ConsumerDevice {
         offset: number = 0,
         bitmask?: number
     ) {
-        var value: number | undefined = undefined
+        let value: number | undefined = undefined
 
         if (this._connector instanceof ModbusInterface) {
             value = await this._connector.read({

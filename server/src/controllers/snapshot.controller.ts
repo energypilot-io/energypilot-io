@@ -1,4 +1,5 @@
 import { getEntityManager } from '@/core/database'
+import { HourlyDeviceValueView } from '@/entities/hourly-device-value-view.entity'
 import { Snapshot } from '@/entities/snapshot.entity'
 import express from 'express'
 import { Request, Response } from 'express'
@@ -6,26 +7,30 @@ import { Request, Response } from 'express'
 const router = express.Router()
 
 router.get('/:from-:to', async (req: Request, res: Response) => {
-    const startTimestamp = new Date(parseInt(req.params.from))
-    const endTimestamp = new Date(parseInt(req.params.to))
+    const startTimestamp = new Date(parseInt(req.params.from as string))
+    const endTimestamp = new Date(parseInt(req.params.to as string))
 
     return res.json(
         await findSnapshotsBetweenDates({
             startDate: startTimestamp,
             endDate: endTimestamp,
+            grouping: req.query.grouping as string,
         })
     )
 })
 
 router.get('/:from-:to/:limit', async (req: Request, res: Response) => {
-    const startTimestamp = new Date(parseInt(req.params.from))
-    const endTimestamp = new Date(parseInt(req.params.to))
+    const startTimestamp = new Date(parseInt(req.params.from as string))
+    const endTimestamp = new Date(parseInt(req.params.to as string))
 
     return res.json(
         await findSnapshotsBetweenDates({
             startDate: startTimestamp,
             endDate: endTimestamp,
-            limit: req.params.limit ? parseInt(req.params.limit) : undefined,
+            limit: req.params.limit
+                ? parseInt(req.params.limit as string)
+                : undefined,
+            grouping: req.query.grouping as string,
         })
     )
 })
@@ -46,7 +51,7 @@ function snapshotToJSON(snapshot: Snapshot): object {
 
         device_snapshots: snapshot.device_snapshots
             .getItems()
-            .map((deviceValue) => ({
+            .map(deviceValue => ({
                 device_id: deviceValue.device.id,
                 device_name: deviceValue.device.name,
                 device_type: deviceValue.device.type,
@@ -56,17 +61,55 @@ function snapshotToJSON(snapshot: Snapshot): object {
     }
 }
 
+function hourlySnapshotsToJSON(snapshots: HourlyDeviceValueView[]): object {
+    const result: { [key: number]: any[] } = {}
+
+    snapshots.forEach(snapshot => {
+        const timestamp: number = snapshot.created_at.valueOf()
+
+        if (!(timestamp in result)) {
+            result[timestamp] = []
+        }
+
+        result[timestamp].push({
+            device_id: snapshot.device.id,
+            device_name: snapshot.device.name,
+            device_type: snapshot.device.type,
+            name: snapshot.name,
+            value: snapshot.value,
+        })
+    })
+
+    return Object.keys(result).map(timestamp => {
+        return {
+            created_at: new Date(Number.parseFloat(timestamp)),
+            device_snapshots: result[timestamp],
+        }
+    })
+}
+
 async function findSnapshotsBetweenDates(params: {
     startDate?: Date
     endDate?: Date
     limit?: number
-}): Promise<object> {
+    grouping?: string
+}): Promise<object | undefined> {
     console.log(
-        `{startDate: ${params.startDate}, endDate: ${params.endDate}, limit: ${params.limit}}`
+        `{startDate: ${params.startDate}, endDate: ${params.endDate}, limit: ${params.limit}, grouping: ${params.grouping}`
     )
 
+    let targetEntity
+    switch (params.grouping) {
+        case 'hour':
+            targetEntity = HourlyDeviceValueView
+            break
+
+        default:
+            targetEntity = Snapshot
+    }
+
     const snapshots = await getEntityManager().find(
-        Snapshot,
+        targetEntity,
         params.startDate && params.endDate
             ? {
                   created_at: {
@@ -82,7 +125,15 @@ async function findSnapshotsBetweenDates(params: {
         }
     )
 
-    return snapshots.map((snapshot) => snapshotToJSON(snapshot))
+    if (targetEntity === Snapshot) {
+        return snapshots.map(snapshot =>
+            snapshotToJSON(snapshot as any as Snapshot)
+        )
+    } else if (targetEntity === HourlyDeviceValueView) {
+        return hourlySnapshotsToJSON(snapshots)
+    }
+
+    return undefined
 }
 
 export const SnapshotController = router

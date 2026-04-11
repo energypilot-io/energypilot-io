@@ -150,7 +150,7 @@ export class ModbusInterface extends IInterface {
         })
 
         this._master.on('connected', () => {
-            var message: string = ''
+            let message: string = ''
 
             switch (this._properties['connectionType']) {
                 case 'tcpip': {
@@ -168,7 +168,7 @@ export class ModbusInterface extends IInterface {
         })
 
         this._master.on('disconnected', () => {
-            var message: string = ''
+            let message: string = ''
 
             switch (this._properties['connectionType']) {
                 case 'tcpip': {
@@ -209,7 +209,7 @@ export class ModbusInterface extends IInterface {
         buffer: Buffer,
         parameterDef: ModbusParameterDef
     ): number | undefined {
-        var value: number | undefined = undefined
+        let value: number | undefined = undefined
 
         const offset = parameterDef.offset ?? 0
 
@@ -279,7 +279,7 @@ export class ModbusInterface extends IInterface {
     }
 
     static override validateParameters(parameters: { [key: string]: string }): { [key: string]: string } {
-        var errors: { [key: string]: string } = {
+        let errors: { [key: string]: string } = {
             ...validateAllowedValues(
                 'connectionType',
                 parameters['connectionType'],
@@ -440,7 +440,7 @@ export class ModbusInterface extends IInterface {
                 return resolve(this.getParameterValue(buffer, parameterDef))
             }
 
-            var request: any = undefined
+            let request: any = undefined
             switch (parameterDef.register ?? 'input') {
                 case 'input': {
                     request = new functions.ReadInputRegistersRequest(

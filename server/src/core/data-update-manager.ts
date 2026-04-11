@@ -93,7 +93,7 @@ async function pollData() {
     const deviceInstances = getDeviceInstances()
     const deviceValuesCache: DeviceValue[] = []
 
-    for (let key in deviceInstances) {
+    for (const key in deviceInstances) {
         const deviceInstance: any = deviceInstances[key]
         const isEnabled = deviceInstance.deviceDefinition.is_enabled
 

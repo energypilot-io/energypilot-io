@@ -28,7 +28,7 @@ router.post('/', async (req: Request, res: Response) => {
         properties: JSON.stringify(req.body.interface_properties),
     })
 
-    var errors: { [key: string]: string } = validateDeviceInput(device)
+    const errors: { [key: string]: string } = validateDeviceInput(device)
 
     if (Object.keys(errors).length > 0) {
         return res.status(400).json(errors)
@@ -88,7 +88,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 })
 
 function validateDeviceInput(device: Device): { [key: string]: string } {
-    var errors: { [key: string]: string } = {}
+    let errors: { [key: string]: string } = {}
 
     if (!device.name) {
         errors['device_name'] = 'messages.validations.required'

@@ -26,7 +26,7 @@ export class SungrowHybrid
         scale: number,
         datatype: ModbusDatatype
     ) {
-        var value: number | undefined = undefined
+        let value: number | undefined = undefined
 
         if (this._connector instanceof ModbusInterface) {
             value = await this._connector.read({

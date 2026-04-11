@@ -25,7 +25,7 @@ const _fileTransport = new TransportFile({
 
 await _fileTransport.load()
 
-var _globalStore: AdzeGlobal
+let _globalStore: AdzeGlobal
 
 export async function initLogging() {
     _globalStore = setup({

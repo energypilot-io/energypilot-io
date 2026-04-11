@@ -16,7 +16,7 @@ import { ChildLogger, getLogger } from './logmanager'
 
 export type DatabaseInitObserver = () => void
 
-var _orm: MikroORM
+let _orm: MikroORM
 
 const _initObservers: DatabaseInitObserver[] = []
 

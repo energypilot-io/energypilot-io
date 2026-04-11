@@ -27,7 +27,7 @@ export class TPLinkTapoInterface extends IInterface {
     }
 
     static override validateParameters(parameters: { [key: string]: string }): { [key: string]: string } {
-        var errors: { [key: string]: string } = {
+        const errors: { [key: string]: string } = {
             ...validateIsNotEmpty('password', parameters['password'] ?? ''),
             ...validateIPAddress('ip', parameters['ip'] ?? ''),
             ...validateEmail('email', parameters['email'] ?? ''),
