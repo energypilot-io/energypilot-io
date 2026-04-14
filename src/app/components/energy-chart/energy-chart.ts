@@ -3,7 +3,7 @@ import { Component, computed, effect, inject, signal } from '@angular/core'
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts'
 import * as echarts from 'echarts/core'
 
-import { LineChart } from 'echarts/charts'
+import { LineChart, BarChart } from 'echarts/charts'
 import { CanvasRenderer } from 'echarts/renderers'
 
 import {
@@ -23,10 +23,12 @@ import {
     onTimeRangeChangeEvent,
     TimerangeSelector,
 } from '../ui/timerange-selector/timerange-selector'
+import { differenceInDays } from 'date-fns'
 
 echarts.use([
     TooltipComponent,
     LineChart,
+    BarChart,
     CanvasRenderer,
     GridComponent,
     LegendComponent,
@@ -60,6 +62,18 @@ export class EnergyChart {
     private powerValues = signal<{ [deviceName: string]: number[] }>({})
     private socValues = signal<{ [deviceName: string]: number[] }>({})
 
+    private dataGrouping = computed<'hour' | 'day' | undefined>(() => {
+        const differenceDays = differenceInDays(this.toDate(), this.fromDate())
+
+        if (differenceDays >= 15) {
+            return 'day'
+        } else if (differenceDays >= 5) {
+            return 'hour'
+        }
+
+        return undefined
+    })
+
     mergeOption = computed<echarts.EChartsCoreOption>(() => {
         return {
             xAxis: {
@@ -73,7 +87,8 @@ export class EnergyChart {
                 ...Object.keys(this.powerValues()).map(deviceName => {
                     return {
                         name: deviceName,
-                        type: 'line',
+                        type: this.dataGrouping() === 'day' ? 'bar' : 'line',
+                        stack: this.dataGrouping() === 'day' ? 'a' : undefined,
                         smooth: true,
                         symbol: 'none',
                         data: this.powerValues()[deviceName],
@@ -89,7 +104,8 @@ export class EnergyChart {
                 ...Object.keys(this.socValues()).map(deviceName => {
                     return {
                         name: `${deviceName} SoC`,
-                        type: 'line',
+                        type: this.dataGrouping() === 'day' ? 'bar' : 'line',
+                        stack: this.dataGrouping() === 'day' ? 'a' : undefined,
                         smooth: true,
                         symbol: 'none',
                         yAxisIndex: 1,
@@ -170,7 +186,17 @@ export class EnergyChart {
         },
     }
 
-    private addSnapshotsToChart(snapshots: any[]) {
+    private addSnapshotsToChart(
+        snapshots: any[],
+        source: 'api' | 'websocket' = 'api'
+    ) {
+        if (
+            source === 'websocket' &&
+            differenceInDays(this.toDate(), this.fromDate()) > 1
+        ) {
+            return
+        }
+
         const powerValues = { ...this.powerValues() }
         const socValues = { ...this.socValues() }
         const timestamps = [...this.timestamps()]
@@ -272,9 +298,10 @@ export class EnergyChart {
 
             this.getSnapshotsSubscription = this.api
                 .getSnapshots(
-                    `${this.fromDate().getTime()}-${this.toDate().getTime()}`
+                    `${this.fromDate().getTime()}-${this.toDate().getTime()}${this.dataGrouping() !== undefined ? '?grouping=' + this.dataGrouping() : ''}`
                 )
                 .subscribe(snapshots => {
+                    console.log(snapshots)
                     this.addSnapshotsToChart(snapshots)
                 })
         })
@@ -295,7 +322,10 @@ export class EnergyChart {
                 this.webserviceSubscription = this.websocket
                     .getMessage('snapshot:new')
                     .subscribe(data => {
-                        this.addSnapshotsToChart([JSON.parse(data)])
+                        this.addSnapshotsToChart(
+                            [JSON.parse(data)],
+                            'websocket'
+                        )
                     })
             })
     }

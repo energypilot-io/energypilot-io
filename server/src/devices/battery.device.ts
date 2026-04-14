@@ -1,6 +1,6 @@
 export abstract class BatteryDevice {
     static DEVICE_TYPE: string = 'battery'
 
-    abstract getBatterySoCValue(): Promise<number | undefined>
-    abstract getBatteryPowerValue(): Promise<number | undefined>
+    abstract getBatterySoCValue(delta: number): Promise<number | undefined>
+    abstract getBatteryPowerValue(delta: number): Promise<number | undefined>
 }

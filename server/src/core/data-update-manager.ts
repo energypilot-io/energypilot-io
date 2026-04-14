@@ -19,6 +19,9 @@ let _logger: ChildLogger
 let _deviceValuesPersistanceCache: { [deviceName: string]: DeviceValue[][] } =
     {}
 
+const _pollInterval = 10 * 1000
+const _snapshotPersistInterval = 5 * 60 * 1000
+
 const _deviceValueCacheResource = new Semaphore(
     'deviceValuesPersistanceCache',
     1
@@ -27,8 +30,11 @@ const _deviceValueCacheResource = new Semaphore(
 export async function initDataUpdateManager() {
     _logger = getLogger('dataupdate')
 
-    _pollDataIntervalObject = setInterval(pollData, 10 * 1000) // every 60 seconds
-    _persistSnapshotIntervalObject = setInterval(persistSnapshot, 5 * 60 * 1000) // every 60 seconds
+    _pollDataIntervalObject = setInterval(pollData, _pollInterval) // every 60 seconds
+    _persistSnapshotIntervalObject = setInterval(
+        persistSnapshot,
+        _snapshotPersistInterval
+    ) // every 60 seconds
 
     process.on('exit', () => {
         clearInterval(_pollDataIntervalObject)
@@ -104,11 +110,12 @@ async function pollData() {
         if (deviceInstance.deviceDefinition.type == GridDevice.DEVICE_TYPE) {
             const gridDeviceInstance = deviceInstance as GridDevice
 
-            const power = await gridDeviceInstance.getGridPowerValue()
+            const power =
+                await gridDeviceInstance.getGridPowerValue(_pollInterval)
             const energyImport =
-                await gridDeviceInstance.getGridEnergyImportValue()
+                await gridDeviceInstance.getGridEnergyImportValue(_pollInterval)
             const energyExport =
-                await gridDeviceInstance.getGridEnergyExportValue()
+                await gridDeviceInstance.getGridEnergyExportValue(_pollInterval)
 
             if (
                 power !== undefined &&
@@ -153,8 +160,10 @@ async function pollData() {
         ) {
             const batteryDeviceInstance = deviceInstance as BatteryDevice
 
-            const soc = await batteryDeviceInstance.getBatterySoCValue()
-            const power = await batteryDeviceInstance.getBatteryPowerValue()
+            const soc =
+                await batteryDeviceInstance.getBatterySoCValue(_pollInterval)
+            const power =
+                await batteryDeviceInstance.getBatteryPowerValue(_pollInterval)
 
             if (power !== undefined && soc !== undefined) {
                 deviceValues.push(
@@ -187,8 +196,9 @@ async function pollData() {
         ) {
             const pvDeviceInstance = deviceInstance as PVDevice
 
-            const power = await pvDeviceInstance.getPVPowerValue()
-            const energy = await pvDeviceInstance.getPVEnergyValue()
+            const power = await pvDeviceInstance.getPVPowerValue(_pollInterval)
+            const energy =
+                await pvDeviceInstance.getPVEnergyValue(_pollInterval)
 
             if (power !== undefined && energy !== undefined) {
                 deviceValues.push(
@@ -221,8 +231,14 @@ async function pollData() {
         ) {
             const consumerDeviceInstance = deviceInstance as ConsumerDevice
 
-            const power = await consumerDeviceInstance.getConsumerPowerValue()
-            const energy = await consumerDeviceInstance.getConsumerEnergyValue()
+            const power =
+                await consumerDeviceInstance.getConsumerPowerValue(
+                    _pollInterval
+                )
+            const energy =
+                await consumerDeviceInstance.getConsumerEnergyValue(
+                    _pollInterval
+                )
 
             if (power !== undefined && energy !== undefined) {
                 deviceValues.push(

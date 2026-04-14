@@ -1,4 +1,5 @@
 import { Device } from '@/entities/device.entity'
+import { DeviceValue } from '@/entities/device.value.entity'
 import { getEntityManager } from './database'
 import { ChildLogger, getLogger } from './logmanager'
 import { IInterface } from '@/interfaces/interface'
@@ -17,7 +18,11 @@ type DeviceRegistry = {
 }
 
 type DeviceClass = {
-    new (interfaceInstance: IInterface, deviceDefinition: Device): DeviceBase
+    new (
+        interfaceInstance: IInterface,
+        deviceDefinition: Device,
+        latestValues: Map<string, number>
+    ): DeviceBase
     getDeviceDefinition(): DeviceDefinition
 }
 
@@ -30,15 +35,30 @@ export async function initDeviceManager() {
     buildDeviceRegistry()
     buildDeviceRegistrySchema()
 
-    getEntityManager()
-        .findAll(Device)
-        .then(devices => {
-            devices.forEach(device => {
-                _logger.info(`Loaded device [${device.name}] from database`)
+    const devices = await getEntityManager().findAll(Device)
+    for (const device of devices) {
+        _logger.info(`Loaded device [${device.name}] from database`)
 
-                createDevice(device)
-            })
+        // Get latest entries for the device, distinct by value name
+        const latestValues = await getEntityManager().find(
+            DeviceValue,
+            { device: device },
+            {
+                populate: ['snapshot'],
+                orderBy: { snapshot: { created_at: 'DESC' } },
+            }
+        )
+
+        // Group by name and take the first (latest) one
+        const distinctLatestValues = new Map<string, number>()
+        latestValues.forEach(dv => {
+            if (!distinctLatestValues.has(dv.name)) {
+                distinctLatestValues.set(dv.name, dv.value)
+            }
         })
+
+        createDevice(device, distinctLatestValues)
+    }
 }
 
 export function getDeviceRegistrySchema(): object {
@@ -197,7 +217,10 @@ export function getDeviceClassForDeviceDefinition(
     return undefined
 }
 
-export async function createDevice(deviceDefinition: Device) {
+export async function createDevice(
+    deviceDefinition: Device,
+    latestValues: Map<string, number>
+) {
     const logger = getLogger('device-manager')
 
     if (deviceDefinition.name in _deviceInstances) {
@@ -229,7 +252,8 @@ export async function createDevice(deviceDefinition: Device) {
 
     _deviceInstances[deviceDefinition.name] = new deviceClass(
         interfaceInstance,
-        deviceDefinition
+        deviceDefinition,
+        latestValues
     )
     return _deviceInstances[deviceDefinition.name]
 }

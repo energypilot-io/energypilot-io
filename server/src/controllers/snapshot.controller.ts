@@ -1,8 +1,9 @@
 import { getEntityManager } from '@/core/database'
-import { HourlyDeviceValueView } from '@/entities/hourly-device-value-view.entity'
+import { SnapshotGroupedHourlyView } from '@/entities/snapshot.grouped.hourly.view.entity'
 import { Snapshot } from '@/entities/snapshot.entity'
 import express from 'express'
 import { Request, Response } from 'express'
+import { SnapshotGroupedDailyView } from '@/entities/snapshot.grouped.daily.view.entity'
 
 const router = express.Router()
 
@@ -61,7 +62,9 @@ function snapshotToJSON(snapshot: Snapshot): object {
     }
 }
 
-function hourlySnapshotsToJSON(snapshots: HourlyDeviceValueView[]): object {
+function groupedSnapshotsToJSON(
+    snapshots: SnapshotGroupedHourlyView[] | SnapshotGroupedDailyView[]
+): object {
     const result: { [key: number]: any[] } = {}
 
     snapshots.forEach(snapshot => {
@@ -83,7 +86,7 @@ function hourlySnapshotsToJSON(snapshots: HourlyDeviceValueView[]): object {
     return Object.keys(result).map(timestamp => {
         return {
             created_at: new Date(Number.parseFloat(timestamp)),
-            device_snapshots: result[timestamp],
+            device_snapshots: result[Number(timestamp)],
         }
     })
 }
@@ -94,14 +97,14 @@ async function findSnapshotsBetweenDates(params: {
     limit?: number
     grouping?: string
 }): Promise<object | undefined> {
-    console.log(
-        `{startDate: ${params.startDate}, endDate: ${params.endDate}, limit: ${params.limit}, grouping: ${params.grouping}`
-    )
-
     let targetEntity
     switch (params.grouping) {
         case 'hour':
-            targetEntity = HourlyDeviceValueView
+            targetEntity = SnapshotGroupedHourlyView
+            break
+
+        case 'day':
+            targetEntity = SnapshotGroupedDailyView
             break
 
         default:
@@ -129,8 +132,11 @@ async function findSnapshotsBetweenDates(params: {
         return snapshots.map(snapshot =>
             snapshotToJSON(snapshot as any as Snapshot)
         )
-    } else if (targetEntity === HourlyDeviceValueView) {
-        return hourlySnapshotsToJSON(snapshots)
+    } else if (
+        targetEntity === SnapshotGroupedHourlyView ||
+        targetEntity === SnapshotGroupedDailyView
+    ) {
+        return groupedSnapshotsToJSON(snapshots)
     }
 
     return undefined

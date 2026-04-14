@@ -1,8 +1,22 @@
 import { ModbusDatatype, ModbusInterface } from '@/interfaces/modbus'
 import { DeviceBase, DeviceDefinition } from '../device.base'
 import { ConsumerDevice } from '../consumer.device'
+import { IInterface } from '@/interfaces/interface'
+import { Device } from '@/entities/device.entity'
 
 export class ABLemh124 extends DeviceBase implements ConsumerDevice {
+    private _totalEnergy: number = 0
+
+    constructor(
+        connector: IInterface,
+        deviceDefinition: Device,
+        latestValues: Map<string, number>
+    ) {
+        super(connector, deviceDefinition, latestValues)
+
+        this._totalEnergy = latestValues.get('energy') ?? 0
+    }
+
     static override getDeviceDefinition(): DeviceDefinition {
         return {
             model: 'ABL emh1/2/4',
@@ -37,7 +51,7 @@ export class ABLemh124 extends DeviceBase implements ConsumerDevice {
         return value
     }
 
-    async getConsumerPowerValue(): Promise<number | undefined> {
+    async getConsumerPowerValue(_delta: number): Promise<number | undefined> {
         const isActive = await this.getValue(
             15,
             5,
@@ -88,7 +102,14 @@ export class ABLemh124 extends DeviceBase implements ConsumerDevice {
         return undefined
     }
 
-    async getConsumerEnergyValue(): Promise<number | undefined> {
-        return 0
+    async getConsumerEnergyValue(delta: number): Promise<number | undefined> {
+        const currentPower = await this.getConsumerPowerValue(delta)
+        if (currentPower === undefined) {
+            return undefined
+        }
+
+        this._totalEnergy += (currentPower * delta) / 3600000
+
+        return this._totalEnergy
     }
 }

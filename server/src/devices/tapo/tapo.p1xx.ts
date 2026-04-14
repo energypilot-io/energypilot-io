@@ -12,7 +12,7 @@ export class TapoP1xx extends DeviceBase implements ConsumerDevice {
         }
     }
 
-    async getConsumerPowerValue(): Promise<number | undefined> {
+    async getConsumerPowerValue(_delta: number): Promise<number | undefined> {
         if (this._connector instanceof TPLinkTapoInterface) {
             return await this._connector.read({
                 scale: -0.001,
@@ -24,7 +24,7 @@ export class TapoP1xx extends DeviceBase implements ConsumerDevice {
         return undefined
     }
 
-    async getConsumerEnergyValue(): Promise<number | undefined> {
+    async getConsumerEnergyValue(_delta: number): Promise<number | undefined> {
         if (this._connector instanceof TPLinkTapoInterface) {
             return await this._connector.read({
                 scale: 0.001,

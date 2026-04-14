@@ -12,11 +12,17 @@ export abstract class DeviceBase {
     public deviceDefinition: Device
 
     protected _connector: IInterface
+    protected _latestValues: Map<string, number>
 
     protected _logger: ChildLogger
 
-    constructor(connector: IInterface, deviceDefinition: Device) {
+    constructor(
+        connector: IInterface,
+        deviceDefinition: Device,
+        latestValues: Map<string, number>
+    ) {
         this._connector = connector
+        this._latestValues = latestValues
         this.deviceDefinition = deviceDefinition
 
         this._logger = getLogger(

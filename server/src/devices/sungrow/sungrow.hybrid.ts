@@ -40,11 +40,11 @@ export class SungrowHybrid
         return value
     }
 
-    async getBatterySoCValue(): Promise<number | undefined> {
+    async getBatterySoCValue(_delta: number): Promise<number | undefined> {
         return await this.getValue(13022, 1, 0.1, 'uint16')
     }
 
-    async getBatteryPowerValue(): Promise<number | undefined> {
+    async getBatteryPowerValue(_delta: number): Promise<number | undefined> {
         const voltage = await this.getValue(13019, 1, 0.1, 'uint16be')
         const current = await this.getValue(13020, 1, 0.1, 'int16be')
 
@@ -55,19 +55,23 @@ export class SungrowHybrid
         return undefined
     }
 
-    async getGridPowerValue(): Promise<number | undefined> {
+    async getGridPowerValue(_delta: number): Promise<number | undefined> {
         return await this.getValue(13009, 2, -1, 'int32sw')
     }
 
-    async getGridEnergyImportValue(): Promise<number | undefined> {
+    async getGridEnergyImportValue(
+        _delta: number
+    ): Promise<number | undefined> {
         return await this.getValue(13036, 2, 0.1, 'uint32sw')
     }
 
-    async getGridEnergyExportValue(): Promise<number | undefined> {
+    async getGridEnergyExportValue(
+        _delta: number
+    ): Promise<number | undefined> {
         return await this.getValue(13045, 2, 0.1, 'uint32sw')
     }
 
-    async getPVPowerValue(): Promise<number | undefined> {
+    async getPVPowerValue(_delta: number): Promise<number | undefined> {
         const mpptVoltage1 = await this.getValue(5010, 1, 0.1, 'uint16be')
         const mpptCurrent1 = await this.getValue(5011, 1, 0.1, 'uint16be')
         const mpptVoltage2 = await this.getValue(5012, 1, 0.1, 'uint16be')
@@ -85,7 +89,7 @@ export class SungrowHybrid
         return undefined
     }
 
-    async getPVEnergyValue(): Promise<number | undefined> {
+    async getPVEnergyValue(_delta: number): Promise<number | undefined> {
         return await this.getValue(13002, 2, 0.1, 'uint32sw')
     }
 }

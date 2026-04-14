@@ -1,7 +1,11 @@
 export abstract class GridDevice {
     static DEVICE_TYPE: string = 'grid'
 
-    abstract getGridPowerValue(): Promise<number | undefined>
-    abstract getGridEnergyImportValue(): Promise<number | undefined>
-    abstract getGridEnergyExportValue(): Promise<number | undefined>
+    abstract getGridPowerValue(delta: number): Promise<number | undefined>
+    abstract getGridEnergyImportValue(
+        delta: number
+    ): Promise<number | undefined>
+    abstract getGridEnergyExportValue(
+        delta: number
+    ): Promise<number | undefined>
 }
