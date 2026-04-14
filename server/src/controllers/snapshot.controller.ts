@@ -97,46 +97,75 @@ async function findSnapshotsBetweenDates(params: {
     limit?: number
     grouping?: string
 }): Promise<object | undefined> {
-    let targetEntity
     switch (params.grouping) {
-        case 'hour':
-            targetEntity = SnapshotGroupedHourlyView
-            break
-
-        case 'day':
-            targetEntity = SnapshotGroupedDailyView
-            break
-
-        default:
-            targetEntity = Snapshot
-    }
-
-    const snapshots = await getEntityManager().find(
-        targetEntity,
-        params.startDate && params.endDate
-            ? {
-                  created_at: {
-                      $gte: params.startDate,
-                      $lte: params.endDate ?? new Date(),
-                  },
-              }
-            : {},
-        {
-            populate: ['*'],
-            orderBy: { created_at: (params.limit ?? 0) < 0 ? 'DESC' : 'ASC' },
-            limit: params.limit ? Math.abs(params.limit) : undefined,
+        case 'hour': {
+            const snapshots = await getEntityManager().find(
+                SnapshotGroupedHourlyView,
+                params.startDate && params.endDate
+                    ? {
+                          created_at: {
+                              $gte: params.startDate,
+                              $lte: params.endDate ?? new Date(),
+                          },
+                      }
+                    : {},
+                {
+                    populate: ['*'],
+                    orderBy: {
+                        created_at: (params.limit ?? 0) < 0 ? 'DESC' : 'ASC',
+                    },
+                    limit: params.limit ? Math.abs(params.limit) : undefined,
+                }
+            )
+            return groupedSnapshotsToJSON(snapshots as any)
         }
-    )
 
-    if (targetEntity === Snapshot) {
-        return snapshots.map(snapshot =>
-            snapshotToJSON(snapshot as any as Snapshot)
-        )
-    } else if (
-        targetEntity === SnapshotGroupedHourlyView ||
-        targetEntity === SnapshotGroupedDailyView
-    ) {
-        return groupedSnapshotsToJSON(snapshots)
+        case 'day': {
+            const snapshots = await getEntityManager().find(
+                SnapshotGroupedDailyView,
+                params.startDate && params.endDate
+                    ? {
+                          created_at: {
+                              $gte: params.startDate,
+                              $lte: params.endDate ?? new Date(),
+                          },
+                      }
+                    : {},
+                {
+                    populate: ['*'],
+                    orderBy: {
+                        created_at: (params.limit ?? 0) < 0 ? 'DESC' : 'ASC',
+                    },
+                    limit: params.limit ? Math.abs(params.limit) : undefined,
+                }
+            )
+            return groupedSnapshotsToJSON(snapshots as any)
+        }
+
+        default: {
+            const snapshots = await getEntityManager().find(
+                Snapshot,
+                params.startDate && params.endDate
+                    ? {
+                          created_at: {
+                              $gte: params.startDate,
+                              $lte: params.endDate ?? new Date(),
+                          },
+                      }
+                    : {},
+                {
+                    populate: ['*'],
+                    orderBy: {
+                        created_at: (params.limit ?? 0) < 0 ? 'DESC' : 'ASC',
+                    },
+                    limit: params.limit ? Math.abs(params.limit) : undefined,
+                }
+            )
+
+            return snapshots.map(snapshot =>
+                snapshotToJSON(snapshot as any as Snapshot)
+            )
+        }
     }
 
     return undefined

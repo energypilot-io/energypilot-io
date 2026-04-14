@@ -14,7 +14,9 @@ export class ABLemh124 extends DeviceBase implements ConsumerDevice {
     ) {
         super(connector, deviceDefinition, latestValues)
 
-        this._totalEnergy = latestValues.get('energy') ?? 0
+        if (latestValues !== undefined) {
+            this._totalEnergy = latestValues.get('energy') ?? 0
+        }
     }
 
     static override getDeviceDefinition(): DeviceDefinition {
@@ -108,7 +110,7 @@ export class ABLemh124 extends DeviceBase implements ConsumerDevice {
             return undefined
         }
 
-        this._totalEnergy += (currentPower * delta) / 3600000
+        this._totalEnergy += (currentPower * delta) / 3600000000
 
         return this._totalEnergy
     }

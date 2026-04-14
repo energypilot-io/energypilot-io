@@ -1,9 +1,35 @@
-import { Entity, ManyToOne, Property } from '@mikro-orm/core'
+import { Entity, Property, ManyToOne } from '@mikro-orm/decorators/legacy'
 import { Device } from './device.entity'
 
 @Entity({
-    expression:
-        "SELECT cast(unixepoch(strftime('%Y-%m-%d 00:00:00', datetime(s.created_at / 1000, 'unixepoch')), 'subsec') * 1000 AS DATETIME) AS created_at, dv.device_id, dv.name, AVG(dv.value) AS value FROM device_value dv JOIN snapshot s ON dv.snapshot_id = s.id GROUP BY strftime('%Y-%m-%d 00:00:00', datetime(s.created_at / 1000, 'unixepoch')), dv.device_id, dv.name",
+    expression: `SELECT 
+                    cast(unixepoch(d1.day, 'subsec') * 1000 AS DATETIME) AS created_at,
+                    d1.device_id,
+                    d1.name,
+                    d1.value - COALESCE(d0.value, 0) AS value
+                FROM (
+                    SELECT 
+                        DATE(s.created_at / 1000, 'unixepoch') AS day,
+                        dv.device_id,
+                        dv.name,
+                        dv.value,
+                        ROW_NUMBER() OVER (PARTITION BY DATE(s.created_at / 1000, 'unixepoch'), dv.device_id, dv.name ORDER BY s.created_at DESC) AS rn
+                    FROM snapshot s
+                    JOIN device_value dv ON dv.snapshot_id = s.id
+                    WHERE dv.name like '%energy%'
+                ) d1
+                LEFT JOIN (
+                    SELECT 
+                        DATE(s.created_at / 1000, 'unixepoch') AS day,
+                        dv.device_id,
+                        dv.name,
+                        dv.value,
+                        s.created_at,
+                        ROW_NUMBER() OVER (PARTITION BY DATE(s.created_at / 1000, 'unixepoch'), dv.device_id, dv.name ORDER BY s.created_at DESC) AS rn
+                    FROM snapshot s
+                    JOIN device_value dv ON dv.snapshot_id = s.id
+                ) d0 ON d0.day = DATE(d1.day, '-1 day') AND d0.device_id = d1.device_id AND d0.name = d1.name AND d0.rn = 1
+                WHERE d1.rn = 1`,
     readonly: true,
 })
 export class SnapshotGroupedDailyView {

@@ -13,7 +13,7 @@ import {
     DatasetComponent,
     DataZoomComponent,
 } from 'echarts/components'
-import { formatPower } from '@/app/libs/utils'
+import { formatEnergy, formatPower } from '@/app/libs/utils'
 import { WebsocketService } from '@/app/services/websocket.service'
 import { ApiService } from '@/app/services/api.service'
 
@@ -59,7 +59,7 @@ export class EnergyChart {
 
     private timestamps = signal<Date[]>([])
 
-    private powerValues = signal<{ [deviceName: string]: number[] }>({})
+    private powerOrEnergyValues = signal<{ [deviceName: string]: number[] }>({})
     private socValues = signal<{ [deviceName: string]: number[] }>({})
 
     private dataGrouping = computed<'hour' | 'day' | undefined>(() => {
@@ -84,17 +84,20 @@ export class EnergyChart {
             },
 
             series: [
-                ...Object.keys(this.powerValues()).map(deviceName => {
+                ...Object.keys(this.powerOrEnergyValues()).map(deviceName => {
                     return {
                         name: deviceName,
                         type: this.dataGrouping() === 'day' ? 'bar' : 'line',
                         stack: this.dataGrouping() === 'day' ? 'a' : undefined,
                         smooth: true,
                         symbol: 'none',
-                        data: this.powerValues()[deviceName],
+                        data: this.powerOrEnergyValues()[deviceName],
                         tooltip: {
                             valueFormatter: (value: number) => {
-                                const formattedValue = formatPower(value)
+                                const formattedValue =
+                                    this.dataGrouping() === 'day'
+                                        ? formatEnergy(value)
+                                        : formatPower(value)
                                 return `${formattedValue?.value} ${formattedValue?.unit}`
                             },
                         },
@@ -156,16 +159,27 @@ export class EnergyChart {
         ],
 
         yAxis: [
-            {
-                type: 'value',
-                name: 'Power',
-                axisLabel: {
-                    formatter: function (a: number) {
-                        const formatedPower = formatPower(a)
-                        return `${formatedPower?.value} ${formatedPower?.unit}`
-                    },
-                },
-            },
+            this.dataGrouping() === 'day'
+                ? {
+                      type: 'value',
+                      name: 'Energy',
+                      axisLabel: {
+                          formatter: function (a: number) {
+                              const formatedPower = formatEnergy(a)
+                              return `${formatedPower?.value} ${formatedPower?.unit}`
+                          },
+                      },
+                  }
+                : {
+                      type: 'value',
+                      name: 'Power',
+                      axisLabel: {
+                          formatter: function (a: number) {
+                              const formatedPower = formatPower(a)
+                              return `${formatedPower?.value} ${formatedPower?.unit}`
+                          },
+                      },
+                  },
 
             {
                 type: 'value',
@@ -197,11 +211,13 @@ export class EnergyChart {
             return
         }
 
-        const powerValues = { ...this.powerValues() }
+        const powerOrEnergyValues = { ...this.powerOrEnergyValues() }
         const socValues = { ...this.socValues() }
         const timestamps = [...this.timestamps()]
 
         const translatedHomeName = this.translate.instant('device.home')
+
+        const targetName = this.dataGrouping() === 'day' ? 'energy' : 'power'
 
         snapshots.forEach(snapshot => {
             const snapshotCreateDate = new Date(snapshot.created_at)
@@ -226,11 +242,11 @@ export class EnergyChart {
             )
 
             sortedDeviceSnapshots.forEach((deviceSnapshot: any) => {
-                if (deviceSnapshot.name === 'power') {
-                    if (!powerValues[deviceSnapshot.device_name]) {
-                        powerValues[deviceSnapshot.device_name] = []
+                if (deviceSnapshot.name === targetName) {
+                    if (!powerOrEnergyValues[deviceSnapshot.device_name]) {
+                        powerOrEnergyValues[deviceSnapshot.device_name] = []
                     }
-                    powerValues[deviceSnapshot.device_name].push(
+                    powerOrEnergyValues[deviceSnapshot.device_name].push(
                         deviceSnapshot.value ?? 0
                     )
 
@@ -251,16 +267,16 @@ export class EnergyChart {
                         sortedDeviceSnapshots
                             .filter(
                                 (ds: any) =>
-                                    ds.name == 'power' || ds.name == 'soc'
+                                    ds.name == targetName || ds.name == 'soc'
                             )
                             .map((ds: any) => ds.device_name)
                             .indexOf(device.name) === -1
                 )
                 .forEach(device => {
-                    if (!powerValues[device.name]) {
-                        powerValues[device.name] = []
+                    if (!powerOrEnergyValues[device.name]) {
+                        powerOrEnergyValues[device.name] = []
                     }
-                    powerValues[device.name].push(0.0)
+                    powerOrEnergyValues[device.name].push(0.0)
 
                     if (device.type === 'battery') {
                         if (!socValues[device.name]) {
@@ -270,13 +286,13 @@ export class EnergyChart {
                     }
                 })
 
-            if (!powerValues[translatedHomeName]) {
-                powerValues[translatedHomeName] = []
+            if (!powerOrEnergyValues[translatedHomeName]) {
+                powerOrEnergyValues[translatedHomeName] = []
             }
-            powerValues[translatedHomeName].push(-homePowerConsumption)
+            powerOrEnergyValues[translatedHomeName].push(-homePowerConsumption)
         })
 
-        this.powerValues.set(powerValues)
+        this.powerOrEnergyValues.set(powerOrEnergyValues)
         this.socValues.set(socValues)
         this.timestamps.set(timestamps)
     }
@@ -293,7 +309,7 @@ export class EnergyChart {
             }
 
             this.timestamps.set([])
-            this.powerValues.set({})
+            this.powerOrEnergyValues.set({})
             this.socValues.set({})
 
             this.getSnapshotsSubscription = this.api
@@ -301,7 +317,6 @@ export class EnergyChart {
                     `${this.fromDate().getTime()}-${this.toDate().getTime()}${this.dataGrouping() !== undefined ? '?grouping=' + this.dataGrouping() : ''}`
                 )
                 .subscribe(snapshots => {
-                    console.log(snapshots)
                     this.addSnapshotsToChart(snapshots)
                 })
         })

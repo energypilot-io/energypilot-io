@@ -1,11 +1,12 @@
 import {
-    Collection,
     Entity,
     OneToMany,
     PrimaryKey,
     Property,
-} from '@mikro-orm/core'
+} from '@mikro-orm/decorators/legacy'
+
 import { DeviceValue } from './device.value.entity'
+import { Collection } from '@mikro-orm/core'
 
 @Entity()
 export class Snapshot {
@@ -15,6 +16,6 @@ export class Snapshot {
     @Property()
     created_at = new Date()
 
-    @OneToMany(() => DeviceValue, (deviceSnapshot) => deviceSnapshot.snapshot)
+    @OneToMany(() => DeviceValue, deviceSnapshot => deviceSnapshot.snapshot)
     device_snapshots = new Collection<DeviceValue>(this)
 }

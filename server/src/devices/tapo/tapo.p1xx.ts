@@ -1,4 +1,3 @@
-import { ModbusDatatype, ModbusInterface } from '@/interfaces/modbus'
 import { DeviceBase, DeviceDefinition } from '../device.base'
 import { ConsumerDevice } from '../consumer.device'
 import { TPLinkTapoInterface } from '@/interfaces/tplink-tapo'

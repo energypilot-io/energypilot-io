@@ -1,4 +1,4 @@
-import { Entity, ManyToOne, Property } from '@mikro-orm/core'
+import { Entity, Property, ManyToOne } from '@mikro-orm/decorators/legacy'
 import { Device } from './device.entity'
 
 @Entity({

@@ -3,7 +3,7 @@ import {
     ManyToOne,
     PrimaryKey,
     Property,
-} from '@mikro-orm/core'
+} from '@mikro-orm/decorators/legacy'
 import { Snapshot } from './snapshot.entity'
 import { Device } from './device.entity'
 

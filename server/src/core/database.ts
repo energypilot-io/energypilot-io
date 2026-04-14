@@ -1,7 +1,6 @@
 import fs from 'fs'
 import path from 'node:path'
 
-import http from 'http'
 import {
     MikroORM,
     DefaultLogger,
@@ -9,7 +8,7 @@ import {
     LogContext,
     LoggerOptions,
     EntityManager,
-} from '@mikro-orm/better-sqlite'
+} from '@mikro-orm/sqlite'
 
 import config from '@/mikro-orm.config'
 import { ChildLogger, getLogger } from './logmanager'
@@ -55,18 +54,14 @@ class CustomLogger extends DefaultLogger {
 }
 
 export async function initDatabase() {
-    _orm = await MikroORM.init({
-        ...config,
+    _orm = (await MikroORM.init({
+        ...(config as any),
         dbName: getFilename(),
-        loggerFactory: options => new CustomLogger(options),
+        loggerFactory: (options: LoggerOptions) => new CustomLogger(options),
         subscribers: [],
-    })
+    })) as any
 
-    await _orm.schema.updateSchema({ safe: true, dropTables: false })
-
-    const em = _orm.em.fork()
-    await em.execute('PRAGMA journal_mode=DELETE;')
-    await em.execute('PRAGMA auto_vacuum=FULL;')
+    await _orm.schema.update({ safe: true, dropTables: false })
 
     _initObservers.forEach(initObserver => {
         initObserver()
@@ -124,5 +119,5 @@ export async function upsertEntity(
 }
 
 export function getEntityManager(): EntityManager {
-    return _orm.em.fork()
+    return _orm.em.fork() as any
 }
