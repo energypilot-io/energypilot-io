@@ -217,7 +217,12 @@ export class EnergyChart {
 
         const translatedHomeName = this.translate.instant('device.home')
 
-        const targetName = this.dataGrouping() === 'day' ? 'energy' : 'power'
+        const targetNames = [
+            'soc',
+            ...(this.dataGrouping() === 'day'
+                ? ['energy', 'energy_import', 'energy_export']
+                : ['power']),
+        ]
 
         snapshots.forEach(snapshot => {
             const snapshotCreateDate = new Date(snapshot.created_at)
@@ -232,6 +237,59 @@ export class EnergyChart {
             timestamps.push(new Date(snapshot.created_at))
 
             var homePowerConsumption = 0
+            var gridEnergyValues: { [name: string]: number } = {}
+
+            snapshot.device_snapshots.forEach((deviceSnapshot: any) => {
+                if (
+                    (deviceSnapshot.name === 'power' ||
+                        deviceSnapshot.name === 'energy') &&
+                    targetNames.includes(deviceSnapshot.name)
+                ) {
+                    if (!powerOrEnergyValues[deviceSnapshot.device_name]) {
+                        powerOrEnergyValues[deviceSnapshot.device_name] = []
+                    }
+                    powerOrEnergyValues[deviceSnapshot.device_name].push(
+                        deviceSnapshot.value ?? 0
+                    )
+
+                    homePowerConsumption += deviceSnapshot.value
+                } else if (
+                    deviceSnapshot.name === 'soc' &&
+                    targetNames.includes(deviceSnapshot.name)
+                ) {
+                    if (!socValues[deviceSnapshot.device_name]) {
+                        socValues[deviceSnapshot.device_name] = []
+                    }
+                    socValues[deviceSnapshot.device_name].push(
+                        deviceSnapshot.value ?? 0
+                    )
+                } else if (
+                    (deviceSnapshot.name === 'energy_import' ||
+                        deviceSnapshot.name == 'energy_export') &&
+                    targetNames.includes(deviceSnapshot.name)
+                ) {
+                    if (!gridEnergyValues[deviceSnapshot.device_name]) {
+                        gridEnergyValues[deviceSnapshot.device_name] = 0
+                    }
+
+                    if (deviceSnapshot.name === 'energy_import') {
+                        gridEnergyValues[deviceSnapshot.device_name] +=
+                            deviceSnapshot.value ?? 0
+                    } else {
+                        gridEnergyValues[deviceSnapshot.device_name] -=
+                            deviceSnapshot.value ?? 0
+                    }
+                }
+            })
+
+            Object.keys(gridEnergyValues).forEach(deviceName => {
+                if (!powerOrEnergyValues[deviceName]) {
+                    powerOrEnergyValues[deviceName] = []
+                }
+                powerOrEnergyValues[deviceName].push(
+                    gridEnergyValues[deviceName]
+                )
+            })
 
             const sortedDeviceSnapshots = snapshot.device_snapshots.sort(
                 (n1: any, n2: any) => {
@@ -241,34 +299,11 @@ export class EnergyChart {
                 }
             )
 
-            sortedDeviceSnapshots.forEach((deviceSnapshot: any) => {
-                if (deviceSnapshot.name === targetName) {
-                    if (!powerOrEnergyValues[deviceSnapshot.device_name]) {
-                        powerOrEnergyValues[deviceSnapshot.device_name] = []
-                    }
-                    powerOrEnergyValues[deviceSnapshot.device_name].push(
-                        deviceSnapshot.value ?? 0
-                    )
-
-                    homePowerConsumption += deviceSnapshot.value
-                } else if (deviceSnapshot.name === 'soc') {
-                    if (!socValues[deviceSnapshot.device_name]) {
-                        socValues[deviceSnapshot.device_name] = []
-                    }
-                    socValues[deviceSnapshot.device_name].push(
-                        deviceSnapshot.value ?? 0
-                    )
-                }
-            })
-
             this.devices()
                 .filter(
                     device =>
                         sortedDeviceSnapshots
-                            .filter(
-                                (ds: any) =>
-                                    ds.name == targetName || ds.name == 'soc'
-                            )
+                            .filter((ds: any) => targetNames.includes(ds.name))
                             .map((ds: any) => ds.device_name)
                             .indexOf(device.name) === -1
                 )
@@ -277,6 +312,7 @@ export class EnergyChart {
                         powerOrEnergyValues[device.name] = []
                     }
                     powerOrEnergyValues[device.name].push(0.0)
+                    console.log(device.name)
 
                     if (device.type === 'battery') {
                         if (!socValues[device.name]) {

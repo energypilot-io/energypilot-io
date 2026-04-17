@@ -6,7 +6,7 @@ import { Device } from './device.entity'
                     cast(unixepoch(d1.day, 'subsec') * 1000 AS DATETIME) AS created_at,
                     d1.device_id,
                     d1.name,
-                    d1.value - COALESCE(d0.value, 0) AS value
+                    d1.value - COALESCE(d0.value, d1.value) AS value
                 FROM (
                     SELECT 
                         DATE(s.created_at / 1000, 'unixepoch') AS day,

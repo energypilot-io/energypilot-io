@@ -45,6 +45,6 @@ export class SungrowAC011E01 extends DeviceBase implements ConsumerDevice {
     }
 
     async getConsumerEnergyValue(_delta: number): Promise<number | undefined> {
-        return await this.getValue(21200, 2, 0.01, 'uint32sw')
+        return await this.getValue(21200, 2, -0.001, 'uint32sw')
     }
 }
