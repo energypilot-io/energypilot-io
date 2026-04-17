@@ -54,7 +54,8 @@
     "pages": {
         "dashboard": "Dashboard",
         "devices": "Devices",
-        "graphs": "Graph"
+        "graphs": "Graph",
+        "settings": "Settings"
     },
 
     "widgets": {

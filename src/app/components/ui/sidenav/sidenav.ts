@@ -1,4 +1,4 @@
-import { NgClass } from '@angular/common'
+import { NgClass, NgTemplateOutlet } from '@angular/common'
 import { HttpClient } from '@angular/common/http'
 import {
     Component,
@@ -22,6 +22,7 @@ import {
     tablerBrandDiscord,
     tablerBrandBluesky,
     tablerCircleX,
+    tablerSettings,
 } from '@ng-icons/tabler-icons'
 
 export type MenuItem = {
@@ -33,7 +34,14 @@ export type MenuItem = {
 
 @Component({
     selector: 'app-sidenav',
-    imports: [RouterModule, NgClass, NgIcon, NgbModule, TranslatePipe],
+    imports: [
+        RouterModule,
+        NgClass,
+        NgIcon,
+        NgbModule,
+        TranslatePipe,
+        NgTemplateOutlet,
+    ],
     templateUrl: './sidenav.html',
     styleUrl: './sidenav.scss',
     providers: [
@@ -45,6 +53,7 @@ export type MenuItem = {
             tablerBrandDiscord,
             tablerBrandBluesky,
             tablerCircleX,
+            tablerSettings,
         }),
         provideNgIconLoader((name: string): any => {
             const http = inject(HttpClient)
@@ -75,6 +84,12 @@ export class Sidenav {
     ]
 
     bottomMenuItems: MenuItem[] = [
+        {
+            label: 'pages.settings',
+            icon: 'tablerSettings',
+            route: 'settings',
+        },
+
         {
             label: 'Github',
             icon: 'tablerBrandGithub',
