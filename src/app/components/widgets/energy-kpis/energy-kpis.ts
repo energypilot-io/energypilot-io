@@ -43,11 +43,10 @@ export class EnergyKpis {
     private getFirstSnapshotsSubscription?: Subscription
     private webserviceSubscription?: Subscription
 
-    private baseProduction: number = 0
-    private baseTotalExport: number = 0
-
-    private baseOwnConsumption: number = 0
-    private baseTotalImport: number = 0
+    private baseProduction: number | undefined = undefined
+    private baseTotalExport: number | undefined = undefined
+    private baseOwnConsumption: number | undefined = undefined
+    private baseTotalImport: number | undefined = undefined
 
     private fromDate = signal<Date>(new Date())
     private toDate = signal<Date>(new Date())
@@ -159,17 +158,17 @@ export class EnergyKpis {
     }
 
     private setBaseValues(snapshot: any) {
-        this.baseTotalExport = 0
-        this.baseProduction = 0
-        this.baseOwnConsumption = 0
-        this.baseTotalImport = 0
-
         this.totalProduction.set(0)
         this.totalExport.set(0)
         this.totalImport.set(0)
         this.totalOwnConsumption.set(0)
 
         if (!snapshot) return
+
+        this.baseTotalExport = 0
+        this.baseProduction = 0
+        this.baseOwnConsumption = 0
+        this.baseTotalImport = 0
 
         snapshot.device_snapshots
             .filter((deviceSnapshot: any) => {
@@ -184,17 +183,17 @@ export class EnergyKpis {
                     deviceSnapshot.device_type === 'pv' &&
                     deviceSnapshot.name === 'energy'
                 ) {
-                    this.baseProduction += deviceSnapshot.value
-                    this.baseOwnConsumption += deviceSnapshot.value
+                    this.baseProduction! += deviceSnapshot.value
+                    this.baseOwnConsumption! += deviceSnapshot.value
                 } else if (deviceSnapshot.device_type === 'grid') {
                     if (deviceSnapshot.name === 'energy_import') {
-                        this.baseTotalImport += deviceSnapshot.value
+                        this.baseTotalImport! += deviceSnapshot.value
                     } else if (
                         deviceSnapshot.name === 'energy_export' &&
                         deviceSnapshot.value > 0
                     ) {
-                        this.baseTotalExport += deviceSnapshot.value
-                        this.baseOwnConsumption -= deviceSnapshot.value
+                        this.baseTotalExport! += deviceSnapshot.value
+                        this.baseOwnConsumption! -= deviceSnapshot.value
                     }
                 }
             })
@@ -248,7 +247,16 @@ export class EnergyKpis {
                 }
             })
 
-        var totalOwnConsumption = totalProduction - totalExport
+        const totalOwnConsumption = totalProduction - totalExport
+
+        if (this.baseTotalExport === undefined)
+            this.baseTotalExport = totalExport
+        if (this.baseTotalImport === undefined)
+            this.baseTotalImport = totalImport
+        if (this.baseOwnConsumption === undefined)
+            this.baseOwnConsumption = totalOwnConsumption
+        if (this.baseProduction === undefined)
+            this.baseProduction = totalProduction
 
         this.totalProduction.set(
             Math.abs(totalProduction - this.baseProduction)
