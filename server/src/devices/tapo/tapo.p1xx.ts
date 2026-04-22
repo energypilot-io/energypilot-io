@@ -26,7 +26,7 @@ export class TapoP1xx extends DeviceBase implements ConsumerDevice {
     async getConsumerEnergyValue(_delta: number): Promise<number | undefined> {
         if (this._connector instanceof TPLinkTapoInterface) {
             return await this._connector.read({
-                scale: 0.001,
+                scale: -0.001,
                 request: 'getEnergyUsage',
                 parameter: 'month_energy',
             })
