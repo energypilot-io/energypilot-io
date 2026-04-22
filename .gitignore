@@ -47,4 +47,4 @@ Thumbs.db
 
 # EnergyPilot.io
 proxy.config.remote-server.json
-/server/audit.json
+server/audit.json
