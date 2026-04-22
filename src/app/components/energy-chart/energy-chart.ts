@@ -218,10 +218,9 @@ export class EnergyChart {
         const translatedHomeName = this.translate.instant('device.home')
 
         const targetNames = [
-            'soc',
             ...(this.dataGrouping() === 'day'
                 ? ['energy', 'energy_import', 'energy_export']
-                : ['power']),
+                : ['soc', 'power']),
         ]
 
         snapshots.forEach(snapshot => {
@@ -286,6 +285,9 @@ export class EnergyChart {
                 if (!powerOrEnergyValues[deviceName]) {
                     powerOrEnergyValues[deviceName] = []
                 }
+
+                homePowerConsumption += gridEnergyValues[deviceName]
+
                 powerOrEnergyValues[deviceName].push(
                     gridEnergyValues[deviceName]
                 )
@@ -312,7 +314,6 @@ export class EnergyChart {
                         powerOrEnergyValues[device.name] = []
                     }
                     powerOrEnergyValues[device.name].push(0.0)
-                    console.log(device.name)
 
                     if (device.type === 'battery') {
                         if (!socValues[device.name]) {

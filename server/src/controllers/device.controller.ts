@@ -35,7 +35,7 @@ router.post('/', async (req: Request, res: Response) => {
     } else {
         if (await upsertEntity(device)) {
             removeDevice(device.name)
-            await createDevice(device)
+            await createDevice(device, new Map<string, number>())
 
             return res.status(201).json({ message: 'OK' })
         } else {
@@ -107,7 +107,8 @@ function validateDeviceInput(device: Device): { [key: string]: string } {
     }
 
     getDeviceClassForDeviceDefinition(device) ||
-        (errors['device_definition'] = 'messages.validations.invalid_device_definition')
+        (errors['device_definition'] =
+            'messages.validations.invalid_device_definition')
 
     if (Object.keys(RegisteredInterfaceClasses).includes(device.interface)) {
         const interfaceClass = RegisteredInterfaceClasses[device.interface]
