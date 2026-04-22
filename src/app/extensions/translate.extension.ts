@@ -1,5 +1,6 @@
 import { FormlyExtension, FormlyFieldConfig } from '@ngx-formly/core'
 import { TranslateService } from '@ngx-translate/core'
+import { Observable } from 'rxjs'
 
 export class TranslateExtension implements FormlyExtension {
     constructor(private translate: TranslateService) {}
@@ -9,14 +10,41 @@ export class TranslateExtension implements FormlyExtension {
         const regex = /{{([^}]+)}}/
         const match = regex.exec(props.label)
 
-        if (!match || props._translated) {
+        if ((!match && field.type !== 'enum') || props._translated) {
             return
         }
 
         props._translated = true
-        field.expressions = {
-            ...(field.expressions || {}),
-            'props.label': this.translate.stream(match[1].trim()),
+
+        if (match) {
+            field.expressions = {
+                ...(field.expressions || {}),
+                'props.label': this.translate.stream(match[1].trim()),
+            }
+        }
+
+        if (field.type === 'enum' && field.props!.options) {
+            field.props!.options = (field.props!.options as any[]).map(
+                (option: any) => {
+                    if (typeof option === 'object') {
+                        const translationKey = `device.enumValues.${field.key}.${option.label}`
+                        let translation = this.translate.instant(translationKey)
+
+                        if (translation === translationKey) {
+                            translation = option.label
+                        }
+
+                        return {
+                            ...option,
+                            label: translation,
+                        }
+                    } else {
+                        return this.translate.instant(option)
+                    }
+                }
+            )
+
+            console.log(field.props?.options)
         }
     }
 }

@@ -3,6 +3,15 @@
         "home": "Zuhause",
         "pv": "PV",
 
+        "enumValues": {
+            "device_type": {
+                "battery": "Batterie",
+                "grid": "Netz",
+                "pv": "PV",
+                "consumer": "Verbraucher"
+            }
+        },
+
         "interfaces": {
             "deviceName": "Gerätename",
             "deviceType": "Typ",
