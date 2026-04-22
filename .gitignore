@@ -40,8 +40,11 @@ yarn-error.log
 testem.log
 /typings
 __screenshots__/
-proxy.config.remote-server.json
 
 # System files
 .DS_Store
 Thumbs.db
+
+# EnergyPilot.io
+proxy.config.remote-server.json
+/server/audit.json
