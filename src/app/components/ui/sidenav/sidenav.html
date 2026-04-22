@@ -1,3 +1,31 @@
+<ng-template #sidenavItemTemplate let-item="item" let-i="index">
+    <li class="nav-item">
+        <a
+            class="nav-link border-bottom rounded-0 px-3 py-1"
+            [ngClass]="
+                !item.externalLink && rla.isActive
+                    ? 'active'
+                    : 'link-body-emphasis'
+            "
+            aria-current="page"
+            routerLinkActive
+            routerLink="{{ item.route }}"
+            href="{{ item.externalLink }}"
+            #rla="routerLinkActive"
+            placement="end"
+            ngbTooltip="{{ item.label | translate }}"
+            [disableTooltip]="!sidenavCollapsed() || isMobile()"
+            (click)="closeEvent.emit()">
+            <div class="d-flex flex-nowrap align-items-center gap-3">
+                <ng-icon name="{{ item.icon }}" size="24" class="m-1" />
+                @if (isMobile() || !sidenavCollapsed()) {
+                    <div>{{ item.label | translate }}</div>
+                }
+            </div>
+        </a>
+    </li>
+</ng-template>
+
 <div class="d-flex flex-column flex-shrink-0 bg-body-tertiary border-end h-100">
     <div class="position-relative">
         <a
@@ -17,34 +45,6 @@
             <ng-icon name="tablerCircleX" size="32" />
         </a>
     </div>
-
-    <ng-template #sidenavItemTemplate let-item="item" let-i="index">
-        <li class="nav-item">
-            <a
-                class="nav-link border-bottom rounded-0 px-3 py-1"
-                [ngClass]="
-                    !item.externalLink && rla.isActive
-                        ? 'active'
-                        : 'link-body-emphasis'
-                "
-                aria-current="page"
-                routerLinkActive
-                routerLink="{{ item.route }}"
-                href="{{ item.externalLink }}"
-                #rla="routerLinkActive"
-                placement="end"
-                ngbTooltip="{{ item.label | translate }}"
-                [disableTooltip]="!sidenavCollapsed() || isMobile()"
-                (click)="closeEvent.emit()">
-                <div class="d-flex flex-nowrap align-items-center gap-3">
-                    <ng-icon name="{{ item.icon }}" size="24" class="m-1" />
-                    @if (isMobile() || !sidenavCollapsed()) {
-                        <div>{{ item.label | translate }}</div>
-                    }
-                </div>
-            </a>
-        </li>
-    </ng-template>
 
     <ul class="nav nav-pills nav-flush flex-column mb-auto">
         @for (item of topMenuItems; track item.label) {

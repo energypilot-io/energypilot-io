@@ -6,7 +6,11 @@ import { createServer, Server as HTTPServer } from 'http'
 import { Server as SocketServer } from 'socket.io'
 import { getLogger } from './logmanager'
 
-import { DeviceController, SnapshotController } from '@/controllers'
+import {
+    DeviceController,
+    SettingController,
+    SnapshotController,
+} from '@/controllers'
 
 let _httpServer: HTTPServer<any, any>
 let _io: SocketServer
@@ -23,6 +27,7 @@ export async function initWebServer() {
 
     app.use('/api/v1/devices', DeviceController)
     app.use('/api/v1/snapshots', SnapshotController)
+    app.use('/api/v1/settings', SettingController)
 
     if (process.env.NODE_ENV! === 'production') {
         app.use(express.static('/usr/share/html'))

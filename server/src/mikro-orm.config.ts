@@ -6,6 +6,7 @@ import { Device } from './entities/device.entity'
 import { DeviceValue } from './entities/device.value.entity'
 import { SnapshotGroupedHourlyView } from './entities/snapshot.grouped.hourly.view.entity'
 import { SnapshotGroupedDailyView } from './entities/snapshot.grouped.daily.view.entity'
+import { Setting } from './entities/settings.entity'
 
 export default defineConfig({
     driver: SqliteDriver,
@@ -15,6 +16,7 @@ export default defineConfig({
         Snapshot,
         SnapshotGroupedHourlyView,
         SnapshotGroupedDailyView,
+        Setting,
     ],
     debug: process.env.NODE_ENV !== 'production',
     metadataProvider: TsMorphMetadataProvider,
