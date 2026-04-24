@@ -1,1 +1,21 @@
-<p>settings works!</p>
+<form [formGroup]="form" (ngSubmit)="onSubmit(model)" #createDeviceForm>
+    <div class="modal-body">
+        @if (schema()) {
+            <formly-form [form]="form" [fields]="fields()" [model]="model" />
+        }
+    </div>
+    <div class="modal-footer">
+        <button
+            type="button"
+            class="btn btn-danger"
+            (click)="onSubmit(model)"
+            [disabled]="!form.valid || !form.dirty">
+            {{
+                (model.id
+                    ? 'dialogs.upsert_device.confirm_button_update'
+                    : 'dialogs.upsert_device.confirm_button_create'
+                ) | translate
+            }}
+        </button>
+    </div>
+</form>

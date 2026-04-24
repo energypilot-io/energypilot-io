@@ -43,8 +43,6 @@ export class TranslateExtension implements FormlyExtension {
                     }
                 }
             )
-
-            console.log(field.props?.options)
         }
     }
 }

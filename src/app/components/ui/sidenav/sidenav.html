@@ -26,7 +26,10 @@
     </li>
 </ng-template>
 
-<div class="d-flex flex-column flex-shrink-0 bg-body-tertiary border-end h-100">
+<div
+    class="d-flex flex-column bg-body-tertiary border-end h-100"
+    [class.w-sidenav-expanded]="!sidenavCollapsed()"
+    [class.w-sidenav-collapsed]="sidenavCollapsed()">
     <div class="position-relative">
         <a
             href="/"

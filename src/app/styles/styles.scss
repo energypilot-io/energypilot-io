@@ -13,10 +13,49 @@
     font-style: normal;
 }
 
+$sidenav-width-expanded: 250px;
+$sidenav-width-collapsed: 65px;
+
 body {
     height: 100vh;
 }
 
 .font-leckerli {
     font-family: 'Leckerli One';
+}
+
+.p-fixed {
+    position: static;
+}
+
+.ms-sidenav-collapsed,
+.ms-sidenav-expanded {
+    margin-left: 0;
+}
+
+.w-sidenav-expanded,
+.w-sidenav-collapsed {
+    width: 100%;
+}
+
+@include media-breakpoint-up(md) {
+    .p-fixed {
+        position: fixed;
+    }
+
+    .ms-sidenav-collapsed {
+        margin-left: $sidenav-width-collapsed;
+    }
+
+    .ms-sidenav-expanded {
+        margin-left: $sidenav-width-expanded;
+    }
+
+    .w-sidenav-expanded {
+        width: $sidenav-width-expanded;
+    }
+
+    .w-sidenav-collapsed {
+        width: $sidenav-width-collapsed;
+    }
 }

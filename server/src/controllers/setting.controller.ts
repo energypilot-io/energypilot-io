@@ -3,8 +3,13 @@ import { Request, Response } from 'express'
 
 import { getEntityManager } from '@/core/database'
 import { Setting } from '@/entities/settings.entity'
+import { getSettingSchema } from '@/core/settings-manager'
 
 const router = express.Router()
+
+router.get('/schema', (req, res) => {
+    return res.json(getSettingSchema())
+})
 
 router.get('/', async (req: Request, res: Response) => {
     try {

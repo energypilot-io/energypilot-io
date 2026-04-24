@@ -61,7 +61,6 @@ export class DeviceForm {
     }
 
     onSubmit(model: any) {
-        console.log(this.form.valid)
         this.api
             .sendData({
                 id: model.id,

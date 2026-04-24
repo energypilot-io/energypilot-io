@@ -2,9 +2,12 @@
     <app-sidenav
         [collapsed]="sidenavCollapsed()"
         [mobile]="false"
-        class="d-md-inline d-none"></app-sidenav>
+        class="d-md-inline d-none p-fixed"></app-sidenav>
 
-    <div class="flex-grow-1">
+    <div
+        class="flex-grow-1"
+        [class.ms-sidenav-collapsed]="sidenavCollapsed()"
+        [class.ms-sidenav-expanded]="!sidenavCollapsed()">
         <div class="d-flex flex-column">
             <div class="d-flex p-2 border-bottom justify-content-between">
                 <div>
