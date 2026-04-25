@@ -49,7 +49,6 @@ export class SettingsPage {
         errors: any
     ) {
         _.forEach(controls, (ctrl: AbstractControl, name: string) => {
-            console.log(name)
             if (ctrl instanceof FormGroup) {
                 this.setErrorMessages(ctrl.controls, errors)
             } else if (errors[name]) {
@@ -59,6 +58,11 @@ export class SettingsPage {
     }
 
     onSubmit(model: any) {
-        console.log(model)
+        this.api.sendSettings(model).subscribe({
+            complete: () => {},
+            error: (err: any) => {
+                this.setErrorMessages(this.form.controls, err['error'])
+            },
+        })
     }
 }

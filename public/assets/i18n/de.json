@@ -60,6 +60,10 @@
         "version": "v2026.3"
     },
 
+    "settings": {
+        "pollingRate": "Abfrageintervall (s)"
+    },
+
     "pages": {
         "dashboard": "Dashboard",
         "devices": "Geräte",

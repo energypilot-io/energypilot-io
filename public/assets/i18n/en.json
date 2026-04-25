@@ -60,6 +60,10 @@
         "version": "v2026.3"
     },
 
+    "settings": {
+        "pollingRate": "Polling Rate (s)"
+    },
+
     "pages": {
         "dashboard": "Dashboard",
         "devices": "Devices",

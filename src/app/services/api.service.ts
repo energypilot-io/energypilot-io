@@ -33,4 +33,8 @@ export class ApiService {
     getSettingsSchema(): Observable<any> {
         return this.http.get<any>('/api/v1/settings/schema')
     }
+
+    sendSettings(data: any): Observable<any> {
+        return this.http.post<any>('/api/v1/settings', data)
+    }
 }

@@ -21,7 +21,11 @@ import AsciiTransport from '@/libs/cs-modbus/transports/AsciiTransport'
 
 import { ChildLogger, getLogger } from '@/core/logmanager'
 import { IInterface } from './interface'
-import { validateAllowedValues, validateIsNotEmpty, validateIsPositiveInteger } from '@/libs/validators'
+import {
+    validateAllowedValues,
+    validateIsNotEmpty,
+    validateIsPositiveInteger,
+} from '@/libs/validators'
 
 export type ModbusDatatype =
     | 'int8'
@@ -278,18 +282,20 @@ export class ModbusInterface extends IInterface {
         return value
     }
 
-    static override validateParameters(parameters: { [key: string]: string }): { [key: string]: string } {
+    static override validateParameters(parameters: { [key: string]: string }): {
+        [key: string]: string
+    } {
         let errors: { [key: string]: string } = {
             ...validateAllowedValues(
                 'connectionType',
                 parameters['connectionType'],
                 ['tcpip', 'serial']
             ),
-            ...validateAllowedValues(
-                'transport',
-                parameters['transport'],
-                ['ip', 'rtu', 'ascii']
-            ),
+            ...validateAllowedValues('transport', parameters['transport'], [
+                'ip',
+                'rtu',
+                'ascii',
+            ]),
             ...validateIsPositiveInteger(
                 'modbusId',
                 parameters['modbusId'] ?? ''
@@ -304,19 +310,13 @@ export class ModbusInterface extends IInterface {
             errors = {
                 ...errors,
                 ...validateIsNotEmpty('host', parameters['host'] ?? ''),
-                ...validateIsPositiveInteger(
-                    'port',
-                    parameters['port'] ?? ''
-                )
+                ...validateIsPositiveInteger('port', parameters['port'] ?? ''),
             }
         } else if (parameters['connectionType'] === 'serial') {
             errors = {
                 ...errors,
                 ...validateIsNotEmpty('device', parameters['device'] ?? ''),
-                ...validateIsPositiveInteger(
-                    'baud',
-                    parameters['baud'] ?? ''
-                )
+                ...validateIsPositiveInteger('baud', parameters['baud'] ?? ''),
             }
         }
 
@@ -351,7 +351,7 @@ export class ModbusInterface extends IInterface {
                     title: '{{ device.interfaces.modbus.parameters.modbusId }}',
                     type: 'number',
                     minimum: 1,
-                    maximum: 247,
+                    maximum: 255,
                     default: 1,
                 },
 

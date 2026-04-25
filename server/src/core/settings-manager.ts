@@ -4,15 +4,12 @@ export function getSettingSchema() {
     return {
         type: 'object',
         properties: {
-            device_name: {
-                type: 'string',
-                title: '{{ device.interfaces.deviceName }}',
-            },
-
-            device_type: {
-                type: 'string',
-                title: '{{ device.interfaces.deviceType }}',
-                enum: ['a', 'b', 'c'],
+            polling_rate: {
+                title: '{{ settings.pollingRate }}',
+                type: 'number',
+                minimum: 1,
+                maximum: 200,
+                default: 10,
             },
         },
 
