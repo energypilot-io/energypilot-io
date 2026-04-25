@@ -39,6 +39,18 @@ export class SettingsPage {
                 }),
             ])
             this.schema.set(result)
+
+            this.api.getSettings().subscribe(settings => {
+                if (Array.isArray(settings) || (settings = [])) {
+                    const model: { [key: string]: any } = {}
+
+                    settings.forEach((setting: any) => {
+                        model[setting.name] = setting.value
+                    })
+
+                    this.model = model
+                }
+            })
         })
     }
 

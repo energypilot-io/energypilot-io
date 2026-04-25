@@ -1,3 +1,7 @@
+import { Setting } from '@/entities/settings.entity'
+import { upsertEntity } from './database'
+import { Transactional } from '@mikro-orm/decorators/legacy'
+
 export async function initSettingsManager() {}
 
 export function getSettingSchema() {
@@ -15,4 +19,18 @@ export function getSettingSchema() {
 
         required: ['device_name', 'device_type'],
     }
+}
+
+export function validateSettingsInput(settings: any): {
+    [key: string]: string
+} {
+    let errors: { [key: string]: string } = {}
+
+    if (!settings.polling_rate) {
+        errors['polling_rate'] = 'messages.validations.required'
+    } else if (settings.polling_rate < 1 || settings.polling_rate > 200) {
+        errors['polling_rate'] = 'messages.validations.invalid'
+    }
+
+    return errors
 }

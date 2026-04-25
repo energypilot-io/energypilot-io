@@ -30,6 +30,10 @@ export class ApiService {
         return this.http.get<any>(`/api/v1/snapshots/${tag}`)
     }
 
+    getSettings(): Observable<any> {
+        return this.http.get<any>('/api/v1/settings')
+    }
+
     getSettingsSchema(): Observable<any> {
         return this.http.get<any>('/api/v1/settings/schema')
     }
