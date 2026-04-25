@@ -147,7 +147,6 @@ export class TimerangeSelector {
         const convertedDate = this.fromNgbDate(date)
 
         if (!this.fromDate() && !this.toDate()) {
-            console.log('case 1')
             this.fromDate.update(() => convertedDate)
         } else if (
             this.fromDate() &&
@@ -155,10 +154,8 @@ export class TimerangeSelector {
             date &&
             date.after(this.toNgbDate(this.fromDate()))
         ) {
-            console.log('case 2')
             this.toDate.set(convertedDate)
         } else {
-            console.log('case 3')
             this.toDate.set(null)
             this.fromDate.update(() => convertedDate)
         }

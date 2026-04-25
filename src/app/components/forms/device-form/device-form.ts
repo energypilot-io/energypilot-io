@@ -51,7 +51,6 @@ export class DeviceForm {
         errors: any
     ) {
         _.forEach(controls, (ctrl: AbstractControl, name: string) => {
-            console.log(name)
             if (ctrl instanceof FormGroup) {
                 this.setErrorMessages(ctrl.controls, errors)
             } else if (errors[name]) {
