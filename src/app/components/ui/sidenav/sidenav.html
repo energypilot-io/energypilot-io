@@ -14,6 +14,7 @@
             #rla="routerLinkActive"
             placement="end"
             ngbTooltip="{{ item.label | translate }}"
+            container="body"
             [disableTooltip]="!sidenavCollapsed() || isMobile()"
             (click)="closeEvent.emit()">
             <div class="d-flex flex-nowrap align-items-center gap-3">
