@@ -12,6 +12,7 @@ import {
 
 import config from '@/mikro-orm.config'
 import { ChildLogger, getLogger } from './logmanager'
+import { SettingEventSubscriber } from './settings-manager'
 
 export type DatabaseInitObserver = () => void
 
@@ -58,7 +59,7 @@ export async function initDatabase() {
         ...(config as any),
         dbName: getFilename(),
         loggerFactory: (options: LoggerOptions) => new CustomLogger(options),
-        subscribers: [],
+        subscribers: [new SettingEventSubscriber()],
     })) as any
 
     await _orm.schema.update({ safe: true, dropTables: false })

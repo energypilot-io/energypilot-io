@@ -10,6 +10,14 @@ import { BatteryDevice } from '@/devices/battery.device'
 import { GridDevice } from '@/devices/grid.device'
 import { PVDevice } from '@/devices/pv.device'
 import { ConsumerDevice } from '@/devices/consumer.device'
+import {
+    DEFAULT_POLLING_RATE,
+    getSettingValue,
+    registerSettingChangeObserver,
+    SETTING_POLLING_RATE,
+    SettingChangeObserver,
+} from './settings-manager'
+import { Setting } from '@/entities/settings.entity'
 
 let _pollDataIntervalObject: NodeJS.Timeout
 let _persistSnapshotIntervalObject: NodeJS.Timeout
@@ -19,7 +27,7 @@ let _logger: ChildLogger
 let _deviceValuesPersistanceCache: { [deviceName: string]: DeviceValue[][] } =
     {}
 
-const _pollInterval = 10 * 1000
+let _pollInterval: number
 const _snapshotPersistInterval = 5 * 60 * 1000
 
 const _deviceValueCacheResource = new Semaphore(
@@ -27,10 +35,35 @@ const _deviceValueCacheResource = new Semaphore(
     1
 )
 
+class UpdateManagerSettingChangeObserver extends SettingChangeObserver {
+    getObservedSettings(): string[] {
+        return [SETTING_POLLING_RATE]
+    }
+
+    onSettingChange(setting: Setting): void {
+        if (setting.name === SETTING_POLLING_RATE) {
+            _pollInterval = parseInt(setting.value) * 1000
+            createPollingInterval()
+        }
+    }
+}
+
 export async function initDataUpdateManager() {
     _logger = getLogger('dataupdate')
 
-    _pollDataIntervalObject = setInterval(pollData, _pollInterval) // every 60 seconds
+    registerSettingChangeObserver(new UpdateManagerSettingChangeObserver())
+
+    _pollInterval =
+        parseInt(
+            (await getSettingValue(SETTING_POLLING_RATE)) ||
+                DEFAULT_POLLING_RATE.toString()
+        ) * 1000
+
+    _logger.info(
+        `Data update manager initialized with polling rate of ${_pollInterval} ms`
+    )
+
+    createPollingInterval()
     _persistSnapshotIntervalObject = setInterval(
         persistSnapshot,
         _snapshotPersistInterval
@@ -40,6 +73,16 @@ export async function initDataUpdateManager() {
         clearInterval(_pollDataIntervalObject)
         clearInterval(_persistSnapshotIntervalObject)
     })
+}
+
+function createPollingInterval() {
+    if (_pollDataIntervalObject) {
+        clearInterval(_pollDataIntervalObject)
+    }
+
+    _pollDataIntervalObject = setInterval(pollData, _pollInterval)
+
+    _logger.info(`Polling interval set to ${_pollInterval} ms`)
 }
 
 async function persistSnapshot() {
