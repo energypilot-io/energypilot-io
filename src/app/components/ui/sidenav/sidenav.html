@@ -1,29 +1,49 @@
+<ng-template #sidenavItemContentTemplate let-item="item" let-i="index">
+    <div class="d-flex flex-nowrap align-items-center gap-3">
+        <ng-icon name="{{ item.icon }}" size="24" class="m-1" />
+        @if (isMobile() || !sidenavCollapsed()) {
+            <div>{{ item.label | translate }}</div>
+        }
+    </div>
+</ng-template>
+
 <ng-template #sidenavItemTemplate let-item="item" let-i="index">
     <li class="nav-item">
-        <a
-            class="nav-link border-bottom rounded-0 px-3 py-1"
-            [ngClass]="
-                !item.externalLink && rla.isActive
-                    ? 'active'
-                    : 'link-body-emphasis'
-            "
-            aria-current="page"
-            routerLinkActive
-            routerLink="{{ item.route }}"
-            href="{{ item.externalLink }}"
-            #rla="routerLinkActive"
-            placement="end"
-            ngbTooltip="{{ item.label | translate }}"
-            container="body"
-            [disableTooltip]="!sidenavCollapsed() || isMobile()"
-            (click)="closeEvent.emit()">
-            <div class="d-flex flex-nowrap align-items-center gap-3">
-                <ng-icon name="{{ item.icon }}" size="24" class="m-1" />
-                @if (isMobile() || !sidenavCollapsed()) {
-                    <div>{{ item.label | translate }}</div>
-                }
-            </div>
-        </a>
+        @if (!item.externalLink) {
+            <a
+                class="nav-link border-bottom rounded-0 px-3 py-1"
+                [ngClass]="rla.isActive ? 'active' : 'link-body-emphasis'"
+                routerLinkActive
+                #rla="routerLinkActive"
+                [routerLink]="item.route ? item.route : null"
+                placement="end"
+                ngbTooltip="{{ item.label | translate }}"
+                container="body"
+                [disableTooltip]="!sidenavCollapsed() || isMobile()"
+                (click)="closeEvent.emit()">
+                <ng-container
+                    *ngTemplateOutlet="
+                        sidenavItemContentTemplate;
+                        context: { item: item, $implicit: item }
+                    "></ng-container>
+            </a>
+        } @else {
+            <a
+                class="nav-link border-bottom rounded-0 px-3 py-1 link-body-emphasis"
+                href="{{ item.externalLink }}"
+                placement="end"
+                target="_blank"
+                ngbTooltip="{{ item.label | translate }}"
+                container="body"
+                [disableTooltip]="!sidenavCollapsed() || isMobile()"
+                (click)="closeEvent.emit()">
+                <ng-container
+                    *ngTemplateOutlet="
+                        sidenavItemContentTemplate;
+                        context: { item: item, $implicit: item }
+                    "></ng-container>
+            </a>
+        }
     </li>
 </ng-template>
 
