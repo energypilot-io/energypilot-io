@@ -1,6 +1,7 @@
 import { Setting } from '@/entities/settings.entity'
 import { EventArgs, EventSubscriber } from '@mikro-orm/core'
 import { getEntityManager } from './database'
+import { validateIntegerInRange, validateIsNotEmpty } from '@/libs/validators'
 
 export abstract class SettingChangeObserver {
     abstract getObservedSettings(): string[]
@@ -11,8 +12,11 @@ export abstract class SettingChangeObserver {
 const _settingChangeObservers: SettingChangeObserver[] = []
 
 export const SETTING_POLLING_RATE = 'polling_rate'
+export const SETTING_SNAPSHOT_PERSISTANCE_INTERVAL =
+    'snapshot_persistance_interval'
 
 export const DEFAULT_POLLING_RATE = 10
+export const DEFAULT_SETTING_SNAPSHOT_PERSISTANCE_INTERVAL = 5 * 60
 
 export async function initSettingsManager() {}
 
@@ -26,32 +30,64 @@ export function getSettingSchema() {
                 minimum: 1,
                 maximum: 200,
                 default: DEFAULT_POLLING_RATE,
+
+                widget: {
+                    formlyConfig: {
+                        props: {
+                            addonRight: {
+                                text: 's',
+                            },
+                        },
+                    },
+                },
+            },
+
+            snapshot_persistance_interval: {
+                title: '{{ settings.snapshotPersistanceInterval }}',
+                type: 'number',
+                minimum: 1,
+                maximum: 200,
+                default: DEFAULT_SETTING_SNAPSHOT_PERSISTANCE_INTERVAL,
+
+                widget: {
+                    formlyConfig: {
+                        props: {
+                            addonRight: {
+                                text: 's',
+                            },
+                        },
+                    },
+                },
             },
         },
 
-        required: ['device_name', 'device_type'],
+        required: ['polling_rate', 'snapshot_persistance_interval'],
     }
 }
 
 export function validateSettingsInput(settings: any): {
     [key: string]: string
 } {
-    let errors: { [key: string]: string } = {}
+    return {
+        ...validateIsNotEmpty('polling_rate', settings.polling_rate),
+        ...validateIntegerInRange(
+            'polling_rate',
+            settings.polling_rate,
+            1,
+            200
+        ),
 
-    try {
-        if (!settings.polling_rate) {
-            errors['polling_rate'] = 'messages.validations.required'
-        } else if (
-            Number.parseInt(settings.polling_rate) < 1 ||
-            Number.parseInt(settings.polling_rate) > 200
-        ) {
-            errors['polling_rate'] = 'messages.validations.invalid_value'
-        }
-    } catch (error) {
-        errors['polling_rate'] = 'messages.validations.invalid_value'
+        ...validateIsNotEmpty(
+            'snapshot_persistance_interval',
+            settings.snapshot_persistance_interval
+        ),
+        ...validateIntegerInRange(
+            'snapshot_persistance_interval',
+            settings.snapshot_persistance_interval,
+            1,
+            200
+        ),
     }
-
-    return errors
 }
 
 export function getSettingValue(name: string): Promise<string | null> {

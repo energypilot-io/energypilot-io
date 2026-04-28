@@ -22,6 +22,24 @@ export function validateIsPositiveInteger(
     return {}
 }
 
+export function validateIntegerInRange(
+    key: string,
+    value: string,
+    min: number,
+    max: number
+): { [key: string]: string } {
+    if (!/^\d+$/.test(value)) {
+        return { [key]: 'messages.validations.invalid_value' }
+    }
+
+    const parsedValue = parseInt(value)
+    if (parsedValue < min || parsedValue > max) {
+        return { [key]: 'messages.validations.invalid_value' }
+    }
+
+    return {}
+}
+
 export function validateAllowedValues(
     key: string,
     value: string,

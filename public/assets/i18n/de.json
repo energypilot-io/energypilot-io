@@ -61,7 +61,8 @@
     },
 
     "settings": {
-        "pollingRate": "Abfrageintervall (s)"
+        "pollingRate": "Abfrageintervall (s)",
+        "snapshotPersistanceInterval": "Snapshot Intervall (s)"
     },
 
     "pages": {

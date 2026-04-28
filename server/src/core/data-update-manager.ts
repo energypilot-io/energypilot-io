@@ -12,9 +12,11 @@ import { PVDevice } from '@/devices/pv.device'
 import { ConsumerDevice } from '@/devices/consumer.device'
 import {
     DEFAULT_POLLING_RATE,
+    DEFAULT_SETTING_SNAPSHOT_PERSISTANCE_INTERVAL,
     getSettingValue,
     registerSettingChangeObserver,
     SETTING_POLLING_RATE,
+    SETTING_SNAPSHOT_PERSISTANCE_INTERVAL,
     SettingChangeObserver,
 } from './settings-manager'
 import { Setting } from '@/entities/settings.entity'
@@ -28,7 +30,7 @@ let _deviceValuesPersistanceCache: { [deviceName: string]: DeviceValue[][] } =
     {}
 
 let _pollInterval: number
-const _snapshotPersistInterval = 5 * 60 * 1000
+let _snapshotPersistInterval: number
 
 const _deviceValueCacheResource = new Semaphore(
     'deviceValuesPersistanceCache',
@@ -37,13 +39,16 @@ const _deviceValueCacheResource = new Semaphore(
 
 class UpdateManagerSettingChangeObserver extends SettingChangeObserver {
     getObservedSettings(): string[] {
-        return [SETTING_POLLING_RATE]
+        return [SETTING_POLLING_RATE, SETTING_SNAPSHOT_PERSISTANCE_INTERVAL]
     }
 
     onSettingChange(setting: Setting): void {
         if (setting.name === SETTING_POLLING_RATE) {
             _pollInterval = parseInt(setting.value) * 1000
             createPollingInterval()
+        } else if (setting.name === SETTING_SNAPSHOT_PERSISTANCE_INTERVAL) {
+            _snapshotPersistInterval = parseInt(setting.value) * 1000
+            createSnapshotPersistInterval()
         }
     }
 }
@@ -59,15 +64,18 @@ export async function initDataUpdateManager() {
                 DEFAULT_POLLING_RATE.toString()
         ) * 1000
 
+    _snapshotPersistInterval =
+        parseInt(
+            (await getSettingValue(SETTING_SNAPSHOT_PERSISTANCE_INTERVAL)) ||
+                DEFAULT_SETTING_SNAPSHOT_PERSISTANCE_INTERVAL.toString()
+        ) * 1000
+
     _logger.info(
-        `Data update manager initialized with polling rate of ${_pollInterval} ms`
+        `Data update manager initialized with polling rate of ${_pollInterval} ms and snapshot persistence interval of ${_snapshotPersistInterval} ms`
     )
 
     createPollingInterval()
-    _persistSnapshotIntervalObject = setInterval(
-        persistSnapshot,
-        _snapshotPersistInterval
-    ) // every 60 seconds
+    createSnapshotPersistInterval()
 
     process.on('exit', () => {
         clearInterval(_pollDataIntervalObject)
@@ -83,6 +91,17 @@ function createPollingInterval() {
     _pollDataIntervalObject = setInterval(pollData, _pollInterval)
 
     _logger.info(`Polling interval set to ${_pollInterval} ms`)
+}
+
+function createSnapshotPersistInterval() {
+    if (_persistSnapshotIntervalObject) {
+        clearInterval(_persistSnapshotIntervalObject)
+    }
+
+    _persistSnapshotIntervalObject = setInterval(
+        persistSnapshot,
+        _snapshotPersistInterval
+    )
 }
 
 async function persistSnapshot() {
