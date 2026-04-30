@@ -21,48 +21,51 @@ export const DEFAULT_SETTING_SNAPSHOT_PERSISTANCE_INTERVAL = 5 * 60
 export async function initSettingsManager() {}
 
 export function getSettingSchema() {
-    return {
-        type: 'object',
-        properties: {
-            polling_rate: {
-                title: '{{ settings.pollingRate }}',
-                type: 'number',
-                minimum: 1,
-                maximum: 200,
-                default: DEFAULT_POLLING_RATE,
+    return [
+        {
+            group: 'polling',
+            schema: {
+                type: 'object',
+                properties: {
+                    polling_rate: {
+                        type: 'number',
+                        minimum: 1,
+                        maximum: 200,
+                        default: DEFAULT_POLLING_RATE,
 
-                widget: {
-                    formlyConfig: {
-                        props: {
-                            addonRight: {
-                                text: 's',
+                        widget: {
+                            formlyConfig: {
+                                props: {
+                                    addonRight: {
+                                        text: 's',
+                                    },
+                                },
+                            },
+                        },
+                    },
+
+                    snapshot_persistance_interval: {
+                        type: 'number',
+                        minimum: 1 * 60,
+                        maximum: 60 * 60,
+                        default: DEFAULT_SETTING_SNAPSHOT_PERSISTANCE_INTERVAL,
+
+                        widget: {
+                            formlyConfig: {
+                                props: {
+                                    addonRight: {
+                                        text: 's',
+                                    },
+                                },
                             },
                         },
                     },
                 },
-            },
 
-            snapshot_persistance_interval: {
-                title: '{{ settings.snapshotPersistanceInterval }}',
-                type: 'number',
-                minimum: 1,
-                maximum: 200,
-                default: DEFAULT_SETTING_SNAPSHOT_PERSISTANCE_INTERVAL,
-
-                widget: {
-                    formlyConfig: {
-                        props: {
-                            addonRight: {
-                                text: 's',
-                            },
-                        },
-                    },
-                },
+                required: ['polling_rate', 'snapshot_persistance_interval'],
             },
         },
-
-        required: ['polling_rate', 'snapshot_persistance_interval'],
-    }
+    ]
 }
 
 export function validateSettingsInput(settings: any): {
@@ -84,8 +87,8 @@ export function validateSettingsInput(settings: any): {
         ...validateIntegerInRange(
             'snapshot_persistance_interval',
             settings.snapshot_persistance_interval,
-            1,
-            200
+            1 * 60,
+            60 * 60
         ),
     }
 }

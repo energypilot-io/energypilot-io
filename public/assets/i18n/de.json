@@ -61,8 +61,14 @@
     },
 
     "settings": {
-        "pollingRate": "Abfrageintervall (s)",
-        "snapshotPersistanceInterval": "Snapshot Intervall (s)"
+        "polling": {
+            "group": {
+                "title": "Abfrageeinstellungen",
+                "description": "Einstellungen zur Abfrage der Geräte"
+            },
+            "polling_rate": "Abfrageintervall",
+            "snapshot_persistance_interval": "Snapshot Intervall"
+        }
     },
 
     "pages": {
@@ -113,6 +119,7 @@
             "cancel": "Abbrechen",
             "delete": "Löschen",
             "confirm": "Bestätigen",
+            "save": "Speichern",
             "create_device": "Gerät erstellen",
             "edit_device": "Gerät bearbeiten"
         },

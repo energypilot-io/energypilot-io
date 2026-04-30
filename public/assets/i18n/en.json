@@ -61,8 +61,14 @@
     },
 
     "settings": {
-        "pollingRate": "Polling Rate (s)",
-        "snapshotPersistanceInterval": "Snapshot Persistance Interval (s)"
+        "polling": {
+            "group": {
+                "title": "Polling Settings",
+                "description": "Settings related to device polling"
+            },
+            "polling_rate": "Polling Rate",
+            "snapshot_persistance_interval": "Snapshot Persistance Interval"
+        }
     },
 
     "pages": {
@@ -113,6 +119,7 @@
             "cancel": "Cancel",
             "delete": "Delete",
             "confirm": "Confirm",
+            "save": "Save",
             "create_device": "Create Device",
             "edit_device": "Edit Device"
         },

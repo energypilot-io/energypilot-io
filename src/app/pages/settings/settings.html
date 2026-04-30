@@ -1,26 +1,44 @@
-<div class="container-sm p-0 m-0">
-    <form [formGroup]="form" (ngSubmit)="onSubmit(model)" #createDeviceForm>
-        <div class="modal-body">
-            @if (schema()) {
-                <formly-form
-                    [form]="form"
-                    [fields]="fields()"
-                    [model]="model" />
-            }
+<ng-template #settingGroupTemplate let-fieldGroup="fieldGroup">
+    <div class="card">
+        <div class="card-body">
+            <h5>
+                {{ `settings.${fieldGroup.key}.group.title` | translate }}
+            </h5>
+
+            <div
+                class="alert bg-info bg-opacity-10 text-dark-emphasis d-flex align-items-center"
+                role="alert">
+                {{ `settings.${fieldGroup.key}.group.description` | translate }}
+            </div>
+
+            <formly-form
+                [form]="form"
+                [fields]="fieldGroup.value"
+                [model]="model" />
         </div>
-        <div class="modal-footer">
-            <button
-                type="button"
-                class="btn btn-danger"
-                (click)="onSubmit(model)"
-                [disabled]="!form.valid || !form.dirty">
-                {{
-                    (model.id
-                        ? 'dialogs.upsert_device.confirm_button_update'
-                        : 'dialogs.upsert_device.confirm_button_create'
-                    ) | translate
-                }}
-            </button>
+    </div>
+</ng-template>
+
+<div>
+    <form [formGroup]="form" (ngSubmit)="onSubmit(model)" #createDeviceForm>
+        <div class="d-flex flex-column gap-3">
+            @for (fieldGroup of fields() | keyvalue; track fieldGroup.key) {
+                <ng-container
+                    *ngTemplateOutlet="
+                        settingGroupTemplate;
+                        context: { fieldGroup: fieldGroup }
+                    "></ng-container>
+            }
+
+            <div class="d-flex justify-content-md-end">
+                <button
+                    type="button"
+                    class="btn btn-danger flex-md-grow-0 flex-grow-1"
+                    (click)="onSubmit(model)"
+                    [disabled]="!form.valid || !form.dirty">
+                    {{ 'common.buttons.save' | translate }}
+                </button>
+            </div>
         </div>
     </form>
 </div>

@@ -1,4 +1,5 @@
 import { ApiService } from '@/app/services/api.service'
+import { KeyValuePipe, NgTemplateOutlet } from '@angular/common'
 import { Component, inject, signal } from '@angular/core'
 import { AbstractControl, FormGroup, ReactiveFormsModule } from '@angular/forms'
 import { FormlyFieldConfig, FormlyForm } from '@ngx-formly/core'
@@ -8,7 +9,13 @@ import _ from 'lodash'
 
 @Component({
     selector: 'app-settings',
-    imports: [ReactiveFormsModule, FormlyForm, TranslatePipe],
+    imports: [
+        ReactiveFormsModule,
+        FormlyForm,
+        TranslatePipe,
+        KeyValuePipe,
+        NgTemplateOutlet,
+    ],
     templateUrl: './settings.html',
     styleUrl: './settings.scss',
 })
@@ -17,28 +24,51 @@ export class SettingsPage {
 
     model: any = {}
 
-    fields = signal<FormlyFieldConfig[]>([])
+    // fields = signal<FormlyFieldConfig[]>([])
+
+    fields = signal<{ [groupName: string]: FormlyFieldConfig[] }>({})
 
     form = new FormGroup({})
-    schema = signal<object>({})
+    // schema = signal<object>({})
 
     ngOnInit() {
         this.api.getSettingsSchema().subscribe(result => {
-            this.fields.set([
-                new FormlyJsonschema().toFieldConfig(result, {
-                    map: (field: FormlyFieldConfig, schema: any) => {
-                        if (schema.props?.type) {
-                            field.props = {
-                                ...field.props,
-                                type: schema.props.type,
-                            }
-                        }
+            if (!result || !Array.isArray(result) || result.length === 0) {
+                return
+            }
 
-                        return field
-                    },
-                }),
-            ])
-            this.schema.set(result)
+            const fieldsByGroup: { [groupName: string]: FormlyFieldConfig[] } =
+                {}
+
+            result.forEach((settingGroup: any) => {
+                if (!settingGroup.group || !settingGroup.schema) {
+                    return
+                }
+
+                fieldsByGroup[settingGroup.group] = [
+                    new FormlyJsonschema().toFieldConfig(settingGroup.schema, {
+                        map: (field: FormlyFieldConfig, schema: any) => {
+                            if (schema.props?.type) {
+                                field.props = {
+                                    ...field.props,
+                                    type: schema.props.type,
+                                }
+                            }
+
+                            if (field.key) {
+                                field.props = {
+                                    ...field.props,
+                                    label: `{{ settings.${settingGroup.group}.${field.key} }}`,
+                                }
+                            }
+
+                            return field
+                        },
+                    }),
+                ]
+            })
+
+            this.fields.set(fieldsByGroup)
 
             this.api.getSettings().subscribe(settings => {
                 if (Array.isArray(settings) || (settings = [])) {
@@ -70,6 +100,10 @@ export class SettingsPage {
     }
 
     onSubmit(model: any) {
+        console.log('Submitting settings:', model)
+
+        return
+
         this.api.sendSettings(model).subscribe({
             complete: () => {},
             error: (err: any) => {
