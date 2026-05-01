@@ -18,6 +18,14 @@ export const SETTING_SNAPSHOT_PERSISTANCE_INTERVAL =
 export const DEFAULT_POLLING_RATE = 10
 export const DEFAULT_SETTING_SNAPSHOT_PERSISTANCE_INTERVAL = 5 * 60
 
+export const SETTING_TELEGRAM_BOT_TOKEN = 'telegram_bot_token'
+
+export const ALLOWED_SETTINGS = [
+    SETTING_POLLING_RATE,
+    SETTING_SNAPSHOT_PERSISTANCE_INTERVAL,
+    SETTING_TELEGRAM_BOT_TOKEN,
+]
+
 export async function initSettingsManager() {}
 
 export function getSettingSchema() {
@@ -65,6 +73,20 @@ export function getSettingSchema() {
                 required: ['polling_rate', 'snapshot_persistance_interval'],
             },
         },
+
+        {
+            group: 'telegram_bot',
+            schema: {
+                type: 'object',
+                properties: {
+                    telegram_bot_token: {
+                        type: 'string',
+                        minLength: 1,
+                        default: '',
+                    },
+                },
+            },
+        },
     ]
 }
 
@@ -93,10 +115,12 @@ export function validateSettingsInput(settings: any): {
     }
 }
 
-export function getSettingValue(name: string): Promise<string | null> {
+export function getSettingValue(
+    name: string
+): Promise<string | null | undefined> {
     return getEntityManager()
         .findOne(Setting, { name })
-        .then(setting => (setting ? setting.value : null))
+        .then(setting => setting?.value)
 }
 
 export function registerSettingChangeObserver(observer: SettingChangeObserver) {

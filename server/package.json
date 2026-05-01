@@ -30,6 +30,7 @@
         "reflect-metadata": "^0.2.2",
         "serialport": "^13.0.0",
         "socket.io": "^4.8.1",
+        "telegraf": "^4.16.3",
         "tp-link-tapo-connect": "^2.0.8",
         "tsx": "^4.20.6",
         "typescript": "^5.9.3"

@@ -5,14 +5,14 @@ export class Setting {
     @PrimaryKey()
     name!: string
 
-    @Property()
-    value!: string
+    @Property({ nullable: true })
+    value?: string | null
 
     @Property()
     created_at = new Date()
 
-    constructor(options: { name: string; value: string }) {
+    constructor(options: { name: string; value?: string | null }) {
         this.name = options.name
-        this.value = options.value
+        this.value = options.value ?? null
     }
 }

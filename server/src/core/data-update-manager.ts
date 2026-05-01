@@ -43,6 +43,8 @@ class UpdateManagerSettingChangeObserver extends SettingChangeObserver {
     }
 
     onSettingChange(setting: Setting): void {
+        if (!setting.value) return
+
         if (setting.name === SETTING_POLLING_RATE) {
             _pollInterval = parseInt(setting.value) * 1000
             createPollingInterval()

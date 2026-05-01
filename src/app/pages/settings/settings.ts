@@ -100,10 +100,6 @@ export class SettingsPage {
     }
 
     onSubmit(model: any) {
-        console.log('Submitting settings:', model)
-
-        return
-
         this.api.sendSettings(model).subscribe({
             complete: () => {},
             error: (err: any) => {

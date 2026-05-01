@@ -6,7 +6,7 @@ export function validateIsNotEmpty(
     key: string,
     value: string
 ): { [key: string]: string } {
-    if (!value || value.trim() === '') {
+    if (!value || value.toString().trim() === '') {
         return { [key]: 'messages.validations.required' }
     }
     return {}

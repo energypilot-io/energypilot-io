@@ -4,6 +4,7 @@ import { Request, Response } from 'express'
 import { getEntityManager } from '@/core/database'
 import { Setting } from '@/entities/settings.entity'
 import {
+    ALLOWED_SETTINGS,
     getSettingSchema,
     validateSettingsInput,
 } from '@/core/settings-manager'
@@ -34,14 +35,15 @@ router.post('/', async (req: Request, res: Response) => {
 
         await em.begin()
         try {
-            for (const key in req.body) {
+            ALLOWED_SETTINGS.forEach(key => {
                 const setting = new Setting({
                     name: key,
-                    value: req.body[key],
+                    value: key in req.body ? req.body[key] : null,
                 })
 
                 em.upsert(setting)
-            }
+            })
+
             await em.commit()
 
             return res.status(201).json({ message: 'OK' })
