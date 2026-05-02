@@ -79,6 +79,12 @@ function createTelegramBot() {
         ctx.replyWithMarkdownV2(handleCommandSet(ctx))
     })
 
+    _bot.telegram.setMyCommands([
+        { command: 'help', description: 'Show help message' },
+        { command: 'live', description: 'Get live data values' },
+        { command: 'set', description: 'Set a setting value' },
+    ])
+
     _bot.launch()
 
     _logger.info('Telegram bot started')
