@@ -2,6 +2,7 @@ import { Setting } from '@/entities/settings.entity'
 import { EventArgs, EventSubscriber } from '@mikro-orm/core'
 import { getEntityManager } from './database'
 import { validateIntegerInRange, validateIsNotEmpty } from '@/libs/validators'
+import { EntityManager } from '@mikro-orm/sqlite'
 
 export abstract class SettingChangeObserver {
     abstract getObservedSettings(): string[]
@@ -94,21 +95,35 @@ export function validateSettingsInput(settings: any): {
     [key: string]: string
 } {
     return {
-        ...validateIsNotEmpty('polling_rate', settings.polling_rate),
-        ...validateIntegerInRange(
-            'polling_rate',
-            settings.polling_rate,
-            1,
-            200
-        ),
-
-        ...validateIsNotEmpty(
-            'snapshot_persistance_interval',
+        ...validateSettingPollingRate(settings.polling_rate),
+        ...validateSettingSnapshotPersistenceInterval(
             settings.snapshot_persistance_interval
         ),
+    }
+}
+
+export function validateSettingPollingRate(polling_rate: any): {
+    [key: string]: string
+} {
+    return {
+        ...validateIsNotEmpty('polling_rate', polling_rate),
+        ...validateIntegerInRange('polling_rate', polling_rate, 1, 200),
+    }
+}
+
+export function validateSettingSnapshotPersistenceInterval(
+    snapshot_persistance_interval: any
+): {
+    [key: string]: string
+} {
+    return {
+        ...validateIsNotEmpty(
+            'snapshot_persistance_interval',
+            snapshot_persistance_interval
+        ),
         ...validateIntegerInRange(
             'snapshot_persistance_interval',
-            settings.snapshot_persistance_interval,
+            snapshot_persistance_interval,
             1 * 60,
             60 * 60
         ),
@@ -121,6 +136,19 @@ export function getSettingValue(
     return getEntityManager()
         .findOne(Setting, { name })
         .then(setting => setting?.value)
+}
+
+export async function setSettingValue(
+    name: string,
+    value: string | null,
+    em?: EntityManager
+): Promise<void> {
+    const setting = new Setting({
+        name: name,
+        value: value,
+    })
+
+    await (em || getEntityManager()).upsert(setting)
 }
 
 export function registerSettingChangeObserver(observer: SettingChangeObserver) {
