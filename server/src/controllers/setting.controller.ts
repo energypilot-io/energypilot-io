@@ -6,6 +6,7 @@ import { Setting } from '@/entities/settings.entity'
 import {
     ALLOWED_SETTINGS,
     getSettingSchema,
+    setSettingValue,
     validateSettingsInput,
 } from '@/core/settings-manager'
 
@@ -36,12 +37,7 @@ router.post('/', async (req: Request, res: Response) => {
         await em.begin()
         try {
             ALLOWED_SETTINGS.forEach(key => {
-                const setting = new Setting({
-                    name: key,
-                    value: key in req.body ? req.body[key] : null,
-                })
-
-                em.upsert(setting)
+                setSettingValue(key, key in req.body ? req.body[key] : null, em)
             })
 
             await em.commit()
