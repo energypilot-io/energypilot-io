@@ -3,7 +3,6 @@ import { ChildLogger, getLogger } from './logmanager'
 import { Snapshot } from '@/entities/snapshot.entity'
 import { persistEntity } from './database'
 import { DeviceValue } from '@/entities/device.value.entity'
-import { emitWebsocketEvent } from './webserver'
 import { WS_EVENT_SNAPSHOT_NEW, WS_EVENT_DEVICE_UPDATE } from '@/constants'
 import { Semaphore } from '@/libs/semaphore'
 import { BatteryDevice } from '@/devices/battery.device'
@@ -20,6 +19,7 @@ import {
     SettingChangeObserver,
 } from './settings-manager'
 import { Setting } from '@/entities/settings.entity'
+import { sendEvent } from './message-bus.manager'
 
 let _pollDataIntervalObject: NodeJS.Timeout
 let _persistSnapshotIntervalObject: NodeJS.Timeout
@@ -28,6 +28,8 @@ let _logger: ChildLogger
 
 let _deviceValuesPersistanceCache: { [deviceName: string]: DeviceValue[][] } =
     {}
+
+let _lastLiveData: any = null
 
 let _pollInterval: number
 let _snapshotPersistInterval: number
@@ -83,6 +85,10 @@ export async function initDataUpdateManager() {
         clearInterval(_pollDataIntervalObject)
         clearInterval(_persistSnapshotIntervalObject)
     })
+}
+
+export function getLastLiveData(): any {
+    return _lastLiveData
 }
 
 function createPollingInterval() {
@@ -352,25 +358,22 @@ async function pollData() {
         lock.release()
     }
 
-    emitWebsocketEvent(
-        WS_EVENT_SNAPSHOT_NEW,
-        JSON.stringify({
-            created_at: new Date(),
-            device_snapshots: deviceValuesCache.map(
-                (deviceValue: DeviceValue) => {
-                    return {
-                        device_id: deviceValue.device.id,
-                        device_name: deviceValue.device.name,
-                        device_type: deviceValue.device.type,
-                        name: deviceValue.name,
-                        value: deviceValue.value,
-                    }
-                }
-            ),
-        })
-    )
+    _lastLiveData = {
+        created_at: new Date(),
+        device_snapshots: deviceValuesCache.map((deviceValue: DeviceValue) => {
+            return {
+                device_id: deviceValue.device.id,
+                device_name: deviceValue.device.name,
+                device_type: deviceValue.device.type,
+                name: deviceValue.name,
+                value: deviceValue.value,
+            }
+        }),
+    }
 
-    emitWebsocketEvent(
+    sendEvent(WS_EVENT_SNAPSHOT_NEW, JSON.stringify(_lastLiveData))
+
+    sendEvent(
         WS_EVENT_DEVICE_UPDATE,
         JSON.stringify(
             Object.values(deviceInstances).map(deviceInstance => {
