@@ -4,8 +4,11 @@ import { ChildLogger, getLogger } from './logmanager'
 import {
     getSettingValue,
     registerSettingChangeObserver,
+    setSettingValue,
     SETTING_TELEGRAM_BOT_TOKEN,
     SettingChangeObserver,
+    validateSettingPollingRate,
+    validateSettingSnapshotPersistenceInterval,
 } from './settings-manager'
 import { Setting } from '@/entities/settings.entity'
 import { getLastLiveData } from './data-update-manager'
@@ -66,10 +69,14 @@ function createTelegramBot() {
     // _bot.on(message('sticker'), (ctx: Context) => ctx.reply('👍'))
     // _bot.hears('hi', (ctx: Context) => ctx.reply('Hey there'))
 
-    _bot.help((ctx: Context) => ctx.replyWithMarkdownV2(getHelpMessage()))
+    _bot.help((ctx: Context) => ctx.replyWithMarkdownV2(getHelpMessage(ctx)))
 
     _bot.command('live', (ctx: Context) => {
-        ctx.replyWithMarkdownV2(getLiveDataMessage())
+        ctx.replyWithMarkdownV2(handleCommandLive(ctx))
+    })
+
+    _bot.command('set', (ctx: Context) => {
+        ctx.replyWithMarkdownV2(handleCommandSet(ctx))
     })
 
     _bot.launch()
@@ -77,11 +84,54 @@ function createTelegramBot() {
     _logger.info('Telegram bot started')
 }
 
-function getHelpMessage(): string {
-    return `\`/live\` ${escapeMarkdown('- Get live data values')}`
+function getHelpMessage(ctx: Context): string {
+    const args = ctx.text!.split(' ').slice(1)
+    if (args.length === 0) {
+        return (
+            `\`/help\` \\- Show this help message\\. Add command name as argument to get additional information\\.\nExample: \`/help set\`\n` +
+            `\`/live\` \\- Get live data values\n` +
+            `\`/set\` \\- Set a setting\n`
+        )
+    } else if (args[0] === 'set') {
+        return (
+            `\`/set <setting_name> <value>\`\nSet a setting value\\.\nExample: \`/set polling_rate 15\`\n\n` +
+            `*Available settings*\n` +
+            `\`polling_rate\` \\- Number of seconds between each polling\\.\n` +
+            `\`snapshot_persistance_interval\` \\- Number of seconds between each snapshot persistance\\.\n`
+        )
+    } else {
+        return `⚠️ No help available for command \`"/${escapeMarkdown(args[0])}"\`\\.`
+    }
 }
 
-function getLiveDataMessage(): string {
+function handleCommandSet(ctx: Context): string {
+    const args = ctx.text!.split(' ').slice(1)
+
+    if (args.length < 2) {
+        return '⚠️ Please provide a setting name and value\\. Example: `/set polling_rate 15`\\. Use `"/help set"` for more information\\.'
+    } else {
+        const settingName = args[0]
+        const settingValue = args[1]
+
+        let errors
+        if (settingName === 'polling_rate') {
+            errors = validateSettingPollingRate(settingValue)
+        } else if (settingName === 'snapshot_persistance_interval') {
+            errors = validateSettingSnapshotPersistenceInterval(settingValue)
+        } else {
+            return `⚠️ Setting \`"${escapeMarkdown(settingName)}"\` cannot be set via Telegram bot\\. Please use the web interface to change this setting\\.`
+        }
+
+        if (errors?.polling_rate) {
+            return `⚠️ Error while validating value for setting \`"${escapeMarkdown(settingName)}"\`. Please check the value and try again\\.`
+        } else {
+            setSettingValue(settingName, settingValue)
+            return `✅ Setting \`"${escapeMarkdown(settingName)}"\` updated to \`"${escapeMarkdown(settingValue)}"\``
+        }
+    }
+}
+
+function handleCommandLive(_ctx: Context): string {
     const liveData = getLastLiveData()
 
     if (!liveData) {
