@@ -88,16 +88,16 @@ function getHelpMessage(ctx: Context): string {
     const args = ctx.text!.split(' ').slice(1)
     if (args.length === 0) {
         return (
-            `\`/help\` \\- Show this help message\\. Add command name as argument to get additional information\\.\nExample: \`/help set\`\n` +
-            `\`/live\` \\- Get live data values\n` +
-            `\`/set\` \\- Set a setting\n`
+            `🔘 \`/help <command>\` \\- Show this help message\\. Add command name as argument to get additional information\\.\nExample: \`/help set\`\n` +
+            `🔘 \`/live\` \\- Get live data values\n` +
+            `🔘 \`/set\` \\- Set a setting\n`
         )
     } else if (args[0] === 'set') {
         return (
             `\`/set <setting_name> <value>\`\nSet a setting value\\.\nExample: \`/set polling_rate 15\`\n\n` +
             `*Available settings*\n` +
-            `\`polling_rate\` \\- Number of seconds between each polling\\.\n` +
-            `\`snapshot_persistance_interval\` \\- Number of seconds between each snapshot persistance\\.\n`
+            `🔘 \`polling_rate\` \\- Number of seconds between each polling\\.\n` +
+            `🔘 \`snapshot_persistance_interval\` \\- Number of seconds between each snapshot persistance\\.\n`
         )
     } else {
         return `⚠️ No help available for command \`"/${escapeMarkdown(args[0])}"\`\\.`
@@ -122,7 +122,7 @@ function handleCommandSet(ctx: Context): string {
             return `⚠️ Setting \`"${escapeMarkdown(settingName)}"\` cannot be set via Telegram bot\\. Please use the web interface to change this setting\\.`
         }
 
-        if (errors?.polling_rate) {
+        if (errors?.polling_rate || errors?.snapshot_persistance_interval) {
             return `⚠️ Error while validating value for setting \`"${escapeMarkdown(settingName)}"\`. Please check the value and try again\\.`
         } else {
             setSettingValue(settingName, settingValue)
