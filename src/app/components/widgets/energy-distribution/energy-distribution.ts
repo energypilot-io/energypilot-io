@@ -79,6 +79,8 @@ export class EnergyDistribution {
     }
 
     private addSnapshotsToChart(snapshot: any) {
+        const translatedHomeName = this.translate.instant('device.home')
+
         const links: SankeyLink[] = []
 
         const targetDeviceSnapshots = snapshot.device_snapshots
@@ -96,13 +98,13 @@ export class EnergyDistribution {
             })
             .map((deviceSnapshot: any) => {
                 return {
-                    deviceName: deviceSnapshot.device_name,
+                    deviceName:
+                        deviceSnapshot.device_id !== -1
+                            ? deviceSnapshot.device_name
+                            : translatedHomeName,
                     value: deviceSnapshot.value,
                 } as ConsumerValue
             })
-
-        var homePowerConsumption = 0
-        const translatedHomeName = this.translate.instant('device.home')
 
         targetDeviceSnapshots
             .filter((deviceSnapshot: any) => deviceSnapshot.value > 0)
@@ -139,23 +141,19 @@ export class EnergyDistribution {
                             value: value,
                         })
 
-                        homePowerConsumption += value
                         value = 0
                     }
                 }
             })
 
-        const nodes: SankeyNode[] = [
-            {
-                name: translatedHomeName,
-                itemStyle: { color: '#277DA1' },
-                value: homePowerConsumption,
-            },
-        ]
+        const nodes: SankeyNode[] = []
 
         targetDeviceSnapshots.forEach((deviceSnapshot: any) => {
             nodes.push({
-                name: deviceSnapshot.device_name,
+                name:
+                    deviceSnapshot.device_id !== -1
+                        ? deviceSnapshot.device_name
+                        : translatedHomeName,
                 itemStyle: { color: '#F3722C' },
                 value: deviceSnapshot.value,
             })

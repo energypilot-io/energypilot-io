@@ -94,7 +94,6 @@ export class EnergyLiveValues {
         const updatedDeviceValues: DeviceValue[] = []
 
         var totalPVPower = 0
-        var homePowerConsumption = 0
 
         snapshot.device_snapshots
             .filter((deviceSnapshot: any) => {
@@ -104,16 +103,15 @@ export class EnergyLiveValues {
                 )
             })
             .forEach((deviceSnapshot: any) => {
-                homePowerConsumption +=
-                    deviceSnapshot.name === 'power' ? deviceSnapshot.value : 0
-
                 if (deviceSnapshot.device_type === 'pv') {
                     totalPVPower += deviceSnapshot.value
                 } else {
                     updatedDeviceValues.push({
                         ...this.getDeviceValueEntry(
                             deviceSnapshot.name,
-                            deviceSnapshot.device_name,
+                            deviceSnapshot.device_id !== -1
+                                ? deviceSnapshot.device_name
+                                : this.translate.instant('device.home'),
                             deviceSnapshot.value
                         ),
                         id: updatedDeviceValues.length + 1,
@@ -126,15 +124,6 @@ export class EnergyLiveValues {
                 'power',
                 this.translate.instant('device.pv'),
                 totalPVPower
-            ),
-            id: updatedDeviceValues.length + 1,
-        })
-
-        updatedDeviceValues.push({
-            ...this.getDeviceValueEntry(
-                'power',
-                this.translate.instant('device.home'),
-                homePowerConsumption
             ),
             id: updatedDeviceValues.length + 1,
         })

@@ -20,6 +20,7 @@ import {
 } from './settings-manager'
 import { Setting } from '@/entities/settings.entity'
 import { sendEvent } from './message-bus.manager'
+import { VirtualDeviceHome } from '@/seeder/device.seeder'
 
 let _pollDataIntervalObject: NodeJS.Timeout
 let _persistSnapshotIntervalObject: NodeJS.Timeout
@@ -357,6 +358,33 @@ async function pollData() {
         }
         lock.release()
     }
+
+    const homeConsumptionDeviceValue = new DeviceValue({
+        device: VirtualDeviceHome,
+        name: 'power',
+        value: deviceValuesCache.reduce(
+            (acc: any, deviceValue: DeviceValue) => {
+                if (
+                    deviceValue.name === 'power' &&
+                    deviceValue.value !== null &&
+                    deviceValue.value !== undefined
+                ) {
+                    return acc - deviceValue.value
+                }
+
+                return acc
+            },
+            0
+        ),
+    })
+
+    if (!_deviceValuesPersistanceCache[VirtualDeviceHome.name]) {
+        _deviceValuesPersistanceCache[VirtualDeviceHome.name] = []
+    }
+    _deviceValuesPersistanceCache[VirtualDeviceHome.name].push([
+        homeConsumptionDeviceValue,
+    ])
+    deviceValuesCache.push(homeConsumptionDeviceValue)
 
     _lastLiveData = {
         created_at: new Date(),

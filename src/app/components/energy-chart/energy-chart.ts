@@ -236,7 +236,6 @@ export class EnergyChart {
 
             timestamps.push(new Date(snapshot.created_at))
 
-            var homePowerConsumption = 0
             var gridEnergyValues: { [name: string]: number } = {}
 
             snapshot.device_snapshots.forEach((deviceSnapshot: any) => {
@@ -245,14 +244,17 @@ export class EnergyChart {
                         deviceSnapshot.name === 'energy') &&
                     targetNames.includes(deviceSnapshot.name)
                 ) {
-                    if (!powerOrEnergyValues[deviceSnapshot.device_name]) {
-                        powerOrEnergyValues[deviceSnapshot.device_name] = []
+                    const deviceName =
+                        deviceSnapshot.device_id !== -1
+                            ? deviceSnapshot.device_name
+                            : translatedHomeName
+
+                    if (!powerOrEnergyValues[deviceName]) {
+                        powerOrEnergyValues[deviceName] = []
                     }
-                    powerOrEnergyValues[deviceSnapshot.device_name].push(
+                    powerOrEnergyValues[deviceName].push(
                         deviceSnapshot.value ?? 0
                     )
-
-                    homePowerConsumption += deviceSnapshot.value
                 } else if (
                     deviceSnapshot.name === 'soc' &&
                     targetNames.includes(deviceSnapshot.name)
@@ -286,8 +288,6 @@ export class EnergyChart {
                 if (!powerOrEnergyValues[deviceName]) {
                     powerOrEnergyValues[deviceName] = []
                 }
-
-                homePowerConsumption += gridEnergyValues[deviceName]
 
                 powerOrEnergyValues[deviceName].push(
                     gridEnergyValues[deviceName]
@@ -325,11 +325,6 @@ export class EnergyChart {
                         socValues[device.name].push(0.0)
                     }
                 })
-
-            if (!powerOrEnergyValues[translatedHomeName]) {
-                powerOrEnergyValues[translatedHomeName] = []
-            }
-            powerOrEnergyValues[translatedHomeName].push(-homePowerConsumption)
         })
 
         this.powerOrEnergyValues.set(powerOrEnergyValues)

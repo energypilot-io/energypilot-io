@@ -13,6 +13,7 @@ import {
 import config from '@/mikro-orm.config'
 import { ChildLogger, getLogger } from './logmanager'
 import { SettingEventSubscriber } from './settings-manager'
+import { DeviceSeeder } from '@/seeder/device.seeder'
 
 export type DatabaseInitObserver = () => void
 
@@ -63,6 +64,7 @@ export async function initDatabase() {
     })) as any
 
     await _orm.schema.update({ safe: true, dropTables: false })
+    await _orm.seeder.seed(DeviceSeeder)
 
     _initObservers.forEach(initObserver => {
         initObserver()

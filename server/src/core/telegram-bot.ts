@@ -137,53 +137,32 @@ function handleCommandSet(ctx: Context): string {
     }
 }
 
-function handleCommandLive(_ctx: Context): string {
+function handleCommandLive(ctx: Context): string {
     const liveData = getLastLiveData()
 
     if (!liveData) {
         return '⚠️ No live data available'
     }
 
-    let filteredSnapshots = liveData.device_snapshots.filter(
-        (snapshot: any) =>
-            ['power', 'soc'].includes(snapshot.name) &&
-            snapshot.value !== null &&
-            snapshot.value !== undefined
-    )
-
-    filteredSnapshots = [
-        ...filteredSnapshots,
-        {
-            device_name: 'Home',
-            device_type: 'home',
-            name: 'power',
-            value: liveData.device_snapshots.reduce(
-                (acc: number, snapshot: any) => {
-                    if (
-                        snapshot.name === 'power' &&
-                        snapshot.value !== null &&
-                        snapshot.value !== undefined
-                    ) {
-                        return acc + snapshot.value
-                    }
-                    return acc
-                },
-                0
-            ),
-        },
-    ]
+    let filteredSnapshots = liveData.device_snapshots
+        .filter(
+            (snapshot: any) =>
+                ['power', 'soc'].includes(snapshot.name) &&
+                snapshot.value !== null &&
+                snapshot.value !== undefined
+        )
+        .sort((a: any, b: any) => a.device_name.localeCompare(b.device_name))
 
     return (
-        '*Live Values*\n' +
-        'Created At: ' +
         '`' +
-        escapeMarkdown(new Date(liveData.created_at).toLocaleString()) +
+        escapeMarkdown(
+            new Date(liveData.created_at).toLocaleString(
+                ctx.from?.language_code
+            )
+        ) +
         '`' +
         '\n' +
         filteredSnapshots
-            .sort((a: any, b: any) =>
-                a.device_name.localeCompare(b.device_name)
-            )
             .map((snapshot: any) => {
                 let valueString = ''
 

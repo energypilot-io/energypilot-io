@@ -7,6 +7,7 @@ import { DeviceValue } from './entities/device.value.entity'
 import { SnapshotGroupedHourlyView } from './entities/snapshot.grouped.hourly.view.entity'
 import { SnapshotGroupedDailyView } from './entities/snapshot.grouped.daily.view.entity'
 import { Setting } from './entities/settings.entity'
+import { SeedManager } from '@mikro-orm/seeder'
 
 export default defineConfig({
     driver: SqliteDriver,
@@ -18,6 +19,7 @@ export default defineConfig({
         SnapshotGroupedDailyView,
         Setting,
     ],
+    extensions: [SeedManager],
     debug: process.env.NODE_ENV !== 'production',
     metadataProvider: TsMorphMetadataProvider,
     preferTs: true,

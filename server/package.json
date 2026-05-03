@@ -21,6 +21,7 @@
         "@mikro-orm/core": "^7.0.10",
         "@mikro-orm/decorators": "^7.0.10",
         "@mikro-orm/reflection": "^7.0.10",
+        "@mikro-orm/seeder": "^7.0.13",
         "@mikro-orm/sqlite": "^7.0.10",
         "adze": "^2.2.5",
         "compression": "^1.8.1",

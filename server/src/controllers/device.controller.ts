@@ -46,7 +46,9 @@ router.post('/', async (req: Request, res: Response) => {
 
 router.get('/', async (req: Request, res: Response) => {
     try {
-        const devices = await getEntityManager().findAll(Device)
+        const devices = (await getEntityManager().findAll(Device)).filter(
+            device => device.id! >= 0
+        )
 
         return res.json(devices)
     } catch (e: any) {
@@ -56,6 +58,12 @@ router.get('/', async (req: Request, res: Response) => {
 
 router.get('/:id', async (req: Request, res: Response) => {
     try {
+        if (req.params.id.toString() < '0') {
+            return res
+                .status(500)
+                .json({ message: 'Virtual device cannot be retrieved' })
+        }
+
         const device = await getEntityManager().findOne(Device, {
             id: parseInt(req.params.id as string),
         })
@@ -72,6 +80,12 @@ router.get('/:id', async (req: Request, res: Response) => {
 
 router.delete('/:id', async (req: Request, res: Response) => {
     try {
+        if (req.params.id.toString() < '0') {
+            return res
+                .status(500)
+                .json({ message: 'Virtual device cannot be deleted' })
+        }
+
         const device = await getEntityManager().findOne(Device, {
             id: parseInt(req.params.id as string),
         })

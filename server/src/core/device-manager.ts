@@ -35,7 +35,10 @@ export async function initDeviceManager() {
     buildDeviceRegistry()
     buildDeviceRegistrySchema()
 
-    const devices = await getEntityManager().findAll(Device)
+    const devices = (await getEntityManager().findAll(Device)).filter(
+        device => device.id! >= 0
+    )
+
     for (const device of devices) {
         _logger.info(`Loaded device [${device.name}] from database`)
 
@@ -259,7 +262,10 @@ export async function createDevice(
 }
 
 export function removeDevice(deviceName: string) {
-    if (deviceName in _deviceInstances) {
+    if (
+        deviceName in _deviceInstances &&
+        _deviceInstances[deviceName].deviceDefinition.id! >= 0
+    ) {
         delete _deviceInstances[deviceName]
     }
 }
