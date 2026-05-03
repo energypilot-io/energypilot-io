@@ -19,13 +19,13 @@ type SankeyNode = { name: string; value: number; itemStyle?: any }
 type SankeyLink = { source: string; target: string; value: number }
 
 @Component({
-    selector: 'app-energy-distribution',
+    selector: 'widget-energy-distribution',
     imports: [NgxEchartsDirective, TranslatePipe],
     templateUrl: './energy-distribution.html',
     styleUrl: './energy-distribution.scss',
     providers: [provideEchartsCore({ echarts })],
 })
-export class EnergyDistribution {
+export class EnergyDistributionWidget {
     private api = inject(ApiService)
     private websocket = inject(WebsocketService)
     private translate = inject(TranslateService)

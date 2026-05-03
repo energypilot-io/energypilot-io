@@ -35,7 +35,7 @@ echarts.use([TooltipComponent, PieChart, CanvasRenderer, GridComponent])
     styleUrl: './energy-kpis.scss',
     providers: [provideEchartsCore({ echarts })],
 })
-export class EnergyKpis {
+export class EnergyKpisWidget {
     readonly api = inject(ApiService)
     readonly websocket = inject(WebsocketService)
     readonly translate = inject(TranslateService)

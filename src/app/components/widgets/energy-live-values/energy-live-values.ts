@@ -26,7 +26,7 @@ type DeviceValue = {
 }
 
 @Component({
-    selector: 'app-energy-live-values',
+    selector: 'widget-energy-live-values',
     imports: [NgIcon, TranslatePipe],
     templateUrl: './energy-live-values.html',
     styleUrl: './energy-live-values.scss',
@@ -42,7 +42,7 @@ type DeviceValue = {
         }),
     ],
 })
-export class EnergyLiveValues {
+export class EnergyLiveValuesWidget {
     readonly api = inject(ApiService)
     readonly websocket = inject(WebsocketService)
     readonly translate = inject(TranslateService)
