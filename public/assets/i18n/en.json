@@ -68,6 +68,14 @@
             },
             "polling_rate": "Polling Rate",
             "snapshot_persistance_interval": "Snapshot Persistance Interval"
+        },
+
+        "telegram_bot": {
+            "group": {
+                "title": "Telegram Bot",
+                "description": "Settings for the Telegram Bot"
+            },
+            "telegram_bot_token": "Token"
         }
     },
 
