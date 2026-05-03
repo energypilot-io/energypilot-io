@@ -1,5 +1,5 @@
-import { getDeviceInstances, resetAllDeviceCaches } from './device-manager'
-import { ChildLogger, getLogger } from './logmanager'
+import { getDeviceInstances, resetAllDeviceCaches } from './device.manager'
+import { ChildLogger, getLogger } from './log.manager'
 import { Snapshot } from '@/entities/snapshot.entity'
 import { persistEntity } from './database'
 import { DeviceValue } from '@/entities/device.value.entity'
@@ -17,9 +17,9 @@ import {
     SETTING_POLLING_RATE,
     SETTING_SNAPSHOT_PERSISTANCE_INTERVAL,
     SettingChangeObserver,
-} from './settings-manager'
+} from './setting.manager'
 import { Setting } from '@/entities/settings.entity'
-import { sendEvent } from './message-bus.manager'
+import { sendEvent } from './event.manager'
 import { VirtualDeviceHome } from '@/seeder/device.seeder'
 
 let _pollDataIntervalObject: NodeJS.Timeout

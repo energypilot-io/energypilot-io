@@ -19,7 +19,7 @@ import functions from '@csllc/cs-modbus/lib/functions'
 
 import AsciiTransport from '@/libs/cs-modbus/transports/AsciiTransport'
 
-import { ChildLogger, getLogger } from '@/core/logmanager'
+import { ChildLogger, getLogger } from '@/core/log.manager'
 import { IInterface } from './interface'
 import {
     validateAllowedValues,

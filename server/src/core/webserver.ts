@@ -4,7 +4,7 @@ import compression from 'compression'
 
 import { createServer, Server as HTTPServer } from 'http'
 import { Server as SocketServer } from 'socket.io'
-import { getLogger } from './logmanager'
+import { getLogger } from './log.manager'
 
 import {
     DeviceController,

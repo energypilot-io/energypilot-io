@@ -11,8 +11,8 @@ import {
 } from '@mikro-orm/sqlite'
 
 import config from '@/mikro-orm.config'
-import { ChildLogger, getLogger } from './logmanager'
-import { SettingEventSubscriber } from './settings-manager'
+import { ChildLogger, getLogger } from './log.manager'
+import { SettingEventSubscriber } from './setting.manager'
 import { DeviceSeeder } from '@/seeder/device.seeder'
 
 export type DatabaseInitObserver = () => void

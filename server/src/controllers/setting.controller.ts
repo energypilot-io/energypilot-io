@@ -8,7 +8,7 @@ import {
     getSettingSchema,
     setSettingValue,
     validateSettingsInput,
-} from '@/core/settings-manager'
+} from '@/core/setting.manager'
 
 const router = express.Router()
 

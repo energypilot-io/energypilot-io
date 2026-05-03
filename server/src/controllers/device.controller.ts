@@ -8,7 +8,7 @@ import {
     getDeviceClassForDeviceDefinition,
     getDeviceRegistrySchema,
     removeDevice,
-} from '@/core/device-manager'
+} from '@/core/device.manager'
 import { RegisteredInterfaceClasses } from '@/core/config'
 
 const router = express.Router()

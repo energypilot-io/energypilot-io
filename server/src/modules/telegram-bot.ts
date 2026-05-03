@@ -1,5 +1,5 @@
 import { Telegraf, Context } from 'telegraf'
-import { ChildLogger, getLogger } from './logmanager'
+import { ChildLogger, getLogger } from '../core/log.manager'
 import {
     getSettingValue,
     registerSettingChangeObserver,
@@ -8,9 +8,9 @@ import {
     SettingChangeObserver,
     validateSettingPollingRate,
     validateSettingSnapshotPersistenceInterval,
-} from './settings-manager'
+} from '../core/setting.manager'
 import { Setting } from '@/entities/settings.entity'
-import { getLastLiveData } from './data-update-manager'
+import { getLastLiveData } from '../core/data-update.manager'
 import { escapeMarkdown, toPowerString } from '@/libs/utils'
 
 let _bot: Telegraf = undefined as any

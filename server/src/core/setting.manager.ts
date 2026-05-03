@@ -27,7 +27,7 @@ export const ALLOWED_SETTINGS = [
     SETTING_TELEGRAM_BOT_TOKEN,
 ]
 
-export async function initSettingsManager() {}
+export async function initSettingManager() {}
 
 export function getSettingSchema() {
     return [

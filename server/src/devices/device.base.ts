@@ -1,4 +1,4 @@
-import { ChildLogger, getLogger } from '@/core/logmanager'
+import { ChildLogger, getLogger } from '@/core/log.manager'
 import { Device } from '@/entities/device.entity'
 import { IInterface } from '@/interfaces/interface'
 

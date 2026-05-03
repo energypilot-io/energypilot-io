@@ -1,8 +1,12 @@
-import { ChildLogger, getLogger } from '@/core/logmanager'
+import { ChildLogger, getLogger } from '@/core/log.manager'
 import { IInterface } from './interface'
 
 import { loginDeviceByIp } from 'tp-link-tapo-connect'
-import { validateEmail, validateIPAddress, validateIsNotEmpty } from '@/libs/validators'
+import {
+    validateEmail,
+    validateIPAddress,
+    validateIsNotEmpty,
+} from '@/libs/validators'
 
 type TPLinkTapoParameterDef = {
     scale: number
@@ -26,7 +30,9 @@ export class TPLinkTapoInterface extends IInterface {
         this._properties = properties
     }
 
-    static override validateParameters(parameters: { [key: string]: string }): { [key: string]: string } {
+    static override validateParameters(parameters: { [key: string]: string }): {
+        [key: string]: string
+    } {
         const errors: { [key: string]: string } = {
             ...validateIsNotEmpty('password', parameters['password'] ?? ''),
             ...validateIPAddress('ip', parameters['ip'] ?? ''),

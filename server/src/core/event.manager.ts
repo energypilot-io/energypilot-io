@@ -1,4 +1,4 @@
-import { ChildLogger, getLogger } from './logmanager'
+import { ChildLogger, getLogger } from './log.manager'
 import { emitWebsocketEvent } from './webserver'
 
 const _observers: NotificationObserver[] = []
@@ -9,7 +9,7 @@ export abstract class NotificationObserver {
     abstract onNotification(event: string, ...args: any[]): void
 }
 
-export async function initMessageBusManager() {
+export async function initEventManager() {
     _logger = getLogger('message-bus')
 }
 
