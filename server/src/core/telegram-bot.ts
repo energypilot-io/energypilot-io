@@ -1,5 +1,4 @@
 import { Telegraf, Context } from 'telegraf'
-import { message } from 'telegraf/filters'
 import { ChildLogger, getLogger } from './logmanager'
 import {
     getSettingValue,
@@ -12,12 +11,17 @@ import {
 } from './settings-manager'
 import { Setting } from '@/entities/settings.entity'
 import { getLastLiveData } from './data-update-manager'
-import { escapeMarkdown, toEnergyString, toPowerString } from '@/libs/utils'
+import { escapeMarkdown, toPowerString } from '@/libs/utils'
 
 let _bot: Telegraf = undefined as any
 let _logger: ChildLogger
 
 let _token: string | null | undefined = null
+
+const _availableSettingsMessage: string =
+    `*Available settings*\n` +
+    `🔘 \`polling_rate\` \\- Number of seconds between each polling\\.\n` +
+    `🔘 \`snapshot_persistance_interval\` \\- Number of seconds between each snapshot persistance\\.\n`
 
 class TelegramBotSettingChangeObserver extends SettingChangeObserver {
     getObservedSettings(): string[] {
@@ -64,11 +68,6 @@ function createTelegramBot() {
         _logger.error('Telegram bot error', { error: err })
     )
 
-    // _bot.start((ctx: Context) => ctx.reply('Welcome'))
-    // _bot.help((ctx: Context) => ctx.reply('Send me a sticker'))
-    // _bot.on(message('sticker'), (ctx: Context) => ctx.reply('👍'))
-    // _bot.hears('hi', (ctx: Context) => ctx.reply('Hey there'))
-
     _bot.help((ctx: Context) => ctx.replyWithMarkdownV2(getHelpMessage(ctx)))
 
     _bot.command('live', (ctx: Context) => {
@@ -79,10 +78,17 @@ function createTelegramBot() {
         ctx.replyWithMarkdownV2(handleCommandSet(ctx))
     })
 
+    _bot.command('get', async (ctx: Context) => {
+        ctx.replyWithMarkdownV2(await handleCommandGet(ctx))
+    })
+
+    _bot.telegram.setMyDescription('EnergyPilot.io Telegram Bot')
+
     _bot.telegram.setMyCommands([
         { command: 'help', description: 'Show help message' },
         { command: 'live', description: 'Get live data values' },
         { command: 'set', description: 'Set a setting value' },
+        { command: 'get', description: 'Get a setting value' },
     ])
 
     _bot.launch()
@@ -96,17 +102,39 @@ function getHelpMessage(ctx: Context): string {
         return (
             `🔘 \`/help <command>\` \\- Show this help message\\. Add command name as argument to get additional information\\.\nExample: \`/help set\`\n` +
             `🔘 \`/live\` \\- Get live data values\n` +
-            `🔘 \`/set\` \\- Set a setting\n`
+            `🔘 \`/set\` \\- Set a setting value\n` +
+            `🔘 \`/get\` \\- Get a setting value\n`
         )
     } else if (args[0] === 'set') {
         return (
             `\`/set <setting_name> <value>\`\nSet a setting value\\.\nExample: \`/set polling_rate 15\`\n\n` +
-            `*Available settings*\n` +
-            `🔘 \`polling_rate\` \\- Number of seconds between each polling\\.\n` +
-            `🔘 \`snapshot_persistance_interval\` \\- Number of seconds between each snapshot persistance\\.\n`
+            _availableSettingsMessage
+        )
+    } else if (args[0] === 'get') {
+        return (
+            `\`/get <setting_name>\`\nGet a setting value\\.\nExample: \`/get polling_rate\`\n\n` +
+            _availableSettingsMessage
         )
     } else {
         return `⚠️ No help available for command \`"/${escapeMarkdown(args[0])}"\`\\.`
+    }
+}
+
+async function handleCommandGet(ctx: Context): Promise<string> {
+    const args = ctx.text!.split(' ').slice(1)
+
+    if (args.length < 1) {
+        return '⚠️ Please provide a setting name\\. Example: `/get polling_rate`\\. Use `"/help get"` for more information\\.'
+    } else {
+        const settingName = args[0]
+
+        const settingValue = await getSettingValue(settingName)
+
+        if (settingValue === undefined) {
+            return `⚠️ Setting \`"${escapeMarkdown(settingName)}"\` not found\\.`
+        }
+
+        return `\`"${escapeMarkdown(settingValue !== null ? settingValue.toString() : '<not set>')}"\``
     }
 }
 
