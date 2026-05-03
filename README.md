@@ -4,6 +4,7 @@ EnergyPilot.io is an easy to use and feature rich Energy Management Platform foc
 
 ![Screenshot](docs/screenshots/dashboard.png)
 ![Screenshot](docs/screenshots/dashboard_mobile.png)
+![Screenshot](docs/screenshots/telegram_bot.png)
 
 ## Features
 
@@ -11,9 +12,9 @@ EnergyPilot.io is an easy to use and feature rich Energy Management Platform foc
 
 ⚡ Easy to configure and use
 
-⚡ Drag-and-Drop customizable dashboard
-
 ⚡ Ready to use Docker image
+
+⚡ Integrated Telegram bot
 
 ⚡ Multilanguage support
 
@@ -24,6 +25,7 @@ EnergyPilot.io is an easy to use and feature rich Energy Management Platform foc
 ### Solar systems
 
 - Sungrow Hybrid
+- Sungrow Wallbox AC011E-01
 
 ### Wallboxes
 
@@ -81,11 +83,19 @@ Run the following command to start the Homebridge Docker container:
 docker-compose up -d
 ```
 
+## Create Telegram bot token
+
+- Start a chat with <a href="https://t.me/botfather" target="_blank">@BotFather</a> on Telegram
+- Send the command `/newbot` and follow the instructions in the chat
+- After completing all steps, the Telegram bot token will be created and returned in the chat
+- Paste the token into the settings page of your EnergyPilot.io instance
+- You can start chatting to your created bot and interact with your EnergyPilot.io instance from anywhere in the world
+
 ## Setup Development Environment
 
 ### Requirements
 
-- Node.js installation >= 22.12.0
+- Node.js installation >= 24.14.1
 - Clone/Download the Git Repository to your local drive
 
 ### Setup environment
