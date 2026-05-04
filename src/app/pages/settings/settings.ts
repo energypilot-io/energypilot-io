@@ -5,6 +5,7 @@ import { AbstractControl, FormGroup, ReactiveFormsModule } from '@angular/forms'
 import { FormlyFieldConfig, FormlyForm } from '@ngx-formly/core'
 import { FormlyJsonschema } from '@ngx-formly/core/json-schema'
 import { TranslatePipe } from '@ngx-translate/core'
+import { MarkdownModule, provideMarkdown } from 'ngx-markdown'
 import _ from 'lodash'
 
 @Component({
@@ -15,9 +16,11 @@ import _ from 'lodash'
         TranslatePipe,
         KeyValuePipe,
         NgTemplateOutlet,
+        MarkdownModule,
     ],
     templateUrl: './settings.html',
     styleUrl: './settings.scss',
+    providers: [provideMarkdown()],
 })
 export class SettingsPage {
     readonly api = inject(ApiService)

@@ -73,7 +73,7 @@
         "telegram_bot": {
             "group": {
                 "title": "Telegram Bot",
-                "description": "Einstellungen für den Telegram Bot"
+                "description": "Einstellungen für den Telegram Bot\n* Der Bot muss bereits erstellt und mit einem Chat verbunden sein, damit er funktioniert\n* Um den Chat zu verbinden, senden Sie eine Nachricht an den Bot und rufen Sie dann die API /api/v1/telegram/connect auf"
             },
             "telegram_bot_token": "Token"
         }

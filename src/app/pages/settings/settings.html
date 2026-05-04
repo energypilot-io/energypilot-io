@@ -8,7 +8,12 @@
             <div
                 class="alert bg-info bg-opacity-10 text-dark-emphasis d-flex align-items-center"
                 role="alert">
-                {{ `settings.${fieldGroup.key}.group.description` | translate }}
+                <markdown ngPreserveWhitespaces>
+                    {{
+                        `settings.${fieldGroup.key}.group.description`
+                            | translate
+                    }}
+                </markdown>
             </div>
 
             <formly-form
