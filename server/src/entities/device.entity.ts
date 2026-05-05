@@ -32,7 +32,7 @@ export class Device {
     @Property()
     properties!: string
 
-    connected: boolean = false
+    connected: boolean | undefined = undefined
 
     constructor(options: {
         id?: number

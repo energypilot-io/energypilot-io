@@ -20,6 +20,12 @@ body {
     height: 100vh;
 }
 
+markdown p,
+markdown ol,
+markdown ul {
+    margin-bottom: 0 !important;
+}
+
 .font-leckerli {
     font-family: 'Leckerli One';
 }

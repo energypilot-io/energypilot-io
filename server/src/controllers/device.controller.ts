@@ -6,6 +6,7 @@ import { Device } from '@/entities/device.entity'
 import {
     createDevice,
     getDeviceClassForDeviceDefinition,
+    getDeviceInstances,
     getDeviceRegistrySchema,
     removeDevice,
 } from '@/core/device.manager'
@@ -46,11 +47,18 @@ router.post('/', async (req: Request, res: Response) => {
 
 router.get('/', async (req: Request, res: Response) => {
     try {
-        const devices = (await getEntityManager().findAll(Device)).filter(
-            device => device.id! >= 0
+        const deviceInstances = getDeviceInstances()
+        return res.json(
+            Object.keys(deviceInstances)
+                .map(key => deviceInstances[key].deviceDefinition)
+                .filter((device: Device) => device.id! >= 0)
+                .map((device: Device) => {
+                    return {
+                        ...device,
+                        connected: device.connected,
+                    }
+                })
         )
-
-        return res.json(devices)
     } catch (e: any) {
         return res.status(400).json({ message: e.message })
     }
@@ -64,15 +72,26 @@ router.get('/:id', async (req: Request, res: Response) => {
                 .json({ message: 'Virtual device cannot be retrieved' })
         }
 
-        const device = await getEntityManager().findOne(Device, {
-            id: parseInt(req.params.id as string),
-        })
+        const deviceInstances = getDeviceInstances()
+        const filteredDevices = Object.keys(deviceInstances)
+            .map(key => deviceInstances[key].deviceDefinition)
+            .filter(
+                (device: Device) =>
+                    device.id! === parseInt(req.params.id as string)
+            )
 
-        if (!device) {
+        if (filteredDevices.length === 0) {
             return res.status(404).json({ message: 'Device not found' })
+        } else if (filteredDevices.length > 1) {
+            return res
+                .status(500)
+                .json({ message: 'Multiple devices found with the same id' })
         }
 
-        return res.json(device)
+        return res.json({
+            ...filteredDevices[0],
+            connected: filteredDevices[0].connected,
+        })
     } catch (e: any) {
         return res.status(400).json({ message: e.message })
     }

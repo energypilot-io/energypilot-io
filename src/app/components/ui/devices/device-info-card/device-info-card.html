@@ -19,9 +19,9 @@
                 name="tablerCircleFill"
                 size="24"
                 [color]="
-                    !liveValues()
+                    device.connected === undefined
                         ? 'var(--bs-secondary-bg)'
-                        : (liveValues()! | keyvalue).length > 0
+                        : device.connected > 0
                           ? 'var(--bs-success)'
                           : 'var(--bs-danger)'
                 " />
