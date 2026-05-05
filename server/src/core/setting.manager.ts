@@ -25,7 +25,23 @@ export const SETTING_FORECAST_AZIMUTH = 'azimuth'
 export const SETTING_FORECAST_MAXKWP = 'max_kwp'
 
 export const DEFAULT_POLLING_RATE = 10
-export const DEFAULT_SETTING_SNAPSHOT_PERSISTANCE_INTERVAL = 5 * 60
+export const MIN_POLLING_RATE = 10
+export const DEFAULT_SNAPSHOT_PERSISTANCE_INTERVAL = 5 * 60
+export const MIN_SNAPSHOT_PERSISTANCE_INTERVAL = 60
+
+export const MIN_FORECAST_LATITUDE = -90
+export const MAX_FORECAST_LATITUDE = 90
+
+export const MIN_FORECAST_LONGITUDE = -180
+export const MAX_FORECAST_LONGITUDE = 180
+
+export const MIN_FORECAST_DECLINATION = 0
+export const MAX_FORECAST_DECLINATION = 90
+
+export const MIN_FORECAST_AZIMUTH = -180
+export const MAX_FORECAST_AZIMUTH = 180
+
+export const MIN_FORECAST_MAXKWP = 1
 
 export const ALLOWED_SETTINGS = [
     SETTING_POLLING_RATE,
@@ -69,8 +85,7 @@ export function getSettingSchema() {
 
     settingGroups.polling.schema.properties[SETTING_POLLING_RATE] = {
         type: 'number',
-        minimum: 1,
-        maximum: 200,
+        minimum: MIN_POLLING_RATE,
         default: DEFAULT_POLLING_RATE,
 
         widget: {
@@ -88,9 +103,8 @@ export function getSettingSchema() {
         SETTING_SNAPSHOT_PERSISTANCE_INTERVAL
     ] = {
         type: 'number',
-        minimum: 1 * 60,
-        maximum: 60 * 60,
-        default: DEFAULT_SETTING_SNAPSHOT_PERSISTANCE_INTERVAL,
+        minimum: MIN_SNAPSHOT_PERSISTANCE_INTERVAL,
+        default: DEFAULT_SNAPSHOT_PERSISTANCE_INTERVAL,
 
         widget: {
             formlyConfig: {
@@ -119,20 +133,20 @@ export function getSettingSchema() {
 
     settingGroups.forecast.schema.properties[SETTING_FORECAST_LATITUDE] = {
         type: 'number',
-        minimum: -90,
-        maximum: 90,
+        minimum: MIN_FORECAST_LATITUDE,
+        maximum: MAX_FORECAST_LATITUDE,
     }
 
     settingGroups.forecast.schema.properties[SETTING_FORECAST_LONGITUDE] = {
         type: 'number',
-        minimum: -180,
-        maximum: 180,
+        minimum: MIN_FORECAST_LONGITUDE,
+        maximum: MAX_FORECAST_LONGITUDE,
     }
 
     settingGroups.forecast.schema.properties[SETTING_FORECAST_DECLINATION] = {
         type: 'number',
-        minimum: 0,
-        maximum: 90,
+        minimum: MIN_FORECAST_DECLINATION,
+        maximum: MAX_FORECAST_DECLINATION,
 
         widget: {
             formlyConfig: {
@@ -147,8 +161,8 @@ export function getSettingSchema() {
 
     settingGroups.forecast.schema.properties[SETTING_FORECAST_AZIMUTH] = {
         type: 'number',
-        minimum: -180,
-        maximum: 180,
+        minimum: MIN_FORECAST_AZIMUTH,
+        maximum: MAX_FORECAST_AZIMUTH,
 
         widget: {
             formlyConfig: {
@@ -163,7 +177,7 @@ export function getSettingSchema() {
 
     settingGroups.forecast.schema.properties[SETTING_FORECAST_MAXKWP] = {
         type: 'number',
-        minimum: 0,
+        minimum: MIN_FORECAST_MAXKWP,
 
         widget: {
             formlyConfig: {

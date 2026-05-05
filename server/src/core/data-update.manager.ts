@@ -10,6 +10,8 @@ import { GridDevice } from '@/devices/grid.device'
 import { PVDevice } from '@/devices/pv.device'
 import { ConsumerDevice } from '@/devices/consumer.device'
 import {
+    MIN_POLLING_RATE,
+    MIN_SNAPSHOT_PERSISTANCE_INTERVAL,
     registerSettingChangeObserver,
     SETTING_POLLING_RATE,
     SETTING_SNAPSHOT_PERSISTANCE_INTERVAL,
@@ -45,10 +47,12 @@ class UpdateManagerSettingChangeObserver extends SettingChangeObserver {
         if (!value) return
 
         if (name === SETTING_POLLING_RATE) {
-            _pollInterval = parseInt(value) * 1000
+            _pollInterval = Math.max(MIN_POLLING_RATE, parseInt(value)) * 1000
             createPollingInterval()
         } else if (name === SETTING_SNAPSHOT_PERSISTANCE_INTERVAL) {
-            _snapshotPersistInterval = parseInt(value) * 1000
+            _snapshotPersistInterval =
+                Math.max(MIN_SNAPSHOT_PERSISTANCE_INTERVAL, parseInt(value)) *
+                1000
             createSnapshotPersistInterval()
         }
     }
