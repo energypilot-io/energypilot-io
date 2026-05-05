@@ -10,15 +10,11 @@ import { GridDevice } from '@/devices/grid.device'
 import { PVDevice } from '@/devices/pv.device'
 import { ConsumerDevice } from '@/devices/consumer.device'
 import {
-    DEFAULT_POLLING_RATE,
-    DEFAULT_SETTING_SNAPSHOT_PERSISTANCE_INTERVAL,
-    getSettingValue,
     registerSettingChangeObserver,
     SETTING_POLLING_RATE,
     SETTING_SNAPSHOT_PERSISTANCE_INTERVAL,
     SettingChangeObserver,
 } from './setting.manager'
-import { Setting } from '@/entities/settings.entity'
 import { sendEvent } from './event.manager'
 import { VirtualDeviceHome } from '@/seeder/device.seeder'
 
@@ -45,14 +41,14 @@ class UpdateManagerSettingChangeObserver extends SettingChangeObserver {
         return [SETTING_POLLING_RATE, SETTING_SNAPSHOT_PERSISTANCE_INTERVAL]
     }
 
-    onSettingChange(setting: Setting): void {
-        if (!setting.value) return
+    onSettingChange(name: string, value?: any): void {
+        if (!value) return
 
-        if (setting.name === SETTING_POLLING_RATE) {
-            _pollInterval = parseInt(setting.value) * 1000
+        if (name === SETTING_POLLING_RATE) {
+            _pollInterval = parseInt(value) * 1000
             createPollingInterval()
-        } else if (setting.name === SETTING_SNAPSHOT_PERSISTANCE_INTERVAL) {
-            _snapshotPersistInterval = parseInt(setting.value) * 1000
+        } else if (name === SETTING_SNAPSHOT_PERSISTANCE_INTERVAL) {
+            _snapshotPersistInterval = parseInt(value) * 1000
             createSnapshotPersistInterval()
         }
     }
@@ -61,26 +57,11 @@ class UpdateManagerSettingChangeObserver extends SettingChangeObserver {
 export async function initDataUpdateManager() {
     _logger = getLogger('dataupdate')
 
-    registerSettingChangeObserver(new UpdateManagerSettingChangeObserver())
-
-    _pollInterval =
-        parseInt(
-            (await getSettingValue(SETTING_POLLING_RATE)) ||
-                DEFAULT_POLLING_RATE.toString()
-        ) * 1000
-
-    _snapshotPersistInterval =
-        parseInt(
-            (await getSettingValue(SETTING_SNAPSHOT_PERSISTANCE_INTERVAL)) ||
-                DEFAULT_SETTING_SNAPSHOT_PERSISTANCE_INTERVAL.toString()
-        ) * 1000
-
-    _logger.info(
-        `Data update manager initialized with polling rate of ${_pollInterval} ms and snapshot persistence interval of ${_snapshotPersistInterval} ms`
+    await registerSettingChangeObserver(
+        new UpdateManagerSettingChangeObserver()
     )
 
-    createPollingInterval()
-    createSnapshotPersistInterval()
+    _logger.info('Data update manager initialized')
 
     process.on('exit', () => {
         clearInterval(_pollDataIntervalObject)
@@ -110,6 +91,10 @@ function createSnapshotPersistInterval() {
     _persistSnapshotIntervalObject = setInterval(
         persistSnapshot,
         _snapshotPersistInterval
+    )
+
+    _logger.info(
+        `Snapshot persistance interval set to ${_snapshotPersistInterval} ms`
     )
 }
 

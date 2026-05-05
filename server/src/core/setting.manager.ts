@@ -7,7 +7,7 @@ import { EntityManager } from '@mikro-orm/sqlite'
 export abstract class SettingChangeObserver {
     abstract getObservedSettings(): string[]
 
-    abstract onSettingChange(setting: Setting): void
+    abstract onSettingChange(name: string, value?: any): void
 }
 
 const _settingChangeObservers: SettingChangeObserver[] = []
@@ -16,142 +16,167 @@ export const SETTING_POLLING_RATE = 'polling_rate'
 export const SETTING_SNAPSHOT_PERSISTANCE_INTERVAL =
     'snapshot_persistance_interval'
 
+export const SETTING_TELEGRAM_BOT_TOKEN = 'telegram_bot_token'
+
+export const SETTING_FORECAST_LATITUDE = 'latitude'
+export const SETTING_FORECAST_LONGITUDE = 'longitude'
+export const SETTING_FORECAST_DECLINATION = 'declination'
+export const SETTING_FORECAST_AZIMUTH = 'azimuth'
+export const SETTING_FORECAST_MAXKWP = 'max_kwp'
+
 export const DEFAULT_POLLING_RATE = 10
 export const DEFAULT_SETTING_SNAPSHOT_PERSISTANCE_INTERVAL = 5 * 60
-
-export const SETTING_TELEGRAM_BOT_TOKEN = 'telegram_bot_token'
 
 export const ALLOWED_SETTINGS = [
     SETTING_POLLING_RATE,
     SETTING_SNAPSHOT_PERSISTANCE_INTERVAL,
     SETTING_TELEGRAM_BOT_TOKEN,
+    SETTING_FORECAST_LATITUDE,
+    SETTING_FORECAST_LONGITUDE,
+    SETTING_FORECAST_DECLINATION,
+    SETTING_FORECAST_AZIMUTH,
+    SETTING_FORECAST_MAXKWP,
 ]
 
 export async function initSettingManager() {}
 
 export function getSettingSchema() {
-    return [
-        {
+    const settingGroups: { [groupName: string]: any } = {
+        polling: {
             group: 'polling',
             schema: {
                 type: 'object',
-                properties: {
-                    polling_rate: {
-                        type: 'number',
-                        minimum: 1,
-                        maximum: 200,
-                        default: DEFAULT_POLLING_RATE,
-
-                        widget: {
-                            formlyConfig: {
-                                props: {
-                                    addonRight: {
-                                        text: 's',
-                                    },
-                                },
-                            },
-                        },
-                    },
-
-                    snapshot_persistance_interval: {
-                        type: 'number',
-                        minimum: 1 * 60,
-                        maximum: 60 * 60,
-                        default: DEFAULT_SETTING_SNAPSHOT_PERSISTANCE_INTERVAL,
-
-                        widget: {
-                            formlyConfig: {
-                                props: {
-                                    addonRight: {
-                                        text: 's',
-                                    },
-                                },
-                            },
-                        },
-                    },
-                },
-
-                required: ['polling_rate', 'snapshot_persistance_interval'],
+                properties: {},
             },
         },
 
-        {
+        telegram_bot: {
             group: 'telegram_bot',
             schema: {
                 type: 'object',
-                properties: {
-                    telegram_bot_token: {
-                        type: 'string',
-                        minLength: 1,
-                        default: '',
-                    },
-                },
+                properties: {},
             },
         },
 
-        {
+        forecast: {
             group: 'forecast',
             schema: {
                 type: 'object',
-                properties: {
-                    latitude: {
-                        type: 'number',
-                        minimum: -90,
-                        maximum: 90,
-                    },
-                    longitude: {
-                        type: 'number',
-                        minimum: -180,
-                        maximum: 180,
-                    },
-                    declination: {
-                        type: 'number',
-                        minimum: 0,
-                        maximum: 90,
+                properties: {},
+            },
+        },
+    }
 
-                        widget: {
-                            formlyConfig: {
-                                props: {
-                                    addonRight: {
-                                        text: 'deg',
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    azimuth: {
-                        type: 'number',
-                        minimum: -180,
-                        maximum: 180,
+    settingGroups.polling.schema.properties[SETTING_POLLING_RATE] = {
+        type: 'number',
+        minimum: 1,
+        maximum: 200,
+        default: DEFAULT_POLLING_RATE,
 
-                        widget: {
-                            formlyConfig: {
-                                props: {
-                                    addonRight: {
-                                        text: 'deg',
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    max_kwp: {
-                        type: 'number',
-                        minimum: 0,
-
-                        widget: {
-                            formlyConfig: {
-                                props: {
-                                    addonRight: {
-                                        text: 'kWp',
-                                    },
-                                },
-                            },
-                        },
+        widget: {
+            formlyConfig: {
+                props: {
+                    addonRight: {
+                        text: 's',
                     },
                 },
             },
         },
-    ]
+    }
+
+    settingGroups.polling.schema.properties[
+        SETTING_SNAPSHOT_PERSISTANCE_INTERVAL
+    ] = {
+        type: 'number',
+        minimum: 1 * 60,
+        maximum: 60 * 60,
+        default: DEFAULT_SETTING_SNAPSHOT_PERSISTANCE_INTERVAL,
+
+        widget: {
+            formlyConfig: {
+                props: {
+                    addonRight: {
+                        text: 's',
+                    },
+                },
+            },
+        },
+    }
+
+    settingGroups.polling.schema = {
+        ...settingGroups.polling.schema,
+        required: [
+            'SETTING_POLLING_RATE',
+            'SETTING_SNAPSHOT_PERSISTANCE_INTERVAL',
+        ],
+    }
+
+    settingGroups.telegram_bot.schema.properties[SETTING_TELEGRAM_BOT_TOKEN] = {
+        type: 'string',
+        minLength: 1,
+        default: '',
+    }
+
+    settingGroups.forecast.schema.properties[SETTING_FORECAST_LATITUDE] = {
+        type: 'number',
+        minimum: -90,
+        maximum: 90,
+    }
+
+    settingGroups.forecast.schema.properties[SETTING_FORECAST_LONGITUDE] = {
+        type: 'number',
+        minimum: -180,
+        maximum: 180,
+    }
+
+    settingGroups.forecast.schema.properties[SETTING_FORECAST_DECLINATION] = {
+        type: 'number',
+        minimum: 0,
+        maximum: 90,
+
+        widget: {
+            formlyConfig: {
+                props: {
+                    addonRight: {
+                        text: 'deg',
+                    },
+                },
+            },
+        },
+    }
+
+    settingGroups.forecast.schema.properties[SETTING_FORECAST_AZIMUTH] = {
+        type: 'number',
+        minimum: -180,
+        maximum: 180,
+
+        widget: {
+            formlyConfig: {
+                props: {
+                    addonRight: {
+                        text: 'deg',
+                    },
+                },
+            },
+        },
+    }
+
+    settingGroups.forecast.schema.properties[SETTING_FORECAST_MAXKWP] = {
+        type: 'number',
+        minimum: 0,
+
+        widget: {
+            formlyConfig: {
+                props: {
+                    addonRight: {
+                        text: 'kWp',
+                    },
+                },
+            },
+        },
+    }
+
+    return Object.values(settingGroups)
 }
 
 export function validateSettingsInput(settings: any): {
@@ -193,7 +218,7 @@ export function validateSettingSnapshotPersistenceInterval(
     }
 }
 
-export function getSettingValue(
+export async function getSettingValue(
     name: string
 ): Promise<string | null | undefined> {
     return getEntityManager()
@@ -206,6 +231,14 @@ export async function setSettingValue(
     value: string | null,
     em?: EntityManager
 ): Promise<void> {
+    const existingSettingValue = await getSettingValue(name)
+
+    if (
+        (existingSettingValue === null && value === null) ||
+        (existingSettingValue ?? '').toString() === (value ?? '').toString()
+    )
+        return
+
     const setting = new Setting({
         name: name,
         value: value,
@@ -214,8 +247,15 @@ export async function setSettingValue(
     await (em || getEntityManager()).upsert(setting)
 }
 
-export function registerSettingChangeObserver(observer: SettingChangeObserver) {
+export async function registerSettingChangeObserver(
+    observer: SettingChangeObserver
+) {
     _settingChangeObservers.push(observer)
+
+    for (const observedSetting of observer.getObservedSettings()) {
+        const value = await getSettingValue(observedSetting)
+        observer.onSettingChange(observedSetting, value)
+    }
 }
 
 export class SettingEventSubscriber implements EventSubscriber<Setting> {
@@ -238,7 +278,7 @@ export class SettingEventSubscriber implements EventSubscriber<Setting> {
     private notifyObservers(setting: Setting) {
         for (const observer of _settingChangeObservers) {
             if (observer.getObservedSettings().includes(setting.name)) {
-                observer.onSettingChange(setting)
+                observer.onSettingChange(setting.name, setting.value)
             }
         }
     }

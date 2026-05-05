@@ -27,12 +27,9 @@ export class SettingsPage {
 
     model: any = {}
 
-    // fields = signal<FormlyFieldConfig[]>([])
-
     fields = signal<{ [groupName: string]: FormlyFieldConfig[] }>({})
 
     form = new FormGroup({})
-    // schema = signal<object>({})
 
     ngOnInit() {
         this.api.getSettingsSchema().subscribe(result => {

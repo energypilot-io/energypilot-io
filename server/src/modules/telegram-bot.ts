@@ -9,7 +9,6 @@ import {
     validateSettingPollingRate,
     validateSettingSnapshotPersistenceInterval,
 } from '../core/setting.manager'
-import { Setting } from '@/entities/settings.entity'
 import { getLastLiveData } from '../core/data-update.manager'
 import { escapeMarkdown, toPowerString } from '@/libs/utils'
 
@@ -28,9 +27,9 @@ class TelegramBotSettingChangeObserver extends SettingChangeObserver {
         return [SETTING_TELEGRAM_BOT_TOKEN]
     }
 
-    onSettingChange(setting: Setting): void {
-        if (setting.name === SETTING_TELEGRAM_BOT_TOKEN) {
-            _token = setting.value
+    onSettingChange(name: string, value?: any): void {
+        if (name === SETTING_TELEGRAM_BOT_TOKEN) {
+            _token = value
             createTelegramBot()
         }
     }
@@ -39,15 +38,12 @@ class TelegramBotSettingChangeObserver extends SettingChangeObserver {
 export async function initTelegramBot() {
     _logger = getLogger('telegram-bot')
 
-    registerSettingChangeObserver(new TelegramBotSettingChangeObserver())
+    await registerSettingChangeObserver(new TelegramBotSettingChangeObserver())
 
     Telegraf.log((message: string) => _logger.info(message))
 
     process.once('SIGINT', () => _bot?.stop('SIGINT'))
     process.once('SIGTERM', () => _bot?.stop('SIGTERM'))
-
-    _token = await getSettingValue(SETTING_TELEGRAM_BOT_TOKEN)
-    createTelegramBot()
 }
 
 function createTelegramBot() {
@@ -93,7 +89,7 @@ function createTelegramBot() {
 
     _bot.launch()
 
-    _logger.info('Telegram bot started')
+    _logger.info(`Telegram bot started with token "${_token}"`)
 }
 
 function getHelpMessage(ctx: Context): string {
