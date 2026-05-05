@@ -73,7 +73,7 @@
         "telegram_bot": {
             "group": {
                 "title": "Telegram Bot",
-                "description": "Settings for the Telegram Bot"
+                "description": "Settings for the Telegram Bot. Without a token, the bot will be disabled.\n\nHow to create a Telegram Bot:\n1. Open Telegram and search for the BotFather (`@BotFather`).\n2. Start a conversation with the BotFather and send the command `/newbot`.\n3. After successful creation, you will receive a token that you can enter in this field."
             },
             "telegram_bot_token": "Token"
         }
