@@ -88,6 +88,69 @@ export function getSettingSchema() {
                 },
             },
         },
+
+        {
+            group: 'forecast',
+            schema: {
+                type: 'object',
+                properties: {
+                    latitude: {
+                        type: 'number',
+                        minimum: -90,
+                        maximum: 90,
+                    },
+                    longitude: {
+                        type: 'number',
+                        minimum: -180,
+                        maximum: 180,
+                    },
+                    declination: {
+                        type: 'number',
+                        minimum: 0,
+                        maximum: 90,
+
+                        widget: {
+                            formlyConfig: {
+                                props: {
+                                    addonRight: {
+                                        text: 'deg',
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    azimuth: {
+                        type: 'number',
+                        minimum: -180,
+                        maximum: 180,
+
+                        widget: {
+                            formlyConfig: {
+                                props: {
+                                    addonRight: {
+                                        text: 'deg',
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    max_kwp: {
+                        type: 'number',
+                        minimum: 0,
+
+                        widget: {
+                            formlyConfig: {
+                                props: {
+                                    addonRight: {
+                                        text: 'kWp',
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
     ]
 }
 
