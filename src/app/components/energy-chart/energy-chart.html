@@ -5,6 +5,7 @@
         "></app-timerange-selector>
     <div
         echarts
+        [merge]="mergeOption()"
         [options]="chartOption()"
         [initOpts]="{ width: 'auto', height: 'auto' }"></div>
 </div>

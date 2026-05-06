@@ -11,7 +11,7 @@ export class Setting {
     @Property()
     created_at = new Date()
 
-    @Property({ default: '', onUpdate: () => new Date() })
+    @Property({ onUpdate: () => new Date() })
     updated_at = new Date()
 
     constructor(options: { name: string; value?: string | null }) {

@@ -10,6 +10,7 @@ import {
     DeviceController,
     SettingController,
     SnapshotController,
+    SolarForecastController,
 } from '@/controllers'
 
 let _httpServer: HTTPServer<any, any>
@@ -28,6 +29,7 @@ export async function initWebServer() {
     app.use('/api/v1/devices', DeviceController)
     app.use('/api/v1/snapshots', SnapshotController)
     app.use('/api/v1/settings', SettingController)
+    app.use('/api/v1/solar-forecast', SolarForecastController)
 
     if (process.env.NODE_ENV! === 'production') {
         app.use(express.static('/usr/share/html'))

@@ -74,86 +74,14 @@ export class EnergyChart {
         return undefined
     })
 
-    chartOption = computed<echarts.EChartsCoreOption>(() => {
+    mergeOption = computed<echarts.EChartsCoreOption>(() => {
         return {
-            tooltip: {
-                trigger: 'axis',
-                triggerOn: 'mousemove',
-
-                axisPointer: {
-                    type: 'cross',
-                    label: {
-                        backgroundColor: '#6a7985',
-                    },
-                },
-            },
-            grid: {
-                left: '0',
-                right: '0',
-                outerBoundsContain: 'all',
-            },
-            animation: true,
-            legend: {
-                show: true,
-            },
-            dataZoom: [
-                {
-                    type: 'slider',
-                    filterMode: 'weakFilter',
-                    showDataShadow: false,
-                    labelFormatter: '',
-                },
-                {
-                    type: 'inside',
-                    filterMode: 'weakFilter',
-                },
-            ],
-
             xAxis: {
                 type: 'category',
                 data: this.timestamps().map((timestamp: Date) => {
                     return `${timestamp.toLocaleDateString()} ${timestamp.toLocaleTimeString()}`
                 }),
             },
-
-            yAxis:
-                this.dataGrouping() === 'day'
-                    ? [
-                          {
-                              type: 'value',
-                              name: 'Energy',
-                              axisLabel: {
-                                  formatter: function (a: number) {
-                                      const formatedPower = formatEnergy(a)
-                                      return `${formatedPower?.value} ${formatedPower?.unit}`
-                                  },
-                              },
-                          },
-                      ]
-                    : [
-                          {
-                              type: 'value',
-                              name: 'Power',
-                              axisLabel: {
-                                  formatter: function (a: number) {
-                                      const formatedPower = formatPower(a)
-                                      return `${formatedPower?.value} ${formatedPower?.unit}`
-                                  },
-                              },
-                          },
-                          {
-                              type: 'value',
-                              name: 'Battery SoC',
-                              min: 0,
-                              max: 100,
-                              offset: 0,
-                              axisLabel: {
-                                  formatter: function (a: number) {
-                                      return `${a}%`
-                                  },
-                              },
-                          },
-                      ],
 
             series: [
                 ...Object.keys(this.powerOrEnergyValues()).map(deviceName => {
@@ -193,6 +121,82 @@ export class EnergyChart {
                     }
                 }),
             ],
+        }
+    })
+
+    chartOption = computed<echarts.EChartsCoreOption>(() => {
+        return {
+            tooltip: {
+                trigger: 'axis',
+                triggerOn: 'mousemove',
+
+                axisPointer: {
+                    type: 'cross',
+                    label: {
+                        backgroundColor: '#6a7985',
+                    },
+                },
+            },
+            grid: {
+                left: '0',
+                right: '0',
+                outerBoundsContain: 'all',
+            },
+            animation: true,
+            legend: {
+                show: true,
+            },
+            dataZoom: [
+                {
+                    type: 'slider',
+                    filterMode: 'weakFilter',
+                    showDataShadow: false,
+                    labelFormatter: '',
+                },
+                {
+                    type: 'inside',
+                    filterMode: 'weakFilter',
+                },
+            ],
+
+            yAxis:
+                this.dataGrouping() === 'day'
+                    ? [
+                          {
+                              type: 'value',
+                              name: 'Energy',
+                              axisLabel: {
+                                  formatter: function (a: number) {
+                                      const formatedPower = formatEnergy(a)
+                                      return `${formatedPower?.value} ${formatedPower?.unit}`
+                                  },
+                              },
+                          },
+                      ]
+                    : [
+                          {
+                              type: 'value',
+                              name: 'Power',
+                              axisLabel: {
+                                  formatter: function (a: number) {
+                                      const formatedPower = formatPower(a)
+                                      return `${formatedPower?.value} ${formatedPower?.unit}`
+                                  },
+                              },
+                          },
+                          {
+                              type: 'value',
+                              name: 'Battery SoC',
+                              min: 0,
+                              max: 100,
+                              offset: 0,
+                              axisLabel: {
+                                  formatter: function (a: number) {
+                                      return `${a}%`
+                                  },
+                              },
+                          },
+                      ],
         }
     })
 
