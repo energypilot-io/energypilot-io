@@ -1,8 +1,12 @@
 <div class="card">
     <div class="card-body">
         <h5 class="card-title">
-            {{ 'widgets.energy-distribution.title' | translate }}
+            {{ 'widgets.solar-forecast.title' | translate }}
         </h5>
-        Solar forecast widget content
+        <div
+            echarts
+            [options]="chartOption"
+            [merge]="mergeOption()"
+            class="h-72 w-full"></div>
     </div>
 </div>

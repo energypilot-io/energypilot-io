@@ -75,6 +75,46 @@ export class EnergyChart {
     })
 
     mergeOption = computed<echarts.EChartsCoreOption>(() => {
+        console.log({
+            series: [
+                ...Object.keys(this.powerOrEnergyValues()).map(deviceName => {
+                    return {
+                        name: deviceName,
+                        type: this.dataGrouping() === 'day' ? 'bar' : 'line',
+                        stack: this.dataGrouping() === 'day' ? 'a' : undefined,
+                        smooth: true,
+                        symbol: 'none',
+                        data: this.powerOrEnergyValues()[deviceName],
+                        tooltip: {
+                            valueFormatter: (value: number) => {
+                                const formattedValue =
+                                    this.dataGrouping() === 'day'
+                                        ? formatEnergy(value)
+                                        : formatPower(value)
+                                return `${formattedValue?.value} ${formattedValue?.unit}`
+                            },
+                        },
+                    }
+                }),
+
+                ...Object.keys(this.socValues()).map(deviceName => {
+                    return {
+                        name: `${deviceName} SoC`,
+                        type: this.dataGrouping() === 'day' ? 'bar' : 'line',
+                        stack: this.dataGrouping() === 'day' ? 'a' : undefined,
+                        smooth: true,
+                        symbol: 'none',
+                        yAxisIndex: 1,
+                        data: this.socValues()[deviceName],
+                        tooltip: {
+                            valueFormatter: (value: number) => {
+                                return `${value.toFixed(2)} %`
+                            },
+                        },
+                    }
+                }),
+            ],
+        })
         return {
             xAxis: {
                 type: 'category',

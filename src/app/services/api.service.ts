@@ -41,4 +41,8 @@ export class ApiService {
     sendSettings(data: any): Observable<any> {
         return this.http.post<any>('/api/v1/settings', data)
     }
+
+    getSolarForecastData(): Observable<any> {
+        return this.http.get<any>('/api/v1/solar-forecast')
+    }
 }

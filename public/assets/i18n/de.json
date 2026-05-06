@@ -101,6 +101,9 @@
         },
         "energy-distribution": {
             "title": "Energieverteilung"
+        },
+        "solar-forecast": {
+            "title": "Vorhersage"
         }
     },
 

@@ -101,6 +101,9 @@
         },
         "energy-distribution": {
             "title": "Energy Distribution"
+        },
+        "solar-forecast": {
+            "title": "Forecast"
         }
     },
 

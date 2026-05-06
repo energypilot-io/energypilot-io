@@ -106,7 +106,7 @@ export async function initSolarForecast() {
 
     const recurrenceRule = new schedule.RecurrenceRule()
     recurrenceRule.hour = 0
-    recurrenceRule.minute = 0
+    recurrenceRule.minute = 10
 
     schedule.scheduleJob(recurrenceRule, requestForecast)
 }
@@ -114,7 +114,7 @@ export async function initSolarForecast() {
 export function getSolarForecastData() {
     if (!_forecastRawData) return {}
 
-    const groupedWattHours: {
+    const forecastData: {
         [day: string]: {
             [datetime: string]: { wattHoursPeriod: number; wattHours: number }
         }
@@ -125,10 +125,9 @@ export function getSolarForecastData() {
             const datetime = parse(key, 'yyyy-MM-dd HH:mm:ss', new Date())
             const groupingKey = format(datetime, 'yyyy-MM-dd')
 
-            if (!(groupingKey in groupedWattHours))
-                groupedWattHours[groupingKey] = {}
+            if (!(groupingKey in forecastData)) forecastData[groupingKey] = {}
 
-            groupedWattHours[groupingKey][datetime.toISOString()] = {
+            forecastData[groupingKey][datetime.toISOString()] = {
                 wattHoursPeriod: parseFloat((value as any).toString()),
                 wattHours: parseFloat(
                     _forecastRawData.result.watt_hours[key].toString()
@@ -138,7 +137,7 @@ export function getSolarForecastData() {
     )
 
     return {
-        ...groupedWattHours,
+        ...forecastData,
     }
 }
 
