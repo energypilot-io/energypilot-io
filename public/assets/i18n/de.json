@@ -76,6 +76,19 @@
                 "description": "Einstellungen für den Telegram Bot. Ohne Token wird der Bot deaktiviert.\n\nWie man einen Telegram Bot erstellt:\n1. Öffnen Sie Telegram und suchen Sie nach dem BotFather (`@BotFather`).\n2. Starten Sie eine Unterhaltung mit dem BotFather und senden Sie den Befehl `/newbot`.\n3. Nach erfolgreicher Erstellung erhalten Sie einen Token, den Sie in diesem Feld eingeben können."
             },
             "telegram_bot_token": "Token"
+        },
+
+        "forecast": {
+            "group": {
+                "title": "Solar Vorhersage",
+                "description": "Einstellungen fpr die Abfrage der Solar Produktionsprognose."
+            },
+
+            "latitude": "Längengrad",
+            "longitude": "Breitengrad",
+            "declination": "Steigungswinkel (Horizontal = 0, Vertikal = 90)",
+            "azimuth": "Ausrichtung (S = 0, W = 90, O = -90, N = 180/-180)",
+            "max_kwp": "Anlage kWp"
         }
     },
 
@@ -103,7 +116,11 @@
             "title": "Energieverteilung"
         },
         "solar-forecast": {
-            "title": "Vorhersage"
+            "title": "Solar Vorhersage",
+
+            "energy": "Leistung",
+            "total-energy": "Gesamt Leistung",
+            "daily-production": "Tages Erzeugung"
         }
     },
 

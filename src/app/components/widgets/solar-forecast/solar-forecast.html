@@ -3,10 +3,39 @@
         <h5 class="card-title">
             {{ 'widgets.solar-forecast.title' | translate }}
         </h5>
-        <div
-            echarts
-            [options]="chartOption"
-            [merge]="mergeOption()"
-            class="h-72 w-full"></div>
+
+        <div class="d-flex flex-column">
+            <div class="d-flex justify-content-between align-items-center">
+                <button class="btn p-0" (click)="decrementForecastDay()">
+                    <ng-icon name="tablerCircleChevronLeft" size="32" />
+                </button>
+
+                <div>{{ currentDayLabel() }}</div>
+
+                <button class="btn p-0" (click)="incrementForecastDay()">
+                    <ng-icon name="tablerCircleChevronRight" size="32" />
+                </button>
+            </div>
+
+            <div
+                echarts
+                [options]="chartOption()"
+                [merge]="mergeOption()"
+                class="h-72 w-full"></div>
+
+            <div class="row">
+                <div class="col d-flex flex-column">
+                    <div class="text-light-emphasis">
+                        {{
+                            'widgets.solar-forecast.daily-production'
+                                | translate
+                        }}
+                    </div>
+                    <div class="fs-4 text-nowrap">
+                        {{ dailyProduction() | energy }}
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
