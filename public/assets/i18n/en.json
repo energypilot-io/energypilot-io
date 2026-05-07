@@ -119,8 +119,7 @@
             "title": "Forecast",
 
             "energy": "Energy",
-            "total-energy": "Total Energy",
-            "daily-production": "Daily Production"
+            "total-energy": "Total Energy"
         }
     },
 

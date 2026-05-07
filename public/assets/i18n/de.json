@@ -81,7 +81,7 @@
         "forecast": {
             "group": {
                 "title": "Solar Vorhersage",
-                "description": "Einstellungen fpr die Abfrage der Solar Produktionsprognose."
+                "description": "Einstellungen für die Abfrage der Solar Produktionsprognose."
             },
 
             "latitude": "Längengrad",
@@ -119,8 +119,7 @@
             "title": "Solar Vorhersage",
 
             "energy": "Leistung",
-            "total-energy": "Gesamt Leistung",
-            "daily-production": "Tages Erzeugung"
+            "total-energy": "Gesamt Leistung"
         }
     },
 

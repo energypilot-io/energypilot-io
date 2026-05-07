@@ -15,7 +15,7 @@ import {
     tablerCircleChevronRight,
 } from '@ng-icons/tabler-icons'
 import { NgIcon, provideIcons } from '@ng-icons/core'
-import { parse } from 'date-fns'
+import { addMinutes, interval, isWithinInterval, parse } from 'date-fns'
 import { FormatEnergyPipe } from '@/app/pipes/formatEnergy.pipe'
 
 echarts.use([
@@ -64,17 +64,32 @@ export class SolarForecastWidget {
             .map(timestamp => new Date(timestamp))
     })
 
-    private wattHoursPeriod = computed<number[]>(() => {
+    private wattHoursPeriod = computed<any[]>(() => {
         const forecastData = this.forecastData()
         if (!forecastData || !this.day()) return []
+
+        const timestampInterval = interval(
+            addMinutes(new Date(), -30),
+            addMinutes(new Date(), 30)
+        )
 
         return Object.keys(forecastData[this.day()!])
             .sort()
             .map(timestamp => {
-                return (
-                    forecastData[this.day()!][timestamp].wattHoursPeriod /
-                    1000.0
+                const highlight = isWithinInterval(
+                    new Date(timestamp),
+                    timestampInterval
                 )
+
+                return {
+                    value:
+                        forecastData[this.day()!][timestamp].wattHoursPeriod /
+                        1000.0,
+                    itemStyle: {
+                        color: highlight ? '#F3722C' : '#5470c6',
+                        borderRadius: [20, 20, 0, 0],
+                    },
+                }
             })
     })
 
@@ -92,7 +107,7 @@ export class SolarForecastWidget {
     private language = signal<string>(this.translate.getCurrentLang())
 
     dailyProduction = computed<number>(() => {
-        return this.wattHoursPeriod().reduce((a, b) => a + b, 0)
+        return this.wattHoursPeriod().reduce((a, b: any) => a + b.value, 0)
     })
 
     currentDayLabel = computed<string>(() => {
@@ -122,9 +137,6 @@ export class SolarForecastWidget {
                     smooth: true,
                     symbol: 'none',
                     data: this.wattHoursPeriod(),
-                    itemStyle: {
-                        borderRadius: [20, 20, 0, 0],
-                    },
                     tooltip: {
                         valueFormatter: (value: number) => {
                             const formattedValue = formatEnergy(value)
