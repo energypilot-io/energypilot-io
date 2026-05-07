@@ -15,8 +15,15 @@ import {
     tablerCircleChevronRight,
 } from '@ng-icons/tabler-icons'
 import { NgIcon, provideIcons } from '@ng-icons/core'
-import { addMinutes, interval, isWithinInterval, parse } from 'date-fns'
+import {
+    addMinutes,
+    interval,
+    isAfter,
+    isWithinInterval,
+    parse,
+} from 'date-fns'
 import { FormatEnergyPipe } from '@/app/pipes/formatEnergy.pipe'
+import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader'
 
 echarts.use([
     TooltipComponent,
@@ -28,7 +35,13 @@ echarts.use([
 
 @Component({
     selector: 'widget-solar-forecast',
-    imports: [NgxEchartsDirective, TranslatePipe, NgIcon, FormatEnergyPipe],
+    imports: [
+        NgxEchartsDirective,
+        TranslatePipe,
+        NgIcon,
+        FormatEnergyPipe,
+        NgxSkeletonLoaderModule,
+    ],
     templateUrl: './solar-forecast.html',
     styleUrl: './solar-forecast.scss',
     providers: [
@@ -46,7 +59,7 @@ export class SolarForecastWidget {
     private getSolarForecastSubscription?: Subscription
 
     private dayIndex = signal<number>(0)
-    private forecastData = signal<any>(undefined)
+    forecastData = signal<any>(undefined)
 
     private day = computed<string | undefined>(() => {
         const forecastData = this.forecastData()
@@ -55,7 +68,7 @@ export class SolarForecastWidget {
         return Object.keys(forecastData)[this.dayIndex()]
     })
 
-    private timestamps = computed<Date[]>(() => {
+    timestamps = computed<Date[]>(() => {
         const forecastData = this.forecastData()
         if (!forecastData || !this.day()) return []
 
@@ -108,6 +121,22 @@ export class SolarForecastWidget {
 
     dailyProduction = computed<number>(() => {
         return this.wattHoursPeriod().reduce((a, b: any) => a + b.value, 0)
+    })
+
+    remainingProduction = computed<number>(() => {
+        const forecastData = this.forecastData()
+        if (!forecastData || !this.day()) return 0
+
+        return Object.keys(forecastData[this.day()!])
+            .filter(timestamp =>
+                isAfter(new Date(timestamp), addMinutes(new Date(), -30))
+            )
+            .map(
+                timestamp =>
+                    forecastData[this.day()!][timestamp].wattHoursPeriod /
+                    1000.0
+            )
+            .reduce((a, b: any) => a + b, 0)
     })
 
     currentDayLabel = computed<string>(() => {
@@ -191,7 +220,6 @@ export class SolarForecastWidget {
             yAxis: [
                 {
                     type: 'value',
-                    name: 'Energy',
                     axisLabel: {
                         formatter: function (a: number) {
                             const formatedPower = formatEnergy(a)
@@ -202,7 +230,6 @@ export class SolarForecastWidget {
 
                 {
                     type: 'value',
-                    name: 'Total Energy',
                     axisLabel: {
                         formatter: function (a: number) {
                             const formatedPower = formatEnergy(a)

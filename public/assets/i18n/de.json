@@ -119,7 +119,8 @@
             "title": "Solar Vorhersage",
 
             "energy": "Leistung",
-            "total-energy": "Gesamt Leistung"
+            "total-energy": "Gesamt Leistung",
+            "remaining-production": "Verbleibend"
         }
     },
 
