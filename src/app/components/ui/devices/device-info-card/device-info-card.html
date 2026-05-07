@@ -15,6 +15,16 @@
 
             <div class="flex-grow-1"></div>
 
+            <div class="form-check form-switch">
+                <input
+                    class="form-check-input"
+                    type="checkbox"
+                    [checked]="device.is_enabled"
+                    ngbTooltip="{{ 'Disable device' | translate }}"
+                    container="body"
+                    switch />
+            </div>
+
             <ng-icon
                 name="tablerCircleFill"
                 size="24"

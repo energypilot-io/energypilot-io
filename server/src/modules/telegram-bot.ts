@@ -11,6 +11,9 @@ import {
 } from '../core/setting.manager'
 import { getLastLiveData } from '../core/data-update.manager'
 import { escapeMarkdown, toPowerString } from '@/libs/utils'
+import { getDeviceInstances } from '@/core/device.manager'
+import { DeviceBase } from '@/devices/device.base'
+import { Device } from '@/entities/device.entity'
 
 let _bot: Telegraf = undefined as any
 let _logger: ChildLogger
@@ -78,6 +81,10 @@ function createTelegramBot() {
         ctx.replyWithMarkdownV2(await handleCommandGet(ctx))
     })
 
+    _bot.command('devices', (ctx: Context) => {
+        ctx.replyWithMarkdownV2(handleCommandDevices(ctx))
+    })
+
     _bot.telegram.setMyDescription('EnergyPilot.io Telegram Bot')
 
     _bot.telegram.setMyCommands([
@@ -85,6 +92,7 @@ function createTelegramBot() {
         { command: 'live', description: 'Get live data values' },
         { command: 'set', description: 'Set a setting value' },
         { command: 'get', description: 'Get a setting value' },
+        { command: 'devices', description: 'Get a list of devices' },
     ])
 
     _bot.launch()
@@ -99,7 +107,8 @@ function getHelpMessage(ctx: Context): string {
             `🔘 \`/help <command>\` \\- Show this help message\\. Add command name as argument to get additional information\\.\nExample: \`/help set\`\n` +
             `🔘 \`/live\` \\- Get live data values\n` +
             `🔘 \`/set\` \\- Set a setting value\n` +
-            `🔘 \`/get\` \\- Get a setting value\n`
+            `🔘 \`/get\` \\- Get a setting value\n` +
+            `🔘 \`/devices\` \\- Get a list of devices\n`
         )
     } else if (args[0] === 'set') {
         return (
@@ -110,6 +119,11 @@ function getHelpMessage(ctx: Context): string {
         return (
             `\`/get <setting_name>\`\nGet a setting value\\.\nExample: \`/get polling_rate\`\n\n` +
             _availableSettingsMessage
+        )
+    } else if (args[0] === 'devices') {
+        return (
+            `\`/devices \\[device_id\\]\`\nGet a list of devices\\.\nExample: \`/devices 5\`\n\n` +
+            'If no device id is entered, all devices are returned\\.'
         )
     } else {
         return `⚠️ No help available for command \`"/${escapeMarkdown(args[0])}"\`\\.`
@@ -161,6 +175,70 @@ function handleCommandSet(ctx: Context): string {
     }
 }
 
+function handleCommandDevices(ctx: Context): string {
+    const devices = getDeviceInstances()
+    let deviceBases = Object.values(devices)
+
+    const args = ctx.text!.split(' ').slice(1)
+
+    if (args.length === 1) {
+        let deviceId: number
+        try {
+            deviceId = parseInt(args[0])
+        } catch {
+            return '⚠️ Wrong paramter format.\\. Example: `/devices 5`\\. Use `"/help devices"` for more information\\.'
+        }
+        deviceBases = deviceBases.filter(
+            (deviceBase: DeviceBase) =>
+                deviceBase.deviceDefinition.id === deviceId
+        )
+    } else if (args.length > 1) {
+        return '⚠️ Too many parameters.\\. Example: `/devices 5`\\. Use `"/help devices"` for more information\\.'
+    }
+
+    if (deviceBases.length === 0) {
+        return '⚠️ No devices found'
+    }
+
+    return deviceBases
+        .sort((a: DeviceBase, b: DeviceBase) =>
+            a.deviceDefinition.name.localeCompare(b.deviceDefinition.name)
+        )
+        .map((deviceBase: DeviceBase) => {
+            const deviceDefinition: Device = deviceBase.deviceDefinition
+
+            return (
+                `${getEmojiForDeviceType(deviceDefinition.type)} *${escapeMarkdown(deviceDefinition.name)}*\n` +
+                `Created: \`${escapeMarkdown(
+                    deviceDefinition.created_at.toLocaleString(
+                        ctx.from?.language_code
+                    )
+                )}\`\n` +
+                `ID: \`${deviceDefinition.id}\`\n` +
+                `Model: \`${escapeMarkdown(deviceDefinition.model)}\`\n` +
+                `Type: \`${escapeMarkdown(deviceDefinition.type)}\`\n` +
+                `Interface: \`${escapeMarkdown(deviceDefinition.interface)}\`\n` +
+                '_Properties_\n' +
+                `Connected: \`${deviceDefinition.connected ? '✅' : '❌'}\`\n`
+            )
+        })
+        .join('\n')
+}
+
+function getEmojiForDeviceType(deviceType: string) {
+    if (deviceType === 'consumer') {
+        return '🔌'
+    } else if (deviceType === 'pv') {
+        return '☀️'
+    } else if (deviceType === 'battery') {
+        return '🔋'
+    } else if (deviceType === 'home') {
+        return '🏠'
+    } else if (deviceType === 'grid') {
+        return '⚡️'
+    }
+}
+
 function handleCommandLive(ctx: Context): string {
     const liveData = getLastLiveData()
 
@@ -190,19 +268,9 @@ function handleCommandLive(ctx: Context): string {
             .map((snapshot: any) => {
                 let valueString = ''
 
-                if (snapshot.device_type === 'consumer') {
-                    valueString += '🔌'
-                } else if (snapshot.device_type === 'pv') {
-                    valueString += '☀️'
-                } else if (snapshot.device_type === 'battery') {
-                    valueString += '🔋'
-                } else if (snapshot.device_type === 'home') {
-                    valueString += '🏠'
-                } else if (snapshot.device_type === 'grid') {
-                    valueString += '⚡️'
-                }
-
-                valueString += `*${escapeMarkdown(snapshot.device_name)}*: `
+                valueString +=
+                    getEmojiForDeviceType(snapshot.device_type) +
+                    ` *${escapeMarkdown(snapshot.device_name)}*: `
 
                 if (snapshot.name === 'soc') {
                     valueString += `\`${snapshot.value.toLocaleString({ maximumFractionDigits: 2 })} %\``
