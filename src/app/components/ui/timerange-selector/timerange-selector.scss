@@ -1,4 +1,5 @@
-@import '../../../styles/variables';
+@use '../../../styles/variables' as *;
+@use 'sass:color' as color;
 
 .dp-hidden {
     width: 0;
@@ -22,5 +23,5 @@
     color: white;
 }
 .custom-day.faded {
-    background-color: lighten($primary, 50%);
+    background-color: color.adjust($primary, $lightness: 50%);
 }

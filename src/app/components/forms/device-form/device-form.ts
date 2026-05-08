@@ -5,7 +5,6 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap'
 import { FormlyFieldConfig, FormlyForm } from '@ngx-formly/core'
 import { FormlyJsonschema } from '@ngx-formly/core/json-schema'
 import { TranslatePipe } from '@ngx-translate/core'
-import _ from 'lodash'
 
 @Component({
     selector: 'app-device-form',
@@ -50,7 +49,7 @@ export class DeviceForm {
         },
         errors: any
     ) {
-        _.forEach(controls, (ctrl: AbstractControl, name: string) => {
+        Object.entries(controls).forEach(([name, ctrl]) => {
             if (ctrl instanceof FormGroup) {
                 this.setErrorMessages(ctrl.controls, errors)
             } else if (errors[name]) {

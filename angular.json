@@ -23,7 +23,12 @@
                             }
                         ],
                         "inlineStyleLanguage": "scss",
-                        "styles": ["src/app/styles/styles.scss"]
+                        "styles": ["src/app/styles/styles.scss"],
+                        "stylePreprocessorOptions": {
+                            "sass": {
+                                "silenceDeprecations": ["import"]
+                            }
+                        }
                     },
                     "configurations": {
                         "production": {
@@ -81,7 +86,14 @@
                             }
                         ],
                         "inlineStyleLanguage": "scss",
-                        "styles": ["src/app/styles/styles.scss"]
+                        "styles": ["src/app/styles/styles.scss"],
+                        "sassOptions": {
+                            "quietDeps": true,
+                            "silenceDeprecations": [
+                                "mixed-decls",
+                                "color-functions"
+                            ]
+                        }
                     }
                 },
                 "lint": {
@@ -99,9 +111,7 @@
         }
     },
     "cli": {
-        "schematicCollections": [
-          "angular-eslint"
-        ],
+        "schematicCollections": ["angular-eslint"],
         "analytics": false
     }
 }
