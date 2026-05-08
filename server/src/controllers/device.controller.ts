@@ -9,8 +9,10 @@ import {
     getDeviceInstances,
     getDeviceRegistrySchema,
     removeDevice,
+    setDeviceStatus,
 } from '@/core/device.manager'
 import { RegisteredInterfaceClasses } from '@/core/config'
+import { isBooleanObject, isSet } from 'node:util/types'
 
 const router = express.Router()
 
@@ -92,6 +94,31 @@ router.get('/:id', async (req: Request, res: Response) => {
             ...filteredDevices[0],
             connected: filteredDevices[0].connected,
         })
+    } catch (e: any) {
+        return res.status(400).json({ message: e.message })
+    }
+})
+
+router.post('/:id', async (req: Request, res: Response) => {
+    try {
+        if (req.params.id.toString() < '0') {
+            return res
+                .status(500)
+                .json({ message: 'Virtual device cannot be deleted' })
+        }
+
+        const device = await getEntityManager().findOne(Device, {
+            id: parseInt(req.params.id as string),
+        })
+        if (!device) {
+            return res.status(404).json({ message: 'Device not found' })
+        }
+
+        if (req.body.is_enabled !== undefined) {
+            await setDeviceStatus(device.name, req.body.is_enabled)
+        }
+
+        return res.json({ message: 'Device updated successfully' })
     } catch (e: any) {
         return res.status(400).json({ message: e.message })
     }

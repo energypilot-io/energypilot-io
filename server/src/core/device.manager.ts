@@ -276,6 +276,18 @@ export function resetAllDeviceCaches() {
     })
 }
 
+export async function setDeviceStatus(deviceName: string, isEnabled: boolean) {
+    if (
+        deviceName in _deviceInstances &&
+        _deviceInstances[deviceName].deviceDefinition.is_enabled !== isEnabled
+    ) {
+        _deviceInstances[deviceName].deviceDefinition.is_enabled = isEnabled
+        await getEntityManager().upsert(
+            _deviceInstances[deviceName].deviceDefinition
+        )
+    }
+}
+
 export function getDeviceInstances() {
     return _deviceInstances
 }

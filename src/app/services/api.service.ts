@@ -45,4 +45,8 @@ export class ApiService {
     getSolarForecastData(): Observable<any> {
         return this.http.get<any>('/api/v1/solar-forecast')
     }
+
+    sendDeviceStatus(deviceId: string, data: any): Observable<any> {
+        return this.http.post<any>(`/api/v1/devices/${deviceId}`, data)
+    }
 }

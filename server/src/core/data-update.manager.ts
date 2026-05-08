@@ -163,7 +163,10 @@ async function pollData() {
         const deviceInstance: any = deviceInstances[key]
         const isEnabled = deviceInstance.deviceDefinition.is_enabled
 
-        if (!isEnabled) continue
+        if (!isEnabled) {
+            deviceInstance.deviceDefinition.connected = false
+            continue
+        }
 
         const deviceValues: DeviceValue[] = []
 

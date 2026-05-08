@@ -89,6 +89,18 @@ export class DeviceInfoCard {
         this.webserviceSnapshotSubscription?.unsubscribe()
     }
 
+    onDeviceStatusChange(event: any) {
+        this.api
+            .sendDeviceStatus(this.device.id, {
+                is_enabled: event.target.checked,
+            })
+            .subscribe(response => {
+                this.api.getDevice(this.device.id).subscribe(response => {
+                    this.device = response
+                })
+            })
+    }
+
     editDevice(): void {
         const modalRef = this.modalService.open(DeviceForm, {
             centered: true,
