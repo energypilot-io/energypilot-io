@@ -276,7 +276,10 @@ export function resetAllDeviceCaches() {
     })
 }
 
-export async function setDeviceStatus(deviceName: string, isEnabled: boolean) {
+export async function setDeviceStatus(
+    deviceName: string,
+    isEnabled: boolean
+): Promise<boolean> {
     if (
         deviceName in _deviceInstances &&
         _deviceInstances[deviceName].deviceDefinition.is_enabled !== isEnabled
@@ -285,7 +288,11 @@ export async function setDeviceStatus(deviceName: string, isEnabled: boolean) {
         await getEntityManager().upsert(
             _deviceInstances[deviceName].deviceDefinition
         )
+
+        return true
     }
+
+    return false
 }
 
 export function getDeviceInstances() {

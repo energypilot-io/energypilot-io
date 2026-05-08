@@ -13,6 +13,9 @@ export class Device {
     @Property()
     created_at = new Date()
 
+    @Property({ onUpdate: () => new Date() })
+    updated_at = new Date()
+
     @Property()
     @Unique()
     name!: string

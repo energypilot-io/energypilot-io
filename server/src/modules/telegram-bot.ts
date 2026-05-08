@@ -11,7 +11,7 @@ import {
 } from '../core/setting.manager'
 import { getLastLiveData } from '../core/data-update.manager'
 import { escapeMarkdown, toPowerString } from '@/libs/utils'
-import { getDeviceInstances } from '@/core/device.manager'
+import { getDeviceInstances, setDeviceStatus } from '@/core/device.manager'
 import { DeviceBase } from '@/devices/device.base'
 import { Device } from '@/entities/device.entity'
 
@@ -81,8 +81,8 @@ function createTelegramBot() {
         ctx.replyWithMarkdownV2(await handleCommandGet(ctx))
     })
 
-    _bot.command('devices', (ctx: Context) => {
-        ctx.replyWithMarkdownV2(handleCommandDevices(ctx))
+    _bot.command('devices', async (ctx: Context) => {
+        ctx.replyWithMarkdownV2(await handleCommandDevices(ctx))
     })
 
     _bot.telegram.setMyDescription('EnergyPilot.io Telegram Bot')
@@ -92,7 +92,10 @@ function createTelegramBot() {
         { command: 'live', description: 'Get live data values' },
         { command: 'set', description: 'Set a setting value' },
         { command: 'get', description: 'Get a setting value' },
-        { command: 'devices', description: 'Get a list of devices' },
+        {
+            command: 'devices',
+            description: 'Get a list of devices and change their status',
+        },
     ])
 
     _bot.launch()
@@ -108,7 +111,7 @@ function getHelpMessage(ctx: Context): string {
             `🔘 \`/live\` \\- Get live data values\n` +
             `🔘 \`/set\` \\- Set a setting value\n` +
             `🔘 \`/get\` \\- Get a setting value\n` +
-            `🔘 \`/devices\` \\- Get a list of devices\n`
+            `🔘 \`/devices\` \\- Get a list of devices and change their status\n`
         )
     } else if (args[0] === 'set') {
         return (
@@ -122,8 +125,9 @@ function getHelpMessage(ctx: Context): string {
         )
     } else if (args[0] === 'devices') {
         return (
-            `\`/devices \\[device_id\\]\`\nGet a list of devices\\.\nExample: \`/devices 5\`\n\n` +
-            'If no device id is entered, all devices are returned\\.'
+            `\`/devices\`\nGet a list of all devices and their properties\\.\n\n` +
+            `\`/devices <device_id>\`\nGet the properties of the selected device\\.\nExample: \`/devices 5\`\n\n` +
+            `\`/devices <device_id> \\[enable | disable\\]\`\nEnable/Disable the selected device\\.\nExample: \`/devices 5 disable\``
         )
     } else {
         return `⚠️ No help available for command \`"/${escapeMarkdown(args[0])}"\`\\.`
@@ -175,29 +179,56 @@ function handleCommandSet(ctx: Context): string {
     }
 }
 
-function handleCommandDevices(ctx: Context): string {
+async function handleCommandDevices(ctx: Context): Promise<string> {
     const devices = getDeviceInstances()
     let deviceBases = Object.values(devices)
 
     const args = ctx.text!.split(' ').slice(1)
 
-    if (args.length === 1) {
+    if (args.length > 2) {
+        return '⚠️ Too many parameters.\\. Example: `/devices 5`\\. Use `"/help devices"` for more information\\.'
+    }
+
+    if (args.length > 0) {
         let deviceId: number
         try {
             deviceId = parseInt(args[0])
         } catch {
-            return '⚠️ Wrong paramter format.\\. Example: `/devices 5`\\. Use `"/help devices"` for more information\\.'
+            return '⚠️ Wrong format for parameter \\#1\\. Example: `/devices 5`\\. Use `"/help devices"` for more information\\.'
         }
+
         deviceBases = deviceBases.filter(
             (deviceBase: DeviceBase) =>
                 deviceBase.deviceDefinition.id === deviceId
         )
-    } else if (args.length > 1) {
-        return '⚠️ Too many parameters.\\. Example: `/devices 5`\\. Use `"/help devices"` for more information\\.'
     }
 
     if (deviceBases.length === 0) {
         return '⚠️ No devices found'
+    } else if (args.length > 0 && deviceBases.length > 1) {
+        return '⚠️ Too many devices found with the same ID'
+    }
+
+    if (args.length === 2) {
+        let isEnabled: boolean
+        if (args[1].toLowerCase() === 'enable') {
+            isEnabled = true
+        } else if (args[1].toLowerCase() === 'disable') {
+            isEnabled = false
+        } else {
+            return '⚠️ Wrong format for parameter \\#2\\. Example: `/devices 5 disable`\\. Use `"/help devices"` for more information\\.'
+        }
+
+        if (
+            await setDeviceStatus(
+                deviceBases[0].deviceDefinition.name,
+                isEnabled
+            )
+        ) {
+            return `✅ Successfully changed status to \`${isEnabled ? 'enable' : 'disable'}\` for device *"${escapeMarkdown(deviceBases[0].deviceDefinition.name)}"*`
+        } else {
+            return `❌ Error while changing status to \`${isEnabled ? 'enable' : 'disable'}\` for device *"${escapeMarkdown(deviceBases[0].deviceDefinition.name)}"*`
+        }
     }
 
     return deviceBases
@@ -214,12 +245,17 @@ function handleCommandDevices(ctx: Context): string {
                         ctx.from?.language_code
                     )
                 )}\`\n` +
+                `Updated: \`${escapeMarkdown(
+                    deviceDefinition.updated_at.toLocaleString(
+                        ctx.from?.language_code
+                    )
+                )}\`\n` +
                 `ID: \`${deviceDefinition.id}\`\n` +
                 `Model: \`${escapeMarkdown(deviceDefinition.model)}\`\n` +
                 `Type: \`${escapeMarkdown(deviceDefinition.type)}\`\n` +
                 `Interface: \`${escapeMarkdown(deviceDefinition.interface)}\`\n` +
-                '_Properties_\n' +
-                `Connected: \`${deviceDefinition.connected ? '✅' : '❌'}\`\n`
+                `Connected: \`${deviceDefinition.connected ? '✅' : '❌'}\`\n` +
+                `Enabled: \`${deviceDefinition.is_enabled ? '✅' : '❌'}\`\n`
             )
         })
         .join('\n')
