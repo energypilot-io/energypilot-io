@@ -169,6 +169,11 @@
             "invalid_value": "Ungültiger Wert",
             "invalid_device_definition": "Ungültige Gerätedefinition",
             "invalid_interface": "Ungültige Schnittstelle"
+        },
+
+        "settings": {
+            "success": "Einstellung erfolgreich gespeichert.",
+            "error": "Fehler beim Speichern der Einstellungen."
         }
     }
 }

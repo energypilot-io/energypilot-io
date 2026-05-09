@@ -54,46 +54,73 @@ class SolarForecastSettingChangeObserver extends SettingChangeObserver {
 
         const parsedValue = Number.parseFloat(value.toString())
 
+        let isDirty: boolean = false
+
         switch (name) {
             case SETTING_FORECAST_LATITUDE: {
-                _latitude = Math.min(
+                const newValue = Math.min(
                     Math.max(parsedValue, MIN_FORECAST_LATITUDE),
                     MAX_FORECAST_LATITUDE
                 )
+
+                if (!_latitude || _latitude !== newValue) {
+                    _latitude = newValue
+                    isDirty = true
+                }
                 break
             }
 
             case SETTING_FORECAST_LONGITUDE: {
-                _longitude = Math.min(
+                const newValue = Math.min(
                     Math.max(parsedValue, MIN_FORECAST_LONGITUDE),
                     MAX_FORECAST_LONGITUDE
                 )
+
+                if (!_longitude || _longitude !== newValue) {
+                    _longitude = newValue
+                    isDirty = true
+                }
                 break
             }
 
             case SETTING_FORECAST_DECLINATION: {
-                _declination = Math.min(
+                const newValue = Math.min(
                     Math.max(parsedValue, MIN_FORECAST_DECLINATION),
                     MAX_FORECAST_DECLINATION
                 )
+
+                if (!_declination || _declination !== newValue) {
+                    _declination = newValue
+                    isDirty = true
+                }
                 break
             }
 
             case SETTING_FORECAST_AZIMUTH: {
-                _azimuth = Math.min(
+                const newValue = Math.min(
                     Math.max(parsedValue, MIN_FORECAST_AZIMUTH),
                     MAX_FORECAST_AZIMUTH
                 )
+
+                if (!_azimuth || _azimuth !== newValue) {
+                    _azimuth = newValue
+                    isDirty = true
+                }
                 break
             }
 
             case SETTING_FORECAST_MAXKWP: {
-                _maxKWP = Math.max(parsedValue, MIN_FORECAST_MAXKWP)
+                const newValue = Math.max(parsedValue, MIN_FORECAST_MAXKWP)
+
+                if (!_maxKWP || _maxKWP !== newValue) {
+                    _maxKWP = newValue
+                    isDirty = true
+                }
                 break
             }
         }
 
-        requestForecast()
+        if (isDirty) requestForecast(true)
     }
 }
 
@@ -108,7 +135,7 @@ export async function initSolarForecast() {
     recurrenceRule.hour = 0
     recurrenceRule.minute = 10
 
-    schedule.scheduleJob(recurrenceRule, requestForecast)
+    schedule.scheduleJob(recurrenceRule, () => requestForecast())
 }
 
 export function getSolarForecastData() {
@@ -141,7 +168,7 @@ export function getSolarForecastData() {
     }
 }
 
-async function requestForecast() {
+async function requestForecast(force: boolean = false) {
     if (
         _latitude === undefined ||
         _longitude === undefined ||
@@ -153,6 +180,7 @@ async function requestForecast() {
 
     const existingForecastData = await getDataFromStorage(DATA_STORAGE_KEY)
     if (
+        !force &&
         existingForecastData !== null &&
         existingForecastData.value &&
         differenceInCalendarDays(new Date(), existingForecastData.updated_at) <

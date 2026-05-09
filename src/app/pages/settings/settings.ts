@@ -1,10 +1,12 @@
+import { ToastContainer } from '@/app/components/ui/toast-container/toast-container'
 import { ApiService } from '@/app/services/api.service'
+import { ToastService } from '@/app/services/toast.service'
 import { KeyValuePipe, NgTemplateOutlet } from '@angular/common'
 import { Component, inject, signal } from '@angular/core'
 import { AbstractControl, FormGroup, ReactiveFormsModule } from '@angular/forms'
 import { FormlyFieldConfig, FormlyForm } from '@ngx-formly/core'
 import { FormlyJsonschema } from '@ngx-formly/core/json-schema'
-import { TranslatePipe } from '@ngx-translate/core'
+import { TranslatePipe, TranslateService } from '@ngx-translate/core'
 import { MarkdownModule, provideMarkdown } from 'ngx-markdown'
 
 @Component({
@@ -16,6 +18,7 @@ import { MarkdownModule, provideMarkdown } from 'ngx-markdown'
         KeyValuePipe,
         NgTemplateOutlet,
         MarkdownModule,
+        ToastContainer,
     ],
     templateUrl: './settings.html',
     styleUrl: './settings.scss',
@@ -23,6 +26,8 @@ import { MarkdownModule, provideMarkdown } from 'ngx-markdown'
 })
 export class SettingsPage {
     readonly api = inject(ApiService)
+    readonly translate = inject(TranslateService)
+    readonly toasts = inject(ToastService)
 
     model: any = {}
 
@@ -100,9 +105,21 @@ export class SettingsPage {
 
     onSubmit(model: any) {
         this.api.sendSettings(model).subscribe({
-            complete: () => {},
+            complete: () => {
+                this.toasts.show({
+                    header: this.translate.instant('common.buttons.save'),
+                    body: this.translate.instant('messages.settings.success'),
+                    class: 'text-bg-success',
+                })
+            },
             error: (err: any) => {
                 this.setErrorMessages(this.form.controls, err['error'])
+
+                this.toasts.show({
+                    header: this.translate.instant('common.buttons.save'),
+                    body: this.translate.instant('messages.settings.error'),
+                    class: 'text-bg-danger',
+                })
             },
         })
     }

@@ -13,6 +13,8 @@
         "moduleResolution": "node10",
         "ignoreDeprecations": "6.0",
         "experimentalDecorators": true,
+        "noFallthroughCasesInSwitch": true,
+        "allowUnreachableCode": false,
 
         "paths": {
             "@/*": ["./src/*"]

@@ -55,6 +55,7 @@ export class DeviceInfoCard {
     private readonly translate = inject(TranslateService)
 
     private webserviceSnapshotSubscription?: Subscription
+    private webserviceDeviceUpdateSubscription?: Subscription
 
     liveValues = signal<{ [key: string]: string } | undefined>(undefined)
 
@@ -83,10 +84,21 @@ export class DeviceInfoCard {
 
                 this.liveValues.set(liveValues)
             })
+
+        this.webserviceDeviceUpdateSubscription = this.websocket
+            .getMessage('device:update')
+            .subscribe(data => {
+                if (!data) return
+
+                this.device = JSON.parse(data).filter(
+                    (device: any) => device.id === this.device.id
+                )[0]
+            })
     }
 
     ngOnDestroy(): void {
         this.webserviceSnapshotSubscription?.unsubscribe()
+        this.webserviceDeviceUpdateSubscription?.unsubscribe()
     }
 
     onDeviceStatusChange(event: any) {

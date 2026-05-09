@@ -8,11 +8,6 @@
     "extension": ".log",
     "files": [
         {
-            "date": 1777442127020,
-            "name": "Z:\\energypilot-io\\energypilot-io.2026-04-29.0.log",
-            "hash": "c02002137466d832b1aa30295dac5c80"
-        },
-        {
             "date": 1777546974029,
             "name": "Z:\\energypilot-io\\energypilot-io.2026-04-30.0.log",
             "hash": "eb5d183c3c9e74d0fcbfac8549928417"
@@ -46,6 +41,11 @@
             "date": 1778270432922,
             "name": "Z:\\energypilot-io\\energypilot-io.2026-05-08.0.log",
             "hash": "75d39ca5a9aea204aad55f7ed8c539c8"
+        },
+        {
+            "date": 1778356010767,
+            "name": "Z:\\energypilot-io\\energypilot-io.2026-05-09.0.log",
+            "hash": "0a564aa700f62a208656083a6cb9199e"
         }
     ]
 }
