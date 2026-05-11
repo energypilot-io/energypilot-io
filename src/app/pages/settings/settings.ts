@@ -106,6 +106,8 @@ export class SettingsPage {
     onSubmit(model: any) {
         this.api.sendSettings(model).subscribe({
             complete: () => {
+                this.form.markAsPristine()
+
                 this.toasts.show({
                     header: this.translate.instant('common.buttons.save'),
                     body: this.translate.instant('messages.settings.success'),
