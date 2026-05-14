@@ -118,3 +118,9 @@ Build the Angular application and start your local instance
 ```
 npm run start
 ```
+
+## Contributing
+
+We welcome contributions! See [CONTRIBUTING](CONTRIBUTING.md) for guidelines.
+
+[![Contributors](https://contrib.rocks/image?repo=energypilot-io/energypilot-io)](https://github.com/energypilot-io/energypilot-io/graphs/contributors)
