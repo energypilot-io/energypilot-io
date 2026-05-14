@@ -2,7 +2,7 @@ import { Injectable, signal, TemplateRef } from '@angular/core'
 
 export interface ToastInfo {
     class?: string
-    header: string
+    header?: string
     body: string
     delay?: number
 }

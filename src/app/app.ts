@@ -21,6 +21,7 @@ import { TranslateService } from '@ngx-translate/core'
 import { LanguageSwitcher } from './components/ui/language-switcher/language-switcher'
 import { NgbOffcanvas } from '@ng-bootstrap/ng-bootstrap'
 import { TranslatePipe } from '@ngx-translate/core'
+import { ToastContainer } from './components/ui/toast-container/toast-container'
 
 @Component({
     selector: 'app-root',
@@ -32,6 +33,7 @@ import { TranslatePipe } from '@ngx-translate/core'
         ThemeSwitcher,
         LanguageSwitcher,
         TranslatePipe,
+        ToastContainer,
     ],
     templateUrl: './app.html',
     styleUrl: './app.scss',

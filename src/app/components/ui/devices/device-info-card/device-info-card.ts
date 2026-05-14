@@ -20,6 +20,7 @@ import { WebsocketService } from '@/app/services/websocket.service'
 import { toEnergyString, toPowerString } from '@/app/libs/utils'
 import { KeyValuePipe } from '@angular/common'
 import { TranslatePipe, TranslateService } from '@ngx-translate/core'
+import { ToastService } from '@/app/services/toast.service'
 
 @Component({
     selector: 'app-device-info-card',
@@ -53,6 +54,7 @@ export class DeviceInfoCard {
     private readonly modalService = inject(NgbModal)
     private readonly websocket = inject(WebsocketService)
     private readonly translate = inject(TranslateService)
+    private readonly toasts = inject(ToastService)
 
     private webserviceSnapshotSubscription?: Subscription
     private webserviceDeviceUpdateSubscription?: Subscription
@@ -106,10 +108,27 @@ export class DeviceInfoCard {
             .sendDeviceStatus(this.device.id, {
                 is_enabled: event.target.checked,
             })
-            .subscribe(response => {
-                this.api.getDevice(this.device.id).subscribe(response => {
-                    this.device = response
-                })
+            .subscribe({
+                complete: () => {
+                    this.api.getDevice(this.device.id).subscribe(response => {
+                        this.device = response
+                    })
+
+                    this.toasts.show({
+                        body: this.translate.instant(
+                            'messages.settings.success'
+                        ),
+                        class: 'text-bg-success',
+                    })
+                },
+                error: (_err: any) => {
+                    event.target.checked != event.target.checked
+
+                    this.toasts.show({
+                        body: this.translate.instant('messages.settings.error'),
+                        class: 'text-bg-danger',
+                    })
+                },
             })
     }
 

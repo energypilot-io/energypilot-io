@@ -1,4 +1,3 @@
-import { ToastContainer } from '@/app/components/ui/toast-container/toast-container'
 import { ApiService } from '@/app/services/api.service'
 import { ToastService } from '@/app/services/toast.service'
 import { KeyValuePipe, NgTemplateOutlet } from '@angular/common'
@@ -18,7 +17,6 @@ import { MarkdownModule, provideMarkdown } from 'ngx-markdown'
         KeyValuePipe,
         NgTemplateOutlet,
         MarkdownModule,
-        ToastContainer,
     ],
     templateUrl: './settings.html',
     styleUrl: './settings.scss',
@@ -109,7 +107,6 @@ export class SettingsPage {
                 this.form.markAsPristine()
 
                 this.toasts.show({
-                    header: this.translate.instant('common.buttons.save'),
                     body: this.translate.instant('messages.settings.success'),
                     class: 'text-bg-success',
                 })
@@ -118,7 +115,6 @@ export class SettingsPage {
                 this.setErrorMessages(this.form.controls, err['error'])
 
                 this.toasts.show({
-                    header: this.translate.instant('common.buttons.save'),
                     body: this.translate.instant('messages.settings.error'),
                     class: 'text-bg-danger',
                 })
