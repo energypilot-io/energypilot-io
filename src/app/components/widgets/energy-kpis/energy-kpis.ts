@@ -18,6 +18,7 @@ import { CanvasRenderer } from 'echarts/renderers'
 import { GridComponent, TooltipComponent } from 'echarts/components'
 import { CallbackDataParams } from 'echarts/types/dist/shared'
 import { formatEnergy } from '@/app/libs/utils'
+import { WidgetBase } from '../widget-base/widget-base'
 
 echarts.use([TooltipComponent, PieChart, CanvasRenderer, GridComponent])
 
@@ -30,6 +31,7 @@ echarts.use([TooltipComponent, PieChart, CanvasRenderer, GridComponent])
         PercentPipe,
         TranslatePipe,
         TimerangeSelector,
+        WidgetBase,
     ],
     templateUrl: './energy-kpis.html',
     styleUrl: './energy-kpis.scss',

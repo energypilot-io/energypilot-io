@@ -100,7 +100,13 @@
     },
 
     "widgets": {
+        "base": {
+            "maximize": "Maximize",
+            "minimize": "Minimize"
+        },
         "kpi": {
+            "title": "KPIs",
+
             "production": "Production",
             "import": "Import",
             "export": "Export",

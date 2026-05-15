@@ -1,105 +1,102 @@
-<div class="card">
-    <div class="card-body">
-        <div class="d-flex flex-column g-4">
-            <app-timerange-selector
-                (onTimeRangeChange)="onTimeRangeChange($event)" />
+<app-widget-base
+    name="widget-energy-kpi"
+    header="{{ 'widgets.kpi.title' | translate }}">
+    <div class="d-flex flex-column g-4">
+        <app-timerange-selector
+            (onTimeRangeChange)="onTimeRangeChange($event)" />
 
-            <div class="row g-0">
-                <div class="col py-5">
-                    <div
-                        class="d-flex flex-column h-100 rounded-start-3 bg-body-secondary p-3 pe-1">
-                        <div class="fs-6 fw-light text-light-emphasis mb-auto">
-                            {{ 'widgets.kpi.production' | translate }}
-                        </div>
-                        <div class="fs-4 fw-light text-nowrap">
-                            {{ totalProduction() | energy }}
-                        </div>
+        <div class="row g-0">
+            <div class="col py-5">
+                <div
+                    class="d-flex flex-column h-100 rounded-start-3 bg-body-secondary p-3 pe-1">
+                    <div class="fs-6 fw-light text-light-emphasis mb-auto">
+                        {{ 'widgets.kpi.production' | translate }}
                     </div>
-                </div>
-                <div class="col py-5 position-relative">
-                    <div
-                        echarts
-                        [options]="chartOption"
-                        [merge]="mergeOptionProductionExport()"
-                        class="position-absolute top-50 start-50 translate-middle h-100 w-100"></div>
-                    <div class="h-100 bg-body-secondary"></div>
-                </div>
-                <div class="col py-5">
-                    <div
-                        class="d-flex flex-column h-100 rounded-end-3 bg-body-secondary p-3 ps-1">
-                        <div
-                            class="fs-6 fw-light text-light-emphasis text-end mb-auto">
-                            {{ 'widgets.kpi.export' | translate }}
-                        </div>
-                        <div class="fs-4 fw-light text-nowrap text-end">
-                            {{ totalExport() | energy }}
-                        </div>
+                    <div class="fs-4 fw-light text-nowrap">
+                        {{ totalProduction() | energy }}
                     </div>
                 </div>
             </div>
-
-            <div class="row g-0">
-                <div class="col py-5">
-                    <div
-                        class="d-flex flex-column h-100 rounded-start-3 bg-body-secondary p-3 pe-1">
-                        <div class="fs-6 fw-light text-light-emphasis mb-auto">
-                            {{ 'widgets.kpi.own-consumption' | translate }}
-                        </div>
-                        <div class="fs-4 fw-light text-nowrap">
-                            {{ totalOwnConsumption() | energy }}
-                        </div>
-                    </div>
-                </div>
-                <div class="col py-5 position-relative">
-                    <div
-                        echarts
-                        [options]="chartOption"
-                        [merge]="mergeOptionOwnConsumptionImport()"
-                        class="position-absolute top-50 start-50 translate-middle h-100 w-100"></div>
-                    <div class="h-100 bg-body-secondary"></div>
-                </div>
-                <div class="col py-5">
-                    <div
-                        class="d-flex flex-column h-100 rounded-end-3 bg-body-secondary p-3 ps-1">
-                        <div
-                            class="fs-6 fw-light text-light-emphasis text-end mb-auto">
-                            {{ 'widgets.kpi.import' | translate }}
-                        </div>
-                        <div class="fs-4 fw-light text-nowrap text-end">
-                            {{ totalImport() | energy }}
-                        </div>
-                    </div>
-                </div>
+            <div class="col py-5 position-relative">
+                <div
+                    echarts
+                    [options]="chartOption"
+                    [merge]="mergeOptionProductionExport()"
+                    class="position-absolute top-50 start-50 translate-middle h-100 w-100"></div>
+                <div class="h-100 bg-body-secondary"></div>
             </div>
-
-            <div class="row">
-                <div class="col d-flex flex-column">
-                    <div class="text-light-emphasis">
-                        {{ 'widgets.kpi.total-consumption' | translate }}
+            <div class="col py-5">
+                <div
+                    class="d-flex flex-column h-100 rounded-end-3 bg-body-secondary p-3 ps-1">
+                    <div
+                        class="fs-6 fw-light text-light-emphasis text-end mb-auto">
+                        {{ 'widgets.kpi.export' | translate }}
                     </div>
-                    <div class="fs-4 text-nowrap">
-                        {{ totalConsumption() | energy }}
-                    </div>
-                </div>
-
-                <div class="col d-flex flex-column">
-                    <div class="text-light-emphasis text-end">
-                        {{ 'widgets.kpi.autonomy' | translate }}
-                    </div>
-                    <div class="fs-4 text-nowrap text-end">
-                        @if (
-                            totalConsumption() > 0 && totalOwnConsumption() > 0
-                        ) {
-                            {{
-                                totalOwnConsumption() / totalConsumption()
-                                    | percent
-                            }}
-                        } @else {
-                            {{ 0 | percent }}
-                        }
+                    <div class="fs-4 fw-light text-nowrap text-end">
+                        {{ totalExport() | energy }}
                     </div>
                 </div>
             </div>
         </div>
+
+        <div class="row g-0">
+            <div class="col py-5">
+                <div
+                    class="d-flex flex-column h-100 rounded-start-3 bg-body-secondary p-3 pe-1">
+                    <div class="fs-6 fw-light text-light-emphasis mb-auto">
+                        {{ 'widgets.kpi.own-consumption' | translate }}
+                    </div>
+                    <div class="fs-4 fw-light text-nowrap">
+                        {{ totalOwnConsumption() | energy }}
+                    </div>
+                </div>
+            </div>
+            <div class="col py-5 position-relative">
+                <div
+                    echarts
+                    [options]="chartOption"
+                    [merge]="mergeOptionOwnConsumptionImport()"
+                    class="position-absolute top-50 start-50 translate-middle h-100 w-100"></div>
+                <div class="h-100 bg-body-secondary"></div>
+            </div>
+            <div class="col py-5">
+                <div
+                    class="d-flex flex-column h-100 rounded-end-3 bg-body-secondary p-3 ps-1">
+                    <div
+                        class="fs-6 fw-light text-light-emphasis text-end mb-auto">
+                        {{ 'widgets.kpi.import' | translate }}
+                    </div>
+                    <div class="fs-4 fw-light text-nowrap text-end">
+                        {{ totalImport() | energy }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col d-flex flex-column">
+                <div class="text-light-emphasis">
+                    {{ 'widgets.kpi.total-consumption' | translate }}
+                </div>
+                <div class="fs-4 text-nowrap">
+                    {{ totalConsumption() | energy }}
+                </div>
+            </div>
+
+            <div class="col d-flex flex-column">
+                <div class="text-light-emphasis text-end">
+                    {{ 'widgets.kpi.autonomy' | translate }}
+                </div>
+                <div class="fs-4 text-nowrap text-end">
+                    @if (totalConsumption() > 0 && totalOwnConsumption() > 0) {
+                        {{
+                            totalOwnConsumption() / totalConsumption() | percent
+                        }}
+                    } @else {
+                        {{ 0 | percent }}
+                    }
+                </div>
+            </div>
+        </div>
     </div>
-</div>
+</app-widget-base>

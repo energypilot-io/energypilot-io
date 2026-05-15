@@ -12,6 +12,7 @@ import { WebsocketService } from '@/app/services/websocket.service'
 import { Subscription } from 'rxjs'
 import { ApiService } from '@/app/services/api.service'
 import { TranslatePipe, TranslateService } from '@ngx-translate/core'
+import { WidgetBase } from '../widget-base/widget-base'
 
 echarts.use([TooltipComponent, SankeyChart, CanvasRenderer, GridComponent])
 
@@ -20,7 +21,7 @@ type SankeyLink = { source: string; target: string; value: number }
 
 @Component({
     selector: 'widget-energy-distribution',
-    imports: [NgxEchartsDirective, TranslatePipe],
+    imports: [NgxEchartsDirective, TranslatePipe, WidgetBase],
     templateUrl: './energy-distribution.html',
     styleUrl: './energy-distribution.scss',
     providers: [provideEchartsCore({ echarts })],

@@ -1,57 +1,53 @@
-<div class="card">
-    <div class="card-body">
-        <h5 class="card-title">
-            {{ 'widgets.live-values.title' | translate }}
-        </h5>
-        <div class="row g-3">
-            @for (deviceValue of deviceValues; track deviceValue.id) {
-                <div class="col-6">
-                    <div class="card">
-                        <div class="card-body">
-                            <h6
-                                class="card-subtitle mb-2 text-muted fs-6 fw-light text-truncate">
-                                {{ deviceValue.deviceName }}
-                            </h6>
-                            <div
-                                class="d-flex align-items-center gap-1 justify-content-end">
-                                <div
-                                    class="card-text fs-4 fw-light text-nowrap">
-                                    {{ deviceValue.formattedValue }}
-                                    {{ deviceValue.unit }}
-                                </div>
-                                @if (deviceValue.trend > 0) {
-                                    <ng-icon
-                                        color="var(--bs-success)"
-                                        [name]="
-                                            deviceValue.trend > 1000
-                                                ? 'tablerArrowBigUpLinesFill'
-                                                : deviceValue.trend > 100
-                                                  ? 'tablerArrowBigUpLineFill'
-                                                  : 'tablerArrowBigUpFill'
-                                        "
-                                        size="24" />
-                                } @else if (deviceValue.trend < 0) {
-                                    <ng-icon
-                                        color="var(--bs-danger)"
-                                        [name]="
-                                            deviceValue.trend < -1000
-                                                ? 'tablerArrowBigDownLinesFill'
-                                                : deviceValue.trend < -100
-                                                  ? 'tablerArrowBigDownLineFill'
-                                                  : 'tablerArrowBigDownFill'
-                                        "
-                                        size="24" />
-                                } @else {
-                                    <ng-icon
-                                        color="var(--bs-secondary)"
-                                        name="tablerArrowBigRightFill"
-                                        size="24" />
-                                }
+<app-widget-base
+    name="widget-energy-live-values"
+    header="{{ 'widgets.live-values.title' | translate }}">
+    <div class="row g-3">
+        @for (deviceValue of deviceValues; track deviceValue.id) {
+            <div class="col-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h6
+                            class="card-subtitle mb-2 text-muted fs-6 fw-light text-truncate">
+                            {{ deviceValue.deviceName }}
+                        </h6>
+                        <div
+                            class="d-flex align-items-center gap-1 justify-content-end">
+                            <div class="card-text fs-4 fw-light text-nowrap">
+                                {{ deviceValue.formattedValue }}
+                                {{ deviceValue.unit }}
                             </div>
+                            @if (deviceValue.trend > 0) {
+                                <ng-icon
+                                    color="var(--bs-success)"
+                                    [name]="
+                                        deviceValue.trend > 1000
+                                            ? 'tablerArrowBigUpLinesFill'
+                                            : deviceValue.trend > 100
+                                              ? 'tablerArrowBigUpLineFill'
+                                              : 'tablerArrowBigUpFill'
+                                    "
+                                    size="24" />
+                            } @else if (deviceValue.trend < 0) {
+                                <ng-icon
+                                    color="var(--bs-danger)"
+                                    [name]="
+                                        deviceValue.trend < -1000
+                                            ? 'tablerArrowBigDownLinesFill'
+                                            : deviceValue.trend < -100
+                                              ? 'tablerArrowBigDownLineFill'
+                                              : 'tablerArrowBigDownFill'
+                                    "
+                                    size="24" />
+                            } @else {
+                                <ng-icon
+                                    color="var(--bs-secondary)"
+                                    name="tablerArrowBigRightFill"
+                                    size="24" />
+                            }
                         </div>
                     </div>
                 </div>
-            }
-        </div>
+            </div>
+        }
     </div>
-</div>
+</app-widget-base>

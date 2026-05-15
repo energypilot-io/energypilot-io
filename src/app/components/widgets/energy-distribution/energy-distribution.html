@@ -1,12 +1,9 @@
-<div class="card">
-    <div class="card-body">
-        <h5 class="card-title">
-            {{ 'widgets.energy-distribution.title' | translate }}
-        </h5>
-        <div
-            echarts
-            [options]="chartOption"
-            [merge]="mergeOption()"
-            class="h-72 w-full"></div>
-    </div>
-</div>
+<app-widget-base
+    name="widget-energy-distribution"
+    header="{{ 'widgets.energy-distribution.title' | translate }}">
+    <div
+        echarts
+        [options]="chartOption"
+        [merge]="mergeOption()"
+        class="h-72 w-full"></div>
+</app-widget-base>

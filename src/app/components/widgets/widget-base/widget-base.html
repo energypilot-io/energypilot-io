@@ -1,0 +1,26 @@
+<div class="card">
+    <div class="card-body">
+        <div class="d-flex">
+            @if (header) {
+                <h5 class="card-title">{{ header }}</h5>
+            }
+
+            <button
+                class="btn p-0 ms-auto"
+                ngbTooltip="{{
+                    'widgets.base.' + (hidden() ? 'maximize' : 'minimize')
+                        | translate
+                }}"
+                container="body"
+                (click)="toggleVisibility()">
+                <ng-icon
+                    [name]="hidden() ? 'tablerMaximize' : 'tablerMinimize'"
+                    size="24" />
+            </button>
+        </div>
+
+        @if (!hidden()) {
+            <ng-content />
+        }
+    </div>
+</div>

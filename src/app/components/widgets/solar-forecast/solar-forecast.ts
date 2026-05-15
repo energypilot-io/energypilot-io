@@ -24,6 +24,7 @@ import {
 } from 'date-fns'
 import { FormatEnergyPipe } from '@/app/pipes/formatEnergy.pipe'
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader'
+import { WidgetBase } from '../widget-base/widget-base'
 
 echarts.use([
     TooltipComponent,
@@ -41,6 +42,7 @@ echarts.use([
         NgIcon,
         FormatEnergyPipe,
         NgxSkeletonLoaderModule,
+        WidgetBase,
     ],
     templateUrl: './solar-forecast.html',
     styleUrl: './solar-forecast.scss',

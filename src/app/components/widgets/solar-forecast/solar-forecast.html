@@ -1,62 +1,55 @@
-<div class="card">
-    <div class="card-body">
-        <h5 class="card-title">
-            {{ 'widgets.solar-forecast.title' | translate }}
-        </h5>
+<app-widget-base
+    name="widget-solar-forecast"
+    header="{{ 'widgets.solar-forecast.title' | translate }}">
+    @if (forecastData() === undefined) {
+        <ngx-skeleton-loader
+            count="2"
+            appearance="line"
+            animation="pulse-dark"></ngx-skeleton-loader>
+    } @else if (timestamps().length === 0) {
+        <div class="text-center fs-4 py-4">No Forecast Data</div>
+    } @else {
+        <div class="d-flex flex-column">
+            <div class="d-flex justify-content-between align-items-center">
+                <button class="btn p-0" (click)="decrementForecastDay()">
+                    <ng-icon name="tablerCircleChevronLeft" size="32" />
+                </button>
 
-        @if (forecastData() === undefined) {
-            <ngx-skeleton-loader
-                count="2"
-                appearance="line"
-                animation="pulse-dark"></ngx-skeleton-loader>
-        } @else if (timestamps().length === 0) {
-            <div class="text-center fs-4 py-4">No Forecast Data</div>
-        } @else {
-            <div class="d-flex flex-column">
-                <div class="d-flex justify-content-between align-items-center">
-                    <button class="btn p-0" (click)="decrementForecastDay()">
-                        <ng-icon name="tablerCircleChevronLeft" size="32" />
-                    </button>
+                <div>{{ currentDayLabel() }}</div>
 
-                    <div>{{ currentDayLabel() }}</div>
+                <button class="btn p-0" (click)="incrementForecastDay()">
+                    <ng-icon name="tablerCircleChevronRight" size="32" />
+                </button>
+            </div>
 
-                    <button class="btn p-0" (click)="incrementForecastDay()">
-                        <ng-icon name="tablerCircleChevronRight" size="32" />
-                    </button>
+            <div
+                echarts
+                [options]="chartOption()"
+                [merge]="mergeOption()"
+                class="h-72 w-full"></div>
+
+            <div class="row">
+                <div class="col d-flex flex-column">
+                    <div class="text-light-emphasis">
+                        {{ 'widgets.solar-forecast.total-energy' | translate }}
+                    </div>
+                    <div class="fs-4 text-nowrap">
+                        {{ dailyProduction() | energy }}
+                    </div>
                 </div>
 
-                <div
-                    echarts
-                    [options]="chartOption()"
-                    [merge]="mergeOption()"
-                    class="h-72 w-full"></div>
-
-                <div class="row">
-                    <div class="col d-flex flex-column">
-                        <div class="text-light-emphasis">
-                            {{
-                                'widgets.solar-forecast.total-energy'
-                                    | translate
-                            }}
-                        </div>
-                        <div class="fs-4 text-nowrap">
-                            {{ dailyProduction() | energy }}
-                        </div>
+                <div class="col d-flex flex-column text-end">
+                    <div class="text-light-emphasis">
+                        {{
+                            'widgets.solar-forecast.remaining-production'
+                                | translate
+                        }}
                     </div>
-
-                    <div class="col d-flex flex-column text-end">
-                        <div class="text-light-emphasis">
-                            {{
-                                'widgets.solar-forecast.remaining-production'
-                                    | translate
-                            }}
-                        </div>
-                        <div class="fs-4 text-nowrap">
-                            {{ remainingProduction() | energy }}
-                        </div>
+                    <div class="fs-4 text-nowrap">
+                        {{ remainingProduction() | energy }}
                     </div>
                 </div>
             </div>
-        }
-    </div>
-</div>
+        </div>
+    }
+</app-widget-base>

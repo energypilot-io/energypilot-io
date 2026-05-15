@@ -15,6 +15,7 @@ import {
 } from '@ng-icons/tabler-icons/fill'
 import { NgIcon, provideIcons } from '@ng-icons/core'
 import { formatPower } from '@/app/libs/utils'
+import { WidgetBase } from '../widget-base/widget-base'
 
 type DeviceValue = {
     id: number
@@ -27,7 +28,7 @@ type DeviceValue = {
 
 @Component({
     selector: 'widget-energy-live-values',
-    imports: [NgIcon, TranslatePipe],
+    imports: [NgIcon, TranslatePipe, WidgetBase],
     templateUrl: './energy-live-values.html',
     styleUrl: './energy-live-values.scss',
     providers: [
