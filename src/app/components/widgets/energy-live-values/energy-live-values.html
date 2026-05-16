@@ -1,6 +1,10 @@
 <app-widget-base
-    name="widget-energy-live-values"
-    header="{{ 'widgets.live-values.title' | translate }}">
+    header="{{ 'widgets.live-values.title' | translate }}"
+    [name]="name"
+    [canMoveUp]="canMoveUp()"
+    [canMoveDown]="canMoveDown()"
+    (moveUp)="moveUp()?.emit($event)"
+    (moveDown)="moveDown()?.emit($event)">
     <div class="row g-3">
         @for (deviceValue of deviceValues; track deviceValue.id) {
             <div class="col-6">

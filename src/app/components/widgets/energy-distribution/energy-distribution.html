@@ -1,6 +1,10 @@
 <app-widget-base
-    name="widget-energy-distribution"
-    header="{{ 'widgets.energy-distribution.title' | translate }}">
+    header="{{ 'widgets.energy-distribution.title' | translate }}"
+    [name]="name"
+    [canMoveUp]="canMoveUp()"
+    [canMoveDown]="canMoveDown()"
+    (moveUp)="moveUp()?.emit($event)"
+    (moveDown)="moveDown()?.emit($event)">
     <div
         echarts
         [options]="chartOption"

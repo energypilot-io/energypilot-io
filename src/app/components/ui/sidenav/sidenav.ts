@@ -5,6 +5,7 @@ import {
     EventEmitter,
     inject,
     Input,
+    output,
     Output,
     signal,
     ViewEncapsulation,
@@ -120,5 +121,5 @@ export class Sidenav {
         this.isMobile.set(val)
     }
 
-    @Output() closeEvent = new EventEmitter<void>()
+    closeEvent = output<void>()
 }

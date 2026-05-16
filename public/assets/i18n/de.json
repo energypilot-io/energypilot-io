@@ -102,7 +102,9 @@
     "widgets": {
         "base": {
             "maximize": "Maximieren",
-            "minimize": "Minimieren"
+            "minimize": "Minimieren",
+            "moveUp": "Nach oben schieben",
+            "moveDown": "Nach unten schieben"
         },
         "kpi": {
             "title": "Kennzahlen",

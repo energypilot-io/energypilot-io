@@ -1,6 +1,10 @@
 <app-widget-base
-    name="widget-solar-forecast"
-    header="{{ 'widgets.solar-forecast.title' | translate }}">
+    header="{{ 'widgets.solar-forecast.title' | translate }}"
+    [name]="name"
+    [canMoveUp]="canMoveUp()"
+    [canMoveDown]="canMoveDown()"
+    (moveUp)="moveUp()?.emit($event)"
+    (moveDown)="moveDown()?.emit($event)">
     @if (forecastData() === undefined) {
         <ngx-skeleton-loader
             count="2"

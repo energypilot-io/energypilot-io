@@ -1,12 +1,34 @@
 <div class="card">
     <div class="card-body">
         <div class="d-flex">
-            @if (header) {
-                <h5 class="card-title">{{ header }}</h5>
+            @if (header()) {
+                <h5 class="card-title text-truncate">{{ header() }}</h5>
+            }
+
+            <div class="ms-auto"></div>
+
+            @if (canMoveUp()) {
+                <button
+                    class="btn p-0"
+                    ngbTooltip="{{ 'widgets.base.moveUp' | translate }}"
+                    container="body"
+                    (click)="moveUp.emit(name()!)">
+                    <ng-icon name="tablerArrowUp" size="22" />
+                </button>
+            }
+
+            @if (canMoveDown()) {
+                <button
+                    class="btn p-0"
+                    ngbTooltip="{{ 'widgets.base.moveDown' | translate }}"
+                    container="body"
+                    (click)="moveDown.emit(name()!)">
+                    <ng-icon name="tablerArrowDown" size="22" />
+                </button>
             }
 
             <button
-                class="btn p-0 ms-auto"
+                class="btn p-0"
                 ngbTooltip="{{
                     'widgets.base.' + (hidden() ? 'maximize' : 'minimize')
                         | translate
@@ -15,7 +37,7 @@
                 (click)="toggleVisibility()">
                 <ng-icon
                     [name]="hidden() ? 'tablerMaximize' : 'tablerMinimize'"
-                    size="24" />
+                    size="22" />
             </button>
         </div>
 

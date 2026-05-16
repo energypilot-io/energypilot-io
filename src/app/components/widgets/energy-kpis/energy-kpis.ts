@@ -1,4 +1,13 @@
-import { Component, computed, effect, inject, signal } from '@angular/core'
+import {
+    Component,
+    computed,
+    effect,
+    inject,
+    input,
+    output,
+    OutputEmitterRef,
+    signal,
+} from '@angular/core'
 import {
     onTimeRangeChangeEvent,
     TimerangeSelector,
@@ -36,8 +45,21 @@ echarts.use([TooltipComponent, PieChart, CanvasRenderer, GridComponent])
     templateUrl: './energy-kpis.html',
     styleUrl: './energy-kpis.scss',
     providers: [provideEchartsCore({ echarts })],
+    host: { class: 'col-12 col-md-6 col-xl-4 p-0' },
 })
 export class EnergyKpisWidget {
+    static name: string = 'widget-energy-kpis'
+
+    get name(): string {
+        return EnergyKpisWidget.name
+    }
+
+    canMoveUp = input<boolean>(true)
+    canMoveDown = input<boolean>(true)
+
+    moveUp = input<OutputEmitterRef<string>>()
+    moveDown = input<OutputEmitterRef<string>>()
+
     readonly api = inject(ApiService)
     readonly websocket = inject(WebsocketService)
     readonly translate = inject(TranslateService)

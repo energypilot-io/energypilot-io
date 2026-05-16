@@ -1,6 +1,10 @@
 <app-widget-base
-    name="widget-energy-kpi"
-    header="{{ 'widgets.kpi.title' | translate }}">
+    header="{{ 'widgets.kpi.title' | translate }}"
+    [name]="name"
+    [canMoveUp]="canMoveUp()"
+    [canMoveDown]="canMoveDown()"
+    (moveUp)="moveUp()?.emit($event)"
+    (moveDown)="moveDown()?.emit($event)">
     <div class="d-flex flex-column g-4">
         <app-timerange-selector
             (onTimeRangeChange)="onTimeRangeChange($event)" />

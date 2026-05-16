@@ -1,5 +1,12 @@
 import { ApiService } from '@/app/services/api.service'
-import { Component, computed, inject, signal } from '@angular/core'
+import {
+    Component,
+    computed,
+    inject,
+    input,
+    OutputEmitterRef,
+    signal,
+} from '@angular/core'
 import { TranslatePipe, TranslateService } from '@ngx-translate/core'
 import { Subscription } from 'rxjs'
 
@@ -53,8 +60,21 @@ echarts.use([
             tablerCircleChevronRight,
         }),
     ],
+    host: { class: 'col-12 col-md-6 col-xl-4 p-0' },
 })
 export class SolarForecastWidget {
+    static name: string = 'widget-energy-solar-forecast'
+
+    get name(): string {
+        return SolarForecastWidget.name
+    }
+
+    canMoveUp = input<boolean>(true)
+    canMoveDown = input<boolean>(true)
+
+    moveUp = input<OutputEmitterRef<string>>()
+    moveDown = input<OutputEmitterRef<string>>()
+
     private api = inject(ApiService)
     private translate = inject(TranslateService)
 

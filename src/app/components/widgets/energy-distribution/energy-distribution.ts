@@ -1,4 +1,11 @@
-import { Component, computed, inject, signal } from '@angular/core'
+import {
+    Component,
+    computed,
+    inject,
+    input,
+    OutputEmitterRef,
+    signal,
+} from '@angular/core'
 
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts'
 import * as echarts from 'echarts/core'
@@ -25,8 +32,21 @@ type SankeyLink = { source: string; target: string; value: number }
     templateUrl: './energy-distribution.html',
     styleUrl: './energy-distribution.scss',
     providers: [provideEchartsCore({ echarts })],
+    host: { class: 'col-12 col-md-6 col-xl-4 p-0' },
 })
 export class EnergyDistributionWidget {
+    static name: string = 'widget-energy-distribution'
+
+    get name(): string {
+        return EnergyDistributionWidget.name
+    }
+
+    canMoveUp = input<boolean>(true)
+    canMoveDown = input<boolean>(true)
+
+    moveUp = input<OutputEmitterRef<string>>()
+    moveDown = input<OutputEmitterRef<string>>()
+
     private api = inject(ApiService)
     private websocket = inject(WebsocketService)
     private translate = inject(TranslateService)

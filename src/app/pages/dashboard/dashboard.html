@@ -1,8 +1,16 @@
 <div class="container-fluid">
     <div class="row gap-2">
-        <widget-energy-kpis class="col-12 col-md-6 col-xl-4 p-0" />
-        <widget-energy-live-values class="col-12 col-md-6 col-xl-4 p-0" />
-        <widget-energy-distribution class="col-12 col-md-6 col-xl-4 p-0" />
-        <widget-solar-forecast class="col-12 col-md-6 col-xl-4 p-0" />
+        @for (widget of widgets(); track widget; let index = $index) {
+            <ng-container
+                *ngComponentOutlet="
+                    widget;
+                    inputs: {
+                        moveUp: moveUpEvent,
+                        moveDown: moveDownEvent,
+                        canMoveUp: index > 0,
+                        canMoveDown: index < widgets().length - 1,
+                    }
+                "></ng-container>
+        }
     </div>
 </div>

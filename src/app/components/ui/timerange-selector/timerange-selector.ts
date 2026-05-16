@@ -4,6 +4,7 @@ import {
     effect,
     EventEmitter,
     inject,
+    output,
     Output,
     signal,
 } from '@angular/core'
@@ -83,7 +84,7 @@ export class TimerangeSelector {
 
     currentTimeRange = signal<TimeRange>(TimeRange.Day)
 
-    @Output() onTimeRangeChange = new EventEmitter<onTimeRangeChangeEvent>()
+    onTimeRangeChange = output<onTimeRangeChangeEvent>()
 
     currentTimeRangeLabel = computed<string>(() => {
         const fromDate = this.fromDate().toLocaleDateString(

@@ -102,7 +102,9 @@
     "widgets": {
         "base": {
             "maximize": "Maximize",
-            "minimize": "Minimize"
+            "minimize": "Minimize",
+            "moveUp": "Move Up",
+            "moveDown": "Move Down"
         },
         "kpi": {
             "title": "KPIs",

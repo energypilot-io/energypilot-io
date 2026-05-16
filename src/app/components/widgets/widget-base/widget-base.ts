@@ -1,8 +1,13 @@
-import { Component, Input, signal } from '@angular/core'
+import { Component, input, Input, output, signal } from '@angular/core'
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap'
 import { NgIcon, provideIcons } from '@ng-icons/core'
 
-import { tablerMinimize, tablerMaximize } from '@ng-icons/tabler-icons'
+import {
+    tablerMinimize,
+    tablerMaximize,
+    tablerArrowDown,
+    tablerArrowUp,
+} from '@ng-icons/tabler-icons'
 import { TranslatePipe } from '@ngx-translate/core'
 
 @Component({
@@ -14,13 +19,20 @@ import { TranslatePipe } from '@ngx-translate/core'
         provideIcons({
             tablerMinimize,
             tablerMaximize,
+            tablerArrowDown,
+            tablerArrowUp,
         }),
     ],
 })
 export class WidgetBase {
-    @Input() name: string = ''
+    name = input<string>()
+    header = input<string>()
 
-    @Input() header?: string = undefined
+    canMoveUp = input<boolean>(true)
+    canMoveDown = input<boolean>(true)
+
+    moveUp = output<string>()
+    moveDown = output<string>()
 
     hidden = signal(false)
 
@@ -32,14 +44,15 @@ export class WidgetBase {
         this.hidden.set(hidden)
 
         try {
-            window.localStorage[`${this.name}.hidden`] = hidden
+            window.localStorage[`${this.name()}.hidden`] = hidden
         } catch {}
     }
 
     getStoredStatus(): boolean {
         try {
             return (
-                (window.localStorage[`${this.name}.hidden`] || null) === 'true'
+                (window.localStorage[`${this.name()}.hidden`] || null) ===
+                'true'
             )
         } catch {
             return false

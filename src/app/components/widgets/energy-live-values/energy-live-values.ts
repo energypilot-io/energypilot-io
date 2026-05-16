@@ -1,6 +1,12 @@
 import { ApiService } from '@/app/services/api.service'
 import { WebsocketService } from '@/app/services/websocket.service'
-import { Component, effect, inject } from '@angular/core'
+import {
+    Component,
+    effect,
+    inject,
+    input,
+    OutputEmitterRef,
+} from '@angular/core'
 import { TranslatePipe, TranslateService } from '@ngx-translate/core'
 import { Subscription } from 'rxjs'
 
@@ -42,8 +48,21 @@ type DeviceValue = {
             tablerArrowBigDownLinesFill,
         }),
     ],
+    host: { class: 'col-12 col-md-6 col-xl-4 p-0' },
 })
 export class EnergyLiveValuesWidget {
+    static name: string = 'widget-energy-live-values'
+
+    get name(): string {
+        return EnergyLiveValuesWidget.name
+    }
+
+    canMoveUp = input<boolean>(true)
+    canMoveDown = input<boolean>(true)
+    
+    moveUp = input<OutputEmitterRef<string>>()
+    moveDown = input<OutputEmitterRef<string>>()
+
     readonly api = inject(ApiService)
     readonly websocket = inject(WebsocketService)
     readonly translate = inject(TranslateService)
