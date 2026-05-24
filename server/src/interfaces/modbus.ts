@@ -59,6 +59,8 @@ type ModbusParameterDef = {
 }
 
 export class ModbusInterface extends IInterface {
+    static MAX_ERRORS_BEFORE_RECONNECT: number = 3
+
     private _logger: ChildLogger
 
     private _cache: { [key: string]: Buffer } = {}
@@ -67,7 +69,9 @@ export class ModbusInterface extends IInterface {
 
     private _connection: any
     private _transport: any
-    private _master: any
+    private _master: Master
+
+    private _transactionErrorCount: number = 0
 
     constructor(properties: { [property: string]: any }) {
         super('modbus')
@@ -469,6 +473,18 @@ export class ModbusInterface extends IInterface {
 
             transaction.on('error', (err: any) => {
                 this._logger.error(`Transaction error: [${err}]`)
+
+                this._transactionErrorCount += 1
+                if (
+                    this._transactionErrorCount >=
+                    ModbusInterface.MAX_ERRORS_BEFORE_RECONNECT
+                ) {
+                    this._transactionErrorCount = 0
+
+                    this._connection.close()
+                    this._connection.connect()
+                }
+
                 return resolve(undefined)
             })
 
