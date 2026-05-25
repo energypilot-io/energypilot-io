@@ -10,9 +10,10 @@
             @if (canMoveUp()) {
                 <button
                     class="btn p-0"
+                    #t="ngbTooltip"
                     ngbTooltip="{{ 'widgets.base.moveUp' | translate }}"
                     container="body"
-                    (click)="moveUp.emit(name()!)">
+                    (click)="t.close(); moveUp.emit(name()!)">
                     <ng-icon name="tablerArrowUp" size="22" />
                 </button>
             }
@@ -20,21 +21,23 @@
             @if (canMoveDown()) {
                 <button
                     class="btn p-0"
+                    #t="ngbTooltip"
                     ngbTooltip="{{ 'widgets.base.moveDown' | translate }}"
                     container="body"
-                    (click)="moveDown.emit(name()!)">
+                    (click)="t.close(); moveDown.emit(name()!)">
                     <ng-icon name="tablerArrowDown" size="22" />
                 </button>
             }
 
             <button
                 class="btn p-0"
+                #t="ngbTooltip"
                 ngbTooltip="{{
                     'widgets.base.' + (hidden() ? 'maximize' : 'minimize')
                         | translate
                 }}"
                 container="body"
-                (click)="toggleVisibility()">
+                (click)="t.close(); toggleVisibility()">
                 <ng-icon
                     [name]="hidden() ? 'tablerMaximize' : 'tablerMinimize'"
                     size="22" />
