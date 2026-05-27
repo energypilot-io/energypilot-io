@@ -1,7 +1,7 @@
 import express from 'express'
 import { Request, Response } from 'express'
 
-import { getEntityManager } from '@/core/database'
+import { getEntityManager } from '@/core/database.manager'
 import { Setting } from '@/entities/settings.entity'
 import {
     ALLOWED_SETTINGS,

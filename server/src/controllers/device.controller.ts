@@ -1,7 +1,7 @@
 import express from 'express'
 import { Request, Response } from 'express'
 
-import { getEntityManager, upsertEntity } from '@/core/database'
+import { getEntityManager, upsertEntity } from '@/core/database.manager'
 import { Device } from '@/entities/device.entity'
 import {
     createDevice,

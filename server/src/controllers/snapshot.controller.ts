@@ -1,4 +1,4 @@
-import { getEntityManager } from '@/core/database'
+import { getEntityManager } from '@/core/database.manager'
 import { SnapshotGroupedHourlyView } from '@/entities/snapshot.grouped.hourly.view.entity'
 import { Snapshot } from '@/entities/snapshot.entity'
 import express from 'express'

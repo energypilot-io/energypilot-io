@@ -1,6 +1,6 @@
 import { Setting } from '@/entities/settings.entity'
 import { EventArgs, EventSubscriber } from '@mikro-orm/core'
-import { getEntityManager } from './database'
+import { getEntityManager } from './database.manager'
 import { validateIntegerInRange, validateIsNotEmpty } from '@/libs/validators'
 import { EntityManager } from '@mikro-orm/sqlite'
 

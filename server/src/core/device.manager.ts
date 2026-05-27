@@ -1,6 +1,6 @@
 import { Device } from '@/entities/device.entity'
 import { DeviceValue } from '@/entities/device.value.entity'
-import { getEntityManager } from './database'
+import { getEntityManager } from './database.manager'
 import { ChildLogger, getLogger } from './log.manager'
 import { IInterface } from '@/interfaces/interface'
 import { RegisteredDeviceClasses, RegisteredInterfaceClasses } from './config'

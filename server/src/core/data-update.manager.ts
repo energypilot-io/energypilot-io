@@ -1,7 +1,7 @@
 import { getDeviceInstances, resetAllDeviceCaches } from './device.manager'
 import { ChildLogger, getLogger } from './log.manager'
 import { Snapshot } from '@/entities/snapshot.entity'
-import { persistEntity } from './database'
+import { persistEntity } from './database.manager'
 import { DeviceValue } from '@/entities/device.value.entity'
 import { WS_EVENT_SNAPSHOT_NEW, WS_EVENT_DEVICE_UPDATE } from '@/constants'
 import { Semaphore } from '@/libs/semaphore'

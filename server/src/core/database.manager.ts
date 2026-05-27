@@ -55,7 +55,7 @@ class CustomLogger extends DefaultLogger {
     }
 }
 
-export async function initDatabase() {
+export async function initDatabaseManager() {
     _orm = (await MikroORM.init({
         ...(config as any),
         dbName: getFilename(),

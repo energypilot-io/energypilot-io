@@ -1,4 +1,4 @@
-import { getSolarForecastData } from '@/modules/solar-forecast'
+import { getSolarForecastData } from '@/modules/solar-forecast.module'
 import express from 'express'
 import { Request, Response } from 'express'
 
