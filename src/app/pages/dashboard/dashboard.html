@@ -1,16 +1,18 @@
-<div class="container-fluid">
-    <div class="row gap-2">
+<div class="d-flex flex-column gap-2">
+    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4 g-md-2">
         @for (widget of widgets(); track widget; let index = $index) {
-            <ng-container
-                *ngComponentOutlet="
-                    widget;
-                    inputs: {
-                        moveUp: moveUpEvent,
-                        moveDown: moveDownEvent,
-                        canMoveUp: index > 0,
-                        canMoveDown: index < widgets().length - 1,
-                    }
-                "></ng-container>
+            <div class="col">
+                <ng-container
+                    *ngComponentOutlet="
+                        widget;
+                        inputs: {
+                            moveUp: moveUpEvent,
+                            moveDown: moveDownEvent,
+                            canMoveUp: index > 0,
+                            canMoveDown: index < widgets().length - 1,
+                        }
+                    "></ng-container>
+            </div>
         }
     </div>
 </div>

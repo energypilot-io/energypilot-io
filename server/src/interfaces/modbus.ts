@@ -68,7 +68,6 @@ export class ModbusInterface extends IInterface {
     private _properties: { [property: string]: any }
 
     private _connection: any
-    private _transport: any
     private _master: Master
 
     private _transactionErrorCount: number = 0
@@ -78,6 +77,30 @@ export class ModbusInterface extends IInterface {
 
         this._properties = properties
         this._logger = getLogger(`interfaces.modbus`)
+
+        this.establishConnection()
+
+        process.on('SIGTERM', () => {
+            if (this._connection !== undefined) {
+                this._connection.destroy()
+            }
+        })
+
+        process.on('exit', code => {
+            if (this._connection !== undefined) {
+                this._connection.destroy()
+            }
+        })
+    }
+
+    private establishConnection() {
+        /*
+         * Connection
+         */
+
+        if (this._connection !== undefined) {
+            this._connection.destroy()
+        }
 
         switch (this._properties['connectionType']) {
             case 'tcpip': {
@@ -109,39 +132,6 @@ export class ModbusInterface extends IInterface {
                 )
         }
 
-        switch (this._properties['transport']) {
-            case 'ascii':
-                this._transport = new AsciiTransport(this._connection)
-                break
-            case 'ip':
-                this._transport = new IpTransport(this._connection)
-                break
-            case 'rtu':
-                this._transport = new RtuTransport({
-                    connection: this._connection,
-                })
-                break
-        }
-
-        if (this._connection === undefined || this._transport === undefined) {
-            this._logger.error(
-                `Error while creating interface instance with properties [${JSON.stringify(
-                    properties
-                )}]`
-            )
-            return
-        }
-
-        this._master = new Master({
-            transport: this._transport,
-            suppressTransactionErrors: false,
-            retryOnException: false,
-            maxConcurrentRequests: 1,
-            defaultUnit: this._properties['modbusId'],
-            defaultMaxRetries: 0,
-            defaultTimeout: this._properties['timeout'],
-        })
-
         this._connection.on('error', (err: any) => {
             this._logger.error(
                 'Error Message: ' + err.message,
@@ -155,6 +145,48 @@ export class ModbusInterface extends IInterface {
 
         this._connection.on('data', (data: any) => {
             this._logger.verbose(`Receive data: ${data.toString('hex')}`)
+        })
+
+        /*
+         * Transport
+         */
+
+        let transport
+        switch (this._properties['transport']) {
+            case 'ascii':
+                transport = new AsciiTransport(this._connection)
+                break
+            case 'ip':
+                transport = new IpTransport(this._connection)
+                break
+            case 'rtu':
+                transport = new RtuTransport({
+                    connection: this._connection,
+                })
+                break
+        }
+
+        if (this._connection === undefined || transport === undefined) {
+            this._logger.error(
+                `Error while creating interface instance with properties [${JSON.stringify(
+                    this._properties
+                )}]`
+            )
+            return
+        }
+
+        /*
+         * Master
+         */
+
+        this._master = new Master({
+            transport: transport,
+            suppressTransactionErrors: false,
+            retryOnException: true,
+            maxConcurrentRequests: 1,
+            defaultUnit: this._properties['modbusId'],
+            defaultMaxRetries: 3,
+            defaultTimeout: this._properties['timeout'],
         })
 
         this._master.on('connected', () => {
@@ -198,18 +230,6 @@ export class ModbusInterface extends IInterface {
                 'Error Message: ' + err.message,
                 'Error' + 'Modbus Error Type: ' + err.err
             )
-        })
-
-        process.on('SIGTERM', () => {
-            if (this._connection !== undefined) {
-                this._connection.destroy()
-            }
-        })
-
-        process.on('exit', code => {
-            if (this._connection !== undefined) {
-                this._connection.destroy()
-            }
         })
     }
 
@@ -479,10 +499,12 @@ export class ModbusInterface extends IInterface {
                     this._transactionErrorCount >=
                     ModbusInterface.MAX_ERRORS_BEFORE_RECONNECT
                 ) {
+                    this._logger.warn(
+                        `Maximum error count reached. Reconnecting to modbus host [${this._properties['host']}:${this._properties['port']}] `
+                    )
                     this._transactionErrorCount = 0
 
-                    this._connection.close()
-                    this._connection.connect()
+                    this.establishConnection()
                 }
 
                 return resolve(undefined)

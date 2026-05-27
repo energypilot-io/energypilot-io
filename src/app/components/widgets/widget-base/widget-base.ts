@@ -3,7 +3,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap'
 import { NgIcon, provideIcons } from '@ng-icons/core'
 
 import {
-    tablerMinimize,
+    tablerWindowMinimize,
     tablerMaximize,
     tablerArrowDown,
     tablerArrowUp,
@@ -17,7 +17,7 @@ import { TranslatePipe } from '@ngx-translate/core'
     styleUrl: './widget-base.scss',
     providers: [
         provideIcons({
-            tablerMinimize,
+            tablerWindowMinimize,
             tablerMaximize,
             tablerArrowDown,
             tablerArrowUp,

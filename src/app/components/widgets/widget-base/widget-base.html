@@ -39,7 +39,9 @@
                 container="body"
                 (click)="t.close(); toggleVisibility()">
                 <ng-icon
-                    [name]="hidden() ? 'tablerMaximize' : 'tablerMinimize'"
+                    [name]="
+                        hidden() ? 'tablerMaximize' : 'tablerWindowMinimize'
+                    "
                     size="22" />
             </button>
         </div>

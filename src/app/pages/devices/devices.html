@@ -9,10 +9,11 @@
         </button>
     </div>
 
-    <div class="row g-4 g-md-2">
+    <div
+        class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4 g-md-2">
         @for (device of devices(); track device.id) {
             <app-device-info-card
-                class="col-12 col-md-6 col-lg-4 col-xl-3"
+                class="col"
                 [device]="device"
                 [refreshToken]="refreshToken$" />
         }
