@@ -8,44 +8,9 @@
     "extension": ".log",
     "files": [
         {
-            "date": 1777546974029,
-            "name": "Z:\\energypilot-io\\energypilot-io.2026-04-30.0.log",
-            "hash": "eb5d183c3c9e74d0fcbfac8549928417"
-        },
-        {
-            "date": 1777617853233,
-            "name": "Z:\\energypilot-io\\energypilot-io.2026-05-01.0.log",
-            "hash": "2725f27b712c5f005d80109f15b47729"
-        },
-        {
-            "date": 1777754618141,
-            "name": "Z:\\energypilot-io\\energypilot-io.2026-05-02.0.log",
-            "hash": "baa69230350a53863eca53296c81be52"
-        },
-        {
-            "date": 1777810225104,
-            "name": "Z:\\energypilot-io\\energypilot-io.2026-05-03.0.log",
-            "hash": "a708b5a37111ce805ab3090fa8b7de02"
-        },
-        {
-            "date": 1777972121256,
-            "name": "Z:\\energypilot-io\\energypilot-io.2026-05-05.0.log",
-            "hash": "54dd4a7122a706f35ddb203f8341cf77"
-        },
-        {
-            "date": 1778165599749,
-            "name": "Z:\\energypilot-io\\energypilot-io.2026-05-07.0.log",
-            "hash": "0a59a3f57a2636aec84488a3a1e9f2dd"
-        },
-        {
-            "date": 1778270432922,
-            "name": "Z:\\energypilot-io\\energypilot-io.2026-05-08.0.log",
-            "hash": "75d39ca5a9aea204aad55f7ed8c539c8"
-        },
-        {
-            "date": 1778356010767,
-            "name": "Z:\\energypilot-io\\energypilot-io.2026-05-09.0.log",
-            "hash": "0a564aa700f62a208656083a6cb9199e"
+            "date": 1779995586815,
+            "name": "Z:\\energypilot-io\\energypilot-io.2026-05-28.0.log",
+            "hash": "920edd51cf30f3e512ef606c9bb4222e"
         }
     ]
 }

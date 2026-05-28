@@ -19,12 +19,12 @@ import {
     SETTING_FORECAST_LATITUDE,
     SETTING_FORECAST_LONGITUDE,
     SETTING_FORECAST_MAXKWP,
-    SettingChangeObserver,
 } from '@/core/setting.manager'
 import got from 'got'
 
 import { differenceInCalendarDays, format, parse } from 'date-fns'
 import schedule from 'node-schedule'
+import { SettingChangeObserver } from '@/observers/setting-change.observer'
 
 const DATA_STORAGE_KEY = 'forecast.data'
 

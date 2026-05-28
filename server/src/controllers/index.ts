@@ -1,4 +1,4 @@
-export * from './device.controller'
-export * from './snapshot.controller'
-export * from './setting.controller'
+export * from './devices.controller'
+export * from './snapshots.controller'
+export * from './settings.controller'
 export * from './solar-forecast.controller'

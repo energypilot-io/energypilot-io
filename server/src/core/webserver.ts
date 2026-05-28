@@ -7,9 +7,9 @@ import { Server as SocketServer } from 'socket.io'
 import { getLogger } from './log.manager'
 
 import {
-    DeviceController,
-    SettingController,
-    SnapshotController,
+    DevicesController,
+    SettingsController,
+    SnapshotsController,
     SolarForecastController,
 } from '@/controllers'
 
@@ -26,9 +26,9 @@ export async function initWebServer() {
     app.use(express.json())
     app.use(express.urlencoded({ extended: true }))
 
-    app.use('/api/v1/devices', DeviceController)
-    app.use('/api/v1/snapshots', SnapshotController)
-    app.use('/api/v1/settings', SettingController)
+    app.use('/api/v1/devices', DevicesController)
+    app.use('/api/v1/snapshots', SnapshotsController)
+    app.use('/api/v1/settings', SettingsController)
     app.use('/api/v1/solar-forecast', SolarForecastController)
 
     if (process.env.NODE_ENV! === 'production') {

@@ -51,4 +51,4 @@ router.post('/', async (req: Request, res: Response) => {
     }
 })
 
-export const SettingController = router
+export const SettingsController = router

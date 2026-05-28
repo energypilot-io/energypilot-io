@@ -15,10 +15,10 @@ import {
     registerSettingChangeObserver,
     SETTING_POLLING_RATE,
     SETTING_SNAPSHOT_PERSISTANCE_INTERVAL,
-    SettingChangeObserver,
 } from './setting.manager'
 import { sendEvent } from './event.manager'
 import { VirtualDeviceHome } from '@/seeder/device.seeder'
+import { SettingChangeObserver } from '@/observers/setting-change.observer'
 
 let _pollDataIntervalObject: NodeJS.Timeout
 let _persistSnapshotIntervalObject: NodeJS.Timeout

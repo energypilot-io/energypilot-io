@@ -169,4 +169,4 @@ async function findSnapshotsBetweenDates(params: {
     }
 }
 
-export const SnapshotController = router
+export const SnapshotsController = router

@@ -12,7 +12,6 @@ import {
     setDeviceStatus,
 } from '@/core/device.manager'
 import { RegisteredInterfaceClasses } from '@/core/config'
-import { isBooleanObject, isSet } from 'node:util/types'
 
 const router = express.Router()
 
@@ -184,4 +183,4 @@ function validateDeviceInput(device: Device): { [key: string]: string } {
     return errors
 }
 
-export const DeviceController = router
+export const DevicesController = router

@@ -3,20 +3,14 @@ import { EventArgs, EventSubscriber } from '@mikro-orm/core'
 import { getEntityManager } from './database.manager'
 import { validateIntegerInRange, validateIsNotEmpty } from '@/libs/validators'
 import { EntityManager } from '@mikro-orm/sqlite'
-
-export abstract class SettingChangeObserver {
-    abstract getObservedSettings(): string[]
-
-    abstract onSettingChange(name: string, value?: any): void
-}
+import { RegisteredModules } from './config'
+import { SettingChangeObserver } from '@/observers/setting-change.observer'
 
 const _settingChangeObservers: SettingChangeObserver[] = []
 
 export const SETTING_POLLING_RATE = 'polling_rate'
 export const SETTING_SNAPSHOT_PERSISTANCE_INTERVAL =
     'snapshot_persistance_interval'
-
-export const SETTING_TELEGRAM_BOT_TOKEN = 'telegram_bot_token'
 
 export const SETTING_FORECAST_LATITUDE = 'latitude'
 export const SETTING_FORECAST_LONGITUDE = 'longitude'
@@ -46,7 +40,6 @@ export const MIN_FORECAST_MAXKWP = 1
 export const ALLOWED_SETTINGS = [
     SETTING_POLLING_RATE,
     SETTING_SNAPSHOT_PERSISTANCE_INTERVAL,
-    SETTING_TELEGRAM_BOT_TOKEN,
     SETTING_FORECAST_LATITUDE,
     SETTING_FORECAST_LONGITUDE,
     SETTING_FORECAST_DECLINATION,
@@ -66,21 +59,7 @@ export function getSettingSchema() {
             },
         },
 
-        telegram_bot: {
-            group: 'telegram_bot',
-            schema: {
-                type: 'object',
-                properties: {},
-            },
-        },
-
-        forecast: {
-            group: 'forecast',
-            schema: {
-                type: 'object',
-                properties: {},
-            },
-        },
+        modules: RegisteredModules.map(module => module.getSettings()),
     }
 
     settingGroups.polling.schema.properties[SETTING_POLLING_RATE] = {
@@ -125,70 +104,64 @@ export function getSettingSchema() {
         ],
     }
 
-    settingGroups.telegram_bot.schema.properties[SETTING_TELEGRAM_BOT_TOKEN] = {
-        type: 'string',
-        minLength: 1,
-        default: '',
-    }
+    // settingGroups.forecast.schema.properties[SETTING_FORECAST_LATITUDE] = {
+    //     type: 'number',
+    //     minimum: MIN_FORECAST_LATITUDE,
+    //     maximum: MAX_FORECAST_LATITUDE,
+    // }
 
-    settingGroups.forecast.schema.properties[SETTING_FORECAST_LATITUDE] = {
-        type: 'number',
-        minimum: MIN_FORECAST_LATITUDE,
-        maximum: MAX_FORECAST_LATITUDE,
-    }
+    // settingGroups.forecast.schema.properties[SETTING_FORECAST_LONGITUDE] = {
+    //     type: 'number',
+    //     minimum: MIN_FORECAST_LONGITUDE,
+    //     maximum: MAX_FORECAST_LONGITUDE,
+    // }
 
-    settingGroups.forecast.schema.properties[SETTING_FORECAST_LONGITUDE] = {
-        type: 'number',
-        minimum: MIN_FORECAST_LONGITUDE,
-        maximum: MAX_FORECAST_LONGITUDE,
-    }
+    // settingGroups.forecast.schema.properties[SETTING_FORECAST_DECLINATION] = {
+    //     type: 'number',
+    //     minimum: MIN_FORECAST_DECLINATION,
+    //     maximum: MAX_FORECAST_DECLINATION,
 
-    settingGroups.forecast.schema.properties[SETTING_FORECAST_DECLINATION] = {
-        type: 'number',
-        minimum: MIN_FORECAST_DECLINATION,
-        maximum: MAX_FORECAST_DECLINATION,
+    //     widget: {
+    //         formlyConfig: {
+    //             props: {
+    //                 addonRight: {
+    //                     text: 'deg',
+    //                 },
+    //             },
+    //         },
+    //     },
+    // }
 
-        widget: {
-            formlyConfig: {
-                props: {
-                    addonRight: {
-                        text: 'deg',
-                    },
-                },
-            },
-        },
-    }
+    // settingGroups.forecast.schema.properties[SETTING_FORECAST_AZIMUTH] = {
+    //     type: 'number',
+    //     minimum: MIN_FORECAST_AZIMUTH,
+    //     maximum: MAX_FORECAST_AZIMUTH,
 
-    settingGroups.forecast.schema.properties[SETTING_FORECAST_AZIMUTH] = {
-        type: 'number',
-        minimum: MIN_FORECAST_AZIMUTH,
-        maximum: MAX_FORECAST_AZIMUTH,
+    //     widget: {
+    //         formlyConfig: {
+    //             props: {
+    //                 addonRight: {
+    //                     text: 'deg',
+    //                 },
+    //             },
+    //         },
+    //     },
+    // }
 
-        widget: {
-            formlyConfig: {
-                props: {
-                    addonRight: {
-                        text: 'deg',
-                    },
-                },
-            },
-        },
-    }
+    // settingGroups.forecast.schema.properties[SETTING_FORECAST_MAXKWP] = {
+    //     type: 'number',
+    //     minimum: MIN_FORECAST_MAXKWP,
 
-    settingGroups.forecast.schema.properties[SETTING_FORECAST_MAXKWP] = {
-        type: 'number',
-        minimum: MIN_FORECAST_MAXKWP,
-
-        widget: {
-            formlyConfig: {
-                props: {
-                    addonRight: {
-                        text: 'kWp',
-                    },
-                },
-            },
-        },
-    }
+    //     widget: {
+    //         formlyConfig: {
+    //             props: {
+    //                 addonRight: {
+    //                     text: 'kWp',
+    //                 },
+    //             },
+    //         },
+    //     },
+    // }
 
     return Object.values(settingGroups)
 }
