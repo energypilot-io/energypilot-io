@@ -65,21 +65,23 @@ export class TelegramBotModule
      */
 
     static getSettings(): any {
-        const settings: any = [
-            {
-                group: 'telegram_bot',
-                schema: {
-                    type: 'object',
-                    properties: {
-                        [SETTING_TELEGRAM_BOT_TOKEN]: {
-                            type: 'string',
-                            minLength: 1,
-                            default: '',
+        const settings: any = {
+            telegram_bot: [
+                {
+                    group: 'token',
+                    schema: {
+                        type: 'object',
+                        properties: {
+                            [SETTING_TELEGRAM_BOT_TOKEN]: {
+                                type: 'string',
+                                minLength: 1,
+                                default: '',
+                            },
                         },
                     },
                 },
-            },
-        ]
+            ],
+        }
 
         return settings
     }

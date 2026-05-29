@@ -50,7 +50,7 @@ export const ALLOWED_SETTINGS = [
 export async function initSettingManager() {}
 
 export function getSettingSchema() {
-    const settingGroups: { [groupName: string]: any } = {
+    let settingGroups: { [groupName: string]: any } = {
         general: [
             {
                 group: 'polling',
@@ -90,15 +90,25 @@ export function getSettingSchema() {
                         },
                     },
                     required: [
-                        'SETTING_POLLING_RATE',
-                        'SETTING_SNAPSHOT_PERSISTANCE_INTERVAL',
+                        SETTING_POLLING_RATE,
+                        SETTING_SNAPSHOT_PERSISTANCE_INTERVAL,
                     ],
                 },
             },
         ],
-
-        modules: [...RegisteredModules.map(module => module.getSettings())],
     }
+
+    RegisteredModules.forEach(module => {
+        const moduleSettings = module.getSettings()
+        console.log(
+            'Module settings for',
+            module.constructor.name,
+            moduleSettings
+        )
+        if (moduleSettings) {
+            settingGroups = { ...settingGroups, ...moduleSettings }
+        }
+    })
 
     // settingGroups.forecast.schema.properties[SETTING_FORECAST_LATITUDE] = {
     //     type: 'number',
