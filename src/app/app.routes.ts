@@ -26,7 +26,7 @@ export const routes: Routes = [
     },
 
     {
-        path: 'settings',
+        path: 'settings/:group',
         component: SettingsPage,
     },
 ]

@@ -83,6 +83,33 @@
     </ul>
 
     <ul class="nav nav-pills nav-flush flex-column">
+        <a
+            #t="ngbTooltip"
+            class="nav-link border-bottom rounded-0 px-3 py-1 link-body-emphasis"
+            placement="end"
+            ngbTooltip="Settings"
+            [disableTooltip]="!sidenavCollapsed() || isMobile()"
+            (click)="isCollapsed = !isCollapsed; t.close(); closeEvent.emit()">
+            <div class="d-flex flex-nowrap align-items-center gap-3">
+                <ng-icon name="tablerSettings" size="24" class="m-1" />
+                @if (isMobile() || !sidenavCollapsed()) {
+                    <div>Settings</div>
+                }
+            </div>
+        </a>
+
+        <div #collapse="ngbCollapse" [(ngbCollapse)]="isCollapsed">
+            <ul class="nav nav-pills nav-flush flex-column">
+                @for (item of settingsItems; track item.label) {
+                    <ng-container
+                        *ngTemplateOutlet="
+                            sidenavItemTemplate;
+                            context: { item: item, $implicit: item }
+                        "></ng-container>
+                }
+            </ul>
+        </div>
+
         @for (item of bottomMenuItems; track item.label) {
             <ng-container
                 *ngTemplateOutlet="

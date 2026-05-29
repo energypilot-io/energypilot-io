@@ -10,7 +10,7 @@ import {
     signal,
     ViewEncapsulation,
 } from '@angular/core'
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap'
+import { NgbCollapse, NgbModule } from '@ng-bootstrap/ng-bootstrap'
 import { TranslatePipe } from '@ngx-translate/core'
 
 import { RouterModule } from '@angular/router'
@@ -42,6 +42,7 @@ export type MenuItem = {
         NgbModule,
         TranslatePipe,
         NgTemplateOutlet,
+        NgbCollapse,
     ],
     templateUrl: './sidenav.html',
     styleUrl: './sidenav.scss',
@@ -86,12 +87,6 @@ export class Sidenav {
 
     bottomMenuItems: MenuItem[] = [
         {
-            label: 'pages.settings',
-            icon: 'tablerSettings',
-            route: 'settings',
-        },
-
-        {
             label: 'Github',
             icon: 'tablerBrandGithub',
             externalLink: 'https://github.com/energypilot-io/energypilot-io',
@@ -109,6 +104,22 @@ export class Sidenav {
             externalLink: 'https://discord.gg/YAsTew8m92',
         },
     ]
+
+    settingsItems: MenuItem[] = [
+        {
+            label: 'pages.devices2',
+            icon: 'tablerDevices',
+            route: 'settings/general',
+        },
+
+        {
+            label: 'pages.devices3',
+            icon: 'tablerDevices',
+            route: 'settings/telegram',
+        },
+    ]
+
+    isCollapsed = true
 
     sidenavCollapsed = signal(false)
     isMobile = signal(false)

@@ -51,57 +51,53 @@ export async function initSettingManager() {}
 
 export function getSettingSchema() {
     const settingGroups: { [groupName: string]: any } = {
-        polling: {
-            group: 'polling',
-            schema: {
-                type: 'object',
-                properties: {},
-            },
-        },
+        general: [
+            {
+                group: 'polling',
+                schema: {
+                    type: 'object',
+                    properties: {
+                        [SETTING_POLLING_RATE]: {
+                            type: 'number',
+                            minimum: MIN_POLLING_RATE,
+                            default: DEFAULT_POLLING_RATE,
 
-        modules: RegisteredModules.map(module => module.getSettings()),
-    }
+                            widget: {
+                                formlyConfig: {
+                                    props: {
+                                        addonRight: {
+                                            text: 's',
+                                        },
+                                    },
+                                },
+                            },
+                        },
 
-    settingGroups.polling.schema.properties[SETTING_POLLING_RATE] = {
-        type: 'number',
-        minimum: MIN_POLLING_RATE,
-        default: DEFAULT_POLLING_RATE,
+                        [SETTING_SNAPSHOT_PERSISTANCE_INTERVAL]: {
+                            type: 'number',
+                            minimum: MIN_SNAPSHOT_PERSISTANCE_INTERVAL,
+                            default: DEFAULT_SNAPSHOT_PERSISTANCE_INTERVAL,
 
-        widget: {
-            formlyConfig: {
-                props: {
-                    addonRight: {
-                        text: 's',
+                            widget: {
+                                formlyConfig: {
+                                    props: {
+                                        addonRight: {
+                                            text: 's',
+                                        },
+                                    },
+                                },
+                            },
+                        },
                     },
+                    required: [
+                        'SETTING_POLLING_RATE',
+                        'SETTING_SNAPSHOT_PERSISTANCE_INTERVAL',
+                    ],
                 },
             },
-        },
-    }
-
-    settingGroups.polling.schema.properties[
-        SETTING_SNAPSHOT_PERSISTANCE_INTERVAL
-    ] = {
-        type: 'number',
-        minimum: MIN_SNAPSHOT_PERSISTANCE_INTERVAL,
-        default: DEFAULT_SNAPSHOT_PERSISTANCE_INTERVAL,
-
-        widget: {
-            formlyConfig: {
-                props: {
-                    addonRight: {
-                        text: 's',
-                    },
-                },
-            },
-        },
-    }
-
-    settingGroups.polling.schema = {
-        ...settingGroups.polling.schema,
-        required: [
-            'SETTING_POLLING_RATE',
-            'SETTING_SNAPSHOT_PERSISTANCE_INTERVAL',
         ],
+
+        modules: [...RegisteredModules.map(module => module.getSettings())],
     }
 
     // settingGroups.forecast.schema.properties[SETTING_FORECAST_LATITUDE] = {
@@ -163,7 +159,7 @@ export function getSettingSchema() {
     //     },
     // }
 
-    return Object.values(settingGroups)
+    return settingGroups
 }
 
 export function validateSettingsInput(settings: any): {
