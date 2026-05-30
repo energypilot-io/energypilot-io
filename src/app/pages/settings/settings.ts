@@ -79,11 +79,19 @@ export class SettingsPage {
 
         this.api.getSettings().subscribe(settings => {
             if (Array.isArray(settings) || (settings = [])) {
-                const model: { [key: string]: any } = {}
+                const model: { [key: string]: { [key: string]: any } } = {}
 
-                settings.forEach((setting: any) => {
-                    model[setting.name] = setting.value
-                })
+                settings
+                    .filter((setting: any) =>
+                        setting.name.startsWith(`${this._settingGroupName()!}.`)
+                    )
+                    .forEach((setting: any) => {
+                        const [group, key] = setting.name.split('.')
+                        if (!model[group]) {
+                            model[group] = {}
+                        }
+                        model[group][key] = setting.value
+                    })
 
                 this.model = model
             }
@@ -136,6 +144,8 @@ export class SettingsPage {
                 })
             },
             error: (err: any) => {
+                this.form.markAsDirty()
+
                 this.setErrorMessages(this.form.controls, err['error'])
 
                 this.toasts.show({

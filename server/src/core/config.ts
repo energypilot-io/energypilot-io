@@ -9,6 +9,7 @@ import { SungrowHybrid } from '@/devices/sungrow/sungrow.hybrid'
 import { TapoP1xx } from '@/devices/tapo/tapo.p1xx'
 import { ModuleBase } from '@/modules/module.base'
 import { TelegramBotModule } from '@/modules/telegram-bot.module'
+import { SolarForecastModule } from '@/modules/solar-forecast.module'
 
 export const RegisteredInterfaceClasses: { [key: string]: any } = {
     modbus: ModbusInterface,
@@ -22,4 +23,7 @@ export const RegisteredDeviceClasses: (typeof DeviceBase)[] = [
     TapoP1xx,
 ]
 
-export const RegisteredModules: (typeof ModuleBase)[] = [TelegramBotModule]
+export const RegisteredModules: (typeof ModuleBase)[] = [
+    TelegramBotModule,
+    SolarForecastModule,
+]

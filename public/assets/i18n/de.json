@@ -96,7 +96,13 @@
         "dashboard": "Dashboard",
         "devices": "Geräte",
         "graphs": "Graph",
-        "settings": "Einstellungen"
+        "settings": "Einstellungen",
+
+        "modules": {
+            "general": "Allgemein",
+            "telegram_bot": "Telegram Bot",
+            "solar_forecast": "Solar Vorhersage"
+        }
     },
 
     "widgets": {

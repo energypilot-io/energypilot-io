@@ -20,7 +20,7 @@ const _availableSettingsMessage: string =
     `* \`polling_rate\` \\- Number of seconds between each polling\\.\n` +
     `* \`snapshot_persistance_interval\` \\- Number of seconds between each snapshot persistance\\.\n`
 
-const SETTING_TELEGRAM_BOT_TOKEN = 'telegram_bot_token'
+const SETTING_TELEGRAM_BOT_TOKEN = 'telegram_bot.telegram_bot_token'
 
 export class TelegramBotModule
     extends SettingChangeObserver

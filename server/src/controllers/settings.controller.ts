@@ -4,7 +4,6 @@ import { Request, Response } from 'express'
 import { getEntityManager } from '@/core/database.manager'
 import { Setting } from '@/entities/settings.entity'
 import {
-    ALLOWED_SETTINGS,
     getSettingSchema,
     setSettingValue,
     validateSettingsInput,
@@ -27,7 +26,24 @@ router.get('/', async (req: Request, res: Response) => {
 })
 
 router.post('/', async (req: Request, res: Response) => {
-    const errors: { [key: string]: string } = validateSettingsInput(req.body)
+    if (!req.body || typeof req.body !== 'object') {
+        return res.status(400).json({ message: 'Invalid request body' })
+    }
+
+    let errors: { [key: string]: string } = {}
+
+    Object.keys(req.body).forEach(settingGroup => {
+        Object.keys(req.body[settingGroup]).forEach(settingName => {
+            errors = {
+                ...errors,
+                ...validateSettingsInput(
+                    settingGroup,
+                    settingName,
+                    req.body[settingGroup][settingName]
+                ),
+            }
+        })
+    })
 
     if (Object.keys(errors).length > 0) {
         return res.status(400).json(errors)
@@ -36,8 +52,14 @@ router.post('/', async (req: Request, res: Response) => {
 
         await em.begin()
         try {
-            ALLOWED_SETTINGS.forEach(key => {
-                setSettingValue(key, key in req.body ? req.body[key] : null, em)
+            Object.keys(req.body).forEach(settingGroup => {
+                Object.keys(req.body[settingGroup]).forEach(settingName => {
+                    setSettingValue(
+                        `${settingGroup}.${settingName}`,
+                        req.body[settingGroup][settingName],
+                        em
+                    )
+                })
             })
 
             await em.commit()

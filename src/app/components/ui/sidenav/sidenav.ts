@@ -2,11 +2,9 @@ import { NgClass, NgTemplateOutlet } from '@angular/common'
 import { HttpClient } from '@angular/common/http'
 import {
     Component,
-    EventEmitter,
     inject,
     Input,
     output,
-    Output,
     signal,
     ViewEncapsulation,
 } from '@angular/core'
@@ -24,6 +22,9 @@ import {
     tablerBrandBluesky,
     tablerCircleX,
     tablerSettings,
+    tablerSun,
+    tablerBrandTelegram,
+    tablerSettingsHeart,
 } from '@ng-icons/tabler-icons'
 
 export type MenuItem = {
@@ -56,6 +57,9 @@ export type MenuItem = {
             tablerBrandBluesky,
             tablerCircleX,
             tablerSettings,
+            tablerSun,
+            tablerBrandTelegram,
+            tablerSettingsHeart,
         }),
         provideNgIconLoader((name: string): any => {
             const http = inject(HttpClient)
@@ -107,14 +111,20 @@ export class Sidenav {
 
     settingsItems: MenuItem[] = [
         {
-            label: 'pages.devices2',
-            icon: 'tablerDevices',
+            label: 'pages.modules.general',
+            icon: 'tablerSettingsHeart',
             route: 'settings/general',
         },
 
         {
-            label: 'pages.devices3',
-            icon: 'tablerDevices',
+            label: 'pages.modules.solar_forecast',
+            icon: 'tablerSun',
+            route: 'settings/solar_forecast',
+        },
+
+        {
+            label: 'pages.modules.telegram_bot',
+            icon: 'tablerBrandTelegram',
             route: 'settings/telegram_bot',
         },
     ]

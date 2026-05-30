@@ -8,44 +8,15 @@ import { SettingChangeObserver } from '@/observers/setting-change.observer'
 
 const _settingChangeObservers: SettingChangeObserver[] = []
 
-export const SETTING_POLLING_RATE = 'polling_rate'
+export const SETTING_POLLING_RATE = 'general.polling_rate'
 export const SETTING_SNAPSHOT_PERSISTANCE_INTERVAL =
-    'snapshot_persistance_interval'
-
-export const SETTING_FORECAST_LATITUDE = 'latitude'
-export const SETTING_FORECAST_LONGITUDE = 'longitude'
-export const SETTING_FORECAST_DECLINATION = 'declination'
-export const SETTING_FORECAST_AZIMUTH = 'azimuth'
-export const SETTING_FORECAST_MAXKWP = 'max_kwp'
+    'general.snapshot_persistance_interval'
 
 export const DEFAULT_POLLING_RATE = 10
 export const MIN_POLLING_RATE = 10
+
 export const DEFAULT_SNAPSHOT_PERSISTANCE_INTERVAL = 5 * 60
 export const MIN_SNAPSHOT_PERSISTANCE_INTERVAL = 60
-
-export const MIN_FORECAST_LATITUDE = -90
-export const MAX_FORECAST_LATITUDE = 90
-
-export const MIN_FORECAST_LONGITUDE = -180
-export const MAX_FORECAST_LONGITUDE = 180
-
-export const MIN_FORECAST_DECLINATION = 0
-export const MAX_FORECAST_DECLINATION = 90
-
-export const MIN_FORECAST_AZIMUTH = -180
-export const MAX_FORECAST_AZIMUTH = 180
-
-export const MIN_FORECAST_MAXKWP = 1
-
-export const ALLOWED_SETTINGS = [
-    SETTING_POLLING_RATE,
-    SETTING_SNAPSHOT_PERSISTANCE_INTERVAL,
-    SETTING_FORECAST_LATITUDE,
-    SETTING_FORECAST_LONGITUDE,
-    SETTING_FORECAST_DECLINATION,
-    SETTING_FORECAST_AZIMUTH,
-    SETTING_FORECAST_MAXKWP,
-]
 
 export async function initSettingManager() {}
 
@@ -110,77 +81,24 @@ export function getSettingSchema() {
         }
     })
 
-    // settingGroups.forecast.schema.properties[SETTING_FORECAST_LATITUDE] = {
-    //     type: 'number',
-    //     minimum: MIN_FORECAST_LATITUDE,
-    //     maximum: MAX_FORECAST_LATITUDE,
-    // }
-
-    // settingGroups.forecast.schema.properties[SETTING_FORECAST_LONGITUDE] = {
-    //     type: 'number',
-    //     minimum: MIN_FORECAST_LONGITUDE,
-    //     maximum: MAX_FORECAST_LONGITUDE,
-    // }
-
-    // settingGroups.forecast.schema.properties[SETTING_FORECAST_DECLINATION] = {
-    //     type: 'number',
-    //     minimum: MIN_FORECAST_DECLINATION,
-    //     maximum: MAX_FORECAST_DECLINATION,
-
-    //     widget: {
-    //         formlyConfig: {
-    //             props: {
-    //                 addonRight: {
-    //                     text: 'deg',
-    //                 },
-    //             },
-    //         },
-    //     },
-    // }
-
-    // settingGroups.forecast.schema.properties[SETTING_FORECAST_AZIMUTH] = {
-    //     type: 'number',
-    //     minimum: MIN_FORECAST_AZIMUTH,
-    //     maximum: MAX_FORECAST_AZIMUTH,
-
-    //     widget: {
-    //         formlyConfig: {
-    //             props: {
-    //                 addonRight: {
-    //                     text: 'deg',
-    //                 },
-    //             },
-    //         },
-    //     },
-    // }
-
-    // settingGroups.forecast.schema.properties[SETTING_FORECAST_MAXKWP] = {
-    //     type: 'number',
-    //     minimum: MIN_FORECAST_MAXKWP,
-
-    //     widget: {
-    //         formlyConfig: {
-    //             props: {
-    //                 addonRight: {
-    //                     text: 'kWp',
-    //                 },
-    //             },
-    //         },
-    //     },
-    // }
-
     return settingGroups
 }
 
-export function validateSettingsInput(settings: any): {
+export function validateSettingsInput(
+    settingGroup: string,
+    settingName: string,
+    value: any
+): {
     [key: string]: string
 } {
-    return {
-        ...validateSettingPollingRate(settings.polling_rate),
-        ...validateSettingSnapshotPersistenceInterval(
-            settings.snapshot_persistance_interval
-        ),
-    }
+    return {}
+
+    // return {
+    //     ...validateSettingPollingRate(settings.polling_rate),
+    //     ...validateSettingSnapshotPersistenceInterval(
+    //         settings.snapshot_persistance_interval
+    //     ),
+    // }
 }
 
 export function validateSettingPollingRate(polling_rate: any): {
