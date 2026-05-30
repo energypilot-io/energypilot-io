@@ -89,7 +89,7 @@
             placement="end"
             ngbTooltip="{{ 'pages.settings' | translate }}"
             [disableTooltip]="!sidenavCollapsed() || isMobile()"
-            (click)="isCollapsed = !isCollapsed; t.close(); closeEvent.emit()">
+            (click)="isCollapsed = !isCollapsed; t.close()">
             <div class="d-flex flex-nowrap align-items-center gap-3">
                 <ng-icon name="tablerSettings" size="24" class="m-1" />
                 @if (isMobile() || !sidenavCollapsed()) {
