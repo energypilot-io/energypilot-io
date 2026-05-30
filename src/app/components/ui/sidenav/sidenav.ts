@@ -115,7 +115,7 @@ export class Sidenav {
         {
             label: 'pages.devices3',
             icon: 'tablerDevices',
-            route: 'settings/telegram',
+            route: 'settings/telegram_bot',
         },
     ]
 
