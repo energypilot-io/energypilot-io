@@ -11,12 +11,6 @@ import schedule from 'node-schedule'
 import { SettingChangeObserver } from '@/observers/setting-change.observer'
 import { ModuleBase } from './module.base'
 
-const SETTING_FORECAST_LATITUDE = 'solar_forecast.latitude'
-const SETTING_FORECAST_LONGITUDE = 'solar_forecast.longitude'
-const SETTING_FORECAST_DECLINATION = 'solar_forecast.declination'
-const SETTING_FORECAST_AZIMUTH = 'solar_forecast.azimuth'
-const SETTING_FORECAST_MAXKWP = 'solar_forecast.max_kwp'
-
 const MIN_FORECAST_LATITUDE = -90
 const MAX_FORECAST_LATITUDE = 90
 
@@ -33,13 +27,24 @@ const MIN_FORECAST_MAXKWP = 1
 
 const DATA_STORAGE_KEY = 'forecast.data'
 
-let _forecastRawData: any | undefined = undefined
+let _forecastRawData: any = {}
 
 export class SolarForecastModule
-    extends SettingChangeObserver
-    implements ModuleBase
+    extends ModuleBase
+    implements SettingChangeObserver
 {
-    private _logger: ChildLogger
+    static MODULE_NAME = 'solar_forecast'
+
+    static SETTING_FORECAST_LATITUDE =
+        SolarForecastModule.MODULE_NAME + '.latitude'
+    static SETTING_FORECAST_LONGITUDE =
+        SolarForecastModule.MODULE_NAME + '.longitude'
+    static SETTING_FORECAST_DECLINATION =
+        SolarForecastModule.MODULE_NAME + '.declination'
+    static SETTING_FORECAST_AZIMUTH =
+        SolarForecastModule.MODULE_NAME + '.azimuth'
+    static SETTING_FORECAST_MAXKWP =
+        SolarForecastModule.MODULE_NAME + '.max_kwp'
 
     private _latitude: number | undefined = undefined
     private _longitude: number | undefined = undefined
@@ -53,11 +58,12 @@ export class SolarForecastModule
 
     getObservedSettings(): string[] {
         return [
-            SETTING_FORECAST_LATITUDE,
-            SETTING_FORECAST_LONGITUDE,
-            SETTING_FORECAST_DECLINATION,
-            SETTING_FORECAST_AZIMUTH,
-            SETTING_FORECAST_MAXKWP,
+            ...super.getObservedSettings(),
+            SolarForecastModule.SETTING_FORECAST_LATITUDE,
+            SolarForecastModule.SETTING_FORECAST_LONGITUDE,
+            SolarForecastModule.SETTING_FORECAST_DECLINATION,
+            SolarForecastModule.SETTING_FORECAST_AZIMUTH,
+            SolarForecastModule.SETTING_FORECAST_MAXKWP,
         ]
     }
 
@@ -69,7 +75,7 @@ export class SolarForecastModule
         let isDirty: boolean = false
 
         switch (name) {
-            case SETTING_FORECAST_LATITUDE: {
+            case SolarForecastModule.SETTING_FORECAST_LATITUDE: {
                 const newValue = Math.min(
                     Math.max(parsedValue, MIN_FORECAST_LATITUDE),
                     MAX_FORECAST_LATITUDE
@@ -82,7 +88,7 @@ export class SolarForecastModule
                 break
             }
 
-            case SETTING_FORECAST_LONGITUDE: {
+            case SolarForecastModule.SETTING_FORECAST_LONGITUDE: {
                 const newValue = Math.min(
                     Math.max(parsedValue, MIN_FORECAST_LONGITUDE),
                     MAX_FORECAST_LONGITUDE
@@ -95,7 +101,7 @@ export class SolarForecastModule
                 break
             }
 
-            case SETTING_FORECAST_DECLINATION: {
+            case SolarForecastModule.SETTING_FORECAST_DECLINATION: {
                 const newValue = Math.min(
                     Math.max(parsedValue, MIN_FORECAST_DECLINATION),
                     MAX_FORECAST_DECLINATION
@@ -108,7 +114,7 @@ export class SolarForecastModule
                 break
             }
 
-            case SETTING_FORECAST_AZIMUTH: {
+            case SolarForecastModule.SETTING_FORECAST_AZIMUTH: {
                 const newValue = Math.min(
                     Math.max(parsedValue, MIN_FORECAST_AZIMUTH),
                     MAX_FORECAST_AZIMUTH
@@ -121,13 +127,18 @@ export class SolarForecastModule
                 break
             }
 
-            case SETTING_FORECAST_MAXKWP: {
+            case SolarForecastModule.SETTING_FORECAST_MAXKWP: {
                 const newValue = Math.max(parsedValue, MIN_FORECAST_MAXKWP)
 
                 if (!this._maxKWP || this._maxKWP !== newValue) {
                     this._maxKWP = newValue
                     isDirty = true
                 }
+                break
+            }
+
+            default: {
+                super.onSettingChange(name, value)
                 break
             }
         }
@@ -140,42 +151,46 @@ export class SolarForecastModule
      */
 
     static getSettings(): any {
-        const settings: any = {
-            solar_forecast: [
+        const settings: any = super.getSettings(SolarForecastModule.MODULE_NAME)
+
+        settings[SolarForecastModule.MODULE_NAME] = [
+            ...settings[SolarForecastModule.MODULE_NAME],
+            ...[
                 {
-                    group: 'forecast',
+                    group: `${SolarForecastModule.MODULE_NAME}_forecast`,
                     schema: {
                         type: 'object',
                         properties: {
-                            [SETTING_FORECAST_LATITUDE]: {
+                            [SolarForecastModule.SETTING_FORECAST_LATITUDE]: {
                                 type: 'number',
                                 minimum: MIN_FORECAST_LATITUDE,
                                 maximum: MAX_FORECAST_LATITUDE,
                             },
 
-                            [SETTING_FORECAST_LONGITUDE]: {
+                            [SolarForecastModule.SETTING_FORECAST_LONGITUDE]: {
                                 type: 'number',
                                 minimum: MIN_FORECAST_LONGITUDE,
                                 maximum: MAX_FORECAST_LONGITUDE,
                             },
 
-                            [SETTING_FORECAST_DECLINATION]: {
-                                type: 'number',
-                                minimum: MIN_FORECAST_DECLINATION,
-                                maximum: MAX_FORECAST_DECLINATION,
+                            [SolarForecastModule.SETTING_FORECAST_DECLINATION]:
+                                {
+                                    type: 'number',
+                                    minimum: MIN_FORECAST_DECLINATION,
+                                    maximum: MAX_FORECAST_DECLINATION,
 
-                                widget: {
-                                    formlyConfig: {
-                                        props: {
-                                            addonRight: {
-                                                text: 'deg',
+                                    widget: {
+                                        formlyConfig: {
+                                            props: {
+                                                addonRight: {
+                                                    text: 'deg',
+                                                },
                                             },
                                         },
                                     },
                                 },
-                            },
 
-                            [SETTING_FORECAST_AZIMUTH]: {
+                            [SolarForecastModule.SETTING_FORECAST_AZIMUTH]: {
                                 type: 'number',
                                 minimum: MIN_FORECAST_AZIMUTH,
                                 maximum: MAX_FORECAST_AZIMUTH,
@@ -191,7 +206,7 @@ export class SolarForecastModule
                                 },
                             },
 
-                            [SETTING_FORECAST_MAXKWP]: {
+                            [SolarForecastModule.SETTING_FORECAST_MAXKWP]: {
                                 type: 'number',
                                 minimum: MIN_FORECAST_MAXKWP,
 
@@ -209,7 +224,7 @@ export class SolarForecastModule
                     },
                 },
             ],
-        }
+        ]
 
         return settings
     }
@@ -218,11 +233,7 @@ export class SolarForecastModule
      * Solar Forecast Module
      */
     constructor() {
-        super()
-
-        this._logger = getLogger('solar-forecast')
-
-        registerSettingChangeObserver(this)
+        super(SolarForecastModule.MODULE_NAME)
 
         const recurrenceRule = new schedule.RecurrenceRule()
         recurrenceRule.hour = 0
@@ -231,8 +242,17 @@ export class SolarForecastModule
         schedule.scheduleJob(recurrenceRule, () => this.requestForecast())
     }
 
+    start(): void {
+        this.requestForecast()
+    }
+
+    stop(): void {
+        _forecastRawData = {}
+    }
+
     private async requestForecast(force: boolean = false) {
         if (
+            this._enabled === false ||
             this._latitude === undefined ||
             this._longitude === undefined ||
             this._declination === undefined ||

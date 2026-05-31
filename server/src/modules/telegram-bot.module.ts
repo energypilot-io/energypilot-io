@@ -20,24 +20,17 @@ const _availableSettingsMessage: string =
     `* \`polling_rate\` \\- Number of seconds between each polling\\.\n` +
     `* \`snapshot_persistance_interval\` \\- Number of seconds between each snapshot persistance\\.\n`
 
-const SETTING_TELEGRAM_BOT_TOKEN = 'telegram_bot.telegram_bot_token'
-
-export class TelegramBotModule
-    extends SettingChangeObserver
-    implements ModuleBase
-{
-    private _logger: ChildLogger
+export class TelegramBotModule extends ModuleBase {
+    static MODULE_NAME = 'telegram_bot'
+    static SETTING_TELEGRAM_BOT_TOKEN =
+        TelegramBotModule.MODULE_NAME + '.telegram_bot_token'
 
     private _bot: Telegraf = undefined as any
 
     private _token: string | null | undefined = null
 
     constructor() {
-        super()
-
-        this._logger = getLogger('telegram-bot')
-
-        registerSettingChangeObserver(this)
+        super(TelegramBotModule.MODULE_NAME)
 
         Telegraf.log((message: string) => this._logger.info(message))
 
@@ -50,13 +43,18 @@ export class TelegramBotModule
      */
 
     getObservedSettings(): string[] {
-        return [SETTING_TELEGRAM_BOT_TOKEN]
+        return [
+            ...super.getObservedSettings(),
+            TelegramBotModule.SETTING_TELEGRAM_BOT_TOKEN,
+        ]
     }
 
     onSettingChange(name: string, value?: any): void {
-        if (name === SETTING_TELEGRAM_BOT_TOKEN) {
+        if (name === TelegramBotModule.SETTING_TELEGRAM_BOT_TOKEN) {
             this._token = value
             this.createTelegramBot()
+        } else {
+            super.onSettingChange(name, value)
         }
     }
 
@@ -65,14 +63,17 @@ export class TelegramBotModule
      */
 
     static getSettings(): any {
-        const settings: any = {
-            telegram_bot: [
+        const settings: any = super.getSettings(TelegramBotModule.MODULE_NAME)
+
+        settings[TelegramBotModule.MODULE_NAME] = [
+            ...settings[TelegramBotModule.MODULE_NAME],
+            ...[
                 {
-                    group: 'token',
+                    group: `${TelegramBotModule.MODULE_NAME}_token`,
                     schema: {
                         type: 'object',
                         properties: {
-                            [SETTING_TELEGRAM_BOT_TOKEN]: {
+                            [TelegramBotModule.SETTING_TELEGRAM_BOT_TOKEN]: {
                                 type: 'string',
                                 minLength: 1,
                                 default: '',
@@ -81,7 +82,7 @@ export class TelegramBotModule
                     },
                 },
             ],
-        }
+        ]
 
         return settings
     }
@@ -90,10 +91,23 @@ export class TelegramBotModule
      *
      */
 
-    createTelegramBot() {
+    start(): void {
+        this.createTelegramBot()
+    }
+
+    stop(): void {
         if (this._bot) {
             this._logger.info('Stopping existing Telegram bot instance')
             this._bot.stop()
+        }
+    }
+
+    createTelegramBot() {
+        this.stop()
+
+        if (!this._enabled) {
+            this._logger.info('Telegram bot is disabled, not starting the bot')
+            return
         }
 
         if (!this._token) {
