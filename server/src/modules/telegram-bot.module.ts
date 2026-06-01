@@ -17,8 +17,8 @@ import { SettingChangeObserver } from '@/observers/setting-change.observer'
 
 const _availableSettingsMessage: string =
     `*Available settings*\n` +
-    `* \`polling_rate\` \\- Number of seconds between each polling\\.\n` +
-    `* \`snapshot_persistance_interval\` \\- Number of seconds between each snapshot persistance\\.\n`
+    `\\* \`polling_rate\` \\- Number of seconds between each polling\\.\n` +
+    `\\* \`snapshot_persistance_interval\` \\- Number of seconds between each snapshot persistance\\.\n`
 
 export class TelegramBotModule extends ModuleBase {
     static MODULE_NAME = 'telegram_bot'
@@ -170,11 +170,11 @@ export class TelegramBotModule extends ModuleBase {
         const args = ctx.text!.split(' ').slice(1)
         if (args.length === 0) {
             return (
-                `* \`/help <command>\` \\- Show this help message\\. Add command name as argument to get additional information\\.\nExample: \`/help set\`\n` +
-                `* \`/live\` \\- Get live data values\n` +
-                `* \`/set\` \\- Set a setting value\n` +
-                `* \`/get\` \\- Get a setting value\n` +
-                `* \`/devices\` \\- Get a list of devices and change their status\n`
+                `\\* \`/help <command>\` \\- Show this help message\\. Add command name as argument to get additional information\\.\nExample: \`/help set\`\n` +
+                `\\* \`/live\` \\- Get live data values\n` +
+                `\\* \`/set\` \\- Set a setting value\n` +
+                `\\* \`/get\` \\- Get a setting value\n` +
+                `\\* \`/devices\` \\- Get a list of devices and change their status\n`
             )
         } else if (args[0] === 'set') {
             return (
