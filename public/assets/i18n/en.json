@@ -66,10 +66,8 @@
                 "title": "Polling Settings",
                 "description": "Settings related to device polling"
             },
-            "general": {
-                "polling_rate": "Polling Rate",
-                "snapshot_persistance_interval": "Snapshot Persistence Interval"
-            }
+            "polling_rate": "Polling Rate",
+            "snapshot_persistance_interval": "Snapshot Persistence Interval"
         },
 
         "telegram_bot": {

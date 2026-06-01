@@ -66,10 +66,8 @@
                 "title": "Abfrageeinstellungen",
                 "description": "Einstellungen zur Abfrage der Geräte"
             },
-            "general": {
-                "polling_rate": "Abfrageintervall",
-                "snapshot_persistance_interval": "Snapshot Intervall"
-            }
+            "polling_rate": "Abfrageintervall",
+            "snapshot_persistance_interval": "Snapshot Intervall"
         },
 
         "telegram_bot": {
