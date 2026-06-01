@@ -70,12 +70,7 @@ export function getSettingSchema() {
     }
 
     RegisteredModules.forEach(module => {
-        const moduleSettings = module.getSettings()
-        console.log(
-            'Module settings for',
-            module.constructor.name,
-            moduleSettings
-        )
+        const moduleSettings = module.getSettings((module as any).MODULE_NAME)
         if (moduleSettings) {
             settingGroups = { ...settingGroups, ...moduleSettings }
         }

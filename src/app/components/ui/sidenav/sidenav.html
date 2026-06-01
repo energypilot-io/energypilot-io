@@ -85,11 +85,14 @@
     <ul class="nav nav-pills nav-flush flex-column">
         <a
             #t="ngbTooltip"
+            href="#"
             class="nav-link border-bottom rounded-0 px-3 py-1 link-body-emphasis"
             placement="end"
             ngbTooltip="{{ 'pages.settings' | translate }}"
             [disableTooltip]="!sidenavCollapsed() || isMobile()"
-            (click)="isCollapsed = !isCollapsed; t.close()">
+            (click)="
+                isCollapsed = !isCollapsed; t.close(); $event.preventDefault()
+            ">
             <div class="d-flex flex-nowrap align-items-center gap-3">
                 <ng-icon name="tablerSettings" size="24" class="m-1" />
                 @if (isMobile() || !sidenavCollapsed()) {

@@ -1,9 +1,10 @@
-import { Component, OutputEmitterRef, signal } from '@angular/core'
+import { Component, inject, OutputEmitterRef, signal } from '@angular/core'
 import { EnergyDistributionWidget } from '../../components/widgets/energy-distribution/energy-distribution'
 import { EnergyKpisWidget } from '@/app/components/widgets/energy-kpis/energy-kpis'
 import { EnergyLiveValuesWidget } from '@/app/components/widgets/energy-live-values/energy-live-values'
 import { SolarForecastWidget } from '@/app/components/widgets/solar-forecast/solar-forecast'
 import { NgComponentOutlet } from '@angular/common'
+import { ApiService } from '@/app/services/api.service'
 
 @Component({
     selector: 'app-dashboard',
@@ -12,17 +13,22 @@ import { NgComponentOutlet } from '@angular/common'
     styleUrl: './dashboard.scss',
 })
 export class DashboardPage {
+    readonly api = inject(ApiService)
+
     static storageKey = 'dashboard.widgets.order'
 
     moveUpEvent = new OutputEmitterRef<string>()
     moveDownEvent = new OutputEmitterRef<string>()
 
-    widgets = signal<any[]>([
+    private _basicWidgets = [
         EnergyKpisWidget,
         EnergyDistributionWidget,
         EnergyLiveValuesWidget,
-        SolarForecastWidget,
-    ])
+    ]
+
+    private _modulesWidgets = [SolarForecastWidget]
+
+    widgets = signal<any[]>([])
 
     doMoveUp(name: string) {
         this.moveWidget(name, -1)
@@ -50,20 +56,27 @@ export class DashboardPage {
         this.moveUpEvent.subscribe((name: string) => this.doMoveUp(name))
         this.moveDownEvent.subscribe((name: string) => this.doMoveDown(name))
 
-        const storedWidgetList = this.getStoredStatus()
-        if (
-            !storedWidgetList ||
-            storedWidgetList.length !== this.widgets().length
-        )
-            return
+        this.api.getActiveModules().subscribe(response => {
+            console.log('Active modules:', response)
 
-        this.widgets.update(widgets =>
-            widgets.sort(
-                (a, b) =>
-                    storedWidgetList.indexOf(a.name) -
-                    storedWidgetList.indexOf(b.name)
-            )
-        )
+            const activeWidgets = [
+                ...this._basicWidgets,
+                ...this._modulesWidgets.filter(widget =>
+                    response.includes(widget.name)
+                ),
+            ]
+
+            const storedWidgetList = this.getStoredStatus()
+            if (storedWidgetList) {
+                this.widgets.set(
+                    activeWidgets.sort(
+                        (a, b) =>
+                            storedWidgetList.indexOf(a.name) -
+                            storedWidgetList.indexOf(b.name)
+                    )
+                )
+            }
+        })
     }
 
     storeStatus() {

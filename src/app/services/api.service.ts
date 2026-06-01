@@ -49,4 +49,8 @@ export class ApiService {
     sendDeviceStatus(deviceId: string, data: any): Observable<any> {
         return this.http.post<any>(`/api/v1/devices/${deviceId}`, data)
     }
+
+    getActiveModules(): Observable<string[]> {
+        return this.http.get<string[]>('/api/v1/modules/active')
+    }
 }

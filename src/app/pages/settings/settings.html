@@ -27,7 +27,10 @@
 <div>
     <form [formGroup]="form" (ngSubmit)="onSubmit(model)" #createDeviceForm>
         <div class="d-flex flex-column gap-2">
-            @for (fieldGroup of fields() | keyvalue; track fieldGroup.key) {
+            @for (
+                fieldGroup of fields() | keyvalue: originalOrder;
+                track fieldGroup.key
+            ) {
                 <ng-container
                     *ngTemplateOutlet="
                         settingGroupTemplate;

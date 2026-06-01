@@ -1,6 +1,6 @@
 import { ApiService } from '@/app/services/api.service'
 import { ToastService } from '@/app/services/toast.service'
-import { KeyValuePipe, NgTemplateOutlet } from '@angular/common'
+import { KeyValue, KeyValuePipe, NgTemplateOutlet } from '@angular/common'
 import { Component, computed, inject, signal } from '@angular/core'
 import { AbstractControl, FormGroup, ReactiveFormsModule } from '@angular/forms'
 import { ActivatedRoute } from '@angular/router'
@@ -33,21 +33,26 @@ export class SettingsPage {
 
     private _settingSchema = signal<any>(null)
 
+    originalOrder = (
+        _a: KeyValue<string, FormlyFieldConfig[]>,
+        _b: KeyValue<string, FormlyFieldConfig[]>
+    ): number => 0
+
     model: any = {}
 
-    fields = computed<{ [groupName: string]: FormlyFieldConfig[] }>(() => {
+    fields = computed<Map<string, FormlyFieldConfig[]>>(() => {
         if (!this._settingSchema() || !this._settingGroupName()) {
-            return {}
+            return new Map<string, FormlyFieldConfig[]>()
         }
 
         const settingGroup = this._settingSchema()[this._settingGroupName()!]
 
-        const fieldsByGroup: { [groupName: string]: FormlyFieldConfig[] } = {}
-
         if (!Array.isArray(settingGroup)) {
             this.model = {}
-            return fieldsByGroup
+            return new Map<string, FormlyFieldConfig[]>()
         }
+
+        const fieldsByGroup: { [groupName: string]: FormlyFieldConfig[] } = {}
 
         settingGroup.forEach((settingGroup: any) => {
             if (!settingGroup.group || !settingGroup.schema) {
@@ -67,7 +72,7 @@ export class SettingsPage {
                         if (field.key) {
                             field.props = {
                                 ...field.props,
-                                label: `{{ settings.${settingGroup.group}.${field.key} }}`,
+                                label: `{{ settings.${settingGroup.group}.${field.key.toString().split('.')[1]} }}`,
                             }
                         }
 
@@ -90,14 +95,32 @@ export class SettingsPage {
                         if (!model[group]) {
                             model[group] = {}
                         }
-                        model[group][key] = setting.value
+
+                        const typedValue = this.getTypedSettingValue(
+                            settingGroup,
+                            setting
+                        )
+
+                        model[group][key] = typedValue
                     })
 
                 this.model = model
             }
         })
 
-        return fieldsByGroup
+        const sortedFieldsByGroup = new Map<string, FormlyFieldConfig[]>(
+            Object.entries(fieldsByGroup).sort(([groupA], [groupB]) => {
+                if (groupA.endsWith('.general')) {
+                    return -1
+                } else if (groupB.endsWith('.general')) {
+                    return 1
+                } else {
+                    return groupA.localeCompare(groupB)
+                }
+            })
+        )
+
+        return sortedFieldsByGroup
     })
 
     form = new FormGroup({})
@@ -116,6 +139,43 @@ export class SettingsPage {
 
             this._settingSchema.set(result)
         })
+    }
+
+    getTypedSettingValue(
+        schema: any,
+        setting: { name: string; value: string | null }
+    ): string | number | boolean | null {
+        if (!Array.isArray(schema)) {
+            return null
+        }
+
+        if (setting.value === undefined || setting.value === null) {
+            return null
+        }
+
+        for (const settingGroup of schema) {
+            if (!settingGroup.group || !settingGroup.schema) {
+                continue
+            }
+
+            if (settingGroup.schema.properties?.[setting.name]?.type) {
+                const settingType =
+                    settingGroup.schema.properties[setting.name].type
+
+                switch (settingType) {
+                    case 'boolean':
+                        return setting.value === '1'
+                    case 'number':
+                        return Number.parseFloat(setting.value || '')
+                    case 'string':
+                        return setting.value
+                    default:
+                        return null
+                }
+            }
+        }
+
+        return setting.value
     }
 
     setErrorMessages(

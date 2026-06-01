@@ -30,8 +30,8 @@ let _deviceValuesPersistanceCache: { [deviceName: string]: DeviceValue[][] } =
 
 let _lastLiveData: any = null
 
-let _pollInterval: number
-let _snapshotPersistInterval: number
+let _pollInterval: number = 10 * 1000
+let _snapshotPersistInterval: number = 60 * 1000
 
 const _deviceValueCacheResource = new Semaphore(
     'deviceValuesPersistanceCache',
@@ -43,18 +43,24 @@ class UpdateManagerSettingChangeObserver extends SettingChangeObserver {
         return [SETTING_POLLING_RATE, SETTING_SNAPSHOT_PERSISTANCE_INTERVAL]
     }
 
-    onSettingChange(name: string, value?: any): void {
-        if (!value) return
+    onSettingChange(name: string, value?: any): boolean {
+        if (!value) return false
 
         if (name === SETTING_POLLING_RATE) {
             _pollInterval = Math.max(MIN_POLLING_RATE, parseInt(value)) * 1000
             createPollingInterval()
+
+            return true
         } else if (name === SETTING_SNAPSHOT_PERSISTANCE_INTERVAL) {
             _snapshotPersistInterval =
                 Math.max(MIN_SNAPSHOT_PERSISTANCE_INTERVAL, parseInt(value)) *
                 1000
             createSnapshotPersistInterval()
+
+            return true
         }
+
+        return false
     }
 }
 
@@ -64,6 +70,9 @@ export async function initDataUpdateManager() {
     await registerSettingChangeObserver(
         new UpdateManagerSettingChangeObserver()
     )
+
+    createPollingInterval()
+    createSnapshotPersistInterval()
 
     _logger.info('Data update manager initialized')
 

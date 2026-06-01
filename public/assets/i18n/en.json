@@ -66,29 +66,53 @@
                 "title": "Polling Settings",
                 "description": "Settings related to device polling"
             },
-            "polling_rate": "Polling Rate",
-            "snapshot_persistance_interval": "Snapshot Persistance Interval"
+            "general": {
+                "polling_rate": "Polling Rate",
+                "snapshot_persistance_interval": "Snapshot Persistence Interval"
+            }
         },
 
         "telegram_bot": {
-            "group": {
-                "title": "Telegram Bot",
-                "description": "Settings for the Telegram Bot. Without a token, the bot will be disabled.\n\nHow to create a Telegram Bot:\n1. Open Telegram and search for the BotFather (`@BotFather`).\n2. Start a conversation with the BotFather and send the command `/newbot`.\n3. After successful creation, you will receive a token that you can enter in this field."
+            "general": {
+                "group": {
+                    "title": "Telegram Bot",
+                    "description": "Telegram Bot for remote access to KPIs, settings, and notifications."
+                },
+
+                "enabled": "Enable Telegram Bot"
             },
-            "telegram_bot_token": "Token"
+
+            "token": {
+                "group": {
+                    "title": "Token",
+                    "description": "Without a token, the bot will be disabled.\n\nHow to create a Telegram Bot:\n1. Open Telegram and search for the BotFather (`@BotFather`).\n2. Start a conversation with the BotFather and send the command `/newbot`.\n3. After successful creation, you will receive a token that you can enter in this field."
+                },
+
+                "telegram_bot_token": "Token"
+            }
         },
 
-        "forecast": {
-            "group": {
-                "title": "Solar Forecast",
-                "description": "Settings for requesting solar production forecasts."
+        "solar_forecast": {
+            "general": {
+                "group": {
+                    "title": "Solar Forecast",
+                    "description": "Settings for requesting solar production forecasts."
+                },
+
+                "enabled": "Enable Solar Forecast"
             },
 
-            "latitude": "Latitude",
-            "longitude": "Longitude",
-            "declination": "Declination (Horizontal = 0, Vertical = 90)",
-            "azimuth": "Azimuth (S = 0, W = 90, O = -90, N = 180/-180)",
-            "max_kwp": "Installed kWp"
+            "forecast": {
+                "group": {
+                    "title": "System Parameters",
+                    "description": "Parameters of the PV system for calculating the solar production forecast."
+                },
+                "latitude": "Latitude",
+                "longitude": "Longitude",
+                "declination": "Declination (Horizontal = 0, Vertical = 90)",
+                "azimuth": "Azimuth (S = 0, W = 90, O = -90, N = 180/-180)",
+                "max_kwp": "Installed kWp"
+            }
         }
     },
 

@@ -67,8 +67,9 @@ export class SolarForecastModule
         ]
     }
 
-    onSettingChange(name: string, value?: any): void {
-        if (!this.getObservedSettings().includes(name) || !value) return
+    onSettingChange(name: string, value?: any): boolean {
+        if (!this.getObservedSettings().includes(name) || value === undefined)
+            return false
 
         const parsedValue = Number.parseFloat(value.toString())
 
@@ -138,12 +139,14 @@ export class SolarForecastModule
             }
 
             default: {
-                super.onSettingChange(name, value)
+                isDirty = super.onSettingChange(name, value)
                 break
             }
         }
 
         if (isDirty) this.requestForecast(true)
+
+        return isDirty
     }
 
     /*
@@ -157,7 +160,7 @@ export class SolarForecastModule
             ...settings[SolarForecastModule.MODULE_NAME],
             ...[
                 {
-                    group: `${SolarForecastModule.MODULE_NAME}_forecast`,
+                    group: `${SolarForecastModule.MODULE_NAME}.forecast`,
                     schema: {
                         type: 'object',
                         properties: {
@@ -240,6 +243,10 @@ export class SolarForecastModule
         recurrenceRule.minute = 10
 
         schedule.scheduleJob(recurrenceRule, () => this.requestForecast())
+    }
+
+    getModuleName(): string {
+        return SolarForecastModule.MODULE_NAME
     }
 
     start(): void {

@@ -24,7 +24,7 @@ export abstract class ModuleBase extends SettingChangeObserver {
         const settings: any = {
             [moduleName]: [
                 {
-                    group: `${moduleName}_general`,
+                    group: `${moduleName}.general`,
                     schema: {
                         type: 'object',
                         properties: {
@@ -32,6 +32,13 @@ export abstract class ModuleBase extends SettingChangeObserver {
                                 {
                                     type: 'boolean',
                                     default: false,
+                                    widget: {
+                                        formlyConfig: {
+                                            props: {
+                                                formCheck: 'switch',
+                                            },
+                                        },
+                                    },
                                 },
                         },
                     },
@@ -42,8 +49,14 @@ export abstract class ModuleBase extends SettingChangeObserver {
         return settings
     }
 
+    abstract getModuleName(): string
+
     abstract start(): void
     abstract stop(): void
+
+    getIsEnabled(): boolean {
+        return this._enabled
+    }
 
     /*
      * SettingChangeObserver implementation
@@ -55,12 +68,14 @@ export abstract class ModuleBase extends SettingChangeObserver {
         ]
     }
 
-    onSettingChange(name: string, value?: any): void {
+    onSettingChange(name: string, value?: any): boolean {
         if (
             name ===
             `${this._moduleName}${ModuleBase.SETTING_MODULE_ENABLED_SUFFIX}`
         ) {
-            this._enabled = value || this._enabled
+            const parsedValue = value === '1' || value === 1 || value === true
+
+            this._enabled = parsedValue
             this._logger.info(
                 `Module ${this._moduleName} ${this._enabled ? 'enabled' : 'disabled'}`
             )
@@ -70,6 +85,8 @@ export abstract class ModuleBase extends SettingChangeObserver {
             } else {
                 this.stop()
             }
+            return true
         }
+        return false
     }
 }

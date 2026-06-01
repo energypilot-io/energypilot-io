@@ -63,7 +63,7 @@ echarts.use([
     host: { class: 'col-12 col-md-6 col-xl-4 p-0' },
 })
 export class SolarForecastWidget {
-    static name: string = 'widget-energy-solar-forecast'
+    static name: string = 'solar_forecast'
 
     get name(): string {
         return SolarForecastWidget.name

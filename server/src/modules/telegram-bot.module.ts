@@ -49,12 +49,14 @@ export class TelegramBotModule extends ModuleBase {
         ]
     }
 
-    onSettingChange(name: string, value?: any): void {
+    onSettingChange(name: string, value?: any): boolean {
         if (name === TelegramBotModule.SETTING_TELEGRAM_BOT_TOKEN) {
             this._token = value
             this.createTelegramBot()
+
+            return true
         } else {
-            super.onSettingChange(name, value)
+            return super.onSettingChange(name, value)
         }
     }
 
@@ -69,7 +71,7 @@ export class TelegramBotModule extends ModuleBase {
             ...settings[TelegramBotModule.MODULE_NAME],
             ...[
                 {
-                    group: `${TelegramBotModule.MODULE_NAME}_token`,
+                    group: `${TelegramBotModule.MODULE_NAME}.token`,
                     schema: {
                         type: 'object',
                         properties: {
@@ -90,6 +92,10 @@ export class TelegramBotModule extends ModuleBase {
     /*
      *
      */
+
+    getModuleName(): string {
+        return TelegramBotModule.MODULE_NAME
+    }
 
     start(): void {
         this.createTelegramBot()

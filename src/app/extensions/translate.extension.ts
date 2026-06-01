@@ -1,6 +1,5 @@
 import { FormlyExtension, FormlyFieldConfig } from '@ngx-formly/core'
 import { TranslateService } from '@ngx-translate/core'
-import { Observable } from 'rxjs'
 
 export class TranslateExtension implements FormlyExtension {
     constructor(private translate: TranslateService) {}
