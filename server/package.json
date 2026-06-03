@@ -23,6 +23,7 @@
         "@mikro-orm/reflection": "^7.0.10",
         "@mikro-orm/seeder": "^7.0.13",
         "@mikro-orm/sqlite": "^7.0.10",
+        "@modelcontextprotocol/sdk": "^1.29.0",
         "adze": "^2.2.5",
         "compression": "^1.8.1",
         "cors": "^2.8.5",

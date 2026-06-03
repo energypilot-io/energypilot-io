@@ -8,6 +8,7 @@ import { getLogger } from './log.manager'
 
 import {
     DevicesController,
+    McpController,
     ModulesController,
     SettingsController,
     SnapshotsController,
@@ -32,6 +33,8 @@ export async function initWebServer() {
     app.use('/api/v1/settings', SettingsController)
     app.use('/api/v1/solar-forecast', SolarForecastController)
     app.use('/api/v1/modules', ModulesController)
+
+    app.use('/mcp', McpController)
 
     if (process.env.NODE_ENV! === 'production') {
         app.use(express.static('/usr/share/html'))
