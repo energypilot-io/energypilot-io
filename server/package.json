@@ -17,13 +17,15 @@
     },
     "dependencies": {
         "@adze/transport-file": "^1.0.3",
+        "@cfworker/json-schema": "^4.1.1",
         "@csllc/cs-modbus": "^3.3.5",
         "@mikro-orm/core": "^7.0.10",
         "@mikro-orm/decorators": "^7.0.10",
         "@mikro-orm/reflection": "^7.0.10",
         "@mikro-orm/seeder": "^7.0.13",
         "@mikro-orm/sqlite": "^7.0.10",
-        "@modelcontextprotocol/sdk": "^1.29.0",
+        "@modelcontextprotocol/node": "^2.0.0-alpha.2",
+        "@modelcontextprotocol/server": "^2.0.0-alpha.2",
         "adze": "^2.2.5",
         "compression": "^1.8.1",
         "cors": "^2.8.5",
@@ -38,7 +40,8 @@
         "telegraf": "^4.16.3",
         "tp-link-tapo-connect": "^2.0.8",
         "tsx": "^4.20.6",
-        "typescript": "^5.9.3"
+        "typescript": "^5.9.3",
+        "uuid": "^14.0.0"
     },
     "devDependencies": {
         "@types/compression": "^1.8.1",

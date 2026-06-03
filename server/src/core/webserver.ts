@@ -22,7 +22,17 @@ export async function initWebServer() {
     const app = express()
     const port = 3000
 
-    app.use(cors())
+    app.use(
+        cors({
+            exposedHeaders: [
+                'WWW-Authenticate',
+                'Mcp-Session-Id',
+                'Last-Event-Id',
+                'Mcp-Protocol-Version',
+            ],
+            origin: '*', // WARNING: This allows all origins to access the MCP server. In production, you should restrict this to specific origins.
+        })
+    )
     app.use(compression())
     app.disable('x-powered-by')
     app.use(express.json())
