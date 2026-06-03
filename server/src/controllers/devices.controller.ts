@@ -1,8 +1,8 @@
 import express from 'express'
 import { Request, Response } from 'express'
 
-import { getEntityManager, upsertEntity } from '@/core/database.manager'
-import { Device } from '@/entities/device.entity'
+import { getEntityManager, upsertEntity } from '@/core/database.manager.js'
+import { Device } from '@/entities/device.entity.js'
 import {
     createDevice,
     getDeviceClassForDeviceDefinition,
@@ -10,8 +10,8 @@ import {
     getDeviceRegistrySchema,
     removeDevice,
     setDeviceStatus,
-} from '@/core/device.manager'
-import { RegisteredInterfaceClasses } from '@/core/config'
+} from '@/core/device.manager.js'
+import { RegisteredInterfaceClasses } from '@/core/config.js'
 
 const router = express.Router()
 

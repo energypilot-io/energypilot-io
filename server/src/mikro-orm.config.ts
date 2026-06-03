@@ -1,14 +1,14 @@
 import { defineConfig, SqliteDriver } from '@mikro-orm/sqlite'
 import { TsMorphMetadataProvider } from '@mikro-orm/reflection'
 
-import { Snapshot } from './entities/snapshot.entity'
-import { Device } from './entities/device.entity'
-import { DeviceValue } from './entities/device.value.entity'
-import { SnapshotGroupedHourlyView } from './entities/snapshot.grouped.hourly.view.entity'
-import { SnapshotGroupedDailyView } from './entities/snapshot.grouped.daily.view.entity'
-import { Setting } from './entities/settings.entity'
+import { Snapshot } from './entities/snapshot.entity.js'
+import { Device } from './entities/device.entity.js'
+import { DeviceValue } from './entities/device.value.entity.js'
+import { SnapshotGroupedHourlyView } from './entities/snapshot.grouped.hourly.view.entity.js'
+import { SnapshotGroupedDailyView } from './entities/snapshot.grouped.daily.view.entity.js'
+import { Setting } from './entities/settings.entity.js'
 import { SeedManager } from '@mikro-orm/seeder'
-import { Data } from './entities/data.entity'
+import { Data } from './entities/data.entity.js'
 
 export default defineConfig({
     driver: SqliteDriver,

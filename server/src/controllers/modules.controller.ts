@@ -1,7 +1,7 @@
 import express from 'express'
 import { Request, Response } from 'express'
 
-import { getActiveModules } from '@/core/module.manager'
+import { getActiveModules } from '@/core/module.manager.js'
 
 const router = express.Router()
 

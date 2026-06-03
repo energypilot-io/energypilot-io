@@ -2,7 +2,7 @@ import path from 'node:path'
 
 import adze, { setup } from 'adze'
 import TransportFile from '@adze/transport-file'
-import AdzeGlobal from 'adze/dist/adze-global'
+import AdzeGlobal from 'adze/dist/adze-global.js'
 
 const _levels: { [key: string]: number } = {
     error: 1,
@@ -21,7 +21,7 @@ const _fileTransport = new TransportFile({
     extension: '.log',
     end_stream: true,
     audit_file: path.join(process.env.DATA_DIR!, 'energypilot-io.audit.json'),
-})
+} as any)
 
 await _fileTransport.load()
 

@@ -1,24 +1,24 @@
-import { getDeviceInstances, resetAllDeviceCaches } from './device.manager'
-import { ChildLogger, getLogger } from './log.manager'
-import { Snapshot } from '@/entities/snapshot.entity'
-import { persistEntity } from './database.manager'
-import { DeviceValue } from '@/entities/device.value.entity'
-import { WS_EVENT_SNAPSHOT_NEW, WS_EVENT_DEVICE_UPDATE } from '@/constants'
-import { Semaphore } from '@/libs/semaphore'
-import { BatteryDevice } from '@/devices/battery.device'
-import { GridDevice } from '@/devices/grid.device'
-import { PVDevice } from '@/devices/pv.device'
-import { ConsumerDevice } from '@/devices/consumer.device'
+import { getDeviceInstances, resetAllDeviceCaches } from './device.manager.js'
+import { ChildLogger, getLogger } from './log.manager.js'
+import { Snapshot } from '@/entities/snapshot.entity.js'
+import { persistEntity } from './database.manager.js'
+import { DeviceValue } from '@/entities/device.value.entity.js'
+import { WS_EVENT_SNAPSHOT_NEW, WS_EVENT_DEVICE_UPDATE } from '@/constants.js'
+import { Semaphore } from '@/libs/semaphore.js'
+import { BatteryDevice } from '@/devices/battery.device.js'
+import { GridDevice } from '@/devices/grid.device.js'
+import { PVDevice } from '@/devices/pv.device.js'
+import { ConsumerDevice } from '@/devices/consumer.device.js'
 import {
     MIN_POLLING_RATE,
     MIN_SNAPSHOT_PERSISTANCE_INTERVAL,
     registerSettingChangeObserver,
     SETTING_POLLING_RATE,
     SETTING_SNAPSHOT_PERSISTANCE_INTERVAL,
-} from './setting.manager'
-import { sendEvent } from './event.manager'
-import { VirtualDeviceHome } from '@/seeder/device.seeder'
-import { SettingChangeObserver } from '@/observers/setting-change.observer'
+} from './setting.manager.js'
+import { sendEvent } from './event.manager.js'
+import { VirtualDeviceHome } from '@/seeder/device.seeder.js'
+import { SettingChangeObserver } from '@/observers/setting-change.observer.js'
 
 let _pollDataIntervalObject: NodeJS.Timeout
 let _persistSnapshotIntervalObject: NodeJS.Timeout

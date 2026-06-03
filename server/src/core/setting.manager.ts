@@ -1,10 +1,13 @@
-import { Setting } from '@/entities/settings.entity'
+import { Setting } from '@/entities/settings.entity.js'
 import { EventArgs, EventSubscriber } from '@mikro-orm/core'
-import { getEntityManager } from './database.manager'
-import { validateIntegerInRange, validateIsNotEmpty } from '@/libs/validators'
+import { getEntityManager } from './database.manager.js'
+import {
+    validateIntegerInRange,
+    validateIsNotEmpty,
+} from '@/libs/validators.js'
 import { EntityManager } from '@mikro-orm/sqlite'
-import { RegisteredModules } from './config'
-import { SettingChangeObserver } from '@/observers/setting-change.observer'
+import { RegisteredModules } from './config.js'
+import { SettingChangeObserver } from '@/observers/setting-change.observer.js'
 
 const _settingChangeObservers: SettingChangeObserver[] = []
 

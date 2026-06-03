@@ -1,13 +1,13 @@
 import express from 'express'
 import { Request, Response } from 'express'
 
-import { getEntityManager } from '@/core/database.manager'
-import { Setting } from '@/entities/settings.entity'
+import { getEntityManager } from '@/core/database.manager.js'
+import { Setting } from '@/entities/settings.entity.js'
 import {
     getSettingSchema,
     setSettingValue,
     validateSettingsInput,
-} from '@/core/setting.manager'
+} from '@/core/setting.manager.js'
 
 const router = express.Router()
 

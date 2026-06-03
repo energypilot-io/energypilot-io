@@ -4,8 +4,8 @@ import {
     PrimaryKey,
     Property,
 } from '@mikro-orm/decorators/legacy'
-import { Snapshot } from './snapshot.entity'
-import { Device } from './device.entity'
+import { Snapshot } from './snapshot.entity.js'
+import { Device } from './device.entity.js'
 
 @Entity()
 export class DeviceValue {

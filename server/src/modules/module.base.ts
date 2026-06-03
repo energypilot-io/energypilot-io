@@ -1,6 +1,6 @@
-import { ChildLogger, getLogger } from '@/core/log.manager'
-import { registerSettingChangeObserver } from '@/core/setting.manager'
-import { SettingChangeObserver } from '@/observers/setting-change.observer'
+import { ChildLogger, getLogger } from '@/core/log.manager.js'
+import { registerSettingChangeObserver } from '@/core/setting.manager.js'
+import { SettingChangeObserver } from '@/observers/setting-change.observer.js'
 
 export abstract class ModuleBase extends SettingChangeObserver {
     static SETTING_MODULE_ENABLED_SUFFIX = '.enabled'

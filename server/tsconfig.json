@@ -1,23 +1,24 @@
 {
     "compilerOptions": {
+        "baseUrl": "src",
         "outDir": "./out-tsc/app",
         "lib": ["es2023"],
-        "module": "esnext",
-        "target": "es2022",
+        "module": "nodenext",
+        "target": "esnext",
         "allowJs": true,
 
         "strict": true,
         "esModuleInterop": true,
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
-        "moduleResolution": "node10",
+        "moduleResolution": "nodenext",
         "ignoreDeprecations": "6.0",
         "experimentalDecorators": true,
         "noFallthroughCasesInSwitch": true,
         "allowUnreachableCode": false,
 
         "paths": {
-            "@/*": ["./src/*"]
+            "@/*": ["*"]
         }
     },
     "include": ["src/**/*", "eslint.config.mjs", "../constants.ts"],

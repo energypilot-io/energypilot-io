@@ -1,4 +1,4 @@
-import { Device } from '@/entities/device.entity'
+import { Device } from '@/entities/device.entity.js'
 import { EntityManager } from '@mikro-orm/core'
 import { Seeder } from '@mikro-orm/seeder'
 

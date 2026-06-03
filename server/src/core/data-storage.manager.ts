@@ -1,6 +1,6 @@
-import { Data } from '@/entities/data.entity'
-import { ChildLogger, getLogger } from './log.manager'
-import { getEntityManager } from './database.manager'
+import { Data } from '@/entities/data.entity.js'
+import { ChildLogger, getLogger } from './log.manager.js'
+import { getEntityManager } from './database.manager.js'
 
 let _logger: ChildLogger
 

@@ -1,10 +1,13 @@
-import { Device } from '@/entities/device.entity'
-import { DeviceValue } from '@/entities/device.value.entity'
-import { getEntityManager } from './database.manager'
-import { ChildLogger, getLogger } from './log.manager'
-import { IInterface } from '@/interfaces/interface'
-import { RegisteredDeviceClasses, RegisteredInterfaceClasses } from './config'
-import { DeviceBase, DeviceDefinition } from '@/devices/device.base'
+import { Device } from '@/entities/device.entity.js'
+import { DeviceValue } from '@/entities/device.value.entity.js'
+import { getEntityManager } from './database.manager.js'
+import { ChildLogger, getLogger } from './log.manager.js'
+import { IInterface } from '@/interfaces/interface.js'
+import {
+    RegisteredDeviceClasses,
+    RegisteredInterfaceClasses,
+} from './config.js'
+import { DeviceBase, DeviceDefinition } from '@/devices/device.base.js'
 
 let _logger: ChildLogger
 

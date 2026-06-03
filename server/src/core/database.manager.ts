@@ -10,10 +10,10 @@ import {
     EntityManager,
 } from '@mikro-orm/sqlite'
 
-import config from '@/mikro-orm.config'
-import { ChildLogger, getLogger } from './log.manager'
-import { SettingEventSubscriber } from './setting.manager'
-import { DeviceSeeder } from '@/seeder/device.seeder'
+import config from '@/mikro-orm.config.js'
+import { ChildLogger, getLogger } from './log.manager.js'
+import { SettingEventSubscriber } from './setting.manager.js'
+import { DeviceSeeder } from '@/seeder/device.seeder.js'
 
 export type DatabaseInitObserver = () => void
 

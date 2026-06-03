@@ -1,5 +1,5 @@
-import { ModuleBase } from '@/modules/module.base'
-import { RegisteredModules } from './config'
+import { ModuleBase } from '@/modules/module.base.js'
+import { RegisteredModules } from './config.js'
 
 let _moduleInstances: ModuleBase[] = []
 

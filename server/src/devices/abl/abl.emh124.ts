@@ -1,8 +1,8 @@
-import { ModbusDatatype, ModbusInterface } from '@/interfaces/modbus'
-import { DeviceBase, DeviceDefinition } from '../device.base'
-import { ConsumerDevice } from '../consumer.device'
-import { IInterface } from '@/interfaces/interface'
-import { Device } from '@/entities/device.entity'
+import { ModbusDatatype, ModbusInterface } from '@/interfaces/modbus.js'
+import { DeviceBase, DeviceDefinition } from '../device.base.js'
+import { ConsumerDevice } from '../consumer.device.js'
+import { IInterface } from '@/interfaces/interface.js'
+import { Device } from '@/entities/device.entity.js'
 
 export class ABLemh124 extends DeviceBase implements ConsumerDevice {
     private _totalEnergy: number = 0

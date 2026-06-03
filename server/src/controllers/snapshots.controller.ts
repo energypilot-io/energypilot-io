@@ -1,9 +1,9 @@
-import { getEntityManager } from '@/core/database.manager'
-import { SnapshotGroupedHourlyView } from '@/entities/snapshot.grouped.hourly.view.entity'
-import { Snapshot } from '@/entities/snapshot.entity'
+import { getEntityManager } from '@/core/database.manager.js'
+import { SnapshotGroupedHourlyView } from '@/entities/snapshot.grouped.hourly.view.entity.js'
+import { Snapshot } from '@/entities/snapshot.entity.js'
 import express from 'express'
 import { Request, Response } from 'express'
-import { SnapshotGroupedDailyView } from '@/entities/snapshot.grouped.daily.view.entity'
+import { SnapshotGroupedDailyView } from '@/entities/snapshot.grouped.daily.view.entity.js'
 
 const router = express.Router()
 

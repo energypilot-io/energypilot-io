@@ -1,12 +1,12 @@
-import { ChildLogger, getLogger } from '@/core/log.manager'
-import { IInterface } from './interface'
+import { ChildLogger, getLogger } from '@/core/log.manager.js'
+import { IInterface } from './interface.js'
 
 import { loginDeviceByIp } from 'tp-link-tapo-connect'
 import {
     validateEmail,
     validateIPAddress,
     validateIsNotEmpty,
-} from '@/libs/validators'
+} from '@/libs/validators.js'
 
 type TPLinkTapoParameterDef = {
     scale: number

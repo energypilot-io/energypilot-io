@@ -1,6 +1,6 @@
-import { ChildLogger, getLogger } from '@/core/log.manager'
-import { Device } from '@/entities/device.entity'
-import { IInterface } from '@/interfaces/interface'
+import { ChildLogger, getLogger } from '@/core/log.manager.js'
+import { Device } from '@/entities/device.entity.js'
+import { IInterface } from '@/interfaces/interface.js'
 
 export type DeviceDefinition = {
     model: string

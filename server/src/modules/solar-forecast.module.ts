@@ -1,15 +1,13 @@
 import {
     getDataFromStorage,
     writeDataToStorage,
-} from '@/core/data-storage.manager'
-import { ChildLogger, getLogger } from '@/core/log.manager'
-import { registerSettingChangeObserver } from '@/core/setting.manager'
+} from '@/core/data-storage.manager.js'
 import got from 'got'
 
 import { differenceInCalendarDays, format, parse } from 'date-fns'
 import schedule from 'node-schedule'
-import { SettingChangeObserver } from '@/observers/setting-change.observer'
-import { ModuleBase } from './module.base'
+import { SettingChangeObserver } from '@/observers/setting-change.observer.js'
+import { ModuleBase } from './module.base.js'
 
 const MIN_FORECAST_LATITUDE = -90
 const MAX_FORECAST_LATITUDE = 90

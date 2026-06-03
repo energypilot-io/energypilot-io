@@ -17,15 +17,15 @@ import Transaction from '@csllc/cs-modbus/lib/Transaction'
 // @ts-ignore
 import functions from '@csllc/cs-modbus/lib/functions'
 
-import AsciiTransport from '@/libs/cs-modbus/transports/AsciiTransport'
+import AsciiTransport from '@/libs/cs-modbus/transports/AsciiTransport.js'
 
-import { ChildLogger, getLogger } from '@/core/log.manager'
-import { IInterface } from './interface'
+import { ChildLogger, getLogger } from '@/core/log.manager.js'
+import { IInterface } from './interface.js'
 import {
     validateAllowedValues,
     validateIsNotEmpty,
     validateIsPositiveInteger,
-} from '@/libs/validators'
+} from '@/libs/validators.js'
 
 export type ModbusDatatype =
     | 'int8'

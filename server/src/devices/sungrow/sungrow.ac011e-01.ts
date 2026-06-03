@@ -1,6 +1,6 @@
-import { ModbusDatatype, ModbusInterface } from '@/interfaces/modbus'
-import { DeviceBase, DeviceDefinition } from '../device.base'
-import { ConsumerDevice } from '../consumer.device'
+import { ModbusDatatype, ModbusInterface } from '@/interfaces/modbus.js'
+import { DeviceBase, DeviceDefinition } from '../device.base.js'
+import { ConsumerDevice } from '../consumer.device.js'
 
 export class SungrowAC011E01 extends DeviceBase implements ConsumerDevice {
     static override getDeviceDefinition(): DeviceDefinition {

@@ -1,5 +1,5 @@
-import { ChildLogger, getLogger } from './log.manager'
-import { emitWebsocketEvent } from './webserver'
+import { ChildLogger, getLogger } from './log.manager.js'
+import { emitWebsocketEvent } from './webserver.js'
 
 const _observers: NotificationObserver[] = []
 

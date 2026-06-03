@@ -1,8 +1,8 @@
-import { ModbusDatatype, ModbusInterface } from '@/interfaces/modbus'
-import { BatteryDevice } from '../battery.device'
-import { DeviceBase, DeviceDefinition } from '../device.base'
-import { GridDevice } from '../grid.device'
-import { PVDevice } from '../pv.device'
+import { ModbusDatatype, ModbusInterface } from '@/interfaces/modbus.js'
+import { BatteryDevice } from '../battery.device.js'
+import { DeviceBase, DeviceDefinition } from '../device.base.js'
+import { GridDevice } from '../grid.device.js'
+import { PVDevice } from '../pv.device.js'
 
 export class SungrowHybrid
     extends DeviceBase

@@ -4,7 +4,7 @@ import compression from 'compression'
 
 import { createServer, Server as HTTPServer } from 'http'
 import { Server as SocketServer } from 'socket.io'
-import { getLogger } from './log.manager'
+import { getLogger } from './log.manager.js'
 
 import {
     DevicesController,
@@ -13,7 +13,7 @@ import {
     SettingsController,
     SnapshotsController,
     SolarForecastController,
-} from '@/controllers'
+} from '@/controllers/index.js'
 
 let _httpServer: HTTPServer<any, any>
 let _io: SocketServer

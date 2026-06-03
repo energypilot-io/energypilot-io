@@ -1,5 +1,5 @@
 import { Entity, Property, ManyToOne } from '@mikro-orm/decorators/legacy'
-import { Device } from './device.entity'
+import { Device } from './device.entity.js'
 
 @Entity({
     expression: `WITH daily AS (

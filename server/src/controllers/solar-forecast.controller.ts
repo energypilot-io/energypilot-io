@@ -1,4 +1,4 @@
-import { getSolarForecastData } from '@/modules/solar-forecast.module'
+import { getSolarForecastData } from '@/modules/solar-forecast.module.js'
 import express from 'express'
 
 const router = express.Router()

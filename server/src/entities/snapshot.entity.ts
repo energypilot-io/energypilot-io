@@ -5,7 +5,7 @@ import {
     Property,
 } from '@mikro-orm/decorators/legacy'
 
-import { DeviceValue } from './device.value.entity'
+import { DeviceValue } from './device.value.entity.js'
 import { Collection } from '@mikro-orm/core'
 
 @Entity()
