@@ -343,7 +343,7 @@ export class TelegramBotModule extends ModuleBase {
             return '⚠️ No live data available'
         }
 
-        let filteredSnapshots = liveData.device_snapshots
+        const filteredSnapshots = liveData.device_snapshots
             .filter(
                 (snapshot: any) =>
                     ['power', 'soc'].includes(snapshot.name) &&

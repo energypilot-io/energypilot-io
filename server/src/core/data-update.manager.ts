@@ -19,6 +19,7 @@ import {
 import { sendEvent } from './event.manager.js'
 import { VirtualDeviceHome } from '@/seeder/device.seeder.js'
 import { SettingChangeObserver } from '@/observers/setting-change.observer.js'
+import { toISOStringWithTimezone } from '@/libs/utils.js'
 
 let _pollDataIntervalObject: NodeJS.Timeout
 let _persistSnapshotIntervalObject: NodeJS.Timeout
@@ -388,7 +389,7 @@ async function pollData() {
     deviceValuesCache.push(homeConsumptionDeviceValue)
 
     _lastLiveData = {
-        created_at: new Date(),
+        created_at: toISOStringWithTimezone(new Date()),
         device_snapshots: deviceValuesCache.map((deviceValue: DeviceValue) => {
             return {
                 device_id: deviceValue.device.id,
@@ -396,6 +397,8 @@ async function pollData() {
                 device_type: deviceValue.device.type,
                 name: deviceValue.name,
                 value: deviceValue.value,
+                connected: deviceValue.device.connected,
+                is_enabled: deviceValue.device.is_enabled,
             }
         }),
     }

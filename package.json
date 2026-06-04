@@ -1,6 +1,6 @@
 {
     "name": "energypilot-io",
-    "version": "2026.3",
+    "version": "2026.5",
     "scripts": {
         "ng": "ng",
         "start": "concurrently \"npm run server\" \"npm run app\"",

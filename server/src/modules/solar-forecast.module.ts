@@ -8,6 +8,7 @@ import { differenceInCalendarDays, format, parse } from 'date-fns'
 import schedule from 'node-schedule'
 import { SettingChangeObserver } from '@/observers/setting-change.observer.js'
 import { ModuleBase } from './module.base.js'
+import { toISOStringWithTimezone } from '@/libs/utils.js'
 
 const MIN_FORECAST_LATITUDE = -90
 const MAX_FORECAST_LATITUDE = 90
@@ -325,7 +326,7 @@ export function getSolarForecastData() {
 
             if (!(groupingKey in forecastData)) forecastData[groupingKey] = {}
 
-            forecastData[groupingKey][datetime.toISOString()] = {
+            forecastData[groupingKey][toISOStringWithTimezone(datetime)] = {
                 wattHoursPeriod: parseFloat((value as any).toString()),
                 wattHours: parseFloat(
                     _forecastRawData.result.watt_hours[key].toString()
