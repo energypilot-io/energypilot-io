@@ -5,7 +5,7 @@ import {
     validateSettingPollingRate,
     validateSettingSnapshotPersistenceInterval,
 } from '../core/setting.manager.js'
-import { getLastLiveData } from '../core/data-update.manager.js'
+import { getLastLiveData } from '../core/snapshot.manager.js'
 import { escapeMarkdown, toPowerString } from '@/libs/utils.js'
 import { getDeviceInstances, setDeviceStatus } from '@/core/device.manager.js'
 import { DeviceBase } from '@/devices/device.base.js'

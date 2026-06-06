@@ -1,4 +1,3 @@
-import { getEntityManager } from '@/core/database.manager.js'
 import { SnapshotGroupedHourlyView } from '@/entities/snapshot.grouped.hourly.view.entity.js'
 import { Snapshot } from '@/entities/snapshot.entity.js'
 import express from 'express'
@@ -97,75 +96,21 @@ async function findSnapshotsBetweenDates(params: {
     limit?: number
     grouping?: string
 }): Promise<object | undefined> {
+    const snapshots = (await findSnapshotsBetweenDates(params)) as any
+
+    if (!snapshots) {
+        return undefined
+    }
+
     switch (params.grouping) {
-        case 'hour': {
-            const snapshots = await getEntityManager().find(
-                SnapshotGroupedHourlyView,
-                params.startDate && params.endDate
-                    ? {
-                          created_at: {
-                              $gte: params.startDate,
-                              $lte: params.endDate ?? new Date(),
-                          },
-                      }
-                    : {},
-                {
-                    populate: ['*'],
-                    orderBy: {
-                        created_at: (params.limit ?? 0) < 0 ? 'DESC' : 'ASC',
-                    },
-                    limit: params.limit ? Math.abs(params.limit) : undefined,
-                }
+        case 'hour':
+            return groupedSnapshotsToJSON(snapshots)
+        case 'day':
+            return groupedSnapshotsToJSON(snapshots)
+        default:
+            return snapshots.map((snapshot: Snapshot) =>
+                snapshotToJSON(snapshot)
             )
-            return groupedSnapshotsToJSON(snapshots as any)
-        }
-
-        case 'day': {
-            const snapshots = await getEntityManager().find(
-                SnapshotGroupedDailyView,
-                params.startDate && params.endDate
-                    ? {
-                          created_at: {
-                              $gte: params.startDate,
-                              $lte: params.endDate ?? new Date(),
-                          },
-                      }
-                    : {},
-                {
-                    populate: ['*'],
-                    orderBy: {
-                        created_at: (params.limit ?? 0) < 0 ? 'DESC' : 'ASC',
-                    },
-                    limit: params.limit ? Math.abs(params.limit) : undefined,
-                }
-            )
-            return groupedSnapshotsToJSON(snapshots as any)
-        }
-
-        default: {
-            const snapshots = await getEntityManager().find(
-                Snapshot,
-                params.startDate && params.endDate
-                    ? {
-                          created_at: {
-                              $gte: params.startDate,
-                              $lte: params.endDate ?? new Date(),
-                          },
-                      }
-                    : {},
-                {
-                    populate: ['*'],
-                    orderBy: {
-                        created_at: (params.limit ?? 0) < 0 ? 'DESC' : 'ASC',
-                    },
-                    limit: params.limit ? Math.abs(params.limit) : undefined,
-                }
-            )
-
-            return snapshots.map(snapshot =>
-                snapshotToJSON(snapshot as any as Snapshot)
-            )
-        }
     }
 }
 

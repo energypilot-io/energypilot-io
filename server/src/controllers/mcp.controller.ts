@@ -10,7 +10,13 @@ import { InMemoryEventStore } from '@/libs/inMemoryEventStore.js'
 import { ChildLogger, getLogger } from '@/core/log.manager.js'
 
 import { getSolarForecastData } from '@/modules/solar-forecast.module.js'
-import { getLastLiveData } from '../core/data-update.manager.js'
+import {
+    findSnapshotsBetweenDates,
+    getLastLiveData,
+} from '../core/snapshot.manager.js'
+import { endOfDay, startOfDay } from 'date-fns'
+import { Snapshot } from '@/entities/snapshot.entity.js'
+import { toISOStringWithTimezone } from '@/libs/utils.js'
 
 let _logger: ChildLogger = getLogger('mcp-controller')
 
@@ -108,10 +114,184 @@ const getServer = () => {
     )
 
     server.registerTool(
-        'get_live_values',
+        'get_historical_values_for_date_range',
         {
             description:
-                'Get live values from your configured devices. This includes current power production and consumption, device status, decive type (e.g., "Grid", "Battery", "Consumer", "PV").',
+                'Get historical energy or power values for a specified date range. You can specify a start and end date, and optionally a grouping (e.g., hour, day) and limit on the number of data points returned. The hourly grouping will return average power values for each hour, while the daily grouping will return total energy produced/consumed for each day for every device.',
+            inputSchema: z
+                .object({
+                    startDate: z
+                        .string()
+                        .describe(
+                            'Start date as an ISO string (e.g., "2024-01-01"). Time is not required and will be assumed to be the start of the day in UTC'
+                        ),
+                    endDate: z
+                        .string()
+                        .describe(
+                            'End date as an ISO string (e.g., "2024-01-01"). Time is not required and will be assumed to be the end of the day in UTC'
+                        ),
+                    grouping: z.enum(['hour', 'day']).optional(),
+                    limit: z
+                        .number()
+                        .optional()
+                        .describe('Limit the number of data points returned'),
+                })
+                .describe('Parameters for retrieving historical values'),
+            outputSchema: z.object({
+                snapshots: z.array(
+                    z.object({
+                        createdAt: z
+                            .string()
+                            .describe(
+                                'Timestamp as ISO string for the snapshot'
+                            ),
+
+                        deviceSnapshots: z
+                            .array(
+                                z.object({
+                                    deviceName: z
+                                        .string()
+                                        .describe(
+                                            'Name of the device providing the data'
+                                        ),
+                                    deviceType: z
+                                        .string()
+                                        .describe(
+                                            'Type of the device (e.g., "Grid", "Battery", "Consumer", "PV")'
+                                        ),
+                                    value: z
+                                        .number()
+                                        .describe(
+                                            'Current value in watts for no or hourly grouping. Current value in kilo watts per hour for daily grouping. Positive value for production, negative value for consumption. For batteries, positive value is discharging for own consumption, negative value is charging the battery. If value type is "soc", this represents the state of charge in percentage.'
+                                        ),
+                                    valueType: z
+                                        .string()
+                                        .describe(
+                                            'Type of the value (e.g., "power", "soc", "energy"). This indicates what the value represents.'
+                                        ),
+                                })
+                            )
+                            .describe('All device snapshots for the timestamp'),
+                    })
+                ),
+            }),
+            annotations: {
+                title: 'Get Historical Values',
+                readOnlyHint: true,
+            },
+        },
+        async ({
+            startDate,
+            endDate,
+            grouping,
+            limit,
+        }: {
+            startDate: string
+            endDate: string
+            grouping?: 'hour' | 'day'
+            limit?: number
+        }): Promise<CallToolResult> => {
+            const startDatetime = startOfDay(new Date(startDate))
+            const endDatetime = endOfDay(new Date(endDate))
+
+            const snapshots = (await findSnapshotsBetweenDates({
+                startDate: startDatetime,
+                endDate: endDatetime,
+                grouping,
+                limit,
+            })) as any
+
+            if (!snapshots) {
+                return {
+                    content: [
+                        {
+                            type: 'text',
+                            text: 'Failed: No historical data available.',
+                        },
+                    ],
+                    isError: true,
+                }
+            }
+
+            let structuredContent
+
+            switch (grouping) {
+                case 'hour':
+                case 'day': {
+                    const groupedSnapshots: { [key: number]: any[] } = {}
+
+                    snapshots.forEach((snapshot: any) => {
+                        const timestamp: number = snapshot.created_at.valueOf()
+
+                        if (!(timestamp in groupedSnapshots)) {
+                            groupedSnapshots[timestamp] = []
+                        }
+
+                        groupedSnapshots[timestamp].push({
+                            deviceName: snapshot.device.name,
+                            deviceType: snapshot.device.type,
+                            valueType: snapshot.name,
+                            value: snapshot.value,
+                        })
+                    })
+
+                    structuredContent = {
+                        snapshots: Object.keys(groupedSnapshots).map(
+                            timestamp => {
+                                return {
+                                    createdAt: toISOStringWithTimezone(
+                                        new Date(Number.parseFloat(timestamp))
+                                    ),
+                                    deviceSnapshots:
+                                        groupedSnapshots[Number(timestamp)],
+                                }
+                            }
+                        ),
+                    }
+
+                    break
+                }
+
+                default: {
+                    structuredContent = {
+                        snapshots: snapshots.map((snapshot: Snapshot) => ({
+                            createdAt: toISOStringWithTimezone(
+                                snapshot.created_at
+                            ),
+
+                            deviceSnapshots: snapshot.device_snapshots
+                                .getItems()
+                                .map(deviceValue => ({
+                                    deviceName: deviceValue.device.name,
+                                    deviceType: deviceValue.device.type,
+                                    valueType: deviceValue.name,
+                                    value: deviceValue.value,
+                                })),
+                        })),
+                    }
+                    break
+                }
+            }
+
+            console.log(structuredContent)
+
+            return {
+                content: [
+                    {
+                        type: 'text',
+                        text: JSON.stringify(structuredContent, null, 2),
+                    },
+                ],
+                structuredContent: structuredContent,
+            }
+        }
+    )
+
+    server.registerTool(
+        'get_live_power_values',
+        {
+            description:
+                'Get live power values from your configured devices. This includes current power production and consumption, device status, device type (e.g., "Grid", "Battery", "Consumer", "PV").',
             inputSchema: z.object({}).describe('No input parameters required'),
             outputSchema: z.object({
                 createdAt: z
@@ -134,7 +314,7 @@ const getServer = () => {
                         value: z
                             .number()
                             .describe(
-                                'Current value in watts (positive for production, negative for consumption). If value type is "soc", this represents the state of charge in percentage.'
+                                'Current power value in watts. Positive value for production, negative value for consumption. For batteries, positive value is discharging for own consumption, negative value is charging the battery. If value type is "soc", this represents the state of charge in percentage.'
                             ),
                         valueType: z
                             .string()
@@ -212,17 +392,11 @@ const getServer = () => {
                     })),
             }
 
-            console.log('Structured live data content:', structuredContent)
-
             return {
                 content: [
                     {
                         type: 'text',
-                        text: JSON.stringify(
-                            { live: structuredContent },
-                            null,
-                            2
-                        ),
+                        text: JSON.stringify(structuredContent, null, 2),
                     },
                 ],
                 structuredContent: structuredContent,

@@ -3,7 +3,7 @@ import { initDatabaseManager } from './core/database.manager.js'
 import { initDeviceManager } from './core/device.manager.js'
 import { initSettingManager } from './core/setting.manager.js'
 
-import { initDataUpdateManager } from './core/data-update.manager.js'
+import { initSnapshotManager } from './core/snapshot.manager.js'
 import { initWebServer } from './core/webserver.js'
 import { initModuleManager } from './core/module.manager.js'
 
@@ -11,7 +11,7 @@ await initLogging()
 await initDatabaseManager()
 await initSettingManager()
 await initDeviceManager()
-await initDataUpdateManager()
+await initSnapshotManager()
 await initWebServer()
 
 await initModuleManager()

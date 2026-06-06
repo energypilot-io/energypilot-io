@@ -1,7 +1,7 @@
 import { getDeviceInstances, resetAllDeviceCaches } from './device.manager.js'
 import { ChildLogger, getLogger } from './log.manager.js'
 import { Snapshot } from '@/entities/snapshot.entity.js'
-import { persistEntity } from './database.manager.js'
+import { getEntityManager, persistEntity } from './database.manager.js'
 import { DeviceValue } from '@/entities/device.value.entity.js'
 import { WS_EVENT_SNAPSHOT_NEW, WS_EVENT_DEVICE_UPDATE } from '@/constants.js'
 import { Semaphore } from '@/libs/semaphore.js'
@@ -20,6 +20,8 @@ import { sendEvent } from './event.manager.js'
 import { VirtualDeviceHome } from '@/seeder/device.seeder.js'
 import { SettingChangeObserver } from '@/observers/setting-change.observer.js'
 import { toISOStringWithTimezone } from '@/libs/utils.js'
+import { SnapshotGroupedHourlyView } from '@/entities/snapshot.grouped.hourly.view.entity.js'
+import { SnapshotGroupedDailyView } from '@/entities/snapshot.grouped.daily.view.entity.js'
 
 let _pollDataIntervalObject: NodeJS.Timeout
 let _persistSnapshotIntervalObject: NodeJS.Timeout
@@ -39,7 +41,7 @@ const _deviceValueCacheResource = new Semaphore(
     1
 )
 
-class UpdateManagerSettingChangeObserver extends SettingChangeObserver {
+class SnapshotManagerSettingChangeObserver extends SettingChangeObserver {
     getObservedSettings(): string[] {
         return [SETTING_POLLING_RATE, SETTING_SNAPSHOT_PERSISTANCE_INTERVAL]
     }
@@ -65,17 +67,17 @@ class UpdateManagerSettingChangeObserver extends SettingChangeObserver {
     }
 }
 
-export async function initDataUpdateManager() {
-    _logger = getLogger('dataupdate')
+export async function initSnapshotManager() {
+    _logger = getLogger('snapshot')
 
     await registerSettingChangeObserver(
-        new UpdateManagerSettingChangeObserver()
+        new SnapshotManagerSettingChangeObserver()
     )
 
     createPollingInterval()
     createSnapshotPersistInterval()
 
-    _logger.info('Data update manager initialized')
+    _logger.info('Snapshot manager initialized')
 
     process.on('exit', () => {
         clearInterval(_pollDataIntervalObject)
@@ -85,6 +87,82 @@ export async function initDataUpdateManager() {
 
 export function getLastLiveData(): any {
     return _lastLiveData
+}
+
+export async function findSnapshotsBetweenDates(params: {
+    startDate?: Date
+    endDate?: Date
+    limit?: number
+    grouping?: string
+}): Promise<object | undefined> {
+    switch (params.grouping) {
+        case 'hour': {
+            const snapshots = await getEntityManager().find(
+                SnapshotGroupedHourlyView,
+                params.startDate && params.endDate
+                    ? {
+                          created_at: {
+                              $gte: params.startDate,
+                              $lte: params.endDate ?? new Date(),
+                          },
+                      }
+                    : {},
+                {
+                    populate: ['*'],
+                    orderBy: {
+                        created_at: (params.limit ?? 0) < 0 ? 'DESC' : 'ASC',
+                    },
+                    limit: params.limit ? Math.abs(params.limit) : undefined,
+                }
+            )
+            return snapshots
+        }
+
+        case 'day': {
+            const snapshots = await getEntityManager().find(
+                SnapshotGroupedDailyView,
+                params.startDate && params.endDate
+                    ? {
+                          created_at: {
+                              $gte: params.startDate,
+                              $lte: params.endDate ?? new Date(),
+                          },
+                      }
+                    : {},
+                {
+                    populate: ['*'],
+                    orderBy: {
+                        created_at: (params.limit ?? 0) < 0 ? 'DESC' : 'ASC',
+                    },
+                    limit: params.limit ? Math.abs(params.limit) : undefined,
+                }
+            )
+            return snapshots
+        }
+
+        default: {
+            const snapshots = await getEntityManager().find(
+                Snapshot,
+                params.startDate && params.endDate
+                    ? {
+                          created_at: {
+                              $gte: params.startDate,
+                              $lte: params.endDate ?? new Date(),
+                          },
+                      }
+                    : {},
+                {
+                    populate: ['*'],
+                    orderBy: {
+                        created_at: (params.limit ?? 0) < 0 ? 'DESC' : 'ASC',
+                    },
+                    limit: params.limit ? Math.abs(params.limit) : undefined,
+                }
+            )
+
+            return snapshots
+        }
+    }
 }
 
 function createPollingInterval() {
