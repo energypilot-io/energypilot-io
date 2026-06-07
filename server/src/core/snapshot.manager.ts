@@ -89,12 +89,57 @@ export function getLastLiveData(): any {
     return _lastLiveData
 }
 
+function snapshotToJSON(snapshot: Snapshot): object {
+    return {
+        created_at: snapshot.created_at,
+
+        device_snapshots: snapshot.device_snapshots
+            .getItems()
+            .map(deviceValue => ({
+                device_id: deviceValue.device.id,
+                device_name: deviceValue.device.name,
+                device_type: deviceValue.device.type,
+                name: deviceValue.name,
+                value: deviceValue.value,
+            })),
+    }
+}
+
+function groupedSnapshotsToJSON(
+    snapshots: SnapshotGroupedHourlyView[] | SnapshotGroupedDailyView[]
+): object[] {
+    const result: { [key: number]: any[] } = {}
+
+    snapshots.forEach(snapshot => {
+        const timestamp: number = snapshot.created_at.valueOf()
+
+        if (!(timestamp in result)) {
+            result[timestamp] = []
+        }
+
+        result[timestamp].push({
+            device_id: snapshot.device.id,
+            device_name: snapshot.device.name,
+            device_type: snapshot.device.type,
+            name: snapshot.name,
+            value: snapshot.value,
+        })
+    })
+
+    return Object.keys(result).map(timestamp => {
+        return {
+            created_at: new Date(Number.parseFloat(timestamp)),
+            device_snapshots: result[Number(timestamp)],
+        }
+    })
+}
+
 export async function findSnapshotsBetweenDates(params: {
     startDate?: Date
     endDate?: Date
     limit?: number
     grouping?: string
-}): Promise<object | undefined> {
+}): Promise<object[] | undefined> {
     switch (params.grouping) {
         case 'hour': {
             const snapshots = await getEntityManager().find(
@@ -115,7 +160,7 @@ export async function findSnapshotsBetweenDates(params: {
                     limit: params.limit ? Math.abs(params.limit) : undefined,
                 }
             )
-            return snapshots
+            return groupedSnapshotsToJSON(snapshots)
         }
 
         case 'day': {
@@ -137,7 +182,7 @@ export async function findSnapshotsBetweenDates(params: {
                     limit: params.limit ? Math.abs(params.limit) : undefined,
                 }
             )
-            return snapshots
+            return groupedSnapshotsToJSON(snapshots)
         }
 
         default: {
@@ -160,7 +205,9 @@ export async function findSnapshotsBetweenDates(params: {
                 }
             )
 
-            return snapshots
+            return snapshots.map((snapshot: Snapshot) =>
+                snapshotToJSON(snapshot)
+            )
         }
     }
 }

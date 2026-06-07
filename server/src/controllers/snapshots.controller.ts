@@ -1,8 +1,6 @@
-import { SnapshotGroupedHourlyView } from '@/entities/snapshot.grouped.hourly.view.entity.js'
-import { Snapshot } from '@/entities/snapshot.entity.js'
+import { findSnapshotsBetweenDates } from '@/core/snapshot.manager.js'
 import express from 'express'
 import { Request, Response } from 'express'
-import { SnapshotGroupedDailyView } from '@/entities/snapshot.grouped.daily.view.entity.js'
 
 const router = express.Router()
 
@@ -45,73 +43,14 @@ router.get('/latest', async (req: Request, res: Response) => {
     }
 })
 
-function snapshotToJSON(snapshot: Snapshot): object {
-    return {
-        created_at: snapshot.created_at,
-
-        device_snapshots: snapshot.device_snapshots
-            .getItems()
-            .map(deviceValue => ({
-                device_id: deviceValue.device.id,
-                device_name: deviceValue.device.name,
-                device_type: deviceValue.device.type,
-                name: deviceValue.name,
-                value: deviceValue.value,
-            })),
-    }
-}
-
-function groupedSnapshotsToJSON(
-    snapshots: SnapshotGroupedHourlyView[] | SnapshotGroupedDailyView[]
-): object {
-    const result: { [key: number]: any[] } = {}
-
-    snapshots.forEach(snapshot => {
-        const timestamp: number = snapshot.created_at.valueOf()
-
-        if (!(timestamp in result)) {
-            result[timestamp] = []
-        }
-
-        result[timestamp].push({
-            device_id: snapshot.device.id,
-            device_name: snapshot.device.name,
-            device_type: snapshot.device.type,
-            name: snapshot.name,
-            value: snapshot.value,
-        })
-    })
-
-    return Object.keys(result).map(timestamp => {
-        return {
-            created_at: new Date(Number.parseFloat(timestamp)),
-            device_snapshots: result[Number(timestamp)],
-        }
-    })
-}
-
-async function findSnapshotsBetweenDates(params: {
-    startDate?: Date
-    endDate?: Date
-    limit?: number
-    grouping?: string
-}): Promise<object | undefined> {
-    const snapshots = (await findSnapshotsBetweenDates(params)) as any
-
-    if (!snapshots) {
-        return undefined
-    }
-
-    switch (params.grouping) {
-        case 'hour':
-            return groupedSnapshotsToJSON(snapshots)
-        case 'day':
-            return groupedSnapshotsToJSON(snapshots)
-        default:
-            return snapshots.map((snapshot: Snapshot) =>
-                snapshotToJSON(snapshot)
-            )
-    }
-}
+// async function findSnapshotsBetweenDates(params: {
+//     startDate?: Date
+//     endDate?: Date
+//     limit?: number
+//     grouping?: string
+// }): Promise<object | undefined> {
+//     const snapshots = (await findSnapshotsBetweenDates(params)) as object[]
+//     return snapshots
+// }
 
 export const SnapshotsController = router

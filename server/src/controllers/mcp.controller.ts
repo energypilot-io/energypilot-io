@@ -140,21 +140,26 @@ const getServer = () => {
             outputSchema: z.object({
                 snapshots: z.array(
                     z.object({
-                        createdAt: z
+                        created_at: z
                             .string()
                             .describe(
                                 'Timestamp as ISO string for the snapshot'
                             ),
 
-                        deviceSnapshots: z
+                        device_snapshots: z
                             .array(
                                 z.object({
-                                    deviceName: z
+                                    device_id: z
+                                        .number()
+                                        .describe(
+                                            'Technical unique identifier of the device. Not relevant for the user mostly'
+                                        ),
+                                    device_name: z
                                         .string()
                                         .describe(
                                             'Name of the device providing the data'
                                         ),
-                                    deviceType: z
+                                    device_type: z
                                         .string()
                                         .describe(
                                             'Type of the device (e.g., "Grid", "Battery", "Consumer", "PV")'
@@ -164,7 +169,7 @@ const getServer = () => {
                                         .describe(
                                             'Current value in watts for no or hourly grouping. Current value in kilo watts per hour for daily grouping. Positive value for production, negative value for consumption. For batteries, positive value is discharging for own consumption, negative value is charging the battery. If value type is "soc", this represents the state of charge in percentage.'
                                         ),
-                                    valueType: z
+                                    name: z
                                         .string()
                                         .describe(
                                             'Type of the value (e.g., "power", "soc", "energy"). This indicates what the value represents.'
@@ -213,64 +218,11 @@ const getServer = () => {
                 }
             }
 
-            let structuredContent
-
-            switch (grouping) {
-                case 'hour':
-                case 'day': {
-                    const groupedSnapshots: { [key: number]: any[] } = {}
-
-                    snapshots.forEach((snapshot: any) => {
-                        const timestamp: number = snapshot.created_at.valueOf()
-
-                        if (!(timestamp in groupedSnapshots)) {
-                            groupedSnapshots[timestamp] = []
-                        }
-
-                        groupedSnapshots[timestamp].push({
-                            deviceName: snapshot.device.name,
-                            deviceType: snapshot.device.type,
-                            valueType: snapshot.name,
-                            value: snapshot.value,
-                        })
-                    })
-
-                    structuredContent = {
-                        snapshots: Object.keys(groupedSnapshots).map(
-                            timestamp => {
-                                return {
-                                    createdAt: toISOStringWithTimezone(
-                                        new Date(Number.parseFloat(timestamp))
-                                    ),
-                                    deviceSnapshots:
-                                        groupedSnapshots[Number(timestamp)],
-                                }
-                            }
-                        ),
-                    }
-
-                    break
-                }
-
-                default: {
-                    structuredContent = {
-                        snapshots: snapshots.map((snapshot: Snapshot) => ({
-                            createdAt: toISOStringWithTimezone(
-                                snapshot.created_at
-                            ),
-
-                            deviceSnapshots: snapshot.device_snapshots
-                                .getItems()
-                                .map(deviceValue => ({
-                                    deviceName: deviceValue.device.name,
-                                    deviceType: deviceValue.device.type,
-                                    valueType: deviceValue.name,
-                                    value: deviceValue.value,
-                                })),
-                        })),
-                    }
-                    break
-                }
+            const structuredContent = {
+                snapshots: snapshots.map((snapshot: any) => ({
+                    created_at: toISOStringWithTimezone(snapshot.created_at),
+                    device_snapshots: snapshot.device_snapshots,
+                })),
             }
 
             console.log(structuredContent)
@@ -294,19 +246,24 @@ const getServer = () => {
                 'Get live power values from your configured devices. This includes current power production and consumption, device status, device type (e.g., "Grid", "Battery", "Consumer", "PV").',
             inputSchema: z.object({}).describe('No input parameters required'),
             outputSchema: z.object({
-                createdAt: z
+                created_at: z
                     .string()
                     .describe(
                         'Timestamp as ISO string of when the live data was retrieved'
                     ),
                 live: z.array(
                     z.object({
-                        deviceName: z
+                        device_id: z
+                            .number()
+                            .describe(
+                                'Technical unique identifier of the device. Not relevant for the user mostly'
+                            ),
+                        device_name: z
                             .string()
                             .describe(
                                 'Name of the device providing the live data'
                             ),
-                        deviceType: z
+                        device_type: z
                             .string()
                             .describe(
                                 'Type of the device (e.g., "Grid", "Battery", "Consumer", "PV")'
@@ -316,7 +273,7 @@ const getServer = () => {
                             .describe(
                                 'Current power value in watts. Positive value for production, negative value for consumption. For batteries, positive value is discharging for own consumption, negative value is charging the battery. If value type is "soc", this represents the state of charge in percentage.'
                             ),
-                        valueType: z
+                        value_type: z
                             .string()
                             .describe(
                                 'Type of the value (e.g., "power", "soc"). This indicates what the value represents.'
@@ -326,7 +283,7 @@ const getServer = () => {
                             .describe(
                                 'Whether the device is currently connected'
                             ),
-                        isEnabled: z
+                        is_enabled: z
                             .boolean()
                             .describe(
                                 'Whether the device is currently enabled'
@@ -357,12 +314,13 @@ const getServer = () => {
             const structuredContent: {
                 createdAt: string
                 live: Array<{
-                    deviceName: string
-                    deviceType: string
+                    device_id: number
+                    device_name: string
+                    device_type: string
                     value: number
-                    valueType: string
+                    value_type: string
                     status: boolean
-                    isEnabled: boolean
+                    is_enabled: boolean
                 }>
             } = {
                 createdAt: liveData.created_at,
@@ -377,15 +335,16 @@ const getServer = () => {
                         a.device_name.localeCompare(b.device_name)
                     )
                     .map((snapshot: any) => ({
-                        deviceName: snapshot.device_name,
-                        deviceType: snapshot.device_type,
-                        valueType: snapshot.name,
+                        device_id: snapshot.device_id,
+                        device_name: snapshot.device_name,
+                        device_type: snapshot.device_type,
+                        value_type: snapshot.name,
                         value: snapshot.value,
                         status:
                             snapshot.device_type === 'home'
                                 ? true
                                 : snapshot.connected,
-                        isEnabled:
+                        is_enabled:
                             snapshot.device_type === 'home'
                                 ? true
                                 : snapshot.is_enabled,
