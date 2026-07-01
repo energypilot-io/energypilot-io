@@ -43,3 +43,5 @@ export async function initLogging() {
 export function getLogger(module: string): adze<string, unknown> {
     return adze.timestamp.namespace(module).seal()
 }
+
+

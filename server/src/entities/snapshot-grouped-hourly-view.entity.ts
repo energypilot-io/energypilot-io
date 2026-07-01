@@ -19,3 +19,5 @@ export class SnapshotGroupedHourlyView {
     @Property({ type: 'real' })
     value!: number
 }
+
+

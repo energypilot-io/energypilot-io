@@ -1,4 +1,4 @@
-import { ChildLogger, getLogger } from '@/core/log.manager.js'
+import { ChildLogger, getLogger } from '@/core/log-manager.js'
 import { Device } from '@/entities/device.entity.js'
 import { IInterface } from '@/interfaces/interface.js'
 
@@ -34,3 +34,5 @@ export abstract class DeviceBase {
         throw new Error('Method not implemented! Use derived class')
     }
 }
+
+

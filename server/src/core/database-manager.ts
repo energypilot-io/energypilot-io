@@ -10,10 +10,10 @@ import {
     EntityManager,
 } from '@mikro-orm/sqlite'
 
-import config from '@/mikro-orm.config.js'
-import { ChildLogger, getLogger } from './log.manager.js'
-import { SettingEventSubscriber } from './setting.manager.js'
-import { DeviceSeeder } from '@/seeder/device.seeder.js'
+import config from '@/mikro-orm-config.js'
+import { ChildLogger, getLogger } from './log-manager.js'
+import { SettingEventSubscriber } from './setting-manager.js'
+import { DeviceSeeder } from '@/seeder/device-seeder.js'
 
 export type DatabaseInitObserver = () => void
 
@@ -124,3 +124,5 @@ export async function upsertEntity(
 export function getEntityManager(): EntityManager {
     return _orm.em.fork() as any
 }
+
+

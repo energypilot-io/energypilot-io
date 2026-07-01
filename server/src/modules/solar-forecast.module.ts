@@ -1,13 +1,13 @@
 import {
     getDataFromStorage,
     writeDataToStorage,
-} from '@/core/data-storage.manager.js'
+} from '@/core/data-storage-manager.js'
 import got from 'got'
 
 import { differenceInCalendarDays, format, parse } from 'date-fns'
 import schedule from 'node-schedule'
-import { SettingChangeObserver } from '@/observers/setting-change.observer.js'
-import { ModuleBase } from './module.base.js'
+import { SettingChangeObserver } from '@/observers/setting-change-observer.js'
+import { ModuleBase } from './module-base.js'
 import { toISOStringWithTimezone } from '@/libs/utils.js'
 
 const MIN_FORECAST_LATITUDE = -90
@@ -339,3 +339,5 @@ export function getSolarForecastData() {
         ...forecastData,
     }
 }
+
+

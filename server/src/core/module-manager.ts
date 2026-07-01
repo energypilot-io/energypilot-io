@@ -1,4 +1,4 @@
-import { ModuleBase } from '@/modules/module.base.js'
+import { ModuleBase } from '@/modules/module-base.js'
 import { RegisteredModules } from './config.js'
 
 let _moduleInstances: ModuleBase[] = []
@@ -15,3 +15,5 @@ export function getActiveModules(): string[] {
         .filter(module => module.getIsEnabled())
         .map(module => module.getModuleName())
 }
+
+

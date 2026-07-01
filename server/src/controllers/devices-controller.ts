@@ -1,7 +1,7 @@
 import express from 'express'
 import { Request, Response } from 'express'
 
-import { getEntityManager, upsertEntity } from '@/core/database.manager.js'
+import { getEntityManager, upsertEntity } from '@/core/database-manager.js'
 import { Device } from '@/entities/device.entity.js'
 import {
     createDevice,
@@ -10,7 +10,7 @@ import {
     getDeviceRegistrySchema,
     removeDevice,
     setDeviceStatus,
-} from '@/core/device.manager.js'
+} from '@/core/device-manager.js'
 import { RegisteredInterfaceClasses } from '@/core/config.js'
 
 const router = express.Router()
@@ -184,3 +184,5 @@ function validateDeviceInput(device: Device): { [key: string]: string } {
 }
 
 export const DevicesController = router
+
+

@@ -1,5 +1,5 @@
-import { DeviceBase, DeviceDefinition } from '../device.base.js'
-import { ConsumerDevice } from '../consumer.device.js'
+import { DeviceBase, DeviceDefinition } from '../device-base.js'
+import { ConsumerDevice } from '../consumer-device.js'
 import { TPLinkTapoInterface } from '@/interfaces/tplink-tapo.js'
 
 export class TapoP1xx extends DeviceBase implements ConsumerDevice {

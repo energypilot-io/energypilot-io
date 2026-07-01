@@ -1,6 +1,6 @@
 import { Data } from '@/entities/data.entity.js'
-import { ChildLogger, getLogger } from './log.manager.js'
-import { getEntityManager } from './database.manager.js'
+import { ChildLogger, getLogger } from './log-manager.js'
+import { getEntityManager } from './database-manager.js'
 
 let _logger: ChildLogger
 
@@ -20,3 +20,5 @@ export async function writeDataToStorage(name: string, value: any) {
 
     await getEntityManager().upsert(dataEntity)
 }
+
+

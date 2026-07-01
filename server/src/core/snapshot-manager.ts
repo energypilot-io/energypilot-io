@@ -1,27 +1,27 @@
-import { getDeviceInstances, resetAllDeviceCaches } from './device.manager.js'
-import { ChildLogger, getLogger } from './log.manager.js'
+import { getDeviceInstances, resetAllDeviceCaches } from './device-manager.js'
+import { ChildLogger, getLogger } from './log-manager.js'
 import { Snapshot } from '@/entities/snapshot.entity.js'
-import { getEntityManager, persistEntity } from './database.manager.js'
-import { DeviceValue } from '@/entities/device.value.entity.js'
+import { getEntityManager, persistEntity } from './database-manager.js'
+import { DeviceValue } from '@/entities/device-value.entity.js'
 import { WS_EVENT_SNAPSHOT_NEW, WS_EVENT_DEVICE_UPDATE } from '@/constants.js'
 import { Semaphore } from '@/libs/semaphore.js'
-import { BatteryDevice } from '@/devices/battery.device.js'
-import { GridDevice } from '@/devices/grid.device.js'
-import { PVDevice } from '@/devices/pv.device.js'
-import { ConsumerDevice } from '@/devices/consumer.device.js'
+import { BatteryDevice } from '@/devices/battery-device.js'
+import { GridDevice } from '@/devices/grid-device.js'
+import { PVDevice } from '@/devices/pv-device.js'
+import { ConsumerDevice } from '@/devices/consumer-device.js'
 import {
     MIN_POLLING_RATE,
     MIN_SNAPSHOT_PERSISTANCE_INTERVAL,
     registerSettingChangeObserver,
     SETTING_POLLING_RATE,
     SETTING_SNAPSHOT_PERSISTANCE_INTERVAL,
-} from './setting.manager.js'
-import { sendEvent } from './event.manager.js'
-import { VirtualDeviceHome } from '@/seeder/device.seeder.js'
-import { SettingChangeObserver } from '@/observers/setting-change.observer.js'
+} from './setting-manager.js'
+import { sendEvent } from './event-manager.js'
+import { VirtualDeviceHome } from '@/seeder/device-seeder.js'
+import { SettingChangeObserver } from '@/observers/setting-change-observer.js'
 import { toISOStringWithTimezone } from '@/libs/utils.js'
-import { SnapshotGroupedHourlyView } from '@/entities/snapshot.grouped.hourly.view.entity.js'
-import { SnapshotGroupedDailyView } from '@/entities/snapshot.grouped.daily.view.entity.js'
+import { SnapshotGroupedHourlyView } from '@/entities/snapshot-grouped-hourly-view.entity.js'
+import { SnapshotGroupedDailyView } from '@/entities/snapshot-grouped-daily-view.entity.js'
 
 let _pollDataIntervalObject: NodeJS.Timeout
 let _persistSnapshotIntervalObject: NodeJS.Timeout

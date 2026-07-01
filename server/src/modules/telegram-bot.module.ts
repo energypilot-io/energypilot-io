@@ -4,13 +4,13 @@ import {
     setSettingValue,
     validateSettingPollingRate,
     validateSettingSnapshotPersistenceInterval,
-} from '../core/setting.manager.js'
-import { getLastLiveData } from '../core/snapshot.manager.js'
+} from '../core/setting-manager.js'
+import { getLastLiveData } from '../core/snapshot-manager.js'
 import { escapeMarkdown, toPowerString } from '@/libs/utils.js'
-import { getDeviceInstances, setDeviceStatus } from '@/core/device.manager.js'
+import { getDeviceInstances, setDeviceStatus } from '@/core/device-manager.js'
 import { DeviceBase } from '@/devices/device.base.js'
 import { Device } from '@/entities/device.entity.js'
-import { ModuleBase } from './module.base.js'
+import { ModuleBase } from './module-base.js'
 
 const _availableSettingsMessage: string =
     `*Available settings*\n` +
@@ -383,3 +383,5 @@ export class TelegramBotModule extends ModuleBase {
         )
     }
 }
+
+

@@ -1,7 +1,7 @@
 import { Device } from '@/entities/device.entity.js'
-import { DeviceValue } from '@/entities/device.value.entity.js'
-import { getEntityManager } from './database.manager.js'
-import { ChildLogger, getLogger } from './log.manager.js'
+import { DeviceValue } from '@/entities/device-value.entity.js'
+import { getEntityManager } from './database-manager.js'
+import { ChildLogger, getLogger } from './log-manager.js'
 import { IInterface } from '@/interfaces/interface.js'
 import {
     RegisteredDeviceClasses,
@@ -301,3 +301,5 @@ export async function setDeviceStatus(
 export function getDeviceInstances() {
     return _deviceInstances
 }
+
+

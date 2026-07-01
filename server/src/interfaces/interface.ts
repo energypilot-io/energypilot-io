@@ -16,3 +16,5 @@ export abstract class IInterface {
     abstract resetCache(): void
     abstract read(parameterDef: any): Promise<number | undefined>
 }
+
+

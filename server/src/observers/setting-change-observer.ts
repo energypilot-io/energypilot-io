@@ -3,3 +3,5 @@ export abstract class SettingChangeObserver {
 
     abstract onSettingChange(name: string, value?: any): boolean
 }
+
+

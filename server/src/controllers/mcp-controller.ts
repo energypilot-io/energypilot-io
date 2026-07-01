@@ -6,14 +6,14 @@ import type { CallToolResult } from '@modelcontextprotocol/server'
 
 import express from 'express'
 import { Request, Response } from 'express'
-import { InMemoryEventStore } from '@/libs/inMemoryEventStore.js'
-import { ChildLogger, getLogger } from '@/core/log.manager.js'
+import { InMemoryEventStore } from '@/libs/in-memory-event-store.js'
+import { ChildLogger, getLogger } from '@/core/log-manager.js'
 
 import { getSolarForecastData } from '@/modules/solar-forecast.module.js'
 import {
     findSnapshotsBetweenDates,
     getLastLiveData,
-} from '../core/snapshot.manager.js'
+} from '../core/snapshot-manager.js'
 import { endOfDay, startOfDay } from 'date-fns'
 import { Snapshot } from '@/entities/snapshot.entity.js'
 import { toISOStringWithTimezone } from '@/libs/utils.js'
@@ -504,3 +504,5 @@ router.delete('/', async (req: Request, res: Response) => {
 })
 
 export const McpController = router
+
+

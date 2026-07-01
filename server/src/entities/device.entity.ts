@@ -56,3 +56,5 @@ export class Device {
         this.properties = options.properties
     }
 }
+
+

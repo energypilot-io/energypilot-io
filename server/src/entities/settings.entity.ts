@@ -19,3 +19,5 @@ export class Setting {
         this.value = options.value ?? null
     }
 }
+
+

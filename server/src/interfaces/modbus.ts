@@ -19,7 +19,7 @@ import functions from '@csllc/cs-modbus/lib/functions'
 
 import AsciiTransport from '@/libs/cs-modbus/transports/AsciiTransport.js'
 
-import { ChildLogger, getLogger } from '@/core/log.manager.js'
+import { ChildLogger, getLogger } from '@/core/log-manager.js'
 import { IInterface } from './interface.js'
 import {
     validateAllowedValues,
@@ -525,3 +525,5 @@ export class ModbusInterface extends IInterface {
         })
     }
 }
+
+

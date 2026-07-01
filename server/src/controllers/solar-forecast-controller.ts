@@ -8,3 +8,5 @@ router.get('/', (req, res) => {
 })
 
 export const SolarForecastController = router
+
+

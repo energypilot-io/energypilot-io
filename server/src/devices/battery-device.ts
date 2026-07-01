@@ -4,3 +4,5 @@ export abstract class BatteryDevice {
     abstract getBatterySoCValue(delta: number): Promise<number | undefined>
     abstract getBatteryPowerValue(delta: number): Promise<number | undefined>
 }
+
+

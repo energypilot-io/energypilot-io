@@ -37,3 +37,5 @@ export class SnapshotGroupedDailyView {
     @Property({ type: 'real' })
     value!: number
 }
+
+

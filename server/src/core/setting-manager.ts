@@ -1,13 +1,13 @@
 import { Setting } from '@/entities/settings.entity.js'
 import { EventArgs, EventSubscriber } from '@mikro-orm/core'
-import { getEntityManager } from './database.manager.js'
+import { getEntityManager } from './database-manager.js'
 import {
     validateIntegerInRange,
     validateIsNotEmpty,
 } from '@/libs/validators.js'
 import { EntityManager } from '@mikro-orm/sqlite'
 import { RegisteredModules } from './config.js'
-import { SettingChangeObserver } from '@/observers/setting-change.observer.js'
+import { SettingChangeObserver } from '@/observers/setting-change-observer.js'
 
 const _settingChangeObservers: SettingChangeObserver[] = []
 
@@ -192,3 +192,5 @@ export class SettingEventSubscriber implements EventSubscriber<Setting> {
         }
     }
 }
+
+

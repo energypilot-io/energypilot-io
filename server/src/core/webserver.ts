@@ -4,7 +4,7 @@ import compression from 'compression'
 
 import { createServer, Server as HTTPServer } from 'http'
 import { Server as SocketServer } from 'socket.io'
-import { getLogger } from './log.manager.js'
+import { getLogger } from './log-manager.js'
 
 import {
     DevicesController,
@@ -71,3 +71,5 @@ export async function initWebServer() {
 export function emitWebsocketEvent(event: string, ...args: any[]) {
     _io.emit(event, ...args)
 }
+
+

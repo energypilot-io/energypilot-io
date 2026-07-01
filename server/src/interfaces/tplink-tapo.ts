@@ -1,4 +1,4 @@
-import { ChildLogger, getLogger } from '@/core/log.manager.js'
+import { ChildLogger, getLogger } from '@/core/log-manager.js'
 import { IInterface } from './interface.js'
 
 import { loginDeviceByIp } from 'tp-link-tapo-connect'
@@ -136,3 +136,5 @@ export class TPLinkTapoInterface extends IInterface {
         )
     }
 }
+
+

@@ -1,6 +1,6 @@
 import { ModbusDatatype, ModbusInterface } from '@/interfaces/modbus.js'
-import { DeviceBase, DeviceDefinition } from '../device.base.js'
-import { ConsumerDevice } from '../consumer.device.js'
+import { DeviceBase, DeviceDefinition } from '../device-base.js'
+import { ConsumerDevice } from '../consumer-device.js'
 import { IInterface } from '@/interfaces/interface.js'
 import { Device } from '@/entities/device.entity.js'
 

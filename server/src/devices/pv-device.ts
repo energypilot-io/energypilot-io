@@ -4,3 +4,5 @@ export abstract class PVDevice {
     abstract getPVPowerValue(delta: number): Promise<number | undefined>
     abstract getPVEnergyValue(delta: number): Promise<number | undefined>
 }
+
+

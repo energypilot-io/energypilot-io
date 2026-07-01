@@ -9,3 +9,5 @@ export abstract class GridDevice {
         delta: number
     ): Promise<number | undefined>
 }
+
+

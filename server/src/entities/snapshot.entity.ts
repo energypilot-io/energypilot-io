@@ -5,7 +5,7 @@ import {
     Property,
 } from '@mikro-orm/decorators/legacy'
 
-import { DeviceValue } from './device.value.entity.js'
+import { DeviceValue } from './device-value.entity.js'
 import { Collection } from '@mikro-orm/core'
 
 @Entity()
@@ -19,3 +19,5 @@ export class Snapshot {
     @OneToMany(() => DeviceValue, deviceSnapshot => deviceSnapshot.snapshot)
     device_snapshots = new Collection<DeviceValue>(this)
 }
+
+

@@ -86,3 +86,5 @@ export class InMemoryEventStore implements EventStore {
         return streamId
     }
 }
+
+

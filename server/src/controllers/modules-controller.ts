@@ -1,7 +1,7 @@
 import express from 'express'
 import { Request, Response } from 'express'
 
-import { getActiveModules } from '@/core/module.manager.js'
+import { getActiveModules } from '@/core/module-manager.js'
 
 const router = express.Router()
 
@@ -10,3 +10,5 @@ router.get('/active', (req: Request, res: Response) => {
 })
 
 export const ModulesController = router
+
+

@@ -1,4 +1,4 @@
-import { findSnapshotsBetweenDates } from '@/core/snapshot.manager.js'
+import { findSnapshotsBetweenDates } from '@/core/snapshot-manager.js'
 import express from 'express'
 import { Request, Response } from 'express'
 
@@ -54,3 +54,5 @@ router.get('/latest', async (req: Request, res: Response) => {
 // }
 
 export const SnapshotsController = router
+
+
