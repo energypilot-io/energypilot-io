@@ -7,7 +7,7 @@ import {
     RegisteredDeviceClasses,
     RegisteredInterfaceClasses,
 } from './config.js'
-import { DeviceBase, DeviceDefinition } from '@/devices/device.base.js'
+import { DeviceBase, DeviceDefinition } from '@/devices/device-base.js'
 
 let _logger: ChildLogger
 
@@ -301,5 +301,3 @@ export async function setDeviceStatus(
 export function getDeviceInstances() {
     return _deviceInstances
 }
-
-

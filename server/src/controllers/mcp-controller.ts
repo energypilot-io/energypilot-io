@@ -9,7 +9,7 @@ import { Request, Response } from 'express'
 import { InMemoryEventStore } from '@/libs/in-memory-event-store.js'
 import { ChildLogger, getLogger } from '@/core/log-manager.js'
 
-import { getSolarForecastData } from '@/modules/solar-forecast.module.js'
+import { getSolarForecastData } from '@/modules/solar-forecast-module.js'
 import {
     findSnapshotsBetweenDates,
     getLastLiveData,
@@ -17,6 +17,8 @@ import {
 import { endOfDay, startOfDay } from 'date-fns'
 import { Snapshot } from '@/entities/snapshot.entity.js'
 import { toISOStringWithTimezone } from '@/libs/utils.js'
+import { isModuleActive } from '@/core/module-manager.js'
+import { MCPServerModule } from '@/modules/mcp-server-module.js'
 
 let _logger: ChildLogger = getLogger('mcp-controller')
 
@@ -371,7 +373,24 @@ const router = express.Router()
 const transports: { [sessionId: string]: NodeStreamableHTTPServerTransport } =
     {}
 
+function canHandleRequest(req: Request, res: Response) {
+    if (isModuleActive(MCPServerModule.MODULE_NAME) === false) {
+        res.status(503).json({
+            jsonrpc: '2.0',
+            error: { code: -32099, message: 'Module not active' },
+            id: null,
+        })
+        return false
+    }
+
+    return true
+}
+
 router.post('/', async (req: Request, res: Response) => {
+    if (!canHandleRequest(req, res)) {
+        return
+    }
+
     const sessionId = req.headers['mcp-session-id'] as string | undefined
     if (sessionId) {
         _logger.debug(`Received MCP request for session: ${sessionId}`)
@@ -419,7 +438,7 @@ router.post('/', async (req: Request, res: Response) => {
         } else if (sessionId) {
             res.status(404).json({
                 jsonrpc: '2.0',
-                error: { code: -32_001, message: 'Session not found' },
+                error: { code: -32001, message: 'Session not found' },
                 id: null,
             })
             return
@@ -427,7 +446,7 @@ router.post('/', async (req: Request, res: Response) => {
             res.status(400).json({
                 jsonrpc: '2.0',
                 error: {
-                    code: -32_000,
+                    code: -32000,
                     message: 'Bad Request: Session ID required',
                 },
                 id: null,
@@ -444,7 +463,7 @@ router.post('/', async (req: Request, res: Response) => {
             res.status(500).json({
                 jsonrpc: '2.0',
                 error: {
-                    code: -32_603,
+                    code: -32603,
                     message: 'Internal server error',
                 },
                 id: null,
@@ -454,6 +473,10 @@ router.post('/', async (req: Request, res: Response) => {
 })
 
 router.get('/', async (req: Request, res: Response) => {
+    if (!canHandleRequest(req, res)) {
+        return
+    }
+
     const sessionId = req.headers['mcp-session-id'] as string | undefined
     if (!sessionId) {
         res.status(400).send('Missing session ID')
@@ -478,6 +501,10 @@ router.get('/', async (req: Request, res: Response) => {
 
 // Handle DELETE requests for session termination (according to MCP spec)
 router.delete('/', async (req: Request, res: Response) => {
+    if (!canHandleRequest(req, res)) {
+        return
+    }
+
     const sessionId = req.headers['mcp-session-id'] as string | undefined
     if (!sessionId) {
         res.status(400).send('Missing session ID')
@@ -504,5 +531,3 @@ router.delete('/', async (req: Request, res: Response) => {
 })
 
 export const McpController = router
-
-

@@ -25,6 +25,7 @@ import {
     tablerSun,
     tablerBrandTelegram,
     tablerSettingsHeart,
+    tablerRobotFace,
 } from '@ng-icons/tabler-icons'
 
 export type MenuItem = {
@@ -60,6 +61,7 @@ export type MenuItem = {
             tablerSun,
             tablerBrandTelegram,
             tablerSettingsHeart,
+            tablerRobotFace,
         }),
         provideNgIconLoader((name: string): any => {
             const http = inject(HttpClient)
@@ -126,6 +128,12 @@ export class Sidenav {
             label: 'pages.modules.telegram_bot',
             icon: 'tablerBrandTelegram',
             route: 'settings/telegram_bot',
+        },
+
+        {
+            label: 'pages.modules.mcp_server',
+            icon: 'tablerRobotFace',
+            route: 'settings/mcp_server',
         },
     ]
 

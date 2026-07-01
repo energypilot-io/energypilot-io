@@ -1,4 +1,4 @@
-import { getSolarForecastData } from '@/modules/solar-forecast.module.js'
+import { getSolarForecastData } from '@/modules/solar-forecast-module.js'
 import express from 'express'
 
 const router = express.Router()
@@ -8,5 +8,3 @@ router.get('/', (req, res) => {
 })
 
 export const SolarForecastController = router
-
-

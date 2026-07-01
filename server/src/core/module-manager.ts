@@ -16,4 +16,8 @@ export function getActiveModules(): string[] {
         .map(module => module.getModuleName())
 }
 
-
+export function isModuleActive(moduleName: string): boolean {
+    return _moduleInstances.some(
+        module => module.getModuleName() === moduleName && module.getIsEnabled()
+    )
+}

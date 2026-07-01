@@ -112,6 +112,17 @@
                 "azimuth": "Ausrichtung (S = 0, W = 90, O = -90, N = 180/-180)",
                 "max_kwp": "Anlage kWp"
             }
+        },
+
+        "mcp_server": {
+            "general": {
+                "group": {
+                    "title": "MCP Server",
+                    "description": "Modul für die Kommunikation mit dem EnergyPilot MCP Server."
+                },
+
+                "enabled": "MCP Server aktivieren"
+            }
         }
     },
 
@@ -124,7 +135,8 @@
         "modules": {
             "general": "Allgemein",
             "telegram_bot": "Telegram Bot",
-            "solar_forecast": "Solar Vorhersage"
+            "solar_forecast": "Solar Vorhersage",
+            "mcp_server": "MCP Server"
         }
     },
 

@@ -111,6 +111,17 @@
                 "azimuth": "Azimuth (S = 0, W = 90, O = -90, N = 180/-180)",
                 "max_kwp": "Installed kWp"
             }
+        },
+
+        "mcp_server": {
+            "general": {
+                "group": {
+                    "title": "MCP Server",
+                    "description": "Settings for the MCP Server module."
+                },
+
+                "enabled": "Enable MCP Server"
+            }
         }
     },
 
@@ -122,7 +133,8 @@
         "modules": {
             "general": "General",
             "telegram_bot": "Telegram Bot",
-            "solar_forecast": "Solar Forecast"
+            "solar_forecast": "Solar Forecast",
+            "mcp_server": "MCP Server"
         }
     },
 
