@@ -34,5 +34,3 @@ export abstract class DeviceBase {
         throw new Error('Method not implemented! Use derived class')
     }
 }
-
-

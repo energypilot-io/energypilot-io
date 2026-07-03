@@ -314,7 +314,7 @@ const getServer = () => {
             }
 
             const structuredContent: {
-                createdAt: string
+                created_at: string
                 live: Array<{
                     device_id: number
                     device_name: string
@@ -325,7 +325,7 @@ const getServer = () => {
                     is_enabled: boolean
                 }>
             } = {
-                createdAt: liveData.created_at,
+                created_at: toISOStringWithTimezone(liveData.created_at),
                 live: liveData.device_snapshots
                     .filter(
                         (snapshot: any) =>

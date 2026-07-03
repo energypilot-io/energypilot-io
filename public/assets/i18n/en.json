@@ -3,6 +3,12 @@
         "home": "Home",
         "pv": "PV",
 
+        "battery": {
+            "parameters": {
+                "capacity": "Capacity"
+            }
+        },
+
         "enumValues": {
             "device_type": {
                 "battery": "Battery",

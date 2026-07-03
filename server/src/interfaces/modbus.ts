@@ -384,6 +384,16 @@ export class ModbusInterface extends IInterface {
                     type: 'number',
                     minimum: 100,
                     default: 2500,
+
+                    widget: {
+                        formlyConfig: {
+                            props: {
+                                addonRight: {
+                                    text: 'ms',
+                                },
+                            },
+                        },
+                    },
                 },
             },
 
@@ -525,5 +535,3 @@ export class ModbusInterface extends IInterface {
         })
     }
 }
-
-

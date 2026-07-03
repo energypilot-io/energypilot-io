@@ -55,18 +55,6 @@ export class DevicesPage {
             })
         })
 
-        // this.getDevicesSubscription = this.api
-        //     .getAllDevices()
-        //     .subscribe(devices => {
-        //         this.devices.set(
-        //             devices.sort((a: any, b: any) => {
-        //                 if (a.name < b.name) return -1
-        //                 if (a.name > b.name) return 1
-        //                 return 0
-        //             })
-        //         )
-        //     })
-
         this.refreshToken$.next()
     }
 

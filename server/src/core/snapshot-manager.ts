@@ -514,7 +514,7 @@ async function pollData() {
     deviceValuesCache.push(homeConsumptionDeviceValue)
 
     _lastLiveData = {
-        created_at: toISOStringWithTimezone(new Date()),
+        created_at: new Date(),
         device_snapshots: deviceValuesCache.map((deviceValue: DeviceValue) => {
             return {
                 device_id: deviceValue.device.id,
@@ -528,7 +528,13 @@ async function pollData() {
         }),
     }
 
-    sendEvent(WS_EVENT_SNAPSHOT_NEW, JSON.stringify(_lastLiveData))
+    sendEvent(
+        WS_EVENT_SNAPSHOT_NEW,
+        JSON.stringify({
+            ..._lastLiveData,
+            created_at: toISOStringWithTimezone(_lastLiveData.created_at),
+        })
+    )
 
     sendEvent(
         WS_EVENT_DEVICE_UPDATE,

@@ -35,6 +35,9 @@ export class Device {
     @Property()
     properties!: string
 
+    @Property({ nullable: true })
+    custom_properties?: string
+
     connected: boolean | undefined = undefined
 
     constructor(options: {
@@ -45,6 +48,7 @@ export class Device {
         model: string
         interface: string
         properties: string
+        customProperties?: string
     }) {
         this.id = options.id
         this.created_at = new Date()
@@ -54,7 +58,6 @@ export class Device {
         this.model = options.model
         this.interface = options.interface
         this.properties = options.properties
+        this.custom_properties = options.customProperties
     }
 }
-
-

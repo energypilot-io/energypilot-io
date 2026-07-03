@@ -59,6 +59,8 @@ export class DeviceForm {
     }
 
     onSubmit(model: any) {
+        console.log(model)
+
         this.api
             .sendData({
                 id: model.id,

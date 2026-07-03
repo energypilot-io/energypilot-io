@@ -8,17 +8,15 @@ import {
     RegisteredInterfaceClasses,
 } from './config.js'
 import { DeviceBase, DeviceDefinition } from '@/devices/device-base.js'
+import { BatteryDevice } from '@/devices/battery-device.js'
+import { ConsumerDevice } from '@/devices/consumer-device.js'
+import { PVDevice } from '@/devices/pv-device.js'
+import { GridDevice } from '@/devices/grid-device.js'
 
 let _logger: ChildLogger
 
 const _interfaceInstances: { [key: string]: IInterface } = {}
 const _deviceInstances: { [key: string]: DeviceBase } = {}
-
-type DeviceRegistry = {
-    [type: string]: {
-        [name: string]: DeviceDefinition
-    }
-}
 
 type DeviceClass = {
     new (
@@ -29,13 +27,11 @@ type DeviceClass = {
     getDeviceDefinition(): DeviceDefinition
 }
 
-const _deviceRegistry: DeviceRegistry = {}
 let _deviceRegistrySchema: object = {}
 
 export async function initDeviceManager() {
     _logger = getLogger('device-manager')
 
-    buildDeviceRegistry()
     buildDeviceRegistrySchema()
 
     const devices = (await getEntityManager().findAll(Device)).filter(
@@ -71,23 +67,22 @@ export function getDeviceRegistrySchema(): object {
     return _deviceRegistrySchema
 }
 
-function buildDeviceRegistry() {
+function buildDeviceRegistrySchema() {
+    const groupedDeviceClasses: { [type: string]: (typeof DeviceBase)[] } = {}
+
     for (const deviceClass of RegisteredDeviceClasses) {
         const deviceDefinition: DeviceDefinition =
             deviceClass.getDeviceDefinition()
 
         for (const deviceType of deviceDefinition.types) {
-            if (!(deviceType in _deviceRegistry)) {
-                _deviceRegistry[deviceType] = {}
+            if (!(deviceType in groupedDeviceClasses)) {
+                groupedDeviceClasses[deviceType] = []
             }
 
-            _deviceRegistry[deviceType][deviceDefinition.model] =
-                deviceDefinition
+            groupedDeviceClasses[deviceType].push(deviceClass)
         }
     }
-}
 
-function buildDeviceRegistrySchema() {
     _deviceRegistrySchema = {
         type: 'object',
         properties: {
@@ -99,7 +94,7 @@ function buildDeviceRegistrySchema() {
             device_type: {
                 type: 'string',
                 title: '{{ device.interfaces.deviceType }}',
-                enum: [...Object.keys(_deviceRegistry).sort()],
+                enum: [...Object.keys(groupedDeviceClasses).sort()],
             },
         },
 
@@ -107,13 +102,16 @@ function buildDeviceRegistrySchema() {
 
         dependencies: {
             device_type: {
-                oneOf: Object.keys(_deviceRegistry).map(type => ({
+                oneOf: Object.keys(groupedDeviceClasses).map(type => ({
                     properties: {
                         device_type: {
                             enum: [type],
                         },
 
-                        device_model: buildDevicePropertiesSchemaForType(type),
+                        device_model: buildDevicePropertiesSchemaForType(
+                            type,
+                            groupedDeviceClasses[type]
+                        ),
                     },
                 })),
             },
@@ -121,16 +119,38 @@ function buildDeviceRegistrySchema() {
     }
 }
 
-function buildDevicePropertiesSchemaForType(type: string) {
-    const subTemplate = _deviceRegistry[type as keyof DeviceRegistry]
+function getCustomDevicePropertiesSchemaForType(type: string) {
+    switch (type) {
+        case BatteryDevice.DEVICE_TYPE:
+            return BatteryDevice.getBatteryPropertiesSchema()
 
+        case ConsumerDevice.DEVICE_TYPE:
+            return ConsumerDevice.getConsumerPropertiesSchema()
+
+        case PVDevice.DEVICE_TYPE:
+            return PVDevice.getPVPropertiesSchema()
+
+        case GridDevice.DEVICE_TYPE:
+            return GridDevice.getGridPropertiesSchema()
+
+        default:
+            return {}
+    }
+}
+
+function buildDevicePropertiesSchemaForType(
+    type: string,
+    deviceClasses: (typeof DeviceBase)[]
+) {
     return {
         type: 'object',
         properties: {
             device_model: {
                 type: 'string',
                 title: '{{ device.interfaces.deviceModel }}',
-                enum: [...Object.keys(subTemplate).sort()],
+                enum: deviceClasses
+                    .map(deviceClass => deviceClass.getDeviceDefinition().model)
+                    .sort(),
             },
         },
 
@@ -138,18 +158,27 @@ function buildDevicePropertiesSchemaForType(type: string) {
 
         dependencies: {
             device_model: {
-                oneOf: Object.keys(subTemplate).map(model => ({
-                    properties: {
-                        device_model: {
-                            enum: [model],
-                        },
+                oneOf: deviceClasses.map(deviceClass => {
+                    const deviceDefinition: DeviceDefinition =
+                        deviceClass.getDeviceDefinition()
 
-                        interface: buildSchemaForInterfaces(
-                            subTemplate[model as keyof DeviceRegistry]
-                                .interfaces
-                        ),
-                    },
-                })),
+                    const customPropertiesSchema =
+                        getCustomDevicePropertiesSchemaForType(type)
+
+                    return {
+                        properties: {
+                            device_model: {
+                                enum: [deviceDefinition.model],
+                            },
+
+                            ...customPropertiesSchema,
+
+                            interface: buildSchemaForInterfaces(
+                                deviceDefinition.interfaces
+                            ),
+                        },
+                    }
+                }),
             },
         },
     }

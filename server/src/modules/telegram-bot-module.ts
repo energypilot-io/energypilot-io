@@ -357,9 +357,7 @@ export class TelegramBotModule extends ModuleBase {
         return (
             '`' +
             escapeMarkdown(
-                new Date(liveData.created_at).toLocaleString(
-                    ctx.from?.language_code
-                )
+                new liveData.created_at.toLocaleString(ctx.from?.language_code)
             ) +
             '`' +
             '\n' +
