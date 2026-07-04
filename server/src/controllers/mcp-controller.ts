@@ -15,10 +15,10 @@ import {
     getLastLiveData,
 } from '../core/snapshot-manager.js'
 import { endOfDay, startOfDay } from 'date-fns'
-import { Snapshot } from '@/entities/snapshot.entity.js'
 import { toISOStringWithTimezone } from '@/libs/utils.js'
 import { isModuleActive } from '@/core/module-manager.js'
 import { MCPServerModule } from '@/modules/mcp-server-module.js'
+import { getDeviceInstances } from '@/core/device-manager.js'
 
 let _logger: ChildLogger = getLogger('mcp-controller')
 
@@ -227,7 +227,108 @@ const getServer = () => {
                 })),
             }
 
-            console.log(structuredContent)
+            return {
+                content: [
+                    {
+                        type: 'text',
+                        text: JSON.stringify(structuredContent, null, 2),
+                    },
+                ],
+                structuredContent: structuredContent,
+            }
+        }
+    )
+
+    server.registerTool(
+        'get_devices',
+        {
+            description: 'Get a list of all configured devices.',
+            inputSchema: z.object({}).describe('No input parameters required'),
+            outputSchema: z.object({
+                created_at: z
+                    .string()
+                    .describe(
+                        'Timestamp as ISO string of when the live data was retrieved'
+                    ),
+                devices: z.array(
+                    z.object({
+                        id: z
+                            .number()
+                            .describe('Unique identifier for the device'),
+                        name: z.string().describe('Name of the device'),
+                        model: z.string().describe('Model of the device'),
+                        type: z.string().describe('Type of the device'),
+                        interface: z
+                            .string()
+                            .describe(
+                                'Interface through which the device communicates'
+                            ),
+                        interface_properties: z
+                            .string()
+                            .describe(
+                                'Properties for the device interface. Properties are stored as a JSON string.'
+                            ),
+                        custom_properties: z
+                            .string()
+                            .optional()
+                            .describe(
+                                'Custom properties for the device. Custom Properties depend on the device type. Properties are stored as a JSON string.'
+                            ),
+                        connected: z
+                            .boolean()
+                            .describe(
+                                'Whether the device is currently connected'
+                            ),
+                        is_enabled: z
+                            .boolean()
+                            .describe(
+                                'Whether the device is currently enabled'
+                            ),
+                    })
+                ),
+            }),
+            annotations: {
+                title: 'Get Devices',
+                readOnlyHint: true,
+            },
+        },
+        async (): Promise<CallToolResult> => {
+            const deviceInstances = getDeviceInstances()
+
+            const devices = Object.keys(deviceInstances)
+                .map(key => deviceInstances[key].deviceDefinition)
+                .filter((device: any) => device.id >= 0)
+                .map((device: any) => {
+                    return {
+                        id: device.id,
+                        name: device.name,
+                        model: device.model,
+                        type: device.type,
+                        interface: device.interface,
+                        interface_properties: device.properties || '{}',
+                        custom_properties: device.custom_properties || '{}',
+                        connected: device.connected,
+                        is_enabled: device.is_enabled,
+                    }
+                })
+
+            const structuredContent: {
+                created_at: string
+                devices: Array<{
+                    id: number
+                    name: string
+                    model: string
+                    type: string
+                    interface: string
+                    interface_properties: string
+                    custom_properties: string
+                    connected: boolean
+                    is_enabled: boolean
+                }>
+            } = {
+                created_at: new Date().toISOString(),
+                devices: devices,
+            }
 
             return {
                 content: [
