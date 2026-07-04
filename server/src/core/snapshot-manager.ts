@@ -549,6 +549,8 @@ async function pollData() {
                     interface: deviceInstance.deviceDefinition.interface,
                     properties: deviceInstance.deviceDefinition.properties,
                     connected: deviceInstance.deviceDefinition.connected,
+                    custom_properties:
+                        deviceInstance.deviceDefinition.custom_properties,
                 }
             })
         )

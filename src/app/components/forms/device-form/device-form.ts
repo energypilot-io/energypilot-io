@@ -59,8 +59,6 @@ export class DeviceForm {
     }
 
     onSubmit(model: any) {
-        console.log(model)
-
         this.api
             .sendData({
                 id: model.id,
@@ -70,6 +68,7 @@ export class DeviceForm {
                 interface: model.device_model.interface.interface,
                 interface_properties:
                     model.device_model.interface.interfaceParameters,
+                custom_properties: model.device_model.custom_properties,
             })
             .subscribe({
                 complete: () => {

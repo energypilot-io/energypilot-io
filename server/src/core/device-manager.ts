@@ -162,16 +162,14 @@ function buildDevicePropertiesSchemaForType(
                     const deviceDefinition: DeviceDefinition =
                         deviceClass.getDeviceDefinition()
 
-                    const customPropertiesSchema =
-                        getCustomDevicePropertiesSchemaForType(type)
-
                     return {
                         properties: {
                             device_model: {
                                 enum: [deviceDefinition.model],
                             },
 
-                            ...customPropertiesSchema,
+                            custom_properties:
+                                getCustomDevicePropertiesSchemaForType(type),
 
                             interface: buildSchemaForInterfaces(
                                 deviceDefinition.interfaces

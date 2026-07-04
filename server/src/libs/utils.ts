@@ -77,4 +77,9 @@ export function toISOStringWithTimezone(date: Date): string {
     )
 }
 
-
+export function snakeCaseToReadable(snakeStr: string): string {
+    return snakeStr
+        .split('_')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(' ')
+}

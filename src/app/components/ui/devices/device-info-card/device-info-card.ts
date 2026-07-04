@@ -143,6 +143,9 @@ export class DeviceInfoCard {
             device_type: this.device.type,
             device_model: {
                 device_model: this.device.model,
+                custom_properties: JSON.parse(
+                    this.device.custom_properties || '{}'
+                ),
                 interface: {
                     interface: this.device.interface,
                     interfaceParameters: JSON.parse(this.device.properties),
@@ -160,6 +163,7 @@ export class DeviceInfoCard {
                     interface: result.device_model.interface.interface,
                     interface_properties:
                         result.device_model.interface.interfaceParameters,
+                    custom_properties: result.device_model.custom_properties,
                 })
                 .subscribe(response => {
                     this.api.getDevice(this.device.id).subscribe(response => {

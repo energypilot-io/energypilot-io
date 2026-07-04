@@ -28,6 +28,7 @@ router.post('/', async (req: Request, res: Response) => {
         interface: req.body.interface,
         isEnabled: true,
         properties: JSON.stringify(req.body.interface_properties),
+        customProperties: JSON.stringify(req.body.custom_properties),
     })
 
     const errors: { [key: string]: string } = validateDeviceInput(device)
@@ -184,5 +185,3 @@ function validateDeviceInput(device: Device): { [key: string]: string } {
 }
 
 export const DevicesController = router
-
-

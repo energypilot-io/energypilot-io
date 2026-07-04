@@ -6,7 +6,11 @@ import {
     validateSettingSnapshotPersistenceInterval,
 } from '../core/setting-manager.js'
 import { getLastLiveData } from '../core/snapshot-manager.js'
-import { escapeMarkdown, toPowerString } from '@/libs/utils.js'
+import {
+    escapeMarkdown,
+    snakeCaseToReadable,
+    toPowerString,
+} from '@/libs/utils.js'
 import { getDeviceInstances, setDeviceStatus } from '@/core/device-manager.js'
 import { DeviceBase } from '@/devices/device-base.js'
 import { Device } from '@/entities/device.entity.js'
@@ -14,8 +18,8 @@ import { ModuleBase } from './module-base.js'
 
 const _availableSettingsMessage: string =
     `*Available settings*\n` +
-    `\\* \`polling_rate\` \\- Number of seconds between each polling\\.\n` +
-    `\\* \`snapshot_persistance_interval\` \\- Number of seconds between each snapshot persistance\\.\n`
+    `• \`polling_rate\` \\- Number of seconds between each polling\\.\n` +
+    `• \`snapshot_persistance_interval\` \\- Number of seconds between each snapshot persistance\\.\n`
 
 export class TelegramBotModule extends ModuleBase {
     static MODULE_NAME = 'telegram_bot'
@@ -167,11 +171,11 @@ export class TelegramBotModule extends ModuleBase {
         const args = ctx.text!.split(' ').slice(1)
         if (args.length === 0) {
             return (
-                `\\* \`/help <command>\` \\- Show this help message\\. Add command name as argument to get additional information\\.\nExample: \`/help set\`\n` +
-                `\\* \`/live\` \\- Get live data values\n` +
-                `\\* \`/set\` \\- Set a setting value\n` +
-                `\\* \`/get\` \\- Get a setting value\n` +
-                `\\* \`/devices\` \\- Get a list of devices and change their status\n`
+                `• \`/help <command>\` \\- Show this help message\\. Add command name as argument to get additional information\\.\nExample: \`/help set\`\n` +
+                `• \`/live\` \\- Get live data values\n` +
+                `• \`/set\` \\- Set a setting value\n` +
+                `• \`/get\` \\- Get a setting value\n` +
+                `• \`/devices\` \\- Get a list of devices and change their status\n`
             )
         } else if (args[0] === 'set') {
             return (
@@ -299,6 +303,27 @@ export class TelegramBotModule extends ModuleBase {
             .map((deviceBase: DeviceBase) => {
                 const deviceDefinition: Device = deviceBase.deviceDefinition
 
+                let customPropertiesText = ''
+                if (deviceDefinition.custom_properties) {
+                    try {
+                        const customProperties = JSON.parse(
+                            deviceDefinition.custom_properties
+                        )
+                        customPropertiesText = Object.entries(customProperties)
+                            .map(
+                                ([key, value]) =>
+                                    `• ${snakeCaseToReadable(key)}: \`${value}\``
+                            )
+                            .join('\n')
+
+                        customPropertiesText = customPropertiesText
+                            ? customPropertiesText + '\n'
+                            : ''
+                    } catch {
+                        // Handle JSON parse error
+                    }
+                }
+
                 return (
                     `${this.getEmojiForDeviceType(deviceDefinition.type)} *${escapeMarkdown(deviceDefinition.name)}*\n` +
                     `Created: \`${escapeMarkdown(
@@ -311,12 +336,13 @@ export class TelegramBotModule extends ModuleBase {
                             ctx.from?.language_code
                         )
                     )}\`\n` +
-                    `ID: \`${deviceDefinition.id}\`\n` +
-                    `Model: \`${escapeMarkdown(deviceDefinition.model)}\`\n` +
-                    `Type: \`${escapeMarkdown(deviceDefinition.type)}\`\n` +
-                    `Interface: \`${escapeMarkdown(deviceDefinition.interface)}\`\n` +
-                    `Connected: \`${deviceDefinition.connected ? '✅' : '❌'}\`\n` +
-                    `Enabled: \`${deviceDefinition.is_enabled ? '✅' : '❌'}\`\n`
+                    `• ID: \`${deviceDefinition.id}\`\n` +
+                    `• Model: \`${escapeMarkdown(deviceDefinition.model)}\`\n` +
+                    `• Type: \`${escapeMarkdown(deviceDefinition.type)}\`\n` +
+                    `• Interface: \`${escapeMarkdown(deviceDefinition.interface)}\`\n` +
+                    customPropertiesText +
+                    `• Connected: \`${deviceDefinition.connected ? '✅' : '❌'}\`\n` +
+                    `• Enabled: \`${deviceDefinition.is_enabled ? '✅' : '❌'}\`\n`
                 )
             })
             .join('\n')

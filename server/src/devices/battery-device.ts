@@ -3,15 +3,18 @@ export abstract class BatteryDevice {
 
     static getBatteryPropertiesSchema(): object {
         return {
-            capacity: {
-                title: '{{ device.battery.parameters.capacity }}',
-                type: 'number',
+            type: 'object',
+            properties: {
+                capacity: {
+                    title: '{{ device.battery.parameters.capacity }}',
+                    type: 'number',
 
-                widget: {
-                    formlyConfig: {
-                        props: {
-                            addonRight: {
-                                text: 'kWh',
+                    widget: {
+                        formlyConfig: {
+                            props: {
+                                addonRight: {
+                                    text: 'kWh',
+                                },
                             },
                         },
                     },
