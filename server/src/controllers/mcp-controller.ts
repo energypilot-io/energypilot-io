@@ -9,7 +9,7 @@ import { Request, Response } from 'express'
 import { InMemoryEventStore } from '@/libs/in-memory-event-store.js'
 import { ChildLogger, getLogger } from '@/core/log-manager.js'
 
-import { getSolarForecastData } from '@/modules/solar-forecast-module.js'
+import { getSolarForecastHistory } from '@/modules/solar-forecast-module.js'
 import {
     findSnapshotsBetweenDates,
     getLastLiveData,
@@ -37,11 +37,24 @@ const getServer = () => {
     )
 
     server.registerTool(
-        'get_solar_forecast',
+        'get_solar_forecast_history',
         {
             description:
-                'Get solar forecast information for your configured location',
-            inputSchema: z.object({}).describe('No input parameters required'),
+                'Get the solar forecast history for your configured location for a specified date range. Each day keeps the latest forecast that was made for it. To get the current solar forecast, request the range with the current date.',
+            inputSchema: z
+                .object({
+                    startDate: z
+                        .string()
+                        .describe(
+                            'Start date as an ISO string (e.g., "2024-01-01"). Time is not required and will be assumed to be the start of the day'
+                        ),
+                    endDate: z
+                        .string()
+                        .describe(
+                            'End date as an ISO string (e.g., "2024-01-01"). Time is not required and will be assumed to be the end of the day'
+                        ),
+                })
+                .describe('Parameters for retrieving the solar forecast history'),
             outputSchema: z.object({
                 forecast: z.array(
                     z.object({
@@ -64,12 +77,21 @@ const getServer = () => {
                 ),
             }),
             annotations: {
-                title: 'Get Solar Forecast',
+                title: 'Get Solar Forecast History',
                 readOnlyHint: true,
             },
         },
-        async (): Promise<CallToolResult> => {
-            const forecastData = getSolarForecastData()
+        async ({
+            startDate,
+            endDate,
+        }: {
+            startDate: string
+            endDate: string
+        }): Promise<CallToolResult> => {
+            const forecastData = await getSolarForecastHistory({
+                startDate: startOfDay(new Date(startDate)),
+                endDate: endOfDay(new Date(endDate)),
+            })
             const forecastDataValues = Object.values(forecastData)
 
             if (forecastDataValues.length === 0) {

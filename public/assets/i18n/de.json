@@ -117,6 +117,15 @@
                 "declination": "Steigungswinkel (Horizontal = 0, Vertikal = 90)",
                 "azimuth": "Ausrichtung (S = 0, W = 90, O = -90, N = 180/-180)",
                 "max_kwp": "Anlage kWp"
+            },
+
+            "calibration": {
+                "group": {
+                    "title": "Kalibrierung",
+                    "description": "Korrigiert die Prognose mit einem Faktor je Sonnenhöhe, der aus den letzten 30 Tagen Prognose und gemessener PV-Produktion gelernt wird. Getrennt für den auf- und absteigenden Sonnenverlauf, damit z. B. Verschattung am Morgen abgebildet wird. Wird bei jedem neuen Forecast-Abruf aktualisiert."
+                },
+
+                "calibration_enabled": "Kalibrierung aktivieren"
             }
         },
 

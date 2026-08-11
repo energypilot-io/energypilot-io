@@ -15,13 +15,19 @@
     } @else {
         <div class="d-flex flex-column">
             <div class="d-flex justify-content-between align-items-center">
-                <button class="btn p-0" (click)="decrementForecastDay()">
+                <button
+                    class="btn p-0"
+                    [disabled]="!canGoBack()"
+                    (click)="decrementForecastDay()">
                     <ng-icon name="tablerCircleChevronLeft" size="32" />
                 </button>
 
                 <div>{{ currentDayLabel() }}</div>
 
-                <button class="btn p-0" (click)="incrementForecastDay()">
+                <button
+                    class="btn p-0"
+                    [disabled]="!canGoForward()"
+                    (click)="incrementForecastDay()">
                     <ng-icon name="tablerCircleChevronRight" size="32" />
                 </button>
             </div>

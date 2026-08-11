@@ -21,17 +21,28 @@ import {
 } from '@ng-icons/tabler-icons'
 import { NgIcon, provideIcons } from '@ng-icons/core'
 import {
+    addDays,
     addMinutes,
+    endOfDay,
+    format,
     interval,
     isAfter,
+    isBefore,
     isWithinInterval,
     parse,
+    startOfDay,
 } from 'date-fns'
 import { FormatEnergyPipe } from '@/app/pipes/formatEnergy.pipe'
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader'
 import { WidgetBase } from '../widget-base/widget-base'
 
 const WATT_HOURS_SCALE = 1000
+
+// How many days past today forward navigation is allowed to reach. The
+// forecast.solar API only provides today and the next day, so the widget lets
+// the user go at most one day forward. Backward navigation instead spans all
+// historized days returned by the endpoint.
+const FORECAST_FUTURE_DAYS = 1
 
 echarts.use([
     TooltipComponent,
@@ -76,10 +87,31 @@ export class SolarForecastWidget {
 
     private dayIndex = signal<number>(0)
 
-    private day = computed<string | undefined>(() => {
+    private dayKeys = computed<string[]>(() => {
         const data = this.forecastData()
-        if (!data) return undefined
-        return Object.keys(data)[this.dayIndex()]
+        if (!data) return []
+        return Object.keys(data).sort()
+    })
+
+    private day = computed<string | undefined>(() => {
+        return this.dayKeys()[this.dayIndex()]
+    })
+
+    canGoBack = computed<boolean>(() => this.dayIndex() > 0)
+
+    canGoForward = computed<boolean>(() => {
+        const keys = this.dayKeys()
+        const index = this.dayIndex()
+
+        // No further day available in the loaded forecast data.
+        if (index >= keys.length - 1) return false
+
+        // Only allow navigating forward up to the next day forecast, even if
+        // more future days happened to be returned by the endpoint.
+        const currentDay = keys[index]
+        const maxForecastDay = startOfDay(addDays(new Date(), FORECAST_FUTURE_DAYS))
+
+        return isBefore(parse(currentDay, 'yyyy-MM-dd', new Date()), maxForecastDay)
     })
 
     private wattHoursPeriod = computed<any[]>(() => {
@@ -283,13 +315,31 @@ export class SolarForecastWidget {
         // Ensure API is available before subscribing
         if (!this.api) return
 
+        const now = new Date()
+
+        // Request the full stored forecast history (from the epoch onwards) so
+        // that backward navigation reflects the actual number of historized
+        // days, together with the current forecast window.
+        const from = 0
+        const to = addDays(endOfDay(now), FORECAST_FUTURE_DAYS).getTime()
+
         this.getSolarForecastSubscription = this.api
-            .getSolarForecastData()
+            .getSolarForecastHistory(from, to)
             .subscribe(result => {
                 if (!result) {
                     return
                 }
                 this.forecastData.set(result)
+
+                // Start on today's forecast, falling back to the most recent
+                // available day if today is not (yet) part of the result.
+                const todayKey = format(now, 'yyyy-MM-dd')
+                const keys = Object.keys(result).sort()
+                const todayIndex = keys.indexOf(todayKey)
+
+                this.dayIndex.set(
+                    todayIndex >= 0 ? todayIndex : Math.max(0, keys.length - 1)
+                )
             })
     }
 
@@ -299,15 +349,13 @@ export class SolarForecastWidget {
     }
 
     public decrementForecastDay() {
-        const current = this.dayIndex()
-        if (current > 0) {
+        if (this.canGoBack()) {
             this.dayIndex.update(acc => acc - 1)
         }
     }
 
     public incrementForecastDay() {
-        const current = this.dayIndex()
-        if (current === 0) {
+        if (this.canGoForward()) {
             this.dayIndex.update(acc => acc + 1)
         }
     }

@@ -116,6 +116,15 @@
                 "declination": "Declination (Horizontal = 0, Vertical = 90)",
                 "azimuth": "Azimuth (S = 0, W = 90, O = -90, N = 180/-180)",
                 "max_kwp": "Installed kWp"
+            },
+
+            "calibration": {
+                "group": {
+                    "title": "Calibration",
+                    "description": "Corrects the forecast with a factor per sun elevation, learned from the last 30 days of forecast and measured PV production. Kept separate for the rising and the falling branch of the sun's path, so effects such as morning shading are covered. Updated with every new forecast request."
+                },
+
+                "calibration_enabled": "Enable calibration"
             }
         },
 
