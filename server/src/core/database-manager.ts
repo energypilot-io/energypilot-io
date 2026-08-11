@@ -63,12 +63,39 @@ export async function initDatabaseManager() {
         subscribers: [new SettingEventSubscriber()],
     })) as any
 
+    await applyPragmas()
+
     await _orm.schema.update({ safe: true, dropTables: false })
     await _orm.seeder.seed(DeviceSeeder)
 
     _initObservers.forEach(initObserver => {
         initObserver()
     })
+}
+
+/**
+ * The driver only sets `foreign_keys`, leaving SQLite on its rollback journal
+ * with a full fsync per commit — so the once-a-minute snapshot write blocks
+ * every dashboard read for the duration of the flush.
+ *
+ * WAL lets readers run concurrently with the writer, and `synchronous = NORMAL`
+ * is the usual companion: under WAL it still cannot corrupt the database, it
+ * only risks losing the most recent commits if the machine loses power. That is
+ * an acceptable trade for a minutely metrics sample.
+ */
+async function applyPragmas() {
+    const connection = _orm.em.getConnection()
+
+    for (const pragma of [
+        'pragma journal_mode = WAL',
+        'pragma synchronous = NORMAL',
+    ]) {
+        try {
+            await connection.execute(pragma)
+        } catch (err) {
+            getLogger('database').warn(`Could not apply [${pragma}]`, err)
+        }
+    }
 }
 
 function getFilename() {

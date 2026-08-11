@@ -1,5 +1,4 @@
 import { Device } from '@/entities/device.entity.js'
-import { DeviceValue } from '@/entities/device-value.entity.js'
 import { getEntityManager } from './database-manager.js'
 import { ChildLogger, getLogger } from './log-manager.js'
 import { IInterface } from '@/interfaces/interface.js'
@@ -29,37 +28,56 @@ type DeviceClass = {
 
 let _deviceRegistrySchema: object = {}
 
+/**
+ * Latest value per device and value name, as a single grouped query.
+ *
+ * This relies on a documented SQLite guarantee: in a query with exactly one
+ * `max()` aggregate, the bare columns are taken from the row that produced the
+ * maximum. So one index scan yields the newest `value` for every
+ * (device, name) pair.
+ *
+ * The obvious alternative — loading a device's values ordered by date and
+ * keeping the first of each name — reads that device's entire history to
+ * recover a handful of numbers, and hydrates every row into a managed entity.
+ */
+async function findLatestValuesByDevice(): Promise<
+    Map<number, Map<string, number>>
+> {
+    const rows = await getEntityManager()
+        .getConnection()
+        .execute<{ device_id: number; name: string; value: number }[]>(
+            'select device_id, name, value, max(snapshot_id) from device_value group by device_id, name'
+        )
+
+    const result = new Map<number, Map<string, number>>()
+
+    for (const row of rows) {
+        if (!result.has(row.device_id)) {
+            result.set(row.device_id, new Map())
+        }
+        result.get(row.device_id)!.set(row.name, row.value)
+    }
+
+    return result
+}
+
 export async function initDeviceManager() {
     _logger = getLogger('device-manager')
 
     buildDeviceRegistrySchema()
 
-    const devices = (await getEntityManager().findAll(Device)).filter(
-        device => device.id! >= 0
-    )
+    const em = getEntityManager()
+
+    const devices = (await em.findAll(Device)).filter(device => device.id! >= 0)
+    const latestValuesByDevice = await findLatestValuesByDevice()
 
     for (const device of devices) {
         _logger.info(`Loaded device [${device.name}] from database`)
 
-        // Get latest entries for the device, distinct by value name
-        const latestValues = await getEntityManager().find(
-            DeviceValue,
-            { device: device },
-            {
-                populate: ['snapshot'],
-                orderBy: { snapshot: { created_at: 'DESC' } },
-            }
+        createDevice(
+            device,
+            latestValuesByDevice.get(device.id!) ?? new Map<string, number>()
         )
-
-        // Group by name and take the first (latest) one
-        const distinctLatestValues = new Map<string, number>()
-        latestValues.forEach(dv => {
-            if (!distinctLatestValues.has(dv.name)) {
-                distinctLatestValues.set(dv.name, dv.value)
-            }
-        })
-
-        createDevice(device, distinctLatestValues)
     }
 }
 

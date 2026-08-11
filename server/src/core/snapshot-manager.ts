@@ -134,31 +134,47 @@ function groupedSnapshotsToJSON(
     })
 }
 
+/**
+ * Cap applied when a caller asks for snapshots without a date range. Without it
+ * an argument-less call selects the entire history and populates every relation
+ * on it.
+ */
+const DEFAULT_SNAPSHOT_LIMIT = 1000
+
 export async function findSnapshotsBetweenDates(params: {
     startDate?: Date
     endDate?: Date
     limit?: number
     grouping?: string
 }): Promise<object[] | undefined> {
+    const hasRange = Boolean(params.startDate && params.endDate)
+
+    const where = hasRange
+        ? {
+              created_at: {
+                  $gte: params.startDate!,
+                  $lte: params.endDate ?? new Date(),
+              },
+          }
+        : {}
+
+    // A negative limit means "the most recent N", so the sort flips.
+    const orderBy = {
+        created_at: ((params.limit ?? 0) < 0 ? 'DESC' : 'ASC') as 'ASC' | 'DESC',
+    }
+
+    const limit = params.limit
+        ? Math.abs(params.limit)
+        : hasRange
+          ? undefined
+          : DEFAULT_SNAPSHOT_LIMIT
+
     switch (params.grouping) {
         case 'hour': {
             const snapshots = await getEntityManager().find(
                 SnapshotGroupedHourlyView,
-                params.startDate && params.endDate
-                    ? {
-                          created_at: {
-                              $gte: params.startDate,
-                              $lte: params.endDate ?? new Date(),
-                          },
-                      }
-                    : {},
-                {
-                    populate: ['*'],
-                    orderBy: {
-                        created_at: (params.limit ?? 0) < 0 ? 'DESC' : 'ASC',
-                    },
-                    limit: params.limit ? Math.abs(params.limit) : undefined,
-                }
+                where,
+                { populate: ['device'], orderBy, limit }
             )
             return groupedSnapshotsToJSON(snapshots)
         }
@@ -166,44 +182,18 @@ export async function findSnapshotsBetweenDates(params: {
         case 'day': {
             const snapshots = await getEntityManager().find(
                 SnapshotGroupedDailyView,
-                params.startDate && params.endDate
-                    ? {
-                          created_at: {
-                              $gte: params.startDate,
-                              $lte: params.endDate ?? new Date(),
-                          },
-                      }
-                    : {},
-                {
-                    populate: ['*'],
-                    orderBy: {
-                        created_at: (params.limit ?? 0) < 0 ? 'DESC' : 'ASC',
-                    },
-                    limit: params.limit ? Math.abs(params.limit) : undefined,
-                }
+                where,
+                { populate: ['device'], orderBy, limit }
             )
             return groupedSnapshotsToJSON(snapshots)
         }
 
         default: {
-            const snapshots = await getEntityManager().find(
-                Snapshot,
-                params.startDate && params.endDate
-                    ? {
-                          created_at: {
-                              $gte: params.startDate,
-                              $lte: params.endDate ?? new Date(),
-                          },
-                      }
-                    : {},
-                {
-                    populate: ['*'],
-                    orderBy: {
-                        created_at: (params.limit ?? 0) < 0 ? 'DESC' : 'ASC',
-                    },
-                    limit: params.limit ? Math.abs(params.limit) : undefined,
-                }
-            )
+            const snapshots = await getEntityManager().find(Snapshot, where, {
+                populate: ['device_snapshots', 'device_snapshots.device'],
+                orderBy,
+                limit,
+            })
 
             return snapshots.map((snapshot: Snapshot) =>
                 snapshotToJSON(snapshot)

@@ -1,5 +1,6 @@
 import {
     Entity,
+    Index,
     OneToMany,
     PrimaryKey,
     Property,
@@ -13,7 +14,10 @@ export class Snapshot {
     @PrimaryKey()
     id!: number
 
+    // Every snapshot query filters and/or sorts on this column, including the
+    // `order by created_at desc limit 1` behind GET /snapshots/latest.
     @Property()
+    @Index()
     created_at = new Date()
 
     @OneToMany(() => DeviceValue, deviceSnapshot => deviceSnapshot.snapshot)
