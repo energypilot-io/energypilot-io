@@ -25,6 +25,7 @@ import {
     computeCalibrationFactors,
     ForecastData,
     ForecastDay,
+    parseCalibrationFactors,
 } from '@/libs/solar-calibration.js'
 import { findSnapshotsBetweenDates } from '@/core/snapshot-manager.js'
 import { PVDevice } from '@/devices/pv-device.js'
@@ -435,7 +436,13 @@ export class SolarForecastModule
     }
 
     private async restoreCalibration() {
-        if (!_calibrationEnabled || _calibrationFactors !== undefined) return
+        if (
+            !_calibrationEnabled ||
+            _calibrationFactors !== undefined ||
+            this._latitude === undefined ||
+            this._longitude === undefined
+        )
+            return
 
         const storedCalibration = await getDataFromStorage(
             CALIBRATION_DATA_STORAGE_KEY
@@ -443,17 +450,22 @@ export class SolarForecastModule
 
         if (storedCalibration?.value == null) return
 
-        try {
-            _calibrationFactors = JSON.parse(storedCalibration.value)
+        _calibrationFactors = parseCalibrationFactors(
+            storedCalibration.value,
+            this._latitude,
+            this._longitude
+        )
 
-            this._logger.log(
-                'Restored solar forecast calibration from data storage.'
-            )
-        } catch {
+        if (_calibrationFactors === undefined) {
             this._logger.warn(
-                'Stored solar forecast calibration could not be read and is ignored.'
+                'Stored solar forecast calibration does not match the current location or is outdated and is ignored.'
             )
+            return
         }
+
+        this._logger.log(
+            'Restored solar forecast calibration from data storage.'
+        )
     }
 
     /**
@@ -509,7 +521,8 @@ export class SolarForecastModule
 
         if (factorValues.length === 0) {
             this._logger.log(
-                'Solar forecast calibration produced no usable bins yet, keeping the forecast uncorrected.'
+                `Solar forecast calibration needs more data, keeping the forecast uncorrected ` +
+                    `(${factors.samples} sample(s) from ${factors.days} day(s) so far).`
             )
             return
         }
@@ -522,9 +535,11 @@ export class SolarForecastModule
         )
 
         this._logger.log(
-            `Calibrated solar forecast from ${factors.days} day(s): ` +
-                `${factorValues.length} elevation bin(s), factors between ` +
-                `${Math.min(...factorValues).toFixed(2)} and ${Math.max(...factorValues).toFixed(2)}`
+            `Calibrated solar forecast from ${factors.samples} sample(s) over ` +
+                `${factors.days} day(s): ${factorValues.length} elevation bin(s), ` +
+                `factors between ${Math.min(...factorValues).toFixed(2)} and ` +
+                `${Math.max(...factorValues).toFixed(2)}, global ` +
+                `${factors.globalFactor.toFixed(2)}`
         )
     }
 }
@@ -609,10 +624,10 @@ function transformRawForecast(rawData: any): ForecastData {
 }
 
 /**
- * Reads the stored forecast into the per-day structure. Installations that ran
- * an earlier version still hold the unmodified forecast.solar response under
- * the same storage key. That response is migrated on the fly here, otherwise
- * its top level keys ("result", "message") would be handed out as days.
+ * Reads the stored forecast into the per-day structure, keeping only what is
+ * actually a day of forecast entries. Anything else - a truncated write, or an
+ * entry left behind by an earlier version - is dropped rather than migrated,
+ * and is replaced by the next forecast request.
  */
 function parseStoredForecast(storedValue: string): ForecastData {
     let parsedValue: any
@@ -623,17 +638,6 @@ function parseStoredForecast(storedValue: string): ForecastData {
         return {}
     }
 
-    if (parsedValue?.result?.watt_hours_period)
-        return transformRawForecast(parsedValue)
-
-    return sanitizeForecastData(parsedValue)
-}
-
-/**
- * Keeps only what is actually a day of forecast entries. Everything else is
- * dropped instead of being passed on as NaN by the consumers.
- */
-function sanitizeForecastData(parsedValue: any): ForecastData {
     if (parsedValue === null || typeof parsedValue !== 'object') return {}
 
     const forecastData: ForecastData = {}

@@ -1,4 +1,10 @@
-import { addMinutes, startOfHour, subHours, subMinutes } from 'date-fns'
+import {
+    addMinutes,
+    differenceInCalendarDays,
+    startOfHour,
+    subHours,
+    subMinutes,
+} from 'date-fns'
 
 export type ForecastDay = {
     [datetime: string]: { wattHoursPeriod: number; wattHours: number }
@@ -29,14 +35,32 @@ export type CalibrationFactors = {
     /** Number of hourly samples the factor of a bin was derived from. */
     sampleCounts: { [binKey: string]: number }
 
+    /**
+     * Correction learned from all samples regardless of their bin. Used for
+     * bins that have no samples of their own, and as the prior every bin is
+     * shrunk towards while it is still thinly covered.
+     */
+    globalFactor: number
+
+    /** Total number of hourly samples the calibration was learned from. */
+    samples: number
+
     /** Number of days that contributed at least one sample. */
     days: number
 
     updatedAt: string
 }
 
-/** Width of an elevation bin in degrees. */
-const ELEVATION_BIN_SIZE_DEG = 5
+/**
+ * Width of an elevation bin in degrees.
+ *
+ * The forecast has one entry per hour, and around the middle of the day the sun
+ * moves through roughly 10 degrees of elevation per hour. Narrower bins are
+ * therefore finer than the data feeding them: with 5 degree bins every second
+ * bin is jumped over completely on any given day, and the bins that are hit
+ * collect a single sample per day.
+ */
+const ELEVATION_BIN_SIZE_DEG = 10
 
 /**
  * Hours whose forecast is below this threshold are ignored while learning.
@@ -44,8 +68,37 @@ const ELEVATION_BIN_SIZE_DEG = 5
  */
 const MIN_FORECAST_WATT_HOURS = 50
 
-/** A bin needs at least this many samples before it gets its own factor. */
-const MIN_SAMPLES_PER_BIN = 3
+/**
+ * Number of samples over all bins needed before any correction is derived.
+ * Roughly a day and a half of production hours - below that the ratios are
+ * still an anecdote rather than a measurement.
+ */
+const MIN_SAMPLES_TOTAL = 20
+
+/**
+ * Weight of the global factor when a bin is shrunk towards it, expressed in
+ * samples. A bin holding this many samples of its own is trusted half by
+ * itself and half by the global factor.
+ *
+ * Shrinking rather than thresholding is what lets the calibration start
+ * working on the second day: a bin never has to earn its own factor before it
+ * contributes anything, and no bin can produce a step in the corrected curve
+ * just because it happened to cross a sample count.
+ */
+const SHRINKAGE_SAMPLES = 5
+
+/**
+ * Quantile of the per bin ratios used as its correction.
+ *
+ * The median is the robust centre of the distribution, which is what is wanted
+ * here: forecast.solar already folds the weather forecast into its estimate, so
+ * the ratio scatters around the plant's systematic deviation (shading, tilt,
+ * clipping, degradation) and a robust centre estimates exactly that. Clouds
+ * only ever push single ratios down, so a higher quantile would deliberately
+ * bias the corrected forecast upwards - that is the right choice only against a
+ * pure clear sky model, which this is not.
+ */
+const RATIO_QUANTILE = 0.5
 
 /**
  * Plausible range of a correction factor. Clamping keeps a single outlier from
@@ -56,6 +109,20 @@ const MAX_FACTOR = 1.5
 
 /** How far to look for a neighbouring bin when a bin has no own factor. */
 const MAX_NEIGHBOUR_BIN_DISTANCE = 2
+
+/**
+ * How far the plant may have moved before a stored calibration is discarded.
+ * The factors are bound to the sun path of the location they were learned at,
+ * so they cannot be carried over to a different one. Roughly a kilometre.
+ */
+const MAX_LOCATION_DRIFT_DEG = 0.01
+
+/**
+ * A stored calibration older than this is dropped instead of restored. It only
+ * ever matters when the server was down for that long, in which case the
+ * factors describe a season that has since moved on.
+ */
+const MAX_CALIBRATION_AGE_DAYS = 30
 
 const DEG_TO_RAD = Math.PI / 180
 const RAD_TO_DEG = 180 / Math.PI
@@ -175,13 +242,21 @@ function getPeriodStart(periodEnd: Date): Date {
     return startOfHour(subHours(periodEnd, 1))
 }
 
-function median(values: number[]): number {
+/** Linearly interpolated quantile of an unsorted sample. */
+function quantile(values: number[], q: number): number {
     const sorted = [...values].sort((a, b) => a - b)
-    const middle = Math.floor(sorted.length / 2)
 
-    return sorted.length % 2 === 0
-        ? (sorted[middle - 1] + sorted[middle]) / 2
-        : sorted[middle]
+    if (sorted.length === 1) return sorted[0]
+
+    const position = (sorted.length - 1) * q
+    const lower = Math.floor(position)
+    const upper = Math.ceil(position)
+
+    return sorted[lower] + (sorted[upper] - sorted[lower]) * (position - lower)
+}
+
+function clampFactor(factor: number): number {
+    return Math.min(Math.max(factor, MIN_FACTOR), MAX_FACTOR)
 }
 
 /**
@@ -198,6 +273,7 @@ export function computeCalibrationFactors(params: {
     longitude: number
 }): CalibrationFactors {
     const ratiosByBin: { [binKey: string]: number[] } = {}
+    const allRatios: number[] = []
     const contributingDays = new Set<string>()
 
     Object.entries(params.forecastHistory).forEach(([day, dayForecast]) => {
@@ -215,7 +291,9 @@ export function computeCalibrationFactors(params: {
                 return
 
             const actualWattHours =
-                params.actualWattHoursByHour[getPeriodStart(periodEnd).getTime()]
+                params.actualWattHoursByHour[
+                    getPeriodStart(periodEnd).getTime()
+                ]
 
             if (actualWattHours === undefined) return
 
@@ -229,58 +307,144 @@ export function computeCalibrationFactors(params: {
 
             if (!(binKey in ratiosByBin)) ratiosByBin[binKey] = []
 
-            ratiosByBin[binKey].push(actualWattHours / entry.wattHoursPeriod)
+            const ratio = actualWattHours / entry.wattHoursPeriod
+
+            ratiosByBin[binKey].push(ratio)
+            allRatios.push(ratio)
             contributingDays.add(day)
         })
     })
 
-    const factors: { [binKey: string]: number } = {}
     const sampleCounts: { [binKey: string]: number } = {}
 
     Object.entries(ratiosByBin).forEach(([binKey, ratios]) => {
         sampleCounts[binKey] = ratios.length
-
-        if (ratios.length < MIN_SAMPLES_PER_BIN) return
-
-        // The median keeps single overcast days from tipping a bin over.
-        factors[binKey] = Math.min(
-            Math.max(median(ratios), MIN_FACTOR),
-            MAX_FACTOR
-        )
     })
+
+    const factors: { [binKey: string]: number } = {}
+
+    // Below this the sample says more about the last two days of weather than
+    // about the plant, so nothing is corrected at all.
+    const globalFactor =
+        allRatios.length >= MIN_SAMPLES_TOTAL
+            ? clampFactor(quantile(allRatios, RATIO_QUANTILE))
+            : 1
+
+    if (allRatios.length >= MIN_SAMPLES_TOTAL) {
+        Object.entries(ratiosByBin).forEach(([binKey, ratios]) => {
+            // Every bin gets a factor, weighted between what it measured
+            // itself and the global factor by how much it has actually seen.
+            factors[binKey] = clampFactor(
+                (ratios.length * quantile(ratios, RATIO_QUANTILE) +
+                    SHRINKAGE_SAMPLES * globalFactor) /
+                    (ratios.length + SHRINKAGE_SAMPLES)
+            )
+        })
+    }
 
     return {
         latitude: params.latitude,
         longitude: params.longitude,
         factors,
         sampleCounts,
+        globalFactor,
+        samples: allRatios.length,
         days: contributingDays.size,
         updatedAt: new Date().toISOString(),
     }
 }
 
 /**
+ * Reads a stored calibration back, or returns undefined when it cannot be used
+ * as it stands.
+ *
+ * A calibration is only valid for the location and the period it was learned
+ * at: the factors are bound to the sun path over that plant. Anything that does
+ * not match - a different location, a calibration left behind by an earlier
+ * version, an entry that sat in the storage while the server was down for a
+ * month - is dropped rather than adapted, and relearned from the history.
+ */
+export function parseCalibrationFactors(
+    storedValue: string,
+    latitude: number,
+    longitude: number
+): CalibrationFactors | undefined {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let parsedValue: any
+
+    try {
+        parsedValue = JSON.parse(storedValue)
+    } catch {
+        return undefined
+    }
+
+    if (parsedValue === null || typeof parsedValue !== 'object')
+        return undefined
+
+    if (
+        !Number.isFinite(parsedValue.globalFactor) ||
+        !Number.isFinite(parsedValue.latitude) ||
+        !Number.isFinite(parsedValue.longitude) ||
+        parsedValue.factors === null ||
+        typeof parsedValue.factors !== 'object'
+    )
+        return undefined
+
+    if (
+        Math.abs(parsedValue.latitude - latitude) > MAX_LOCATION_DRIFT_DEG ||
+        Math.abs(parsedValue.longitude - longitude) > MAX_LOCATION_DRIFT_DEG
+    )
+        return undefined
+
+    const updatedAt = new Date(parsedValue.updatedAt)
+
+    if (
+        Number.isNaN(updatedAt.getTime()) ||
+        differenceInCalendarDays(new Date(), updatedAt) >
+            MAX_CALIBRATION_AGE_DAYS
+    )
+        return undefined
+
+    const factors: { [binKey: string]: number } = {}
+
+    Object.entries(parsedValue.factors).forEach(([binKey, factor]) => {
+        if (parseBinKey(binKey) === undefined || !Number.isFinite(factor))
+            return
+
+        factors[binKey] = clampFactor(factor as number)
+    })
+
+    return {
+        latitude: parsedValue.latitude,
+        longitude: parsedValue.longitude,
+        factors,
+        sampleCounts: {},
+        globalFactor: clampFactor(parsedValue.globalFactor),
+        samples: Number.isFinite(parsedValue.samples) ? parsedValue.samples : 0,
+        days: Number.isFinite(parsedValue.days) ? parsedValue.days : 0,
+        updatedAt: updatedAt.toISOString(),
+    }
+}
+
+/**
  * Returns the factor for a bin, falling back to the closest neighbouring bin of
- * the same branch that has one. Without the fallback, a bin that did not
- * collect enough samples would produce a visible step in the corrected curve.
+ * the same branch that has one, and to the global factor when even that is
+ * missing. Correcting an uncovered bin by 1 while its neighbours are corrected
+ * would put a visible step into the curve.
  */
 function getFactorForBin(
     binKey: string | undefined,
     factors: CalibrationFactors
 ): number {
-    if (!binKey) return 1
+    if (!binKey) return factors.globalFactor
 
     if (binKey in factors.factors) return factors.factors[binKey]
 
     const bin = parseBinKey(binKey)
 
-    if (!bin) return 1
+    if (!bin) return factors.globalFactor
 
-    for (
-        let distance = 1;
-        distance <= MAX_NEIGHBOUR_BIN_DISTANCE;
-        distance++
-    ) {
+    for (let distance = 1; distance <= MAX_NEIGHBOUR_BIN_DISTANCE; distance++) {
         for (const offset of [-distance, distance]) {
             const neighbourIndex = bin.binIndex + offset
 
@@ -293,7 +457,7 @@ function getFactorForBin(
         }
     }
 
-    return 1
+    return factors.globalFactor
 }
 
 function round(value: number): number {
@@ -320,10 +484,8 @@ export function applyCalibrationFactors(
         let cumulatedWattHours = 0
 
         Object.keys(dayForecast)
-            .sort(
-                (a, b) => new Date(a).getTime() - new Date(b).getTime()
-            )
-            .forEach(timestamp => {
+            .sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
+            .forEach((timestamp) => {
                 const entry = dayForecast[timestamp]
                 const periodEnd = new Date(timestamp)
 
