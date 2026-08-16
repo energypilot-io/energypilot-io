@@ -160,7 +160,9 @@ export async function findSnapshotsBetweenDates(params: {
 
     // A negative limit means "the most recent N", so the sort flips.
     const orderBy = {
-        created_at: ((params.limit ?? 0) < 0 ? 'DESC' : 'ASC') as 'ASC' | 'DESC',
+        created_at: ((params.limit ?? 0) < 0 ? 'DESC' : 'ASC') as
+            | 'ASC'
+            | 'DESC',
     }
 
     const limit = params.limit
@@ -476,7 +478,7 @@ async function pollData() {
         lock.release()
     }
 
-    const homeConsumptionDeviceValue = new DeviceValue({
+    const homeConsumptionPowerDeviceValue = new DeviceValue({
         device: VirtualDeviceHome,
         name: 'power',
         value: deviceValuesCache.reduce(
@@ -495,13 +497,34 @@ async function pollData() {
         ),
     })
 
+    const homeConsumptionEnergyDeviceValue = new DeviceValue({
+        device: VirtualDeviceHome,
+        name: 'energy',
+        value: deviceValuesCache.reduce(
+            (acc: any, deviceValue: DeviceValue) => {
+                if (
+                    deviceValue.name === 'energy' &&
+                    deviceValue.value !== null &&
+                    deviceValue.value !== undefined
+                ) {
+                    return acc - deviceValue.value
+                }
+
+                return acc
+            },
+            0
+        ),
+    })
+
     if (!_deviceValuesPersistanceCache[VirtualDeviceHome.name]) {
         _deviceValuesPersistanceCache[VirtualDeviceHome.name] = []
     }
     _deviceValuesPersistanceCache[VirtualDeviceHome.name].push([
-        homeConsumptionDeviceValue,
+        homeConsumptionPowerDeviceValue,
+        homeConsumptionEnergyDeviceValue,
     ])
-    deviceValuesCache.push(homeConsumptionDeviceValue)
+    deviceValuesCache.push(homeConsumptionPowerDeviceValue)
+    deviceValuesCache.push(homeConsumptionEnergyDeviceValue)
 
     _lastLiveData = {
         created_at: new Date(),

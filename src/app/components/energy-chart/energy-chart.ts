@@ -219,14 +219,13 @@ export class EnergyChart {
 
         const targetTypes =
             this.dataGrouping() === 'day'
-                ? ['grid', 'consumer', 'pv']
-                : ['grid', 'consumer', 'pv', 'battery']
+                ? ['grid', 'consumer', 'pv', 'home']
+                : ['grid', 'consumer', 'pv', 'home', 'battery']
 
-        const targetNames = [
-            ...(this.dataGrouping() === 'day'
+        const targetNames =
+            this.dataGrouping() === 'day'
                 ? ['energy', 'energy_import', 'energy_export']
-                : ['soc', 'power']),
-        ]
+                : ['soc', 'power']
 
         snapshots.forEach(snapshot => {
             const snapshotCreateDate = new Date(snapshot.created_at)
@@ -316,20 +315,25 @@ export class EnergyChart {
                         targetTypes.includes(device.type)
                 )
                 .forEach(device => {
-                    if (!powerOrEnergyValues[device.name]) {
-                        powerOrEnergyValues[device.name] = []
+                    const deviceName =
+                        device.id !== -1 ? device.name : translatedHomeName
+
+                    if (!powerOrEnergyValues[deviceName]) {
+                        powerOrEnergyValues[deviceName] = []
                     }
-                    powerOrEnergyValues[device.name].push(0.0)
+                    powerOrEnergyValues[deviceName].push(0.0)
 
                     if (device.type === 'battery') {
-                        if (!socValues[device.name]) {
-                            socValues[device.name] = []
+                        if (!socValues[deviceName]) {
+                            socValues[deviceName] = []
                         }
 
-                        socValues[device.name].push(0.0)
+                        socValues[deviceName].push(0.0)
                     }
                 })
         })
+
+        console.log(snapshots)
 
         this.powerOrEnergyValues.set(powerOrEnergyValues)
         this.socValues.set(socValues)
@@ -365,8 +369,17 @@ export class EnergyChart {
         this.getDevicesSubscription = this.api
             .getAllDevices()
             .subscribe(devices => {
+                const updatedDevices = [
+                    ...devices,
+                    {
+                        id: -1,
+                        name: 'Home',
+                        type: 'home',
+                    },
+                ]
+
                 this.devices.set(
-                    devices.sort((a: any, b: any) => {
+                    updatedDevices.sort((a: any, b: any) => {
                         if (a.name < b.name) return -1
                         if (a.name > b.name) return 1
                         return 0
