@@ -10,81 +10,214 @@ export const DAY_MS = 24 * HOUR_MS
 export const ENERGY_VALUE_NAMES = ['energy', 'energy_import', 'energy_export']
 
 /**
- * `snapshot.created_at` shifted into server-local wall clock time.
- *
- * SQLite has no timezone type, so the UTC offset is resolved per row via the
- * `localtime` modifier. Doing it per row rather than once per query is what
- * keeps DST transitions correct: on the day Europe falls back the local day is
- * 25 hours long, and every one of those rows still lands in the same bucket.
- *
- * Assumes the snapshot alias is `s`.
+ * How far outside the requested window to look for UTC offset changes. A couple
+ * of days on either side comfortably covers the bucket widening plus any
+ * transition sitting right on an edge.
  */
-const LOCAL_MS = `(cast(strftime('%s', s.created_at / 1000, 'unixepoch', 'localtime') as integer) * 1000)`
+const TRANSITION_MARGIN_MS = 2 * DAY_MS
+
+const _formatters = new Map<string, Intl.DateTimeFormat>()
 
 /**
- * Grouping key — the index of the local bucket a row falls into.
- */
-export function bucketKey(size: number): string {
-    return `(${LOCAL_MS} / ${size})`
-}
-
-/**
- * The instant a row's local bucket started, as a real (UTC) epoch timestamp.
+ * The zone snapshots are bucketed into — an hourly or daily total only means
+ * anything relative to somebody's wall clock. EnergyPilot is self-hosted, so
+ * the server and the browser sit in the same zone, and that zone is simply
+ * wherever the installation is: set `TZ` in the container to pick it.
  *
- * Only correct when evaluated on the *earliest* row of a bucket, because a
- * bucket spanning a DST change contains rows at two different offsets. Callers
- * must therefore wrap this in `min(...)` or `first_value(... order by asc)`.
+ * Read per call rather than cached so a `TZ` change takes effect on restart
+ * without any further plumbing.
  */
-export function bucketStart(size: number): string {
-    return `(s.created_at - (${LOCAL_MS} - (${LOCAL_MS} / ${size}) * ${size}))`
+export function deploymentTimeZone(): string {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone
 }
 
-function floorToLocalBucket(value: Date, size: number): Date {
-    const result = new Date(value)
+function formatterFor(timeZone: string): Intl.DateTimeFormat {
+    let formatter = _formatters.get(timeZone)
 
-    result.setMilliseconds(0)
-    result.setSeconds(0)
-    result.setMinutes(0)
-    if (size === DAY_MS) result.setHours(0)
-
-    return result
-}
-
-function nextLocalBucket(value: Date, size: number): Date {
-    const result = floorToLocalBucket(value, size)
-
-    if (size === DAY_MS) {
-        result.setDate(result.getDate() + 1)
-    } else {
-        result.setHours(result.getHours() + 1)
+    if (formatter === undefined) {
+        formatter = new Intl.DateTimeFormat('en-US', {
+            timeZone,
+            hourCycle: 'h23',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+        })
+        _formatters.set(timeZone, formatter)
     }
 
-    return result
-}
-
-export interface BucketRange {
-    from: Date
-    to: Date
+    return formatter
 }
 
 /**
- * Reads the `created_at` range MikroORM is about to apply to a virtual entity
- * and widens it to whole local bucket edges.
- *
- * The widening is what keeps the rewritten views equivalent to the old ones.
- * MikroORM filters on the *bucket* timestamp of the outer query, so a bucket is
- * either fully in the result or not in it at all — and a bucket that is in must
- * have been aggregated over all of its rows. Filtering the inner query on the
- * raw `snapshot.created_at` instead would clip the first and last bucket to
- * whatever part of them the requested window happens to cover.
- *
- * Using local `Date` arithmetic here (rather than dividing epoch milliseconds)
- * keeps the edges on real local midnights across DST.
+ * The same instant expressed as wall clock time in the target zone, returned as
+ * if that reading were UTC. Bucket arithmetic happens entirely in this
+ * projection, where every day is exactly `DAY_MS` long regardless of DST.
  */
-export function widenToLocalBuckets(
-    where: unknown,
-    size: number
-): BucketRange | undefined {
+function toLocalProjection(
+    timestamp: number,
+    formatter: Intl.DateTimeFormat
+): number {
+    const parts: Record<string, number> = {}
+
+    for (const { type, value } of formatter.formatToParts(new Date(timestamp))) {
+        if (type !== 'literal') parts[type] = Number(value)
+    }
+
+    return Date.UTC(
+        parts.year,
+        parts.month - 1,
+        parts.day,
+        parts.hour,
+        parts.minute,
+        parts.second
+    )
+}
+
+/** UTC offset in milliseconds applying at `timestamp` in the target zone. */
+function offsetAt(timestamp: number, formatter: Intl.DateTimeFormat): number {
+    return (
+        toLocalProjection(timestamp, formatter) -
+        Math.floor(timestamp / 1000) * 1000
+    )
+}
+
+interface OffsetTransition {
+    /** First instant at which `offset` applies. */
+    at: number
+    offset: number
+}
+
+/**
+ * Every UTC offset change between `from` and `to`, found by walking the range a
+ * day at a time and bisecting wherever the offset differs. Two transitions can
+ * never fall inside the same day, so a daily probe cannot miss one.
+ */
+function findTransitions(
+    from: number,
+    to: number,
+    formatter: Intl.DateTimeFormat
+): OffsetTransition[] {
+    const transitions: OffsetTransition[] = []
+
+    let previous = offsetAt(from, formatter)
+    let cursor = from
+
+    while (cursor < to) {
+        const next = Math.min(cursor + DAY_MS, to)
+        const offset = offsetAt(next, formatter)
+
+        if (offset !== previous) {
+            let low = cursor
+            let high = next
+
+            // Bisect to the second; transitions never land mid-second.
+            while (high - low > 1000) {
+                const middle = low + Math.floor((high - low) / 2000) * 1000
+                if (middle <= low) break
+
+                if (offsetAt(middle, formatter) === previous) {
+                    low = middle
+                } else {
+                    high = middle
+                }
+            }
+
+            transitions.push({ at: high, offset })
+            previous = offset
+        }
+
+        cursor = next
+    }
+
+    return transitions
+}
+
+export interface BucketContext {
+    timeZone: string
+    /** SQL yielding the UTC offset in ms that applies to each snapshot row. */
+    offsetSql: string
+    /** Widened, bucket-aligned range to push into the inner query. */
+    range: { from: number; to: number } | undefined
+}
+
+/**
+ * Works out the pushdown range and the per-row offset expression for one query.
+ *
+ * Offsets are resolved here, in Node, and emitted as a `case` over the handful
+ * of transitions inside the window — SQLite's own `localtime` modifier is
+ * deliberately not used. It reads the C library's zone database, which the
+ * `node:*-alpine` image does not ship, so it silently answers in UTC while
+ * Node's bundled ICU answers correctly; the two halves of the same query would
+ * then disagree. Resolving offsets in one place removes that failure mode, and
+ * collapses the SQL to integer comparisons instead of a `localtime_r` call per
+ * row.
+ */
+export function bucketContext(where: unknown, size: number): BucketContext {
+    const timeZone = deploymentTimeZone()
+    const formatter = formatterFor(timeZone)
+    const requested = readRequestedRange(where)
+
+    if (requested === undefined) {
+        // No window to work from; bucket with a single current offset. Callers
+        // are expected to always supply a range.
+        return {
+            timeZone,
+            offsetSql: String(offsetAt(Date.now(), formatter)),
+            range: undefined,
+        }
+    }
+
+    const scanFrom = requested.from - TRANSITION_MARGIN_MS
+    const scanTo = requested.to + TRANSITION_MARGIN_MS
+
+    const baseOffset = offsetAt(scanFrom, formatter)
+    const transitions = findTransitions(scanFrom, scanTo, formatter)
+    const offsets = [baseOffset, ...transitions.map(t => t.offset)]
+
+    // Bucket edges are computed in the local projection, where each bucket is
+    // exactly `size` long, then converted back using the widest offset in play.
+    // Erring outwards is safe — the outer `where` MikroORM adds trims to the
+    // exact bucket — whereas erring inwards would clip an edge bucket.
+    const fromProjected =
+        Math.floor(toLocalProjection(requested.from, formatter) / size) * size
+    const toProjected =
+        Math.floor(toLocalProjection(requested.to, formatter) / size) * size +
+        size
+
+    return {
+        timeZone,
+        offsetSql: buildOffsetSql(baseOffset, transitions),
+        range: {
+            from: fromProjected - Math.max(...offsets),
+            to: toProjected - Math.min(...offsets) - 1,
+        },
+    }
+}
+
+function buildOffsetSql(
+    baseOffset: number,
+    transitions: OffsetTransition[]
+): string {
+    if (transitions.length === 0) return String(baseOffset)
+
+    const branches = transitions
+        .map((transition, index) => {
+            const before = index === 0 ? baseOffset : transitions[index - 1].offset
+            return `when s.created_at < ${transition.at} then ${before}`
+        })
+        .join(' ')
+
+    const last = transitions[transitions.length - 1].offset
+
+    return `(case ${branches} else ${last} end)`
+}
+
+function readRequestedRange(
+    where: unknown
+): { from: number; to: number } | undefined {
     // `ObjectQuery` describes a recursive union of operators; narrowing it
     // properly here would cost more than the one property we actually read.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -93,10 +226,7 @@ export function widenToLocalBuckets(
     if (condition == null) return undefined
 
     if (condition instanceof Date) {
-        return {
-            from: floorToLocalBucket(condition, size),
-            to: new Date(nextLocalBucket(condition, size).getTime() - 1),
-        }
+        return { from: condition.getTime(), to: condition.getTime() }
     }
 
     const from = condition.$gte ?? condition.$gt
@@ -104,21 +234,30 @@ export function widenToLocalBuckets(
 
     if (!(from instanceof Date) || !(to instanceof Date)) return undefined
 
-    return {
-        from: floorToLocalBucket(from, size),
-        to: new Date(nextLocalBucket(to, size).getTime() - 1),
-    }
+    return { from: from.getTime(), to: to.getTime() }
+}
+
+/** Grouping key — the index of the local bucket a row falls into. */
+export function bucketKey(size: number, offsetSql: string): string {
+    return `((s.created_at + ${offsetSql}) / ${size})`
 }
 
 /**
- * Renders the pushed-down range predicate. Returning an always-true predicate
- * when the range is unknown keeps the SQL valid; callers are expected to always
- * supply a window (see `findSnapshotsBetweenDates`).
+ * The instant a row's local bucket started, as a real (UTC) timestamp.
+ *
+ * Only correct on the *earliest* row of a bucket, since a bucket spanning a
+ * transition holds rows at two different offsets. Callers must wrap this in
+ * `min(...)` or `first_value(... order by asc)`.
  */
-export function rangePredicate(range: BucketRange | undefined): string {
-    if (range === undefined) return '1 = 1'
+export function bucketStart(size: number, offsetSql: string): string {
+    return `(((s.created_at + ${offsetSql}) / ${size}) * ${size} - ${offsetSql})`
+}
 
-    return `s.created_at >= ${range.from.getTime()} and s.created_at <= ${range.to.getTime()}`
+/** Renders the pushed-down range predicate. */
+export function rangePredicate(context: BucketContext): string {
+    if (context.range === undefined) return '1 = 1'
+
+    return `s.created_at >= ${context.range.from} and s.created_at <= ${context.range.to}`
 }
 
 /**

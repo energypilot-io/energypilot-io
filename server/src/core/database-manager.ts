@@ -14,6 +14,7 @@ import config from '@/mikro-orm-config.js'
 import { ChildLogger, getLogger } from './log-manager.js'
 import { SettingEventSubscriber } from './setting-manager.js'
 import { DeviceSeeder } from '@/seeder/device-seeder.js'
+import { deploymentTimeZone } from '@/libs/time-buckets.js'
 
 export type DatabaseInitObserver = () => void
 
@@ -64,6 +65,12 @@ export async function initDatabaseManager() {
     })) as any
 
     await applyPragmas()
+
+    // Chart buckets follow this zone, so make a misconfigured container
+    // obvious rather than letting it silently report UTC days.
+    getLogger('database').info(
+        `Grouping snapshots in timezone [${deploymentTimeZone()}]`
+    )
 
     await _orm.schema.update({ safe: true, dropTables: false })
     await _orm.seeder.seed(DeviceSeeder)

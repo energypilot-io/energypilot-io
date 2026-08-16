@@ -5,6 +5,13 @@ services:
         restart: unless-stopped
         network_mode: host
 
+        environment:
+            # Timezone of the installation. Hourly and daily charts are bucketed
+            # on this wall clock, so a daily energy total runs from local
+            # midnight to local midnight. Defaults to UTC when unset — set it to
+            # your own IANA zone, e.g. America/Denver or Australia/Sydney.
+            - TZ=Europe/Berlin
+
         volumes:
             # For persisting EnergyPilot's databases and common configuration
             - ./data/:/data
