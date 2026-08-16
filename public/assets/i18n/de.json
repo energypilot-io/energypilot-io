@@ -76,6 +76,15 @@
             "snapshot_persistance_interval": "Snapshot Intervall"
         },
 
+        "backup": {
+            "group": {
+                "title": "Datenbanksicherungen",
+                "description": "Jede Nacht wird eine Kopie der Datenbank im Ordner `backups` daneben abgelegt. Ältere Kopien werden entfernt, sobald die unten angegebene Anzahl erreicht ist."
+            },
+            "backup_enabled": "Nächtliche Sicherungen aktivieren",
+            "backup_retention": "Anzahl aufzubewahrender Sicherungen"
+        },
+
         "telegram_bot": {
             "general": {
                 "group": {

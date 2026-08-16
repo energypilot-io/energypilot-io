@@ -2,36 +2,37 @@ import { Entity, Property, ManyToOne } from '@mikro-orm/decorators/legacy'
 
 import { Device } from './device.entity.js'
 import {
+    bucketContext,
     bucketKey,
     bucketStart,
     HOUR_MS,
     rangePredicate,
     sqlExpression,
-    widenToLocalBuckets,
 } from '@/libs/time-buckets.js'
 
 /**
- * Hourly averages per device value.
+ * Hourly averages per device value, bucketed on the deployment's wall clock.
  *
- * The expression is a callback so the requested time window can be pushed into
- * the inner query. As a static string the surrounding `where` could only be
- * applied outside the `group by`, which SQLite cannot push through an aggregate
+ * The expression is a callback so the requested window can be pushed into the
+ * inner query. As a static string the surrounding `where` could only be applied
+ * outside the `group by`, which SQLite cannot push through an aggregate
  * subquery — so every request aggregated the entire history before discarding
  * almost all of it.
  */
 @Entity({
     expression: sqlExpression(where => {
-        const range = widenToLocalBuckets(where, HOUR_MS)
+        const context = bucketContext(where, HOUR_MS)
+        const offset = context.offsetSql
 
         return `select
-                    min(${bucketStart(HOUR_MS)}) as created_at,
+                    min(${bucketStart(HOUR_MS, offset)}) as created_at,
                     dv.device_id,
                     dv.name,
                     avg(dv.value) as value
                 from snapshot s
                 join device_value dv on dv.snapshot_id = s.id
-                where ${rangePredicate(range)}
-                group by ${bucketKey(HOUR_MS)}, dv.device_id, dv.name`
+                where ${rangePredicate(context)}
+                group by ${bucketKey(HOUR_MS, offset)}, dv.device_id, dv.name`
     }),
     readonly: true,
 })
