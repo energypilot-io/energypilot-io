@@ -21,7 +21,13 @@ RUN ng build --configuration=production
 
 
 FROM node:${NODE_VERSION}-alpine
-RUN apk add --no-cache python3 py3-pip make g++ musl-dev
+
+# python3/make/g++/musl-dev build better-sqlite3 from source.
+# sqlite provides the sqlite3 CLI, whose ".recover" command rebuilds a database
+# whose B-tree structure is damaged by reading the leaf pages directly. Nothing
+# in the SQLite C API can do that, so this ~3 MB is what makes automatic
+# recovery from a malformed database possible at all.
+RUN apk add --no-cache python3 py3-pip make g++ musl-dev sqlite
 
 COPY --from=build /usr/src/app/dist/energypilot-io/browser /usr/share/html
 

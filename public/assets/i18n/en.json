@@ -76,6 +76,15 @@
             "snapshot_persistance_interval": "Snapshot Persistence Interval"
         },
 
+        "backup": {
+            "group": {
+                "title": "Database Backups",
+                "description": "A copy of the database is written every night to the `backups` folder next to it. Older copies are removed once the number below is reached."
+            },
+            "backup_enabled": "Enable Nightly Backups",
+            "backup_retention": "Backups To Keep"
+        },
+
         "telegram_bot": {
             "general": {
                 "group": {

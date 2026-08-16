@@ -21,6 +21,13 @@ export const MIN_POLLING_RATE = 10
 export const DEFAULT_SNAPSHOT_PERSISTANCE_INTERVAL = 5 * 60
 export const MIN_SNAPSHOT_PERSISTANCE_INTERVAL = 60
 
+export const SETTING_BACKUP_ENABLED = 'general.backup_enabled'
+export const SETTING_BACKUP_RETENTION = 'general.backup_retention'
+
+export const DEFAULT_BACKUP_ENABLED = true
+export const DEFAULT_BACKUP_RETENTION = 7
+export const MIN_BACKUP_RETENTION = 1
+
 export async function initSettingManager() {}
 
 export function getSettingSchema() {
@@ -67,6 +74,26 @@ export function getSettingSchema() {
                         SETTING_POLLING_RATE,
                         SETTING_SNAPSHOT_PERSISTANCE_INTERVAL,
                     ],
+                },
+            },
+
+            {
+                group: 'backup',
+                schema: {
+                    type: 'object',
+                    properties: {
+                        [SETTING_BACKUP_ENABLED]: {
+                            type: 'boolean',
+                            default: DEFAULT_BACKUP_ENABLED,
+                        },
+
+                        [SETTING_BACKUP_RETENTION]: {
+                            type: 'number',
+                            minimum: MIN_BACKUP_RETENTION,
+                            default: DEFAULT_BACKUP_RETENTION,
+                        },
+                    },
+                    required: [SETTING_BACKUP_RETENTION],
                 },
             },
         ],
