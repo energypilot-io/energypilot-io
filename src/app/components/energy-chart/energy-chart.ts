@@ -13,7 +13,7 @@ import {
     DatasetComponent,
     DataZoomComponent,
 } from 'echarts/components'
-import { formatEnergy, formatPower } from '@/app/libs/utils'
+import { colorForDeviceName, formatEnergy, formatPower } from '@/app/libs/utils'
 import { WebsocketService } from '@/app/services/websocket.service'
 import { ApiService } from '@/app/services/api.service'
 
@@ -91,6 +91,7 @@ export class EnergyChart {
                         stack: this.dataGrouping() === 'day' ? 'a' : undefined,
                         smooth: true,
                         symbol: 'none',
+                        itemStyle: { color: colorForDeviceName(deviceName) },
                         data: this.powerOrEnergyValues()[deviceName],
                         tooltip: {
                             valueFormatter: (value: number) => {
@@ -112,6 +113,8 @@ export class EnergyChart {
                         smooth: true,
                         symbol: 'none',
                         yAxisIndex: 1,
+                        itemStyle: { color: colorForDeviceName(deviceName) },
+                        lineStyle: { type: 'dashed' },
                         data: this.socValues()[deviceName],
                         tooltip: {
                             valueFormatter: (value: number) => {

@@ -14,7 +14,7 @@ import { CanvasRenderer } from 'echarts/renderers'
 import { GridComponent, TooltipComponent } from 'echarts/components'
 
 import { CallbackDataParams } from 'echarts/types/dist/shared'
-import { formatPower } from '@/app/libs/utils'
+import { colorForDeviceName, formatPower } from '@/app/libs/utils'
 import { WebsocketService } from '@/app/services/websocket.service'
 import { Subscription } from 'rxjs'
 import { ApiService } from '@/app/services/api.service'
@@ -71,6 +71,7 @@ export class EnergyDistributionWidget {
                     lineStyle: {
                         curveness: 0.5,
                         color: 'gradient',
+                        opacity: 0.35,
                     },
                 },
             ],
@@ -170,12 +171,14 @@ export class EnergyDistributionWidget {
         const nodes: SankeyNode[] = []
 
         targetDeviceSnapshots.forEach((deviceSnapshot: any) => {
+            const nodeName =
+                deviceSnapshot.device_id !== -1
+                    ? deviceSnapshot.device_name
+                    : translatedHomeName
+
             nodes.push({
-                name:
-                    deviceSnapshot.device_id !== -1
-                        ? deviceSnapshot.device_name
-                        : translatedHomeName,
-                itemStyle: { color: '#F3722C' },
+                name: nodeName,
+                itemStyle: { color: colorForDeviceName(nodeName) },
                 value: deviceSnapshot.value,
             })
         })
