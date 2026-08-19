@@ -328,7 +328,7 @@ export class TelegramBotModule extends ModuleBase {
                     `${this.getEmojiForDeviceType(deviceDefinition.type)} *${escapeMarkdown(deviceDefinition.name)}*\n` +
                     `Created: \`${escapeMarkdown(
                         deviceDefinition.created_at.toLocaleString(
-                            ctx.from?.language_code
+                            ctx.from?.language_code ?? 'en'
                         )
                     )}\`\n` +
                     `Updated: \`${escapeMarkdown(
@@ -383,7 +383,9 @@ export class TelegramBotModule extends ModuleBase {
         return (
             '`' +
             escapeMarkdown(
-                new liveData.created_at.toLocaleString(ctx.from?.language_code)
+                liveData.created_at.toLocaleString(
+                    ctx.from?.language_code ?? 'en'
+                )
             ) +
             '`' +
             '\n' +
