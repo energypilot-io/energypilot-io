@@ -102,6 +102,15 @@
                 },
 
                 "telegram_bot_token": "Token"
+            },
+
+            "access": {
+                "group": {
+                    "title": "Zugriffskontrolle",
+                    "description": "Nur diese Telegram-Nutzer-IDs dürfen Bot-Befehle verwenden. Mehrere IDs durch Kommas trennen. Leer lassen, um allen Nutzern den Zugriff zu verweigern."
+                },
+
+                "allowed_user_ids": "Erlaubte Telegram-Nutzer-IDs"
             }
         },
 

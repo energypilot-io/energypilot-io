@@ -14,10 +14,8 @@ WORKDIR /usr/src/app
 
 COPY . .
 
-RUN npm install -g @angular/cli
-
-RUN npm i
-RUN ng build --configuration=production
+RUN npm ci
+RUN npm run build -- --configuration=production
 
 
 FROM node:${NODE_VERSION}-alpine
@@ -33,9 +31,11 @@ COPY --from=build /usr/src/app/dist/energypilot-io/browser /usr/share/html
 
 WORKDIR /usr/src/app
 
-COPY ./server .
+COPY --from=build /usr/src/app/server/package.json ./package.json
+COPY --from=build /usr/src/app/server/package-lock.json ./package-lock.json
+RUN npm ci --omit=dev
 
-RUN npm i --omit=dev
+COPY --from=build /usr/src/app/server ./
 
 ENV NODE_ENV=production
 ENV DATA_DIR=/data/
@@ -46,4 +46,4 @@ EXPOSE 3000
 # HEALTHCHECK CMD curl --fail http://localhost:3000 || exit 1
 
 # Run the application.
-CMD ["node", "--import", "tsx", "src/server.ts"]
+CMD ["node", "--env-file-if-exists=/data/.env", "--import", "tsx", "src/server.ts"]

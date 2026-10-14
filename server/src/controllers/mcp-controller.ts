@@ -54,7 +54,9 @@ const getServer = () => {
                             'End date as an ISO string (e.g., "2024-01-01"). Time is not required and will be assumed to be the end of the day'
                         ),
                 })
-                .describe('Parameters for retrieving the solar forecast history'),
+                .describe(
+                    'Parameters for retrieving the solar forecast history'
+                ),
             outputSchema: z.object({
                 forecast: z.array(
                     z.object({
@@ -493,8 +495,8 @@ const getServer = () => {
 
 const router = express.Router()
 
-const transports: { [sessionId: string]: NodeStreamableHTTPServerTransport } =
-    {}
+const MAX_MCP_SESSIONS = 100
+const transports = new Map<string, NodeStreamableHTTPServerTransport>()
 
 function canHandleRequest(req: Request, res: Response) {
     if (isModuleActive(MCPServerModule.MODULE_NAME) === false) {
@@ -523,10 +525,19 @@ router.post('/', async (req: Request, res: Response) => {
 
     try {
         let transport: NodeStreamableHTTPServerTransport
-        if (sessionId && transports[sessionId]) {
+        if (sessionId && transports.has(sessionId)) {
             // Reuse existing transport
-            transport = transports[sessionId]
+            transport = transports.get(sessionId)!
         } else if (!sessionId && isInitializeRequest(req.body)) {
+            if (transports.size >= MAX_MCP_SESSIONS) {
+                res.status(503).json({
+                    jsonrpc: '2.0',
+                    error: { code: -32099, message: 'Server is at capacity' },
+                    id: null,
+                })
+                return
+            }
+
             // New initialization request
             const eventStore = new InMemoryEventStore()
             transport = new NodeStreamableHTTPServerTransport({
@@ -536,18 +547,18 @@ router.post('/', async (req: Request, res: Response) => {
                     // Store the transport by session ID when session is initialized
                     // This avoids race conditions where requests might come in before the session is stored
                     _logger.info(`Session initialized with ID: ${sessionId}`)
-                    transports[sessionId] = transport
+                    transports.set(sessionId, transport)
                 },
             })
 
             // Set up onclose handler to clean up transport when closed
             transport.onclose = () => {
                 const sid = transport.sessionId
-                if (sid && transports[sid]) {
+                if (sid && transports.has(sid)) {
                     _logger.info(
                         `Transport closed for session ${sid}, removing from transports map`
                     )
-                    delete transports[sid]
+                    transports.delete(sid)
                 }
             }
 
@@ -605,7 +616,7 @@ router.get('/', async (req: Request, res: Response) => {
         res.status(400).send('Missing session ID')
         return
     }
-    if (!transports[sessionId]) {
+    if (!transports.has(sessionId)) {
         res.status(404).send('Session not found')
         return
     }
@@ -618,7 +629,7 @@ router.get('/', async (req: Request, res: Response) => {
         _logger.info(`Establishing new SSE stream for session ${sessionId}`)
     }
 
-    const transport = transports[sessionId]
+    const transport = transports.get(sessionId)!
     await transport.handleRequest(req, res)
 })
 
@@ -633,7 +644,7 @@ router.delete('/', async (req: Request, res: Response) => {
         res.status(400).send('Missing session ID')
         return
     }
-    if (!transports[sessionId]) {
+    if (!transports.has(sessionId)) {
         res.status(404).send('Session not found')
         return
     }
@@ -643,7 +654,7 @@ router.delete('/', async (req: Request, res: Response) => {
     )
 
     try {
-        const transport = transports[sessionId]
+        const transport = transports.get(sessionId)!
         await transport.handleRequest(req, res)
     } catch (error) {
         _logger.error('Error handling session termination:', error)

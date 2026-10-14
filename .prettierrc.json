@@ -4,6 +4,7 @@
     "useTabs": false,
     "semi": false,
     "singleQuote": true,
+    "endOfLine": "auto",
     "htmlWhitespaceSensitivity": "ignore",
     "arrowParens": "avoid",
     "bracketSpacing": true,

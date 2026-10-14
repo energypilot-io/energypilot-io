@@ -87,12 +87,13 @@
                         ],
                         "inlineStyleLanguage": "scss",
                         "styles": ["src/app/styles/styles.scss"],
-                        "sassOptions": {
-                            "quietDeps": true,
-                            "silenceDeprecations": [
-                                "mixed-decls",
-                                "color-functions"
-                            ]
+                        "stylePreprocessorOptions": {
+                            "sass": {
+                                "silenceDeprecations": [
+                                    "mixed-decls",
+                                    "color-functions"
+                                ]
+                            }
                         }
                     }
                 },

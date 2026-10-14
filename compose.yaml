@@ -6,6 +6,7 @@ services:
         network_mode: host
 
         environment:
+            - HOST=0.0.0.0
             # Timezone of the installation. Hourly and daily charts are bucketed
             # on this wall clock, so a daily energy total runs from local
             # midnight to local midnight. Defaults to UTC when unset — set it to
@@ -15,6 +16,3 @@ services:
         volumes:
             # For persisting EnergyPilot's databases and common configuration
             - ./data/:/data
-        ports:
-            # Default Web UI Port
-            - '3000:3000/tcp'

@@ -1,4 +1,3 @@
-import fs from 'fs'
 import path from 'node:path'
 
 import {
@@ -13,6 +12,7 @@ import {
 import config from '@/mikro-orm-config.js'
 import { ChildLogger, getLogger } from './log-manager.js'
 import { SettingEventSubscriber } from './setting-manager.js'
+import { getDataDirectory } from './data-directory.js'
 import { DeviceSeeder } from '@/seeder/device-seeder.js'
 import { deploymentTimeZone } from '@/libs/time-buckets.js'
 import {
@@ -205,15 +205,7 @@ async function applyPragmas() {
 }
 
 function getFilename() {
-    try {
-        fs.accessSync(process.env.DATA_DIR!, fs.constants.W_OK)
-
-        return path.join(process.env.DATA_DIR!, 'energypilot-io.db')
-    } catch {
-        throw new Error(
-            `Data directory [${process.env.DATA_DIR}] not writeable. Switching to in-memory database storage.`
-        )
-    }
+    return path.join(getDataDirectory(), 'energypilot-io.db')
 }
 
 /** Absolute path of the live database file. */
@@ -251,8 +243,7 @@ export interface SqliteHandle {
 export function getRawDatabase(): SqliteHandle {
     const database = (
         _orm?.em?.getConnection() as unknown as
-            | { database?: SqliteHandle }
-            | undefined
+            { database?: SqliteHandle } | undefined
     )?.database
 
     if (database === undefined) {
@@ -305,5 +296,3 @@ export async function upsertEntity(
 export function getEntityManager(): EntityManager {
     return _orm.em.fork() as any
 }
-
-

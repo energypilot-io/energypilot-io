@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing'
 
-import { EnergyLiveValues } from './energy-live-values'
+import { EnergyLiveValuesWidget } from './energy-live-values'
 
-describe('EnergyLiveValues', () => {
-    let component: EnergyLiveValues
-    let fixture: ComponentFixture<EnergyLiveValues>
+describe('EnergyLiveValuesWidget', () => {
+    let component: EnergyLiveValuesWidget
+    let fixture: ComponentFixture<EnergyLiveValuesWidget>
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            imports: [EnergyLiveValues],
+            imports: [EnergyLiveValuesWidget],
         }).compileComponents()
 
-        fixture = TestBed.createComponent(EnergyLiveValues)
+        fixture = TestBed.createComponent(EnergyLiveValuesWidget)
         component = fixture.componentInstance
         fixture.detectChanges()
     })

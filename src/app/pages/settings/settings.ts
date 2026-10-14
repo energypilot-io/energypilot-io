@@ -48,7 +48,6 @@ export class SettingsPage {
         const settingGroup = this._settingSchema()[this._settingGroupName()!]
 
         if (!Array.isArray(settingGroup)) {
-            this.model = {}
             return new Map<string, FormlyFieldConfig[]>()
         }
 
@@ -62,7 +61,12 @@ export class SettingsPage {
             fieldsByGroup[settingGroup.group] = [
                 new FormlyJsonschema().toFieldConfig(settingGroup.schema, {
                     map: (field: FormlyFieldConfig, schema: any) => {
-                        if (schema.props?.type) {
+                        if (schema.secret) {
+                            field.props = {
+                                ...field.props,
+                                type: 'password',
+                            }
+                        } else if (schema.props?.type) {
                             field.props = {
                                 ...field.props,
                                 type: schema.props.type,
@@ -80,32 +84,6 @@ export class SettingsPage {
                     },
                 }),
             ]
-        })
-
-        this.api.getSettings().subscribe(settings => {
-            if (Array.isArray(settings) || (settings = [])) {
-                const model: { [key: string]: { [key: string]: any } } = {}
-
-                settings
-                    .filter((setting: any) =>
-                        setting.name.startsWith(`${this._settingGroupName()!}.`)
-                    )
-                    .forEach((setting: any) => {
-                        const [group, key] = setting.name.split('.')
-                        if (!model[group]) {
-                            model[group] = {}
-                        }
-
-                        const typedValue = this.getTypedSettingValue(
-                            settingGroup,
-                            setting
-                        )
-
-                        model[group][key] = typedValue
-                    })
-
-                this.model = model
-            }
         })
 
         const sortedFieldsByGroup = new Map<string, FormlyFieldConfig[]>(
@@ -128,6 +106,7 @@ export class SettingsPage {
     constructor() {
         this.activatedRoute.paramMap.subscribe(params => {
             this._settingGroupName.set(params.get('group') || 'general')
+            this.loadSettings()
         })
     }
 
@@ -138,6 +117,43 @@ export class SettingsPage {
             }
 
             this._settingSchema.set(result)
+            this.loadSettings()
+        })
+    }
+
+    private loadSettings(): void {
+        const schema = this._settingSchema()
+        const groupName = this._settingGroupName()
+
+        if (!schema || !groupName) return
+
+        const settingGroup = schema[groupName]
+        if (!Array.isArray(settingGroup)) {
+            this.model = {}
+            return
+        }
+
+        this.api.getSettings().subscribe(settings => {
+            if (this._settingGroupName() !== groupName) return
+
+            const model: { [key: string]: { [key: string]: any } } = {}
+            const persistedSettings = Array.isArray(settings) ? settings : []
+
+            persistedSettings
+                .filter((setting: any) =>
+                    setting.name.startsWith(`${groupName}.`)
+                )
+                .forEach((setting: any) => {
+                    const [group, key] = setting.name.split('.')
+                    if (!model[group]) model[group] = {}
+
+                    model[group][key] = this.getTypedSettingValue(
+                        settingGroup,
+                        setting
+                    )
+                })
+
+            this.model = model
         })
     }
 

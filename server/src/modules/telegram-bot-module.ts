@@ -21,14 +21,22 @@ const _availableSettingsMessage: string =
     `• \`polling_rate\` \\- Number of seconds between each polling\\.\n` +
     `• \`snapshot_persistance_interval\` \\- Number of seconds between each snapshot persistance\\.\n`
 
+const telegramSettingNames: Record<string, string> = {
+    polling_rate: 'general.polling_rate',
+    snapshot_persistance_interval: 'general.snapshot_persistance_interval',
+}
+
 export class TelegramBotModule extends ModuleBase {
     static MODULE_NAME = 'telegram_bot'
     static SETTING_TELEGRAM_BOT_TOKEN =
         TelegramBotModule.MODULE_NAME + '.telegram_bot_token'
+    static SETTING_ALLOWED_USER_IDS =
+        TelegramBotModule.MODULE_NAME + '.allowed_user_ids'
 
     private _bot: Telegraf = undefined as any
 
     private _token: string | null | undefined = null
+    private _allowedUserIds = new Set<number>()
 
     constructor() {
         super(TelegramBotModule.MODULE_NAME)
@@ -47,6 +55,7 @@ export class TelegramBotModule extends ModuleBase {
         return [
             ...super.getObservedSettings(),
             TelegramBotModule.SETTING_TELEGRAM_BOT_TOKEN,
+            TelegramBotModule.SETTING_ALLOWED_USER_IDS,
         ]
     }
 
@@ -55,6 +64,14 @@ export class TelegramBotModule extends ModuleBase {
             this._token = value
             this.createTelegramBot()
 
+            return true
+        } else if (name === TelegramBotModule.SETTING_ALLOWED_USER_IDS) {
+            this._allowedUserIds = new Set(
+                `${value ?? ''}`
+                    .split(',')
+                    .map(id => Number(id.trim()))
+                    .filter(id => Number.isSafeInteger(id) && id > 0)
+            )
             return true
         } else {
             return super.onSettingChange(name, value)
@@ -70,21 +87,34 @@ export class TelegramBotModule extends ModuleBase {
 
         settings[TelegramBotModule.MODULE_NAME] = [
             ...settings[TelegramBotModule.MODULE_NAME],
-            ...[
-                {
-                    group: `${TelegramBotModule.MODULE_NAME}.token`,
-                    schema: {
-                        type: 'object',
-                        properties: {
-                            [TelegramBotModule.SETTING_TELEGRAM_BOT_TOKEN]: {
-                                type: 'string',
-                                minLength: 1,
-                                default: '',
-                            },
+            {
+                group: `${TelegramBotModule.MODULE_NAME}.token`,
+                schema: {
+                    type: 'object',
+                    properties: {
+                        [TelegramBotModule.SETTING_TELEGRAM_BOT_TOKEN]: {
+                            type: 'string',
+                            minLength: 1,
+                            default: '',
+                            secret: true,
                         },
                     },
                 },
-            ],
+            },
+            {
+                group: `${TelegramBotModule.MODULE_NAME}.access`,
+                schema: {
+                    type: 'object',
+                    properties: {
+                        [TelegramBotModule.SETTING_ALLOWED_USER_IDS]: {
+                            type: 'string',
+                            maxLength: 512,
+                            pattern: '^\\s*(\\d+(\\s*,\\s*\\d+)*)?\\s*$',
+                            default: '',
+                        },
+                    },
+                },
+            },
         ]
 
         return settings
@@ -125,6 +155,18 @@ export class TelegramBotModule extends ModuleBase {
         }
 
         this._bot = new Telegraf(this._token)
+        this._bot.use((ctx, next) => {
+            const messageText =
+                ctx.message && 'text' in ctx.message ? ctx.message.text : ''
+            const command = messageText.split(/\s/, 1)[0].split('@')[0]
+
+            if (command === '/id') return next()
+            if (!ctx.from || !this._allowedUserIds.has(ctx.from.id)) {
+                return
+            }
+
+            return next()
+        })
         this._bot.catch((err: any, ctx: Context) =>
             this._logger.error('Telegram bot error', { error: err })
         )
@@ -133,12 +175,16 @@ export class TelegramBotModule extends ModuleBase {
             ctx.replyWithMarkdownV2(this.getHelpMessage(ctx))
         )
 
+        this._bot.command('id', (ctx: Context) =>
+            ctx.reply(`Your Telegram user ID: ${ctx.from?.id ?? 'unknown'}`)
+        )
+
         this._bot.command('live', (ctx: Context) => {
             ctx.replyWithMarkdownV2(this.handleCommandLive(ctx))
         })
 
-        this._bot.command('set', (ctx: Context) => {
-            ctx.replyWithMarkdownV2(this.handleCommandSet(ctx))
+        this._bot.command('set', async (ctx: Context) => {
+            await ctx.replyWithMarkdownV2(await this.handleCommandSet(ctx))
         })
 
         this._bot.command('get', async (ctx: Context) => {
@@ -153,6 +199,7 @@ export class TelegramBotModule extends ModuleBase {
 
         this._bot.telegram.setMyCommands([
             { command: 'help', description: 'Show help message' },
+            { command: 'id', description: 'Show your Telegram user ID' },
             { command: 'live', description: 'Get live data values' },
             { command: 'set', description: 'Set a setting value' },
             { command: 'get', description: 'Get a setting value' },
@@ -164,7 +211,7 @@ export class TelegramBotModule extends ModuleBase {
 
         this._bot.launch()
 
-        this._logger.info(`Telegram bot started with token "${this._token}"`)
+        this._logger.info('Telegram bot started')
     }
 
     getHelpMessage(ctx: Context): string {
@@ -172,6 +219,7 @@ export class TelegramBotModule extends ModuleBase {
         if (args.length === 0) {
             return (
                 `• \`/help <command>\` \\- Show this help message\\. Add command name as argument to get additional information\\.\nExample: \`/help set\`\n` +
+                `• \`/id\` \\- Show your Telegram user ID\\.\n` +
                 `• \`/live\` \\- Get live data values\n` +
                 `• \`/set\` \\- Set a setting value\n` +
                 `• \`/get\` \\- Get a setting value\n` +
@@ -205,8 +253,13 @@ export class TelegramBotModule extends ModuleBase {
             return '⚠️ Please provide a setting name\\. Example: `/get polling_rate`\\. Use `"/help get"` for more information\\.'
         } else {
             const settingName = args[0]
+            const storedSettingName = telegramSettingNames[settingName]
 
-            const settingValue = await getSettingValue(settingName)
+            if (!storedSettingName) {
+                return `⚠️ Setting \`"${escapeMarkdown(settingName)}"\` not found\\.`
+            }
+
+            const settingValue = await getSettingValue(storedSettingName)
 
             if (settingValue === undefined) {
                 return `⚠️ Setting \`"${escapeMarkdown(settingName)}"\` not found\\.`
@@ -216,7 +269,7 @@ export class TelegramBotModule extends ModuleBase {
         }
     }
 
-    handleCommandSet(ctx: Context): string {
+    async handleCommandSet(ctx: Context): Promise<string> {
         const args = ctx.text!.split(' ').slice(1)
 
         if (args.length < 2) {
@@ -238,7 +291,10 @@ export class TelegramBotModule extends ModuleBase {
             if (errors?.polling_rate || errors?.snapshot_persistance_interval) {
                 return `⚠️ Error while validating value for setting \`"${escapeMarkdown(settingName)}"\`. Please check the value and try again\\.`
             } else {
-                setSettingValue(settingName, settingValue)
+                await setSettingValue(
+                    telegramSettingNames[settingName],
+                    settingValue
+                )
                 return `✅ Setting \`"${escapeMarkdown(settingName)}"\` updated to \`"${escapeMarkdown(settingValue)}"\``
             }
         }

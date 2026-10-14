@@ -46,41 +46,34 @@ If you would like to support this project, please consider buying me a coffee.
 
 ## Quickstart
 
-### Step 1: Ensure Docker Componse is installed
+### Docker Registry Image
 
-Docker Compose is the easiest way to start and maintain your Homebridge Docker image. Make sure you have the latest version of the docker-compose command installed on your system.
+The published `energypilot/energypilot:latest` image can be started directly with Docker. Persist `/data`; the container reads an optional `/data/.env` before starting the server. Variables explicitly supplied by the container platform take precedence.
 
-See https://docs.docker.com/compose/install/ for instructions.
+Create the data directory and a token file:
 
-### Step 2: Create Docker Compose Manifest
-
-After ensuring Docker Compose is installed create a new file named docker-compose.yml that contains the following:
-
-```yml
-services:
-    energypilot:
-        container_name: energypilot-io
-        image: energypilot/energypilot:latest
-        restart: unless-stopped
-        network_mode: host
-
-        volumes:
-            # For persisting EnergyPilot's databases and common configuration
-            - ./data/:/data
-        ports:
-            # Default Web UI Port
-            - '3000:3000/tcp'
+```sh
+mkdir -p data
+printf 'API_TOKEN=%s\n' "$(openssl rand -hex 32)" > data/.env
+chmod 600 data/.env
 ```
 
-> [!NOTE]
-> Volumes are recommended for persisting data across container re-creations for updating images.
+Start the registry image and mount the same directory for persistent data:
 
-### Step 3: Start EnergyPilot.io
-
-Run the following command to start the Homebridge Docker container:
-
+```sh
+docker run -d --name energypilot-io --restart unless-stopped \
+  -p 3000:3000 -e HOST=0.0.0.0 \
+  -v "$(pwd)/data:/data" energypilot/energypilot:latest
 ```
-docker-compose up -d
+
+Alternatively, configure `API_TOKEN` directly in the container platform's environment settings and omit `data/.env`. The dashboard requests the token on its first API call and keeps it for the browser session. The token protects the REST API, MCP endpoint, and live WebSocket data.
+
+### Advanced: Docker Compose
+
+Compose is an optional advanced deployment path. The provided `compose.yaml` mounts `./data` at `/data`, so the same `data/.env` file works without a project-root `.env` file:
+
+```sh
+docker compose up -d
 ```
 
 ## Create Telegram bot token
@@ -89,6 +82,8 @@ docker-compose up -d
 - Send the command `/newbot` and follow the instructions in the chat
 - After completing all steps, the Telegram bot token will be created and returned in the chat
 - Paste the token into the settings page of your EnergyPilot.io instance
+- Configure the Telegram user IDs allowed to use the bot; access is denied until at least one ID is set
+- Send `/id` to the bot to find your Telegram user ID before adding it to the allowlist
 - You can start chatting to your created bot and interact with your EnergyPilot.io instance from anywhere in the world
 
 ## Setup Development Environment

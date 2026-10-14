@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing'
 
-import { EnergyDistribution } from './energy-distribution'
+import { EnergyDistributionWidget } from './energy-distribution'
 
-describe('EnergyDistribution', () => {
-    let component: EnergyDistribution
-    let fixture: ComponentFixture<EnergyDistribution>
+describe('EnergyDistributionWidget', () => {
+    let component: EnergyDistributionWidget
+    let fixture: ComponentFixture<EnergyDistributionWidget>
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            imports: [EnergyDistribution],
+            imports: [EnergyDistributionWidget],
         }).compileComponents()
 
-        fixture = TestBed.createComponent(EnergyDistribution)
+        fixture = TestBed.createComponent(EnergyDistributionWidget)
         component = fixture.componentInstance
         fixture.detectChanges()
     })

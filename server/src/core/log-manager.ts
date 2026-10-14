@@ -3,6 +3,7 @@ import path from 'node:path'
 import adze, { setup } from 'adze'
 import TransportFile from '@adze/transport-file'
 import AdzeGlobal from 'adze/dist/adze-global.js'
+import { getDataDirectory } from './data-directory.js'
 
 const _levels: { [key: string]: number } = {
     error: 1,
@@ -16,11 +17,11 @@ const _levels: { [key: string]: number } = {
 export type ChildLogger = adze<string, unknown>
 
 const _fileTransport = new TransportFile({
-    filename: path.join(process.env.DATA_DIR!, 'energypilot-io'),
+    filename: path.join(getDataDirectory(), 'energypilot-io'),
     size: '10M',
     extension: '.log',
     end_stream: true,
-    audit_file: path.join(process.env.DATA_DIR!, 'energypilot-io.audit.json'),
+    audit_file: path.join(getDataDirectory(), 'energypilot-io.audit.json'),
 } as any)
 
 await _fileTransport.load()
@@ -43,5 +44,3 @@ export async function initLogging() {
 export function getLogger(module: string): adze<string, unknown> {
     return adze.timestamp.namespace(module).seal()
 }
-
-

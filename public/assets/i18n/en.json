@@ -102,6 +102,15 @@
                 },
 
                 "telegram_bot_token": "Token"
+            },
+
+            "access": {
+                "group": {
+                    "title": "Access control",
+                    "description": "Only these Telegram user IDs can use bot commands. Separate multiple IDs with commas. Leave empty to deny all users."
+                },
+
+                "allowed_user_ids": "Allowed Telegram user IDs"
             }
         },
 

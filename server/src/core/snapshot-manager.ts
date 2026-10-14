@@ -10,6 +10,10 @@ import { GridDevice } from '@/devices/grid-device.js'
 import { PVDevice } from '@/devices/pv-device.js'
 import { ConsumerDevice } from '@/devices/consumer-device.js'
 import {
+    DEFAULT_POLLING_RATE,
+    DEFAULT_SNAPSHOT_PERSISTANCE_INTERVAL,
+    MAX_POLLING_RATE,
+    MAX_SNAPSHOT_PERSISTANCE_INTERVAL,
     MIN_POLLING_RATE,
     MIN_SNAPSHOT_PERSISTANCE_INTERVAL,
     registerSettingChangeObserver,
@@ -47,17 +51,25 @@ class SnapshotManagerSettingChangeObserver extends SettingChangeObserver {
     }
 
     onSettingChange(name: string, value?: any): boolean {
-        if (!value) return false
+        if (value === undefined || value === null) return false
 
         if (name === SETTING_POLLING_RATE) {
-            _pollInterval = Math.max(MIN_POLLING_RATE, parseInt(value)) * 1000
+            const seconds = Number(value)
+            _pollInterval =
+                Number.isInteger(seconds) && seconds <= MAX_POLLING_RATE
+                    ? Math.max(MIN_POLLING_RATE, seconds) * 1000
+                    : DEFAULT_POLLING_RATE * 1000
             createPollingInterval()
 
             return true
         } else if (name === SETTING_SNAPSHOT_PERSISTANCE_INTERVAL) {
+            const seconds = Number(value)
             _snapshotPersistInterval =
-                Math.max(MIN_SNAPSHOT_PERSISTANCE_INTERVAL, parseInt(value)) *
-                1000
+                Number.isInteger(seconds) &&
+                seconds <= MAX_SNAPSHOT_PERSISTANCE_INTERVAL
+                    ? Math.max(MIN_SNAPSHOT_PERSISTANCE_INTERVAL, seconds) *
+                      1000
+                    : DEFAULT_SNAPSHOT_PERSISTANCE_INTERVAL * 1000
             createSnapshotPersistInterval()
 
             return true
@@ -161,8 +173,7 @@ export async function findSnapshotsBetweenDates(params: {
     // A negative limit means "the most recent N", so the sort flips.
     const orderBy = {
         created_at: ((params.limit ?? 0) < 0 ? 'DESC' : 'ASC') as
-            | 'ASC'
-            | 'DESC',
+            'ASC' | 'DESC',
     }
 
     const limit = params.limit

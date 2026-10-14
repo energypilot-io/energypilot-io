@@ -12,7 +12,7 @@
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
         "moduleResolution": "nodenext",
-        "ignoreDeprecations": "6.0",
+        "ignoreDeprecations": "5.0",
         "experimentalDecorators": true,
         "noFallthroughCasesInSwitch": true,
         "allowUnreachableCode": false,

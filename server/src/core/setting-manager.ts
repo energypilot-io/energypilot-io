@@ -17,9 +17,11 @@ export const SETTING_SNAPSHOT_PERSISTANCE_INTERVAL =
 
 export const DEFAULT_POLLING_RATE = 10
 export const MIN_POLLING_RATE = 10
+export const MAX_POLLING_RATE = 200
 
 export const DEFAULT_SNAPSHOT_PERSISTANCE_INTERVAL = 5 * 60
 export const MIN_SNAPSHOT_PERSISTANCE_INTERVAL = 60
+export const MAX_SNAPSHOT_PERSISTANCE_INTERVAL = 60 * 60
 
 export const SETTING_BACKUP_ENABLED = 'general.backup_enabled'
 export const SETTING_BACKUP_RETENTION = 'general.backup_retention'
@@ -41,6 +43,7 @@ export function getSettingSchema() {
                         [SETTING_POLLING_RATE]: {
                             type: 'number',
                             minimum: MIN_POLLING_RATE,
+                            maximum: MAX_POLLING_RATE,
                             default: DEFAULT_POLLING_RATE,
 
                             widget: {
@@ -57,6 +60,7 @@ export function getSettingSchema() {
                         [SETTING_SNAPSHOT_PERSISTANCE_INTERVAL]: {
                             type: 'number',
                             minimum: MIN_SNAPSHOT_PERSISTANCE_INTERVAL,
+                            maximum: MAX_SNAPSHOT_PERSISTANCE_INTERVAL,
                             default: DEFAULT_SNAPSHOT_PERSISTANCE_INTERVAL,
 
                             widget: {
@@ -109,21 +113,77 @@ export function getSettingSchema() {
     return settingGroups
 }
 
+function getSettingProperties(
+    settingGroup: string,
+    settingName: string
+): Record<string, unknown> | undefined {
+    const settingGroups = getSettingSchema()[settingGroup] as
+        | Array<{
+              schema?: { properties?: Record<string, unknown> }
+          }>
+        | undefined
+
+    return settingGroups
+        ?.flatMap(group => Object.entries(group.schema?.properties ?? {}))
+        .find(([name]) => name === `${settingGroup}.${settingName}`)?.[1] as
+        Record<string, unknown> | undefined
+}
+
+export function isSecretSetting(
+    settingGroup: string,
+    settingName: string
+): boolean {
+    return getSettingProperties(settingGroup, settingName)?.secret === true
+}
+
 export function validateSettingsInput(
     settingGroup: string,
     settingName: string,
-    value: any
+    value: unknown
 ): {
     [key: string]: string
 } {
-    return {}
+    const properties = getSettingProperties(settingGroup, settingName)
 
-    // return {
-    //     ...validateSettingPollingRate(settings.polling_rate),
-    //     ...validateSettingSnapshotPersistenceInterval(
-    //         settings.snapshot_persistance_interval
-    //     ),
-    // }
+    const invalidValue = {
+        [settingName]: 'messages.validations.invalid_value',
+    }
+
+    if (!properties) return invalidValue
+    if (properties.secret === true && value === '') return {}
+
+    if (properties.type === 'number') {
+        if (typeof value !== 'number' || !Number.isFinite(value)) {
+            return invalidValue
+        }
+        if (
+            typeof properties.minimum === 'number' &&
+            value < properties.minimum
+        ) {
+            return invalidValue
+        }
+        if (
+            typeof properties.maximum === 'number' &&
+            value > properties.maximum
+        ) {
+            return invalidValue
+        }
+    } else if (
+        properties.type === 'string' &&
+        (typeof value !== 'string' ||
+            (typeof properties.minLength === 'number' &&
+                value.length < properties.minLength) ||
+            (typeof properties.maxLength === 'number' &&
+                value.length > properties.maxLength) ||
+            (typeof properties.pattern === 'string' &&
+                !new RegExp(properties.pattern).test(value)))
+    ) {
+        return invalidValue
+    } else if (properties.type === 'boolean' && typeof value !== 'boolean') {
+        return invalidValue
+    }
+
+    return {}
 }
 
 export function validateSettingPollingRate(polling_rate: any): {
@@ -131,7 +191,12 @@ export function validateSettingPollingRate(polling_rate: any): {
 } {
     return {
         ...validateIsNotEmpty('polling_rate', polling_rate),
-        ...validateIntegerInRange('polling_rate', polling_rate, 1, 200),
+        ...validateIntegerInRange(
+            'polling_rate',
+            polling_rate,
+            MIN_POLLING_RATE,
+            MAX_POLLING_RATE
+        ),
     }
 }
 
@@ -148,8 +213,8 @@ export function validateSettingSnapshotPersistenceInterval(
         ...validateIntegerInRange(
             'snapshot_persistance_interval',
             snapshot_persistance_interval,
-            1 * 60,
-            60 * 60
+            MIN_SNAPSHOT_PERSISTANCE_INTERVAL,
+            MAX_SNAPSHOT_PERSISTANCE_INTERVAL
         ),
     }
 }
@@ -219,5 +284,3 @@ export class SettingEventSubscriber implements EventSubscriber<Setting> {
         }
     }
 }
-
-

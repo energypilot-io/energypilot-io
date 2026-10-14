@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing'
 
-import { EnergyKpis } from './energy-kpis'
+import { EnergyKpisWidget } from './energy-kpis'
 
-describe('EnergyKpis', () => {
-    let component: EnergyKpis
-    let fixture: ComponentFixture<EnergyKpis>
+describe('EnergyKpisWidget', () => {
+    let component: EnergyKpisWidget
+    let fixture: ComponentFixture<EnergyKpisWidget>
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            imports: [EnergyKpis],
+            imports: [EnergyKpisWidget],
         }).compileComponents()
 
-        fixture = TestBed.createComponent(EnergyKpis)
+        fixture = TestBed.createComponent(EnergyKpisWidget)
         component = fixture.componentInstance
         fixture.detectChanges()
     })
