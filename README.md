@@ -54,9 +54,11 @@ Create the data directory and a token file:
 
 ```sh
 mkdir -p data
-printf 'API_TOKEN=%s\n' "$(openssl rand -hex 32)" > data/.env
+printf 'API_PASSWORD=energypilot\n' > data/.env
 chmod 600 data/.env
 ```
+
+`energypilot` is the initial password. Replace it with any password you choose, for example `API_PASSWORD=my-private-password`. Set `API_PASSWORD=` to disable password prompts; the dashboard then displays a warning because anyone with network access can make changes.
 
 Start the registry image and mount the same directory for persistent data:
 
@@ -66,11 +68,11 @@ docker run -d --name energypilot-io --restart unless-stopped \
   -v "$(pwd)/data:/data" energypilot/energypilot:latest
 ```
 
-Alternatively, configure `API_TOKEN` directly in the container platform's environment settings and omit `data/.env`. The dashboard requests the token on its first API call and keeps it for the browser session. The token protects the REST API, MCP endpoint, and live WebSocket data.
+Alternatively, configure `API_PASSWORD` directly in the container platform's environment settings and omit `data/.env`. The dashboard reads pages and live values without a password and prompts for the password only when changing devices or settings. MCP requests require the password; Telegram continues to require an allowed user ID.
 
 ### Advanced: Docker Compose
 
-Compose is an optional advanced deployment path. The provided `compose.yaml` mounts `./data` at `/data`, so the same `data/.env` file works without a project-root `.env` file:
+Compose is an optional advanced deployment path. The provided `compose.yaml` mounts `./data` at `/data`, so the same `data/.env` file works without a project-root `.env` file. To override the data-directory file, add `API_PASSWORD` to the service's `environment` section:
 
 ```sh
 docker compose up -d

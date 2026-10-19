@@ -16,21 +16,11 @@ import { withFormlyBootstrap } from '@ngx-formly/bootstrap'
 import { ObjectTypeComponent } from './types/object.type'
 import { registerTranslateExtension } from './extensions/translate.extension'
 import { provideHttpClient, withInterceptors } from '@angular/common/http'
-import {
-    API_TOKEN_STORAGE_KEY,
-    apiAuthInterceptor,
-} from './services/api-auth.interceptor'
+import { apiAuthInterceptor } from './services/api-auth.interceptor'
 
 const config: SocketIoConfig = {
     url: '/',
-    options: {
-        transports: ['websocket'],
-        reconnection: true,
-        auth: (callback: (data: { token: string }) => void) =>
-            callback({
-                token: sessionStorage.getItem(API_TOKEN_STORAGE_KEY) ?? '',
-            }),
-    } as unknown as SocketIoConfig['options'],
+    options: { transports: ['websocket'], reconnection: true },
 }
 
 export const appConfig: ApplicationConfig = {

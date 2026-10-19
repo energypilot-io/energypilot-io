@@ -45,6 +45,18 @@
                 </div>
             </div>
 
+            @if (apiPasswordStatus(); as status) {
+                @if (!status.passwordRequired) {
+                    <div class="alert alert-warning m-2" role="alert">
+                        {{ 'application.passwordDisabledWarning' | translate }}
+                    </div>
+                } @else if (status.usingDefaultPassword) {
+                    <div class="alert alert-warning m-2" role="alert">
+                        {{ 'application.defaultPasswordWarning' | translate }}
+                    </div>
+                }
+            }
+
             <div class="p-2">
                 <router-outlet />
             </div>

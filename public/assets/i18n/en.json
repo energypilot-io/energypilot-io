@@ -63,7 +63,9 @@
 
     "application": {
         "name": "EnergyPilot.io",
-        "version": "v2026.5"
+        "version": "v2026.5",
+        "passwordDisabledWarning": "No password is set. Anyone with access to this network can change devices and settings.",
+        "defaultPasswordWarning": "The default password 'energypilot' is active. Set API_PASSWORD to a private password."
     },
 
     "settings": {

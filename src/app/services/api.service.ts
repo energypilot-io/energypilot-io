@@ -6,6 +6,16 @@ import { Observable } from 'rxjs'
 export class ApiService {
     constructor(private http: HttpClient) {}
 
+    getApiAuthStatus(): Observable<{
+        passwordRequired: boolean
+        usingDefaultPassword: boolean
+    }> {
+        return this.http.get<{
+            passwordRequired: boolean
+            usingDefaultPassword: boolean
+        }>('/api/v1/auth/status')
+    }
+
     getData(): Observable<object> {
         return this.http.get<object>('/api/v1/devices/registry-schema')
     }

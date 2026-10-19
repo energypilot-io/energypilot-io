@@ -1,11 +1,4 @@
-import {
-    Component,
-    DestroyRef,
-    inject,
-    Renderer2,
-    signal,
-    ViewEncapsulation,
-} from '@angular/core'
+import { Component, inject, signal, ViewEncapsulation } from '@angular/core'
 import { RouterOutlet } from '@angular/router'
 import { Sidenav } from './components/ui/sidenav/sidenav'
 import { RouterModule } from '@angular/router'
@@ -22,6 +15,7 @@ import { LanguageSwitcher } from './components/ui/language-switcher/language-swi
 import { NgbOffcanvas } from '@ng-bootstrap/ng-bootstrap'
 import { TranslatePipe } from '@ngx-translate/core'
 import { ToastContainer } from './components/ui/toast-container/toast-container'
+import { ApiService } from './services/api.service'
 
 @Component({
     selector: 'app-root',
@@ -45,15 +39,23 @@ import { ToastContainer } from './components/ui/toast-container/toast-container'
 export class App {
     private translate = inject(TranslateService)
     private offcanvasService = inject(NgbOffcanvas)
+    private api = inject(ApiService)
 
     static storageKey = 'energypilot-sidebar-collapsed'
 
     protected sidenavCollapsed = signal(false)
+    protected apiPasswordStatus = signal<{
+        passwordRequired: boolean
+        usingDefaultPassword: boolean
+    } | null>(null)
 
     constructor() {
         this.translate.addLangs(['de', 'en'])
         this.translate.setFallbackLang('en')
         this.translate.use(this.translate.getBrowserLang() ?? 'en')
+        this.api
+            .getApiAuthStatus()
+            .subscribe(status => this.apiPasswordStatus.set(status))
     }
 
     ngOnInit(): void {
